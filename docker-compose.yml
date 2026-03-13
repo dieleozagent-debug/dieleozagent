@@ -1,0 +1,25 @@
+services:
+  agente:
+    build: .
+    container_name: opengravity-agente
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      # Datos persistentes del agente (memoria, logs)
+      - /home/administrador/data-agente:/app/data
+      # Repo LFC2 montado como espacio de trabajo del agente
+      - /home/administrador/docker/LFC2:/app/repos/LFC2
+      # Contratos PDF montados temporalmente para ingesta RAG
+      - '/home/administrador/docker/agente/Contrato pdf:/app/Contrato pdf'
+    networks:
+      - supabase_network_sicc-local
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  supabase_network_sicc-local:
+    external: true

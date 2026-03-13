@@ -1,0 +1,20 @@
+# Variables de entorno — NUNCA subir a Git
+.env
+
+# Dependencias Node.js
+node_modules/
+
+# Datos persistentes del agente (memoria local)
+data/
+
+# Logs
+*.log
+logs/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
