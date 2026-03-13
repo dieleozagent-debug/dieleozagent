@@ -47,7 +47,16 @@ Desde la carpeta raíz del proyecto (`LFC2/`), puedes ejecutar:
 
 ---
 
-## ⚠️ Reglas de Oro v2.2
+## 🛡️ Estabilidad y Resiliencia (v2.2.1)
+
+El agente ahora es más robusto ante fallos externos:
+*   **Safe-Messaging:** Si Telegram falla al procesar el formato (Markdown), el bot reintenta automáticamente en texto plano. No más silencios.
+*   **Fallback Inteligente:** Si Gemini agota su cuota (Error 429), el bot salta a **Groq (Llama 3.3)** en milisegundos para mantener la conversación fluida.
+*   **Purga de Docker:** El sistema se mantiene limpio de imágenes huérfanas automáticamente después de cada actualización.
+
+---
+
+## ⚠️ Reglas de Oro v2.2.1
 *   **SSOT:** Si el DBCD dice "No", el bot no te dejará decir "Sí" sin una DT que justifique la excepción.
 *   **Trazabilidad:** Todos los cambios importantes terminan en un commit de Git con el ID del dictamen técnico.
-*   **Identidad:** El bot es tu **Administrador Contractual + Diseñador UX**.
+*   **Identidad:** El bot es tu **Administrador Contractual + Diseñador UX Specialist**.

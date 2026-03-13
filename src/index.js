@@ -46,9 +46,8 @@ setInterval(async () => {
   if (tareas.length > 0) {
     const lista = tareas.map(t => `• *${t.nombre}:* ${t.descripcion}`).join('\n');
     try {
-      await bot.sendMessage(config.telegram.userId,
-        `⏰ *Heartbeat — Tareas pendientes:*\n\n${lista}`,
-        { parse_mode: 'Markdown' }
+      await safeSendMessage(config.telegram.userId,
+        `⏰ *Heartbeat — Tareas pendientes:*\n\n${lista}`
       );
     } catch (err) {
       console.warn(`[HEARTBEAT] ⚠️ ${err.message}`);
@@ -62,7 +61,12 @@ bot.on('message', async (msg) => {
   const userId = String(msg.from.id);
   const texto  = msg.text;
 
-  if (userId !== config.telegram.userId) return;
+  console.log(`[BOT] 📩 Recibido de ${userId} (Esperado: ${config.telegram.userId}): "${texto ? texto.substring(0, 50) : '(sin texto)'}"`);
+
+  if (userId !== config.telegram.userId) {
+    console.warn(`[BOT] 🛡️ Mensaje ignorado de usuario no autorizado: ${userId}`);
+    return;
+  }
 
   if (!texto) {
     await bot.sendMessage(chatId, '📎 Por ahora solo proceso texto.');
@@ -71,7 +75,7 @@ bot.on('message', async (msg) => {
 
   // ── Comandos ──────────────────────────────────────────────────────────────
   if (texto === '/start' || texto === '/hola') {
-    await bot.sendMessage(chatId,
+    await safeSendMessage(chatId,
       `👋 ¡Hola Diego! Soy *${config.agent.name}*.\n\n` +
       `🧠 Cerebro · 💾 Memoria · 📧 Gmail · 🐙 GitHub\n\n` +
       `*/limpiar* · */estado* · */cerebro* · */memoria*\n` +
@@ -80,8 +84,7 @@ bot.on('message', async (msg) => {
       `*/git commits* — Últimos commits\n` +
       `*/git issues* — Issues abiertos\n` +
       `*/git ls [ruta]* — Listar archivos\n` +
-      `*/git cat archivo* — Ver contenido`,
-      { parse_mode: 'Markdown' }
+      `*/git cat archivo* — Ver contenido`
     );
     return;
   }
@@ -133,7 +136,7 @@ bot.on('message', async (msg) => {
       }
     } catch (err) {
       console.error(`[GITHUB] ❌ ${err.message}`);
-      await bot.sendMessage(chatId, `❌ Error GitHub: ${err.message}`);
+      await safeSendMessage(chatId, `❌ Error GitHub: ${err.message}`);
     }
     return;
   }
@@ -143,9 +146,8 @@ bot.on('message', async (msg) => {
     try {
       const correos = await leerNoLeidos(5);
       const resumen = formatearCorreos(correos);
-      await bot.sendMessage(chatId,
-        `📧 *Correos no leídos — dieleozagent@gmail.com*\n\n${resumen}`,
-        { parse_mode: 'Markdown' }
+      await safeSendMessage(chatId,
+        `📧 *Correos no leídos — dieleozagent@gmail.com*\n\n${resumen}`
       );
     } catch (err) {
       console.error(`[GMAIL] ❌ ${err.message}`);
@@ -182,31 +184,28 @@ bot.on('message', async (msg) => {
   }
 
   if (texto === '/estado') {
-    await bot.sendMessage(chatId,
+    await safeSendMessage(chatId,
       `📊 *Estado de ${config.agent.name}*\n\n` +
       `• Proveedor: *${config.ai.primaryProvider}*\n` +
       `• Gemini: ${config.ai.gemini.apiKey ? '✅' : '❌'}\n` +
       `• Groq: ${config.ai.groq.apiKey ? '✅' : '❌'}\n` +
       `• OpenRouter: ${config.ai.openrouter.apiKey ? '✅' : '❌'}\n\n` +
-      `💾 ${estadoMemoria()}`,
-      { parse_mode: 'Markdown' }
+      `💾 ${estadoMemoria()}`
     );
     return;
   }
 
   if (texto === '/cerebro') {
-    await bot.sendMessage(chatId,
-      `🧠 *Archivos del cerebro:*\n\n${estadoBrain()}`,
-      { parse_mode: 'Markdown' }
+    await safeSendMessage(chatId,
+      `🧠 *Archivos del cerebro:*\n\n${estadoBrain()}`
     );
     return;
   }
 
   if (texto === '/memoria') {
-    await bot.sendMessage(chatId,
+    await safeSendMessage(chatId,
       `💾 *Memoria persistente:*\n\n${estadoMemoria()}\n\n` +
-      `📁 Ubicación: \`/home/administrador/data-agente/memory/\``,
-      { parse_mode: 'Markdown' }
+      `📁 Ubicación: \`/home/administrador/data-agente/memory/\``
     );
     return;
   }
