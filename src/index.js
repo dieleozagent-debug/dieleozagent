@@ -16,6 +16,22 @@ const { infoRepo, ultimosCommits, issuesAbiertos, listarCarpeta, leerArchivo,
 const DOWNLOADS_DIR = '/app/data/downloads';
 if (!fs.existsSync(DOWNLOADS_DIR)) fs.mkdirSync(DOWNLOADS_DIR, { recursive: true });
 
+/**
+ * Envía un mensaje de forma segura, intentando Markdown primero, 
+ * y cayendo a texto plano si falla el parseo.
+ */
+async function safeSendMessage(chatId, text, options = {}) {
+  try {
+    return await bot.sendMessage(chatId, text, { ...options, parse_mode: 'Markdown' });
+  } catch (err) {
+    if (err.message.includes('can\'t parse entities')) {
+      console.warn('[BOT] ⚠️ Error de Markdown, reintentando en texto plano...');
+      return await bot.sendMessage(chatId, text, { ...options, parse_mode: undefined });
+    }
+    throw err;
+  }
+}
+
 // ── Inicializar brain + memoria al arrancar ───────────────────────────────────
 inicializarBrain();
 
@@ -202,11 +218,11 @@ bot.on('message', async (msg) => {
   try {
     const { texto: respuesta, proveedor } = await procesarMensaje(texto, null);
     guardar(texto, respuesta, proveedor);
-    await bot.sendMessage(chatId, respuesta, { parse_mode: 'Markdown' });
+    await safeSendMessage(chatId, respuesta);
     console.log(`[BOT] ✅ Respondido con ${proveedor}`);
   } catch (err) {
     console.error(`[BOT] ❌ ${err.message}`);
-    await bot.sendMessage(chatId, '⚠️ Error inesperado. Revisa los logs.');
+    await safeSendMessage(chatId, '⚠️ Error inesperado. Revisa los logs.');
   }
 });
 
@@ -237,11 +253,11 @@ async function procesarArchivo(msg, msgTipo) {
     fs.unlinkSync(subPath);
 
     guardar(`[Archivo: ${fileName}] ${caption}`, respuesta, proveedor);
-    await bot.sendMessage(chatId, respuesta, { parse_mode: 'Markdown' });
+    await safeSendMessage(chatId, respuesta);
     
   } catch (err) {
     console.error(`[BOT] ❌ Error procesando archivo: ${err.message}`);
-    await bot.sendMessage(chatId, '⚠️ Error analizando el archivo asegúrate de que sea un PDF/Imagen soportado por Gemini.');
+    await safeSendMessage(chatId, '⚠️ Error analizando el archivo asegúrate de que sea un PDF/Imagen soportado por Gemini.');
   }
 }
 

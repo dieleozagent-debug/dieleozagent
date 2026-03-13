@@ -33,7 +33,7 @@ const config = {
 
     groq: {
       apiKey: env('GROQ_API_KEY', false),
-      model: env('GROQ_MODEL', false) || 'llama3-70b-8192',
+      model: env('GROQ_MODEL', false) || 'llama-3.3-70b-versatile',
     },
 
     openrouter: {

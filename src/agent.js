@@ -6,6 +6,12 @@ const { construirSystemPrompt } = require('./brain');
 const { cargarMemoriaReciente } = require('./memory');
 const { buscarSimilares } = require('./supabase');
 
+// Importaciones de IA (Movidas arriba para debugging)
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleAIFileManager } = require('@google/generative-ai/server');
+const Groq = require('groq-sdk');
+const OpenAI = require('openai');
+
 // ── Historial de sesión (en RAM, máx 20 intercambios) ────────────────────────
 const historial = [];
 const MAX_HISTORIAL = 20;
@@ -31,9 +37,6 @@ function inicializarBrain() {
 // ── Proveedores de IA ─────────────────────────────────────────────────────────
 
 async function llamarGemini(mensajeUsuario, archivoTmpInfo, contextoRAG = '') {
-  const { GoogleGenerativeAI } = require('@google/generative-ai');
-  const { GoogleAIFileManager } = require('@google/generative-ai/server');
-  
   const genAI = new GoogleGenerativeAI(config.ai.gemini.apiKey);
   const fileManager = new GoogleAIFileManager(config.ai.gemini.apiKey);
   
@@ -41,6 +44,7 @@ async function llamarGemini(mensajeUsuario, archivoTmpInfo, contextoRAG = '') {
     ? SYSTEM_PROMPT + '\n\n' + contextoRAG 
     : SYSTEM_PROMPT;
 
+  console.log(`[AGENTE] 🔵 Invocando llamarGemini. Modelo: ${config.ai.gemini.model}`);
   const model = genAI.getGenerativeModel({
     model: config.ai.gemini.model,
     systemInstruction: systemInstruction,
@@ -87,7 +91,6 @@ async function llamarGemini(mensajeUsuario, archivoTmpInfo, contextoRAG = '') {
 }
 
 async function llamarGroq(mensajeUsuario, _, contextoRAG = '') {
-  const Groq = require('groq-sdk');
   const groq = new Groq({ apiKey: config.ai.groq.apiKey });
   
   const systemInstruction = contextoRAG 
@@ -107,7 +110,6 @@ async function llamarGroq(mensajeUsuario, _, contextoRAG = '') {
 }
 
 async function llamarOpenRouter(mensajeUsuario, _, contextoRAG = '') {
-  const OpenAI = require('openai');
   const client = new OpenAI({
     baseURL: 'https://openrouter.ai/api/v1',
     apiKey: config.ai.openrouter.apiKey,
@@ -140,10 +142,13 @@ function ordenProveedores() {
   ].filter(p => p.habilitado);
 
   const primario = config.ai.primaryProvider;
-  return [
+  console.log(`[AGENTE] 🔍 Debug ordenProveedores: primario=${primario}, keys: gemini=${!!config.ai.gemini.apiKey}, groq=${!!config.ai.groq.apiKey}, openrouter=${!!config.ai.openrouter.apiKey}`);
+  const res = [
     ...todos.filter(p => p.id === primario),
     ...todos.filter(p => p.id !== primario),
   ];
+  console.log(`[AGENTE] 📋 Orden de proveedores calculado: ${res.map(p => p.id).join(' -> ')}`);
+  return res;
 }
 
 /**
@@ -189,9 +194,10 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo) {
 
       return { texto: respuesta, proveedor: proveedor.id };
     } catch (err) {
-      console.warn(`[AGENTE] ⚠️ Fallo con ${proveedor.id}: ${err.message}`);
+      console.error(`[AGENTE] ❌ ERROR CRITICO en el loop con ${proveedor.id}:`, err);
     }
   }
+  console.log('[AGENTE] 💀 El loop de proveedores terminó sin éxito.');
   return {
     texto: '⚠️ Todos los proveedores fallaron o el archivo no es compatible.',
     proveedor: 'ninguno',

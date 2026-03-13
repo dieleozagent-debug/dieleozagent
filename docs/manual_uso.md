@@ -1,56 +1,53 @@
-# 📖 Manual de Uso del Agente OpenGravity (Telegram)
+# 📖 Manual de Uso del Agente LFC (Autoresearcher v2.2)
 
-Bienvenido a tu asistente personal de IA. Este bot está diseñado específicamente para asesorar en la gestión del proyecto **LFC (Concesión Línea Férrea Central S.A.S.)**.
-
----
-
-## 🚀 Cómo empezar
-1. Abre tu aplicación de Telegram.
-2. Busca al bot: `[Nombre del Bot o @agentedieleozbot]` (Asegúrate de estar usando el usuario autorizado).
-3. Envía `/start` para iniciar la sesión.
+Bienvenido a la versión avanzada de tu asistente IA. Este agente no solo responde preguntas, sino que **audita, investiga y optimiza** proactivamente el repositorio del proyecto.
 
 ---
 
-## 🎯 Tu Rol Contractual
-El agente actúa como el **Administrador Contractual EPC**. Sus respuestas están orientadas a la interpretación técnica-legal del proyecto La Dorada – Chiriguaná.
+## 🚀 Capacidades de "Autoresearcher"
+
+A diferencia de un bot tradicional, este agente opera bajo un ciclo de mejora continua:
+
+### 1. Auditoría y Saneamiento (DBCD Master)
+El bot utiliza el archivo `DBCD_CRITERIA.md` como su Fuente Única de Verdad (SSOT). 
+*   **Proactividad:** Escanea tus carpetas en busca de incoherencias (ej: términos obsoletos como ETCS o materiales que no cumplen el presupuesto).
+*   **Acción:** Detectará "zombis" informativos y te propondrá eliminarlos.
+
+### 2. Ciclo de Decisión Técnica (DT)
+Cada cambio importante en el proyecto sigue un flujo auditable:
+1.  **Tesis:** El bot te propone una mejora por Telegram (*"¿Qué tal si cambiamos X por Y?"*).
+2.  **Conversación:** Tú apruebas o ajustas la idea en el chat.
+3.  **DT Oficial:** El bot genera un archivo `.md` con YAML en la carpeta `II. Apendices Tecnicos/Decisiones_Tecnicas/` justificando el cambio.
+4.  **Ejecución:** El bot aplica el cambio en el WBS (Excel/JSON) y en los documentos técnicos automáticamente.
+
+### 3. Consultoría UX/UI Premium
+El bot ahora tiene un "ojo estético" para tus tableros de control:
+*   **Diseño Ejecutivo:** Puede transformar un dashboard simple en una interfaz de alto impacto (Glassmorphism, paletas HSL).
+*   **Justificación:** Sus propuestas incluyen el *Qué*, el *Por qué* y criterios de usabilidad.
 
 ---
 
-## 🧠 Capacidades Principales
+## 🛠️ Herramientas de Automatización (Linux-Native)
 
-### 1. Consulta del Contrato y Apéndices (RAG)
-El bot tiene "Super Memoria" de los documentos del contrato (incluyendo los escaneos de los Apéndices AT1-AT10).
-*   **Cómo usarlo:** Simplemente pregunta algo relacionado con el contrato.
-*   **Ejemplos:**
-    *   *"¿Cuáles son las obligaciones del EPC respecto a la Fibra Óptica?"*
-    *   *"¿Qué dice el AT3 sobre los enclavamientos?"*
-    *   *"¿Cuál es la multa por retraso en el hito de ingeniería?"*
-*   **Nota:** El bot buscará automáticamente en la base de datos de Supabase y te citará el texto original.
+Si necesitas ejecutar herramientas directamente en la terminal (Ubuntu), hemos unificado todo en el **LFC-CLI**:
 
-### 2. Análisis de Archivos Externos
-Puedes enviarle documentos que no estén en la base de datos original.
-*   **Cómo usarlo:** Arrastra y suelta un PDF, Word o Imagen al chat de Telegram.
-*   **Acción:** Una vez subido, pregúntale: *"Hazme un resumen crítico de este acta"* o *"Busca inconsistencias en este documento"*.
-
-### 3. Revisión con Metodología Punto 42
-El bot aplica un estándar profesional de revisión documental.
-*   **Cómo usarlo:** Pídele revisar un texto o documento bajo la metodología .42.
-*   **Resultado:** Te entregará un **Diagnóstico de Brechas** y una **Propuesta de Mejora** estructurada.
-
-### 4. Redacción de Comunicaciones Oficiales
-*   **Protocolo:** Si le pides redactar una carta, el bot se detendrá y te preguntará desde qué **rol** quieres escribir (Constructor, Interventoría, etc.).
-*   **Ejemplo:** *"Redacta un oficio para la interventoría sobre el retraso en el hito 2"*.
+### Comandos Principales:
+Desde la carpeta raíz del proyecto (`LFC2/`), puedes ejecutar:
+*   `./lfc.sh sync`: Sincroniza el WBS Presupuestal (.md) con las bases de datos (.json/.js) y actualiza los dashboards.
+*   `./lfc.sh cook`: Regenera los entregables en la **Carpeta X** basándose en los cambios de las carpetas de diseño (III, IV, V).
+*   `./lfc.sh serve`: Convierte tus documentos `.md` a formatos empresariales (**Word** y **HTML**) usando el binario de Pandoc optimizado.
+*   `./lfc.sh design`: Aplica automáticamente los tokens de diseño (colores, fuentes) a tus interfaces HTML.
 
 ---
 
-## 🛠️ Comandos Disponibles
-*   `/start`: Inicia o reinicia el saludo inicial.
-*   `/estado`: Muestra la salud del sistema (Cerebro, Memoria y Conexión).
-*   `/limpiar`: Borra el historial de la conversación actual (útil para cambiar de tema drásticamente).
+## 🎯 Consejos para una Mejor Interacción
+*   **Pídele Tesis:** "Revisa el Capítulo 4 y dame una Tesis de optimización de costos".
+*   **Envía PDFs:** Sigue siendo un experto en RAG. Puede leer un acta y decirte si viola algún criterio del DBCD.
+*   **Pide Dictámenes:** "Genera un DT para eliminar el ítem 1.1.20 y explica el ahorro en el CAPEX".
 
 ---
 
-## ⚠️ Consejos de Oro
-*   **Exactitud:** El bot tiene prohibido inventar numerales. Si no encuentra la información en el contrato, te lo dirá.
-*   **Citas:** Siempre exigirá o proveerá citas textuales: `[Documento], [Capítulo], [Numeral]`.
-*   **Contexto:** El bot recuerda lo que hablaron hoy y ayer, por lo que puedes decirle: *"Respecto a lo que hablamos hace un momento..."*.
+## ⚠️ Reglas de Oro v2.2
+*   **SSOT:** Si el DBCD dice "No", el bot no te dejará decir "Sí" sin una DT que justifique la excepción.
+*   **Trazabilidad:** Todos los cambios importantes terminan en un commit de Git con el ID del dictamen técnico.
+*   **Identidad:** El bot es tu **Administrador Contractual + Diseñador UX**.

@@ -1,5 +1,6 @@
-# 🏗️ Arquitectura del Sistema Antigravity — Autoresearch & Optimization
-> **Última actualización:** 2026-03-13 · **Versión:** 2.0.0 "Autoresearcher LFC"
+# Arquitectura del Agente LFC v2.2.0 "Premium UX & Optimizer"
+> **Evolución:** Autoresearcher + DT Lifecycle + POSIX Automation + UX/UI Advisor
+ima actualización:** 2026-03-13 · **Versión:** 2.0.0 "Autoresearcher LFC"
 
 ## 🧠 El Cerebro Centralizado (Metodología Autoresearch)
 
@@ -23,10 +24,35 @@ El `DBCD_CRITERIA.md` actúa como el **Filtro de Verdad Maestro**. Todo output g
 Basado en `github.com/karpathy/autoresearch`, el agente sigue este ciclo:
 - **SCAN:** Lee carpetas enteras en `/repos/LFC2/`.
 - **EVALUATE:** Compara contenidos con el `DBCD_CRITERIA.md`.
-- **REPORT:** Genera un "Dictamen de Saneamiento" o "Tesis Técnica".
-- **EXECUTE:** Realiza las correcciones masivas en los archivos del repositorio.
+- **PROPOSE (New):** Genera una **Tesis Técnica** (Borrador de DT).
+- **CONVERSE (New):** Discute la Tesis en Telegram con el usuario (Aprobación/Ajuste).
+- **EXECUTE:** Genera el archivo DT final en `II. Apendices Tecnicos/Decisiones_Tecnicas/` y aplica los cambios.
+
+### 3. Capa de Automatización (CLI)
+La automatización del repositorio `LFC2` ha sido migrada de PowerShell a Node.js:
+- **CLI Tool:** [lfc-cli.js](file:///home/administrador/docker/LFC2/scripts/lfc-cli.js)
+- **Engine:** Node.js v20+
+- **Converter:** Pandoc v3.6.2 (Linux x86_64 portable)
+- **Comandos:** `sync` (Sincronización WBS), `cook` (Transformación ejecutiva), `serve` (Exportación empresarial).
+
+### 4. Capa de Diseño UX/UI (New)
+El agente actúa como un consultor de diseño premium para los tableros HTML:
+- **Criterios:** Basados en `UX_DESIGN_SYSTEM.md` (Glassmorphism, HSL tailors, micro-animations).
+- **Proceso de Mejora:** Escaneo de archivos HTML -> Propuesta UX vía Telegram (¿Qué?, ¿Por qué?, Usabilidad) -> Implementación vía DT.
+
+### 5. Optimización de Arquitectura (Tokens Efficiency)
+- **Poda de Contexto:** El agente detecta cuando hay "surplus de tokens" para proponer refactorizaciones que mejoren el rendimiento y la legibilidad del código/documentación.
 
 ---
+
+## 📄 Ciclo de Vida de la Decisión Técnica (DT)
+
+El DT es el artefacto formal de cambio. Sigue un formato híbrido:
+1. **Markdown:** Justificación técnica y legal para humanos (Especialistas/Interventoría).
+2. **YAML (.Section 10):** Instrucciones parseables para que el agente ejecute cambios masivos en WBS, Cronogramas y Carpetas Técnicas.
+
+### Flujo de Optimización Continua:
+`Detección (Agente) --> Tesis (Telegram) --> Iteración (Human-in-the-loop) --> DT Final (Git) --> Ejecución (Agente) --> Verificación (DBCD)`
 
 ## 🛠️ Flujo de Trabajo del Agente
 
@@ -52,6 +78,16 @@ graph TD
 | `/app/data/brain/` | **SSOT (Single Source of Truth)** | `DBCD_CRITERIA.md` |
 | `/app/repos/LFC2/` | **Espacio de Trabajo (Work Area)** | Repositorio a ser saneado |
 | `/app/temp/` | **Scratchpad de Investigación** | Archivos temporales de análisis |
+
+---
+
+## 🛡️ Matriz de Trazabilidad (Traceability Matrix)
+Para evitar alucinaciones, el agente implementa una trazabilidad obligatoria:
+- **ID de Cambio:** Referencia al archivo modificado.
+- **Justificación P.42:** Por qué se cambia (basado en Metodología).
+- **Criterio SSOT:** Cuál ID del `DBCD_CRITERIA.md` obliga al cambio (ej. `DBCD-C1: PTC Virtual`).
+
+---
 
 ---
 
