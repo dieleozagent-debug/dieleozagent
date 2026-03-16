@@ -71,13 +71,12 @@ graph TD
 
 ---
 
-## 🐳 Estructura de Datos y Volúmenes
-
-| Volumen | Propósito | Fuente de Verdad |
+| Volumen / Directorio | Propósito | Fuente de Verdad |
 |---|---|---|
-| `/app/data/brain/` | **SSOT (Single Source of Truth)** | `DBCD_CRITERIA.md` |
-| `/app/repos/LFC2/` | **Espacio de Trabajo (Work Area)** | Repositorio a ser saneado |
-| `/app/temp/` | **Scratchpad de Investigación** | Archivos temporales de análisis |
+| `/brain/` (Repo) | **Brain as Code** | Control de versiones de la identidad |
+| `/app/data/brain/` | **Runtime SSOT** | Sincronizado vía volumen con el repo |
+| `/app/repos/LFC2/` | **Work Area** | Repositorio a ser saneado |
+| `/app/data/memory/` | **Memory Persistence** | Persiste entre reinicios |
 
 ---
 

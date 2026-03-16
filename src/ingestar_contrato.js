@@ -3,7 +3,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+// No require for pdfjs-dist here as it is ESM
 
 // Truco para cargar .env si lo ejecutamos manual desde fuera del contenedor
 if (fs.existsSync(path.join(__dirname, '../.env'))) {
@@ -17,16 +17,35 @@ const CHUNK_SIZE = 1500; // Caracteres por fragmento
 
 async function extraerTexto(filePath) {
   try {
-    const tmpTxt = filePath + '.txt';
-    // pdftotext genera un archivo text con el mismo nombre si se le pasa un parametro extra o nada
-    execSync(`pdftotext "${filePath}" "${tmpTxt}"`, { encoding: 'utf8', maxBuffer: 50 * 1024 * 1024 });
-    const output = fs.readFileSync(tmpTxt, 'utf8');
-    fs.unlinkSync(tmpTxt);
-    return output;
+    // Polyfill DOMMatrix for PDF.js in Node
+    if (typeof global.DOMMatrix === 'undefined') {
+      global.DOMMatrix = class DOMMatrix {
+        constructor() { this.a = 1; this.b = 0; this.c = 0; this.d = 1; this.e = 0; this.f = 0; }
+      };
+    }
+    
+    const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
+    const data = new Uint8Array(fs.readFileSync(filePath));
+    const loadingTask = pdfjsLib.getDocument({ 
+      data,
+      useWorkerFetch: false,
+      isEvalSupported: false,
+      useSystemFonts: true
+    });
+    const pdf = await loadingTask.promise;
+    let fullText = '';
+    
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items.map(item => item.str).join(' ');
+      fullText += pageText + '\n';
+    }
+    
+    return fullText;
   } catch (err) {
-    console.warn(`[INGEST] ⚠️ Error extrayendo ${path.basename(filePath)} con pdftotext: ${err.message}`);
-    const tmpTxt = filePath + '.txt';
-    if (fs.existsSync(tmpTxt)) fs.unlinkSync(tmpTxt);
+    console.warn(`[INGEST] ⚠️ Error extrayendo ${path.basename(filePath)} con pdfjs-dist: ${err.message}`);
+    console.error(err);
     return '';
   }
 }
@@ -48,8 +67,8 @@ async function run() {
   // Limpiar la tabla antes de la ingesta total
   await pool.query('TRUNCATE TABLE contrato_documentos').catch(() => {}); // Opcional, pero asumimos insert seguro
   
-  const archivos = fs.readdirSync(CARPETA_CONTRATO).filter(f => f.endsWith('.pdf'));
-  console.log(`[INGEST] 📂 Encontrados ${archivos.length} archivos terminados en .pdf`);
+  const archivos = fs.readdirSync(CARPETA_CONTRATO).filter(f => f === 'AT1.pdf' || f === 'AT2.pdf');
+  console.log(`[INGEST] 📂 Encontrados ${archivos.length} archivos para ingesta prioritaria (AT1, AT2)`);
 
   for (const archivo of archivos) {
     console.log(`\n📄 Procesando: ${archivo}...`);

@@ -40,7 +40,7 @@ async function extraerTextoConGemini(filePath, archivoNombre) {
 
   // 2. Extraer texto con el modelo
   console.log(`   👁️‍🗨️ Leyendo documento con Gemini 1.5 Flash (OCR)...`);
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
   const result = await model.generateContent([
     {
       fileData: { mimeType: uploadResult.file.mimeType, fileUri: uploadResult.file.uri }
@@ -67,7 +67,7 @@ function fragmentarTexto(texto, size = CHUNK_SIZE) {
 async function run() {
   console.log('[INGEST-OCR] 🚀 Iniciando Ingesta de PDFs OCR a Supabase...');
 
-  const archivos = fs.readdirSync(CARPETA_CONTRATO).filter(f => f.endsWith('.pdf'));
+  const archivos = fs.readdirSync(CARPETA_CONTRATO).filter(f => f === 'AT1.pdf' || f === 'AT2.pdf');
   
   // Limpiar DB local
   await pool.query('TRUNCATE TABLE contrato_documentos').catch(() => {});
