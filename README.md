@@ -10,17 +10,15 @@ Agente de inteligencia artificial autónomo que corre **100% en local** sobre Do
 
 ```
 agente/
-├── src/
-│   └── index.js              # Punto de entrada del agente
-├── .env.example              # Plantilla de variables de entorno
-├── .env                      # Variables reales (NO subir a Git)
-├── package.json              # Dependencias y scripts npm
-├── Dockerfile                # Imagen Docker del agente
-├── docker-compose.yml        # Orquestación del contenedor
-├── .dockerignore             # Archivos excluidos del build
-├── .gitignore                # Archivos excluidos de Git
-├── docs/
-│   └── ARCHITECTURE.md       # Diagrama y diseño del sistema
+├── brain/                    # 🧠 CEREBRO (SSOT: Identity as Code)
+│   ├── SOUL.md               # Alma y Personalidad
+│   ├── DBCD_CRITERIA.md      # Criterios de Ingeniería Maestro
+│   └── ...                   # (9 archivos versionados)
+├── src/                      # Código fuente del agente
+├── docs/                     # 📄 DOCUMENTACIÓN TÉCNICA
+│   ├── ARCHITECTURE.md       # Arquitectura SSOT 상세
+│   └── DT_MANAGER.md         # Gestión de Decisiones Técnicas
+├── docker-compose.yml        # Orquestación (Volúmenes Brain)
 └── README.md                 # Este archivo
 ```
 
@@ -182,8 +180,12 @@ services:
     env_file:
       - .env
     volumes:
-      # Datos persistentes: host → contenedor
+      # Datos persistentes del agente (memoria, logs)
       - /home/administrador/data-agente:/app/data
+      # 🧠 Sincronización del cerebro (Brain as Code)
+      - /home/administrador/docker/agente/brain:/app/data/brain
+      # Repo LFC2 montado como espacio de trabajo
+      - /home/administrador/docker/LFC2:/app/repos/LFC2
     logging:
       driver: "json-file"
       options:
@@ -299,6 +301,14 @@ docker compose up -d --build
 
 ---
 
-## 📜 Licencia
+## 🔄 Documentación y SSOT
 
+Para evitar alucinaciones y mantener la soberanía técnica, el agente consulta estos pilares:
+1. **[ARCHITECTURE.md](file:///home/administrador/docker/agente/docs/ARCHITECTURE.md)**: Cómo funciona el cerebro centralizado.
+2. **[DT_MANAGER.md](file:///home/administrador/docker/agente/docs/DT_MANAGER.md)**: Protocolo de cambio vía Decisiones Técnicas.
+3. **[brain/](file:///home/administrador/docker/agente/brain/)**: Identidad versionada del agente.
+
+---
+
+## 📜 Licencia
 MIT — Libre para uso personal y comercial.

@@ -1,15 +1,18 @@
-# Arquitectura del Agente LFC v2.2.1 "Premium UX & Optimizer"
-> **Evolución:** Autoresearcher + DT Lifecycle + POSIX Automation + UX/UI Advisor
-**Última actualización:** 2026-03-13 · **Versión:** 2.2.1 "Autoresearcher LFC"
+# Arquitectura del Agente LFC v2.3.0 "Brain as Code"
+> **Evolución:** Autoresearcher + DT Lifecycle + POSIX Automation + UX/UI Advisor + Brain SSOT
+**Última actualización:** 2026-03-16 · **Versión:** 2.3.0 "Brain as Code"
 
 ## 🧠 El Cerebro Centralizado (Metodología Autoresearch)
 
 El sistema ha evolucionado de un simple RAG a un **Agente de Investigación Automática (Autoresearch)** inspirado en arquitecturas de agentes profundos. No solo busca información; la **audita** contra una Fuente Única de Verdad (SSOT).
 
-### 📐 SSOT: DBCD_CRITERIA.md
-El `DBCD_CRITERIA.md` actúa como el **Filtro de Verdad Maestro**. Todo output generado por la IA, ya sea basado en RAG o en conocimiento general, debe pasar por este filtro:
+### 📐 SSOT: brain/DBCD_CRITERIA.md
+El [DBCD_CRITERIA.md](file:///home/administrador/docker/agente/brain/DBCD_CRITERIA.md) actúa como el **Filtro de Verdad Maestro**. Todo output generado por la IA debe pasar por este filtro.
+- Ver detalles de ejecución en [DT_MANAGER.md](file:///home/administrador/docker/agente/docs/DT_MANAGER.md).
+- Ver flujo de archivos en [README.md](file:///home/administrador/docker/agente/README.md).
+
 1. **RAG (Supabase):** Recupera lo que dice el contrato/documento "zombie".
-2. **DBCD (Brain):** Define lo que la ingeniería **debe ser** (ej. PTC Virtual, No señales).
+2. **DBCD (Brain):** Define lo que la ingeniería **debe ser** (ej. PTC Virtual, No señales). Ubicado en `/app/data/brain/`.
 3. **Agente (Audit):** Identifica la brecha, genera una **Tesis** y propone el **Saneamiento**.
 
 ---
@@ -18,7 +21,7 @@ El `DBCD_CRITERIA.md` actúa como el **Filtro de Verdad Maestro**. Todo output g
 
 ### 1. Capa de Contexto (Context Layer)
 - **Supabase (Local):** Almacena vectores de miles de páginas de los Apéndices Técnicos.
-- **Brain Files:** Markdown files (`LFC_ROLE.md`, `DBCD_CRITERIA.md`) inyectados en el System Prompt.
+- **Brain Files (Versioned):** Markdown files en `/brain/` (Repo) montados en `/app/data/brain/` (Contenedor). Ver [brain/SOUL.md](file:///home/administrador/docker/agente/brain/SOUL.md).
 
 ### 2. Capa de Investigación (Autoresearch Loop)
 Basado en `github.com/karpathy/autoresearch`, el agente sigue este ciclo:

@@ -1,12 +1,12 @@
 # 📋 Manual del Gestor de DTs (DT Manager)
-> **Versión:** 1.0.0 · **Rol:** Autoresearcher & Optimizer
+> **Versión:** 1.0.1 · **Rol:** Autoresearcher & Optimizer · **SSOT:** [ARCHITECTURE.md](file:///home/administrador/docker/agente/docs/ARCHITECTURE.md)
 
 ## 🛠️ Flujo Operativo para la IA
 
 Este documento define cómo el agente debe procesar y generar **Decisiones Técnicas (DT)** para asegurar la trazabilidad y la aprobación humana.
 
 ### 1. Detección y Tesis (Research Phase)
-Cuando el agente escanea el repositorio (`SCAN`) y encuentra una desalineación con el `DBCD_CRITERIA.md`:
+Cuando el agente escanea el repositorio (`SCAN`) y encuentra una desalineación con el [DBCD_CRITERIA.md](file:///home/administrador/docker/agente/brain/DBCD_CRITERIA.md):
 1. **Generar Tesis:** Crear un mensaje conciso para Telegram.
 2. **Formato de Tesis:**
    - 🔍 **Hallazgo:** Archivo y línea específica.
