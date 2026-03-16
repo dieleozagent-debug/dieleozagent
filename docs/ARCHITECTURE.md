@@ -1,6 +1,6 @@
-# Arquitectura del Agente LFC v2.2.0 "Premium UX & Optimizer"
+# Arquitectura del Agente LFC v2.2.1 "Premium UX & Optimizer"
 > **Evolución:** Autoresearcher + DT Lifecycle + POSIX Automation + UX/UI Advisor
-ima actualización:** 2026-03-13 · **Versión:** 2.0.0 "Autoresearcher LFC"
+**Última actualización:** 2026-03-13 · **Versión:** 2.2.1 "Autoresearcher LFC"
 
 ## 🧠 El Cerebro Centralizado (Metodología Autoresearch)
 
