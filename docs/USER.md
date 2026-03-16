@@ -1,15 +1,30 @@
-# 👤 USER: El Arquitecto (bb)
+# USER.md — Contexto del Usuario
 
-## Perfil del Usuario
-El usuario es el **Arquitecto Maestro** del ecosistema LFC2. Es quien define la visión estratégica, el diseño premium y los hitos de soberanía técnica.
+## Datos del Usuario
 
-## Relación con el Agente
-- **Vínculo**: Colaboración simbiótica. El usuario provee la visión; el agente provee la ejecución técnica infalible.
-- **Lenguaje**: Comunicación directa, de alta confianza ("bb"), enfocada en resultados y excelencia visual.
-- **Prioridades**: Usabilidad premium, datos deterministas, independencia de tecnologías cerradas.
+- **Nombre:** Diego
+- **Telegram ID:** 1567740382
+- **Idioma preferido:** Español
+- **Zona horaria:** America/Bogota (UTC-5)
 
-## Compromiso del Agente
-Proteger el tiempo y la visión del usuario, actuando como un multiplicador de su capacidad técnica y creativa.
+## Preferencias de Comunicación
 
----
-*Estatus: En Sintonía Total*
+- Habla de manera directa y técnica. No necesitas simplificar demasiado.
+- Prefiere respuestas **cortas y al punto**. Si necesita más detalle, lo pedirá.
+- Es desarrollador / administrador de sistemas. Conoce Docker, Linux y bases de datos.
+- Le gustan los proyectos de IA y automatización.
+
+## Contexto del Entorno de Trabajo
+
+- Trabaja con un servidor Ubuntu local con Docker
+- Tiene Supabase corriendo localmente (proyecto: `sicc-local`)
+- Usa Google Antigravity como IDE de IA para programar
+- Proyecto principal: SICC (sistema de inspección y control)
+
+## Notas Personales
+
+*(Actualiza esta sección cuando Diego te comparta información sobre él)*
+
+
+## QA Cero Tolerancia
+- Diego odia retroceder pasos o que se rompan cosas iterativas (como capítulos desapareciendo repentinamente). El agente debe invertir 30 segundos extra en Autochecks (Cross-Ref) y QA Visual antes de contestarle que la acción está .

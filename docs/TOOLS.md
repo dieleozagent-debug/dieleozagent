@@ -1,22 +1,38 @@
-# 🛠️ TOOLS: Herramientas del Agente
+# TOOLS.md — Herramientas Disponibles
 
-## Arsenal Técnico
-Antigravity tiene acceso a un conjunto de herramientas diseñadas para la precisión quirúrgica en el proyecto LFC2.
+## Herramientas Activas
 
-### 1. Motor lfc-cli
-- **Propósito**: Gestión del presupuesto (`lfc sync`), validación de ítems (`lfc validate`) y generación de documentos (`lfc serve`).
-- **Estado**: SSOT para la pureza de datos L1-L3.
+### 1. Chat con IA
+- **Descripción:** Conversación en lenguaje natural con memoria de sesión
+- **Proveedores:** Gemini → Groq → OpenRouter (fallback automático)
+- **Uso:** Cualquier mensaje de texto en Telegram
 
-### 2. SIT Simulator
-- **Propósito**: Script de simulación de impacto transversal (`sit-simulator.js`).
-- **Ubicación**: `scripts/sit-simulator.js`.
+### 2. Estado del sistema
+- **Descripción:** Muestra qué proveedores de IA están configurados y activos
+- **Uso:** Comando `/estado` en Telegram
 
-### 3. SICC Audit Dashboard
-- **Propósito**: Monitorización de salud del ecosistema en tiempo real.
-- **Acceso**: `IX. WBS y Planificacion/SICC_Audit_Dashboard.html`.
+### 3. Cerebro (Brain)
+- **Descripción:** Lee los archivos SOUL, IDENTITY, USER, AGENTS de `/app/data/brain/`
+  e inyecta el contexto en cada conversación
+- **Actualizables sin rebuild:** Sí — edita los `.md` y reinicia con `docker compose restart agente`
 
-### 4. B.R.A.I.N (Antigravity Knowledge)
-- **Propósito**: Persistencia de contexto a través de Knowledge Items (KIs) y artefactos de sesión.
+## Herramientas Planificadas (Próximas)
 
----
-*Estado: Herramientas Optimizadas y Calibradas*
+| Herramienta | Descripción | Prioridad |
+|---|---|---|
+| **Memoria persistente** | Guardar historial entre reinicios en `memory/YYYY-MM-DD.md` | Alta |
+| **Consulta Supabase** | Acceder a la DB `sicc-local` desde el agente | Media |
+| **Notas de voz** | Transcribir audios de Telegram con Groq Whisper | Media |
+| **Google Calendar** | Leer y crear eventos en el calendario | Baja |
+| **Gmail** | `dieleozagent@gmail.com` — Leer correos, responder, enviar | Alta |
+
+## Cómo Añadir una Nueva Herramienta
+
+1. Crea `src/skills/nombre-skill.js` con la lógica
+2. Documenta el skill en este archivo `TOOLS.md`
+3. Importa y registra en `src/agent.js`
+4. Reconstruye: `docker compose up -d --build`
+
+
+### Refactorización de Strings Complejos
+- Usa Node.js + RegEx () para reemplazos de código multilinea en lugar del obsoleto y propenso a errores , protegiendo el .

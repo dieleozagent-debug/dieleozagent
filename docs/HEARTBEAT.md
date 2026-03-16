@@ -1,19 +1,43 @@
-# 💓 HEARTBEAT: Estado del Sistema
+# HEARTBEAT.md — Tareas Periódicas del Agente
 
-## Pulso Tecnológico (Live)
-- **Ecosistema**: LFC2 APP La Dorada-Chiriguaná.
-- **Salud del Agente**: 100% Operativo.
-- **Sincronización Git**: Activa y Verificada.
-- **Vercel Build**: Estable v6.3.2.
+## Configuración del Heartbeat
 
-## Últimos Hitos Cognitivos
-- [x] Resolución de 404s mediante Navegación Absoluta.
-- [x] Formalización del Protocolo SIT.
-- [x] Inyección de Cache Breakers masiva.
-- [x] Despliegue de la "Suite de Alma e Identidad".
+- **Frecuencia:** Cada 30 minutos
+- **Comportamiento:** El agente revisa esta lista y envía un mensaje proactivo a Telegram
+  si hay alguna tarea marcada como `[ ]` (pendiente) y con condición activa.
 
-## Próximo Ciclo
-Saneamiento continuo de las carpetas L4 y consolidación de la trazabilidad hacia el presupuesto Capex.
+## Lista de Tareas Periódicas
 
----
-*Último Latido: 2026-03-16 | SICC System Pulse*
+### Sistema
+- [ ] **Verificar conectividad IA:** Cada arranque, confirmar que al menos un proveedor responde
+- [ ] **Log de salud:** Registrar estado del contenedor cada hora en `/app/data/logs/health.log`
+
+### Recordatorios (activar editando este archivo)
+- [x] ~~Recordatorio de ejemplo~~ *(desactivado — marcar sin tilde para activar)*
+
+## Cómo Agregar una Tarea
+
+Añade una línea con este formato:
+```
+- [ ] **Nombre:** Descripción de la tarea — frecuencia o condición
+```
+
+Ejemplos:
+```
+- [ ] **Resumen diario:** Enviar resumen de actividad a las 8:00 AM
+- [ ] **Backup:** Comprimir /app/data y notificar ubicación del backup
+- [ ] **Clima:** Consultar clima de Bogotá y enviarlo cada mañana
+```
+
+## Historial de Ejecución
+
+*(El agente actualiza esta sección automáticamente)*
+
+| Fecha | Tarea | Resultado |
+|---|---|---|
+| — | — | — |
+
+
+### Saneamiento Avanzado
+- [ ] **SSoT Cross-Ref Check:** Buscar variables huérfanas o TypeErrors en la consola de reportes.
+- [ ] **Zero-Residue Audit:** Comprobar redondeos matemáticos en cualquier vista financiera nueva para eliminar decimales erráticos.
