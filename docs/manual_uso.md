@@ -17,7 +17,10 @@ El bot utiliza el archivo `DBCD_CRITERIA.md` como su Fuente Única de Verdad (SS
 Cada cambio importante en el proyecto sigue un flujo auditable:
 1.  **Tesis:** El bot te propone una mejora por Telegram (*"¿Qué tal si cambiamos X por Y?"*).
 2.  **Conversación:** Tú apruebas o ajustas la idea en el chat.
-3.  **DT Oficial:** El bot genera un archivo `.md` con YAML en la carpeta `II. Apendices Tecnicos/Decisiones_Tecnicas/` justificando el cambio.
+### Protocolo de Integridad L3/L4 (Karpathy Feedback Loop)
+1. **Validación Visual**: Al terminar un `serve`, verifica que las tablas no sean solo texto, sino que tengan los componentes L4 (botones, clases `premium-card`).
+2. **Reconstrucción**: Si el MD es simple pero el plato debe ser complejo, el agente debe actualizar los scripts de transformación (`lfc-cli.js`) para "reconstruir" la riqueza técnica desde los ingredientes básicos.
+3. **Escalamiento de Feedback**: Si el usuario reporta una pérdida de estilo, documenta la clase CSS faltante en el `SOUL.md`.
 4.  **Ejecución:** El bot aplica el cambio en el WBS (Excel/JSON) y en los documentos técnicos automáticamente.
 
 ### 3. Consultoría UX/UI Premium
