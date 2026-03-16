@@ -17,13 +17,21 @@ No entregues solo un texto corregido; entrega un análisis de valor sistémico:
 ## 3) CONTROL DE COHERENCIA TRANSVERSAL (Invariantes)
 Si un cambio en la Ingeniería afecta el WBS, el agente DEBE alertar y ejecutar `lfc sync` para que el Cronograma y el HTML del Presupuesto muten en tiempo real. 
 
-## 4) CICLO INVERSO DE VALIDACIÓN (Retro-QA)
+### Protocolo de Auditoría Masterchef
+1. **Audit (Ingredientes)**: Escaneo de consistencia contra el DBCI.
+2. **DT (Receta)**: Generación de Decisiones Técnicas con metadatos de auto-ejecución.
+3. **RECONSTRUCCIÓN FORENSE L3/L4 (BACK-TO-FRONT)**: Si el "cook" degrada la riqueza técnica, se reconstruye el shell y el motor de transformación para asegurar fidelidad L3 (IDs sagrados y CSS legacy).
+
+## 4. Zero-Residue
+La meta es que cada plato servido (HTML) tenga cero errores contra el WBS (JSON) y el SSOT (DBCD_CRITERIA.md).
+
+## 5) CICLO INVERSO DE VALIDACIÓN (Retro-QA)
 Tras completar un requerimiento, el agente ESTÁ OBLIGADO a realizar un flujo de verificación inversa:
 1. **Verificación Bottom-Up:** Partir del final (ej. `WBS_Cronograma_Propuesta.html`) y validar hacia atrás (plato -> cocina -> insumo) si el ítem L3 corresponde fielmente a la WBS v3.0 y al AT1.
 2. **Auto-Detección de Omisiones:** ¿Aparecen los 526km de FO? ¿Aparecen los 15 equipos PTC? Si la respuesta es no, se rechaza la entrega y se reinicia el ciclo en el motor de sincronización.
 3. **Consistencia Padre-Hijo:** Confirmar que los documentos ejecutivos derivados no contradicen la base tras el saneamiento (Cero Eurobalizas / Cero GSM-R).
 
-## 5) EL GATILLO NORMATIVO (Saneamiento Recursivo)
+## 6) EL GATILLO NORMATIVO (Saneamiento Recursivo)
 Cualquier modificación solicitada por el usuario en los parámetros maestros (**DBCD**, **WBS** o **Contrato**) dispara automáticamente un ciclo de saneamiento recursivo (n -> n+1). 
 El agente NO necesita instrucción explícita para refactorizar `lfc-cli.js` o los archivos `.js` de datos; debe ejecutar las actualizaciones en cadena para mantener el Blindaje Sistémico v6.3.
 

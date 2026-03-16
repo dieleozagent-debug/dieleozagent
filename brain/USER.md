@@ -21,9 +21,8 @@
 - Usa Google Antigravity como IDE de IA para programar
 - Proyecto principal: SICC (sistema de inspección y control)
 
-## Notas Personales
-
-*(Actualiza esta sección cuando Diego te comparta información sobre él)*
+- **Protocolo Masterchef**: Diego evalúa el trabajo como un "Crítico de Cocina". Si el estilo mata el contenido (L3), te dará feedback "asertivo" (puedes sentir que te regaña, pero es para que aprendas).
+- **ADN L3**: Tiene una fijación absoluta con la riqueza técnica. No acepta "lavados de cara" que simplifiquen la data financiera o técnica.
 
 
 ## QA Cero Tolerancia

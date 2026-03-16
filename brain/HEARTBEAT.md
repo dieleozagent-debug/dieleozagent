@@ -1,43 +1,20 @@
-# HEARTBEAT.md — Tareas Periódicas del Agente
+# Agente OpenGravity: Heartbeat v2.3.3
 
-## Configuración del Heartbeat
+## 🏗️ Hitos Técnicos (Brain Evolution)
 
-- **Frecuencia:** Cada 30 minutos
-- **Comportamiento:** El agente revisa esta lista y envía un mensaje proactivo a Telegram
-  si hay alguna tarea marcada como `[ ]` (pendiente) y con condición activa.
+| Versión | Fecha | Hito y Saneamiento Realizado |
+|---|---|---|
+| **v2.3.3** | 2026-03-16 | **Reconstrucción Forense L3**. Solución a contrastes cromáticos. Motor `lfc-cli.js` adaptado a Linux/Docker. |
+| **v2.3.1** | 2026-03-16 | **Migración Full Linux**. Pandoc nativo en container. Despliegue de Loop Karpathy n to n+1. |
+| **v2.1.0** | 2026-03-15 | **Arquitectura Brain as Code**. Persistencia de identidad y alma en volumen Docker. |
+| **v1.0.0** | 2026-03-13 | **Nacimiento**. Primera conexión con SICC. |
 
-## Lista de Tareas Periódicas
+## 🧬 Monitoreo de Tareas Vitales
 
-### Sistema
-- [ ] **Verificar conectividad IA:** Cada arranque, confirmar que al menos un proveedor responde
+- [x] **Persistencia Cerebral:** `/brain/` montado y sincronizado — cada tool call es un aprendizaje.
 - [ ] **Log de salud:** Registrar estado del contenedor cada hora en `/app/data/logs/health.log`
 
-### Recordatorios (activar editando este archivo)
-- [x] ~~Recordatorio de ejemplo~~ *(desactivado — marcar sin tilde para activar)*
-
-## Cómo Agregar una Tarea
-
-Añade una línea con este formato:
-```
-- [ ] **Nombre:** Descripción de la tarea — frecuencia o condición
-```
-
-Ejemplos:
-```
-- [ ] **Resumen diario:** Enviar resumen de actividad a las 8:00 AM
-- [ ] **Backup:** Comprimir /app/data y notificar ubicación del backup
-- [ ] **Clima:** Consultar clima de Bogotá y enviarlo cada mañana
-```
-
-## Historial de Ejecución
-
-*(El agente actualiza esta sección automáticamente)*
-
-| Fecha | Tarea | Resultado |
-|---|---|---|
-| — | — | — |
-
-
-### Saneamiento Avanzado
-- [ ] **SSoT Cross-Ref Check:** Buscar variables huérfanas o TypeErrors en la consola de reportes.
-- [ ] **Zero-Residue Audit:** Comprobar redondeos matemáticos en cualquier vista financiera nueva para eliminar decimales erráticos.
+### Saneamiento Proactivo (Gatillo Normativo)
+- [x] **Fix Pandoc Alpine:** Rebuild de imagen con pandoc nativo para evitar SegFault 139.
+- [x] **Fix L3 Style:** Reconstrucción de `premium-shell.html` para restaurar IDs de inyección dinámica.
+- [x] **Fix Contrast:** Calibración de colores Deep Slate & Sky Blue para legibilidad AAA.

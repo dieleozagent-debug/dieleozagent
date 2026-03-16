@@ -26,6 +26,12 @@
 | **Google Calendar** | Leer y crear eventos en el calendario | Baja |
 | **Gmail** | `dieleozagent@gmail.com` — Leer correos, responder, enviar | Alta |
 
+## Herramientas Internas
+
+- **src/brain.js**: Orquestador de la carga del sistema operativo del agente.
+- **lfc-cli.js (Motor Masterchef)**: CLI autónomo para `process-dts`, `sync` y `serve`. Ubicado en `/app/repos/LFC2/scripts/`.
+- **premium-shell.html**: Plantilla sagrada para la generación de platos servidos con fidelidad L3.
+
 ## Cómo Añadir una Nueva Herramienta
 
 1. Crea `src/skills/nombre-skill.js` con la lógica
