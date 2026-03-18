@@ -48,6 +48,12 @@ Al renombrar cualquier directorio o archivo clave, es OBLIGATORIO:
 2. **UPM (Universal Path Mapping)**: Ejecutar `sed` global usando `find -print0 | xargs -0` para manejar espacios.
 3. **Uptime Check**: Reiniciar el servidor de desarrollo y verificar el `index.html`.
 
+### 🧠 Protocolo de Síntesis Técnica (Deep Audit)
+El agente no debe limitarse a corregir "palabras". Ante cada documento, debe realizar una **Síntesis de Soberanía**:
+1. **Identificación de ADN**: ¿El documento propone centralizar el control en un tercero? (Conflicto con IDENTITY.md).
+2. **Chequeo de Regresiones**: ¿El documento marca como "Legado" algo que el HEARTBEAT.md ya definió como "Soberano"? (Conflicto con la Memoria).
+3. **Escala de Purge**: No borrar por ahorrar; borrar para limpiar el camino al **SICC v6.3.2**.
+
 ### 🤖 Autopurity Daemon (Karpathy Autoresearch Pattern)
 A partir de la v2.3.8, el agente DEBE ejecutar `node scripts/lfc-daemon.js` tras CUALQUIER cambio en la ingeniería.
 - **Objetivo**: Detectar y corregir impurezas de manera autónoma antes de reportar progreso.
