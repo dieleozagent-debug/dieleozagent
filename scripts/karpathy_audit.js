@@ -1,50 +1,87 @@
+/**
+ * KARPATHY AUDIT PROTOCOL (SICC v6.3.2)
+ * Objetivo: Realizar un audit conceptual profundo de la ingeniería.
+ * No solo busca caracteres, busca "Regresiones de ADN".
+ */
+
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
 
 const REPO_ROOT = '/home/administrador/docker/LFC2';
-const TERMINOLOGY_PATH = path.join(REPO_ROOT, 'IX. WBS y Planificacion/lfc-terminology.js');
-const AUDIT_PATHS = [
-    'III. Ingenieria conceptual',
-    'IV. Ingenieria basica',
-    'V. Ingenieria de detalle',
-    'X_ENTREGABLES_CONSOLIDADOS/7_SISTEMAS_EJECUTIVOS'
+
+// 1. EL TRÁNSITO DE LA SOBERANÍA (Terminology & Compliance)
+const SOVEREIGN_INVARIANTS = [
+    { rule: "NO_RBC", pattern: /RBC|ERTMS|Level 2/i, fix: "SICC PTC Virtual / Servidor Maestro" },
+    { old: /GSM-R/i, new: "Red Vital IP / TETRA" },
+    { old: /Eurobaliza/i, new: "Baliza Virtual (GNSS)" },
+    { old: /Caja Negra/i, new: "Arquitectura Abierta SICC" },
+    { old: /Propropietario/i, new: "Soberano" }
 ];
 
-console.log("🔍 INICIANDO REPORTE DE AUDITORÍA KARPATHY v6.5");
-console.log("----------------------------------------------");
+const FORBIDDEN_PATHS = /[^a-zA-Z0-9_\-\.\/]/; // Nada que no sea URL-Safe
 
-const dbci = require(TERMINOLOGY_PATH);
-const blacklist = dbci.LEGACY_BLACKLIST;
+function auditFile(filePath) {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const relativePath = path.relative(REPO_ROOT, filePath);
+    let violations = [];
 
-let totalIssues = 0;
-const report = {};
-
-blacklist.forEach(term => {
-    AUDIT_PATHS.forEach(p => {
-        const fullPath = path.join(REPO_ROOT, p);
-        if (!fs.existsSync(fullPath)) return;
-        
-        try {
-            // Escapar el término para grep
-            const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const output = execSync(`grep -ri "${escapedTerm}" "${fullPath}" | grep -v "lfc-terminology.js" | head -n 5`, { encoding: 'utf8' });
-            
-            if (output) {
-                if (!report[term]) report[term] = [];
-                report[term].push({ path: p, count: output.split('\n').filter(l => l).length });
-                totalIssues++;
-            }
-        } catch (e) {
-            // Grep returns non-zero exit code if no matches found
+    // Check Content Invariants
+    SOVEREIGN_INVARIANTS.forEach(inv => {
+        if (inv.pattern && inv.pattern.test(content)) {
+            violations.push(`[ADN] Regresión Detectada: ${inv.rule}. Sugerido: ${inv.fix}`);
+        } else if (inv.old && inv.old.test(content)) {
+            violations.push(`[TERMINAL] Término Prohibido: "${inv.old.source}". Sugerido: "${inv.new}"`);
         }
     });
-});
 
-if (totalIssues === 0) {
-    console.log("✅ PUREZA GARANTIZADA: No se encontraron términos legacy.");
-} else {
-    console.log(`⚠️ SE DETECTARON ${totalIssues} PATRONES LEGACY:`);
-    console.log(JSON.stringify(report, null, 2));
-    console.log("\n💡 RECOMENDACIÓN: Ejecutar 'node scripts/lfc-cli.js purify' o actualizar el CORRECTION_MAP.");
+    // Check Path Integrity
+    if (FORBIDDEN_PATHS.test(relativePath)) {
+        violations.push(`[RUTA] Nombre no seguro (Zero-Accents Violation): ${relativePath}`);
+    }
+
+    return violations;
 }
+
+function runAudit(dir) {
+    let report = [];
+    const files = fs.readdirSync(dir);
+
+    files.forEach(file => {
+        const fullPath = path.join(dir, file);
+        if (file === '.git' || file === 'node_modules' || file === 'old' || file === 'bin') return;
+
+        if (fs.statSync(fullPath).isDirectory()) {
+            report = report.concat(runAudit(fullPath));
+        } else if (/\.(md|html|js)$/.test(file)) {
+            const fileViolations = auditFile(fullPath);
+            if (fileViolations.length > 0) {
+                report.push({ file: relativePath(fullPath), issues: fileViolations });
+            }
+        }
+    });
+
+    return report;
+}
+
+function relativePath(fullPath) {
+    return path.relative(REPO_ROOT, fullPath);
+}
+
+console.log("--------------------------------------------------");
+console.log("📡 INICIANDO KARPATHY AUDIT (SICC SOVEREIGN DNA)");
+console.log("--------------------------------------------------");
+
+const results = runAudit(REPO_ROOT);
+
+if (results.length === 0) {
+    console.log("✅ PUREZA AL 100%. El corredor es SICC Soberano.");
+} else {
+    console.log(`⚠️ SE DETECTARON ${results.length} ARCHIVOS CON IMPUREZAS.`);
+    results.forEach(res => {
+        console.log(`\n📄 Archivo: ${res.file}`);
+        res.issues.forEach(issue => console.log(`   - ${issue}`));
+    });
+}
+
+console.log("\n--------------------------------------------------");
+console.log("Fín del Audit.");
