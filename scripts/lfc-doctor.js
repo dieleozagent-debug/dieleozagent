@@ -62,6 +62,14 @@ try {
 
 // 4.1 INTEGRIDAD WEB (Self-Healing Check)
 console.log("\nEjecutando Portabilidad Web...");
+if (isFixMode) {
+    try {
+        console.log("[LEARNING] Actualizando mapeo de rutas virtuales...");
+        execSync(`node ${AGENTE_ROOT}/scripts/lfc_learn.js`);
+    } catch (e) {
+        console.log("❌ Error en lfc_learn.js");
+    }
+}
 const vercelPath = path.join(REPO_ROOT, 'vercel.json');
 if (fs.existsSync(vercelPath)) {
     try {
