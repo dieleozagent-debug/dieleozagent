@@ -4,6 +4,7 @@
 
 | Versión | Fecha | Hito y Saneamiento Realizado |
 |---|---|---|
+| **v2.3.5** | 2026-03-18 | **Saneamiento Sistémico (Karpathy v3)**. Motor `lfc-cli.js` upgraded to Case-Insensitive. SSOT-Dictionary mapping for Eurobalizas, 25 kV, and plurals. |
 | **v2.3.4** | 2026-03-18 | **Saneamiento de Estabilidad**. Implementación de Log de Salud (POSIX) y switch a Gemini como primario resiliente. |
 | **v2.3.3** | 2026-03-16 | **Reconstrucción Forense L3**. Solución a contrastes cromáticos. Motor `lfc-cli.js` adaptado a Linux/Docker. |
 | **v2.3.1** | 2026-03-16 | **Migración Full Linux**. Pandoc nativo en container. Despliegue de Loop Karpathy n to n+1. |
