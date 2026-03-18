@@ -12,9 +12,10 @@ const { leerNoLeidos, formatearCorreos, enviarCorreo } = require('./gmail');
 const { infoRepo, ultimosCommits, issuesAbiertos, listarCarpeta, leerArchivo,
         formatearInfo, formatearCommits, formatearIssues, OWNER, REPO } = require('./github');
 
-// Directorio para archivos temporales recibidos de Telegram
 const DOWNLOADS_DIR = '/app/data/downloads';
+const LOGS_DIR = '/app/data/logs';
 if (!fs.existsSync(DOWNLOADS_DIR)) fs.mkdirSync(DOWNLOADS_DIR, { recursive: true });
+if (!fs.existsSync(LOGS_DIR)) fs.mkdirSync(LOGS_DIR, { recursive: true });
 
 /**
  * Envía un mensaje de forma segura, intentando Markdown primero, 
@@ -54,6 +55,21 @@ setInterval(async () => {
     }
   }
 }, 30 * 60 * 1000);
+
+// ── Registro de Salud (cada hora) ─────────────────────────────────────────────
+setInterval(async () => {
+  const timestamp = new Date().toISOString();
+  const logPath = path.join(LOGS_DIR, 'health.log');
+  const brainStatus = estadoBrain().replace(/\n/g, ' | ');
+  const healthEntry = `[${timestamp}] ❤️ HEALTH_CHECK: Container OK | IA: ${config.ai.primaryProvider} | Brain: ${brainStatus}\n`;
+
+  try {
+    fs.appendFileSync(logPath, healthEntry);
+    console.log('[HEALTH] ✅ Registro de salud guardado.');
+  } catch (err) {
+    console.error(`[HEALTH] ❌ Error al escribir log de salud: ${err.message}`);
+  }
+}, 60 * 60 * 1000);
 
 // ── Mensajes de Telegram ──────────────────────────────────────────────────────
 bot.on('message', async (msg) => {
