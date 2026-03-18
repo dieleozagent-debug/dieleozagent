@@ -60,6 +60,17 @@ try {
     check("Git Access", false, "Error al acceder a Git.");
 }
 
+const isFixMode = process.argv.includes('--fix');
+
+function applyFix(dir) {
+    const indexPath = path.join(REPO_ROOT, dir, 'index.html');
+    if (!fs.existsSync(indexPath)) {
+        console.log(`[FIXING] Creando portal index.html en ${dir}...`);
+        const template = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>SICC - ${dir}</title><style>body { background: #0a192f; color: #e6f1ff; font-family: sans-serif; padding: 2rem; } a { color: #ffd700; }</style></head><body><h1>Saneamiento: ${dir}</h1><a href="/">← Volver</a><ul><li>Portal Auto-Generado por SICC Doctor</li></ul></body></html>`;
+        fs.writeFileSync(indexPath, template);
+    }
+}
+
 // 4.1 INTEGRIDAD WEB (Self-Healing Check)
 console.log("\nEjecutando Portabilidad Web...");
 if (isFixMode) {
@@ -82,17 +93,6 @@ if (fs.existsSync(vercelPath)) {
         check("Vercel Rewrites", brokenRewrites.length === 0, `Rutas rotas en vercel.json: ${brokenRewrites.join(', ')}`);
     } catch (e) {
         check("Vercel Config", false, "Error al parsear vercel.json");
-    }
-}
-
-const isFixMode = process.argv.includes('--fix');
-
-function applyFix(dir) {
-    const indexPath = path.join(REPO_ROOT, dir, 'index.html');
-    if (!fs.existsSync(indexPath)) {
-        console.log(`[FIXING] Creando portal index.html en ${dir}...`);
-        const template = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>SICC - ${dir}</title><style>body { background: #0a192f; color: #e6f1ff; font-family: sans-serif; padding: 2rem; } a { color: #ffd700; }</style></head><body><h1>Saneamiento: ${dir}</h1><a href="/">← Volver</a><ul><li>Portal Auto-Generado por SICC Doctor</li></ul></body></html>`;
-        fs.writeFileSync(indexPath, template);
     }
 }
 
