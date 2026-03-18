@@ -12,7 +12,10 @@ const REPO_ROOT = '/home/administrador/docker/LFC2';
 // 1. EL TRÁNSITO DE LA SOBERANÍA (Terminology & Compliance)
 const SOVEREIGN_INVARIANTS = [
     { rule: "NO_RBC", pattern: /RBC|ERTMS|Level 2/i, fix: "SICC PTC Virtual / Servidor Maestro" },
-    { old: /GSM-R/i, new: "Red Vital IP / TETRA" },
+    { rule: "SOVEREIGN_NET", pattern: /GSM-R/i, fix: "Red Vital IP / TETRA" },
+    { rule: "POWER_REDUNDANCY", pattern: /Reducción de carga|Eliminar alimentación Red Vital/i, fix: "Potencia Híbrida / Respaldo 12h" },
+    { rule: "VITAL_NODES", pattern: /Menos de 37 nodos|Reducción de torres/i, fix: "37 Nodos Red Vital Mandatorios" },
+    { rule: "SECURITY_LAYERS", pattern: /TETRA únicamente|Sin Vital IP/i, fix: "Multi-capa (Red Vital + TETRA + Fibra)" },
     { old: /Eurobaliza/i, new: "Baliza Virtual (GNSS)" },
     { old: /Caja Negra/i, new: "Arquitectura Abierta SICC" },
     { old: /Propropietario/i, new: "Soberano" }
