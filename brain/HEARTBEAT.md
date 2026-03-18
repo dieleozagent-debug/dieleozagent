@@ -4,6 +4,9 @@
 
 | Versión | Fecha | Hito y Saneamiento Realizado |
 |---|---|---|
+| **v2.3.8** | 2026-03-18 | **Autopurity Daemon (v1.0)**. Implementación del loop autónomo `lfc-daemon.js` basado en Karpathy Autoresearch. Saneamiento proactivo sin intervención. |
+| **v2.3.7** | 2026-03-18 | **Soberanía de Enlaces (Zero-Accents & UPM)**. Estabilización de rutas Phase IV eliminando acentos. Sincronización Universal de Enlaces (342 archivos). |
+| **v2.3.6** | 2026-03-18 | **Auditoría de Especialidades (Fase IV)**. Re-ingeniería de Civil y Eléctrica para restaurar 37 nodos de Red Vital y soberanía Diésel-Eléctrica. Sincronización SICC v6.3.2 total. |
 | **v2.3.5** | 2026-03-18 | **Saneamiento Sistémico (Karpathy v3)**. Motor `lfc-cli.js` upgraded to Case-Insensitive. SSOT-Dictionary mapping for Eurobalizas, 25 kV, and plurals. |
 | **v2.3.4** | 2026-03-18 | **Saneamiento de Estabilidad**. Implementación de Log de Salud (POSIX) y switch a Gemini como primario resiliente. |
 | **v2.3.3** | 2026-03-16 | **Reconstrucción Forense L3**. Solución a contrastes cromáticos. Motor `lfc-cli.js` adaptado a Linux/Docker. |

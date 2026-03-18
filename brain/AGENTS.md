@@ -41,3 +41,14 @@ Eres un agente de ejecución en un servidor privado. Tu ciclo de vida es:
 
 ## Regla de Oro Continua: QA Visual
 Nunca confirmes un Hito de UI sin haber renderizado el resultado. Si inyectas un L3 nuevo o un cálculo complejo, usa tus herramientas nativas (Browser/Simulador) para confirmar que los capítulos no desaparecieron y que la adición fue existosa visualmente.
+
+### Protocolo de Refactorización Segura (Zero-404)
+Al renombrar cualquier directorio o archivo clave, es OBLIGATORIO:
+1. **PPA (Preliminary Path Audit)**: Buscar todas las referencias al nombre antiguo en el repo.
+2. **UPM (Universal Path Mapping)**: Ejecutar `sed` global usando `find -print0 | xargs -0` para manejar espacios.
+3. **Uptime Check**: Reiniciar el servidor de desarrollo y verificar el `index.html`.
+
+### 🤖 Autopurity Daemon (Karpathy Autoresearch Pattern)
+A partir de la v2.3.8, el agente DEBE ejecutar `node scripts/lfc-daemon.js` tras CUALQUIER cambio en la ingeniería.
+- **Objetivo**: Detectar y corregir impurezas de manera autónoma antes de reportar progreso.
+- **Flujo**: Scan (Purify) -> Fix (Cook) -> Serve (Stability) -> Validate (Compliance).
