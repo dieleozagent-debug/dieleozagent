@@ -60,6 +60,41 @@ try {
     check("Git Access", false, "Error al acceder a Git.");
 }
 
+// 4.1 INTEGRIDAD WEB (Self-Healing Check)
+console.log("\nEjecutando Portabilidad Web...");
+const vercelPath = path.join(REPO_ROOT, 'vercel.json');
+if (fs.existsSync(vercelPath)) {
+    try {
+        const vercel = JSON.parse(fs.readFileSync(vercelPath, 'utf8'));
+        let brokenRewrites = [];
+        vercel.rewrites.forEach(r => {
+            const dest = path.join(REPO_ROOT, r.destination.split('?')[0]);
+            if (!fs.existsSync(dest)) brokenRewrites.push(r.destination);
+        });
+        check("Vercel Rewrites", brokenRewrites.length === 0, `Rutas rotas en vercel.json: ${brokenRewrites.join(', ')}`);
+    } catch (e) {
+        check("Vercel Config", false, "Error al parsear vercel.json");
+    }
+}
+
+const isFixMode = process.argv.includes('--fix');
+
+function applyFix(dir) {
+    const indexPath = path.join(REPO_ROOT, dir, 'index.html');
+    if (!fs.existsSync(indexPath)) {
+        console.log(`[FIXING] Creando portal index.html en ${dir}...`);
+        const template = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>SICC - ${dir}</title><style>body { background: #0a192f; color: #e6f1ff; font-family: sans-serif; padding: 2rem; } a { color: #ffd700; }</style></head><body><h1>Saneamiento: ${dir}</h1><a href="/">← Volver</a><ul><li>Portal Auto-Generado por SICC Doctor</li></ul></body></html>`;
+        fs.writeFileSync(indexPath, template);
+    }
+}
+
+const mainDirs = ['IV_Ingenieria_basica', 'V_Ingenieria_detalle', 'VII_Soporte_Especializado', 'III_Ingenieria_conceptual'];
+mainDirs.forEach(dir => {
+    const exists = fs.existsSync(path.join(REPO_ROOT, dir, 'index.html'));
+    if (!exists && isFixMode) applyFix(dir);
+    check(`Entry Point: ${dir}`, fs.existsSync(path.join(REPO_ROOT, dir, 'index.html')), `Falta index.html en ${dir}`);
+});
+
 // 5. AUDIT CONCEPTUAL (Karpathy Audit)
 console.log("\nEjecutando Audit Conceptual...");
 try {
