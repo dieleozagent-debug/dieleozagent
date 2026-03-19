@@ -59,7 +59,46 @@ El agente ahora es más robusto ante fallos externos:
 
 ---
 
-## ⚠️ Reglas de Oro v2.2.1
+## 🗂️ Gestión de Repositorios (v2.3 — Brain Separado)
+
+El sistema ahora opera con **3 repositorios independientes**:
+
+| Repo | Qué versiona | Cómo hacer push |
+|------|-------------|------------------|
+| `agente/` | Código del bot | `cd agente && git push` |
+| `agente/brain/` | SSOT (criterios, identidad) | `cd agente/brain && git push` |
+| `LFC2/` | Proyecto del cliente | `cd LFC2 && git push` |
+
+> ⚠️ Los cambios en `brain/` son **independientes** del código del bot. Un `git push` en `agente/` no sube los cambios del cerebro.
+
+---
+
+## 🚀 Migración a VPS
+
+Gracias a la arquitectura Docker + 3 repos separados, migrar a una VPS es directo:
+
+```bash
+# 1. Clonar los 3 repos en la VPS
+git clone https://github.com/dieleozagent-debug/dieleozagent.git agente
+git clone https://github.com/dieleozagent-debug/brain.git agente/brain
+git clone https://github.com/dieleozagent-debug/LFC2.git LFC2
+
+# 2. Configurar variables de entorno
+cd agente && cp .env.example .env && nano .env
+
+# 3. Crear directorio de datos persistentes
+mkdir -p /home/administrador/data-agente
+
+# 4. Levantar el agente
+docker compose up -d --build
+```
+
+> El volumen `brain/` se monta automáticamente como se define en `docker-compose.yml`. No se requiere ningún cambio adicional.
+
+---
+
+## ⚠️ Reglas de Oro v2.3
 *   **SSOT:** Si el DBCD dice "No", el bot no te dejará decir "Sí" sin una DT que justifique la excepción.
 *   **Trazabilidad:** Todos los cambios importantes terminan en un commit de Git con el ID del dictamen técnico.
+*   **Brain separado:** Cambios en la identidad/criterios → commit en `brain/`, no en `agente/`.
 *   **Identidad:** El bot es tu **Administrador Contractual + Diseñador UX Specialist**.
