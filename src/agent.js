@@ -194,7 +194,10 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo) {
 
       return { texto: respuesta, proveedor: proveedor.id };
     } catch (err) {
-      console.error(`[AGENTE] ❌ ERROR CRITICO en el loop con ${proveedor.id}:`, err);
+      console.error(`[AGENTE] ❌ ERROR en ${proveedor.id}:`, err.message || err);
+      if (err.response && err.response.data) {
+        console.error(`[AGENTE] 🔍 Detalle del error:`, JSON.stringify(err.response.data));
+      }
     }
   }
   console.log('[AGENTE] 💀 El loop de proveedores terminó sin éxito.');
