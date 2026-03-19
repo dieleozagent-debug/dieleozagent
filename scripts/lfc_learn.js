@@ -21,7 +21,7 @@ function generateIndex(dirPath, files) {
         console.log(`[LEARNING] Generating portal for directory: ${dirName}`);
         const fileList = files
             .filter(f => !f.startsWith('.') && f !== 'index.html')
-            .map(f => `<li><a href="${f}">${f}</a></li>`)
+            .map(f => `<li><a href="/${f}">${f}</a></li>`)
             .join('\n');
         
         const template = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>SICC - ${dirName}</title><style>body { background: #0a192f; color: #e6f1ff; font-family: sans-serif; padding: 4rem; line-height: 1.6; } a { color: #ffd700; text-decoration: none; } h1 { letter-spacing: -1px; margin-bottom: 2rem; } ul { list-style: none; } li { margin-bottom: 1rem; padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); border-left: 4px solid #ffd700; transition: 0.3s; } li:hover { transform: translateX(10px); background: rgba(255,255,255,0.06); }</style></head><body><a href="/">← Inicio</a><h1 style="margin-top:2rem;">Explorador Red Vital: ${dirName}</h1><ul>${fileList}</ul></body></html>`;
@@ -42,11 +42,16 @@ function scanDir(dirPath, baseDir = "") {
         const relativePath = path.join(baseDir, item);
 
         if (stats.isDirectory() && !item.startsWith('.')) {
+            // Add directory route
+            rewrites.push({
+                "source": `/${item}`, 
+                "destination": `/${relativePath}/index.html`.replace(/\\/g, '/')
+            });
             rewrites = rewrites.concat(scanDir(fullPath, relativePath));
-        } else if (item.endsWith('.md') || item.endsWith('.html')) {
+        } else if ((item.endsWith('.md') || item.endsWith('.html')) && item !== 'index.html') {
             rewrites.push({
                 "source": `/${item}`,
-                "destination": `/${baseDir}/${item}`.replace(/\\/g, '/')
+                "destination": `/${baseDir}/${item}`.replace(/\\/g, '/').replace(/^\/\//, '/')
             });
         }
     });
@@ -54,7 +59,14 @@ function scanDir(dirPath, baseDir = "") {
 }
 
 function learn() {
-    console.log("🧠 SICC Brain: Learning RECURSIVE repository mapping...");
+    console.log("🧠 SICC Brain: Learning RECURSIVE repository mapping + LEGACY REDIRECTS...");
+    
+    let redirects = [
+        { "source": "/V.5_Integracion/:path*", "destination": "/V_5_Integracion/:path*", "permanent": true },
+        { "source": "/IV. Ingenieria basica/:path*", "destination": "/IV_Ingenieria_basica/:path*", "permanent": true },
+        { "source": "/V. Ingenieria de detalle/:path*", "destination": "/V_Ingenieria_detalle/:path*", "permanent": true }
+    ];
+
     let allRewrites = [
         { "source": "/", "destination": "/IX_WBS_Planificacion/WBS_COMPLETA_TODO_Interactiva_v4_0.html" },
         { "source": "/wbs", "destination": "/IX_WBS_Planificacion/WBS_COMPLETA_TODO_Interactiva_v4_0.html" },
@@ -74,7 +86,19 @@ function learn() {
     dirsToIndex.forEach(d => {
         const p = path.join(REPO_ROOT, d);
         if (fs.existsSync(p)) {
-            allRewrites = allRewrites.concat(scanDir(p, d));
+            const scanResults = scanDir(p, d);
+            allRewrites = allRewrites.concat(scanResults);
+            
+            // Add dual rewrites for directories found in scanResults
+            scanResults.forEach(r => {
+                if (r.destination.endsWith('index.html')) {
+                    const cleanPath = r.source.endsWith('/') ? r.source.slice(0, -1) : r.source;
+                    allRewrites.push({
+                        "source": cleanPath + "/",
+                        "destination": r.destination
+                    });
+                }
+            });
         }
     });
 
@@ -82,13 +106,14 @@ function learn() {
         "version": 2,
         "name": "lfc-2",
         "public": true,
+        "redirects": redirects,
         "rewrites": allRewrites,
         "cleanUrls": true,
         "trailingSlash": false
     };
 
     fs.writeFileSync(path.join(REPO_ROOT, 'vercel.json'), JSON.stringify(vercelConfig, null, 2));
-    console.log(`✅ SICC Brain: Learned ${allRewrites.length} routes recursive. vercel.json updated.`);
+    console.log(`✅ SICC Brain: Learned ${allRewrites.length} routes and ${redirects.length} legacy redirects.`);
 }
 
 learn();
