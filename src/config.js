@@ -40,6 +40,11 @@ const config = {
       apiKey: env('OPENROUTER_API_KEY', false),
       model: env('OPENROUTER_MODEL', false) || 'openai/gpt-4o-mini',
     },
+
+    // ── Búsqueda Web (Tavily) ────────────────────────────────────────────────
+    tavily: {
+      apiKey: env('TAVILY_API_KEY', false),
+    },
   },
 
   // ── Agente ────────────────────────────────────────────────────────────────

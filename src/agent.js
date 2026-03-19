@@ -5,6 +5,7 @@ const config = require('./config');
 const { construirSystemPrompt } = require('./brain');
 const { cargarMemoriaReciente } = require('./memory');
 const { buscarSimilares } = require('./supabase');
+const { buscarEnWeb } = require('./search');
 
 // Importaciones de IA (Movidas arriba para debugging)
 const { GoogleGenerativeAI } = require('@google/generative-ai');
@@ -187,6 +188,23 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo) {
      }
   }
 
+  // Búsqueda Web: Solo si es técnico y Supabase no fue suficiente o hay keywords de normas
+  let contextoWeb = '';
+  const esConsultaTecnica = /norma|estándar|arema|fra|uic|regulación|manual|noticia/i.test(textoUsuario);
+  
+  if (config.ai.tavily.apiKey && esConsultaTecnica) {
+    try {
+      contextoWeb = await buscarEnWeb(textoUsuario);
+      if (contextoWeb) {
+        console.log(`[SEARCH] ✅ Investigación web inyectada para: "${textoUsuario}"`);
+      }
+    } catch (err) {
+      console.log(`[SEARCH] ⚠️ Fallo silencioso en búsqueda web.`);
+    }
+  }
+
+  const contextoFinal = (contextoRAG || '') + (contextoWeb || '');
+
   for (const proveedor of proveedores) {
     try {
       // Solo Gemini soporta File API en nuestra config actual
@@ -196,7 +214,7 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo) {
       }
 
       console.log(`[AGENTE] Usando proveedor: ${proveedor.id}`);
-      const respuesta = await proveedor.fn(textoUsuario, archivoTmpInfo, contextoRAG);
+      const respuesta = await proveedor.fn(textoUsuario, archivoTmpInfo, contextoFinal);
 
       // Guardar en historial de sesión (sin el archivo para simplificar memoria larga)
       const textoFinalUsr = archivoTmpInfo ? `[Archivo: ${archivoTmpInfo.name}] ${textoUsuario}` : textoUsuario;

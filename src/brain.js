@@ -19,6 +19,7 @@ const BRAIN_FILES = [
   { file: 'TOOLS.md',           label: 'HERRAMIENTAS',           required: false },
   { file: 'PROGRAM.md',         label: 'EXPERIMENTO ACTIVO',     required: false },
   { file: 'RESEARCH_LOG.md',    label: 'LOG DE INVESTIGACIÓN',   required: false },
+  { file: 'skills/web_research.md', label: 'INVESTIGACIÓN WEB',  required: false },
 ];
 
 /**
