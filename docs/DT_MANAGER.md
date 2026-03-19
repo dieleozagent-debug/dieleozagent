@@ -51,6 +51,54 @@ archivos_actualizar:
 
 ---
 
-## 🛡️ Reglas de Seguridad
-- **Backup:** Siempre realizar un commit en Git antes de ejecutar un DT masivo.
-- **Validación Cruzada:** Tras ejecutar un DT, volver a correr el scanner de cumplimiento contra el DBCD para asegurar que no se introdujeron nuevas desalineaciones.
+## 📋 Manual del Gestor de DTs (DT Manager) v2.3.2
+> **Arquitectura:** Modular Soberana (3-Repo) · **SSOT:** [ARCHITECTURE.md](file:///home/administrador/docker/agente/docs/ARCHITECTURE.md)
+
+## 🛠️ Flujo Operativo Cross-Repo
+
+Este protocolo define cómo el agente debe procesar y generar **Decisiones Técnicas (DT)** operando entre los repositorios `agente`, `brain` y `LFC2`.
+
+### 1. Detección (Brain & LFC2)
+Cuando el agente identifica una desalineación en el repositorio de trabajo (`LFC2`) contra los criterios del repositorio maestro (`brain/DBCD_CRITERIA.md`):
+1. **Generar Tesis:** Crear un mensaje técnico para Telegram.
+2. **Formato de Tesis:**
+   - 🔍 **Hallazgo:** Archivo en `LFC2` y línea específica.
+   - ⚖️ **Conflicto:** ID del criterio en `brain/DBCD_CRITERIA.md`.
+   - 💡 **Propuesta:** Acción sugerida de saneamiento.
+
+### 2. Generación del Artefacto (LFC2 Draft)
+Tras la aprobación, el agente crea el archivo `.md` en:
+`/app/repos/LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/DT-YYYY-NNN.md`
+
+**Estructura del DT:**
+- **Sección 10 (Metadata YAML):** Instrucciones de auto-ejecución parseables.
+- **Sección 11 (Justificación):** Alineación con la soberanía técnica SICC.
+- **Sección 12 (Log):** Registro de ejecución.
+
+### 3. Ejecución y Sincronización (Execution Phase)
+Para ejecutar un DT de forma soberana:
+1. **LFC2 Update:** Aplicar los cambios en los archivos de ingeniería de `LFC2`.
+2. **Brain Log:** Registrar el éxito del experimento en `brain/RESEARCH_LOG.md`.
+3. **Regla de Oro:** Ejecutar `./lfc.sh sync && ./lfc.sh cook` en `LFC2` para servir el plato actualizado.
+
+---
+
+## 📐 Estándar YAML (Sección 10)
+
+```yaml
+dt_metadata:
+  id: "DT-2026-XXX"
+  repo: "LFC2"
+  estado: "ejecutado"
+
+cambios_transversales:
+  - file: "docs/ingenieria/ejemplo.md"
+    buscar: "ERTMS L2"
+    reemplazar: "PTC Virtual (SICC)"
+```
+
+---
+
+## 🛡️ Seguridad y Trazabilidad
+- **Git Sync**: Se debe realizar push en el repo `agente` (para el motor) y en el repo `brain` (para el log) tras cada DT exitosa.
+- **Validación SIT**: Antes de aplicar, se recomienda correr el protocolo `/simulacion-sit` para predecir impactos colaterales.
