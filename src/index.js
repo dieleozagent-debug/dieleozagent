@@ -22,8 +22,8 @@ if (!fs.existsSync(LOGS_DIR)) fs.mkdirSync(LOGS_DIR, { recursive: true });
  * y cayendo a texto plano si falla el parseo.
  */
 async function safeSendMessage(chatId, text, options = {}) {
-  // Telegram tiene un límite de 4096 caracteres. Usamos 4000 para margen.
-  const MAX_LENGTH = 4000;
+  // Telegram tiene un límite de 4096 caracteres. Usamos 3500 para mayor seguridad con meta-data.
+  const MAX_LENGTH = 3500;
   
   if (text.length <= MAX_LENGTH) {
     try {
@@ -38,17 +38,19 @@ async function safeSendMessage(chatId, text, options = {}) {
   }
 
   // Si es muy largo, dividimos en trozos
-  console.log(`[BOT] 📦 Dividiendo mensaje largo (${text.length} chars) en fragmentos...`);
   const chunks = [];
   for (let i = 0; i < text.length; i += MAX_LENGTH) {
     chunks.push(text.substring(i, i + MAX_LENGTH));
   }
+  console.log(`[BOT] 📦 Dividiendo mensaje de ${text.length} chars en ${chunks.length} fragmentos...`);
 
   for (const [index, chunk] of chunks.entries()) {
-    const finalChunk = chunks.length > 1 ? `[Parte ${index + 1}/${chunks.length}]\n${chunk}` : chunk;
+    const finalChunk = chunks.length > 1 ? `* [Parte ${index + 1}/${chunks.length}]*\n${chunk}` : chunk;
     try {
       await bot.sendMessage(chatId, finalChunk, { ...options, parse_mode: 'Markdown' });
+      console.log(`[BOT] ✅ Fragmento ${index + 1}/${chunks.length} enviado.`);
     } catch (err) {
+      console.warn(`[BOT] ⚠️ Fallo Markdown en fragmento ${index + 1}, reintentando plano...`);
       await bot.sendMessage(chatId, finalChunk, { ...options, parse_mode: undefined });
     }
     // Pequeño delay para no saturar el polling de Telegram
