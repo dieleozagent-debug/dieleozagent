@@ -25,7 +25,7 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY);
  */
 async function obtenerEmbedding(texto) {
   // El modelo text-embedding-004 de Gemini devuelve un vector de 768 dimensiones
-  const model = genAI.getGenerativeModel({ model: "text-embedding-004"});
+  const model = genAI.getGenerativeModel({ model: "models/gemini-embedding-001"});
   const result = await model.embedContent(texto);
   const embedding = result.embedding;
   return embedding.values;

@@ -17,6 +17,8 @@ const BRAIN_FILES = [
   { file: 'USER.md',            label: 'CONTEXTO DEL USUARIO',   required: false },
   { file: 'AGENTS.md',          label: 'MANUAL OPERATIVO',       required: false },
   { file: 'TOOLS.md',           label: 'HERRAMIENTAS',           required: false },
+  { file: 'PROGRAM.md',         label: 'EXPERIMENTO ACTIVO',     required: false },
+  { file: 'RESEARCH_LOG.md',    label: 'LOG DE INVESTIGACIÓN',   required: false },
 ];
 
 /**
