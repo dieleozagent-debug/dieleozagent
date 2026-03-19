@@ -80,7 +80,7 @@ function construirSystemPrompt() {
     }
   }
 
-  console.log(`[BRAIN] ✅ System prompt construido con ${cargados}/${BRAIN_FILES.length} archivos del cerebro`);
+  console.log(`[BRAIN] ✅ System prompt construido con ${cargados}/${BRAIN_FILES.length} archivos del cerebro. Tamaño: ${secciones.join('\n').length} caracteres.`);
   return secciones.join('\n');
 }
 

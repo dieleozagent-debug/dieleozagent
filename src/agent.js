@@ -40,14 +40,20 @@ async function llamarGemini(mensajeUsuario, archivoTmpInfo, contextoRAG = '') {
   const genAI = new GoogleGenerativeAI(config.ai.gemini.apiKey);
   const fileManager = new GoogleAIFileManager(config.ai.gemini.apiKey);
   
-  const systemInstruction = contextoRAG 
+  let systemInstruction = contextoRAG 
     ? SYSTEM_PROMPT + '\n\n' + contextoRAG 
     : SYSTEM_PROMPT;
 
-  console.log(`[AGENTE] 🔵 Invocando llamarGemini. Modelo: ${config.ai.gemini.model}`);
+  // Modo seguro: Si el prompt es demasiado grande, truncamos para evitar errores de payload
+  if (systemInstruction.length > 30000) {
+    console.warn(`[AGENTE] ⚠️ System Prompt muy grande (${systemInstruction.length}). Truncando a 30k chars.`);
+    systemInstruction = systemInstruction.substring(0, 30000) + '\n... [TRUNCADO POR SEGURIDAD]';
+  }
+
+  console.log(`[AGENTE] 🔵 Invocando llamarGemini. Modelo: ${config.ai.gemini.model}. Chars: ${systemInstruction.length}`);
   const model = genAI.getGenerativeModel({
     model: config.ai.gemini.model,
-    systemInstruction: systemInstruction,
+    systemInstruction: { role: 'system', parts: [{ text: systemInstruction }] },
   });
 
   const parts = [{ text: mensajeUsuario }];
@@ -93,10 +99,16 @@ async function llamarGemini(mensajeUsuario, archivoTmpInfo, contextoRAG = '') {
 async function llamarGroq(mensajeUsuario, _, contextoRAG = '') {
   const groq = new Groq({ apiKey: config.ai.groq.apiKey });
   
-  const systemInstruction = contextoRAG 
+  let systemInstruction = contextoRAG 
     ? SYSTEM_PROMPT + '\n\n' + contextoRAG 
     : SYSTEM_PROMPT;
 
+  // Modo seguro
+  if (systemInstruction.length > 30000) {
+    systemInstruction = systemInstruction.substring(0, 30000) + '\n... [TRUNCADO POR SEGURIDAD]';
+  }
+
+  console.log(`[AGENTE] 🟠 Invocando llamarGroq. Modelo: ${config.ai.groq.model}. Chars: ${systemInstruction.length}`);
   const respuesta = await groq.chat.completions.create({
     model: config.ai.groq.model,
     messages: [
@@ -104,7 +116,7 @@ async function llamarGroq(mensajeUsuario, _, contextoRAG = '') {
       ...historial.map(h => ({ role: h.role, content: h.content })),
       { role: 'user', content: mensajeUsuario },
     ],
-    max_tokens: 1024,
+    max_tokens: 2048,
   });
   return respuesta.choices[0].message.content;
 }
@@ -147,7 +159,7 @@ function ordenProveedores() {
     ...todos.filter(p => p.id === primario),
     ...todos.filter(p => p.id !== primario),
   ];
-  console.log(`[AGENTE] 📋 Orden de proveedores calculado: ${res.map(p => p.id).join(' -> ')}`);
+  console.log(`[AGENTE] 📋 Orden de proveedores calculado: ${res.map(p => p.id).join(' -> ')}. Tamaño System Prompt: ${SYSTEM_PROMPT.length} chars.`);
   return res;
 }
 
@@ -195,8 +207,12 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo) {
       return { texto: respuesta, proveedor: proveedor.id };
     } catch (err) {
       console.error(`[AGENTE] ❌ ERROR en ${proveedor.id}:`, err.message || err);
-      if (err.response && err.response.data) {
-        console.error(`[AGENTE] 🔍 Detalle del error:`, JSON.stringify(err.response.data));
+      // Log profundo del error
+      try {
+        const errorDetail = err.response ? JSON.stringify(err.response.data || err.response) : JSON.stringify(err);
+        console.error(`[AGENTE] 🔍 Detalle del error completo:`, errorDetail);
+      } catch (e) {
+        console.error(`[AGENTE] 🔍 No se pudo serializar el error:`, err);
       }
     }
   }
