@@ -1,59 +1,47 @@
-// search.js — Cliente modular para búsqueda web (Tavily API)
+// search.js — Motor de Búsqueda Web Soberana (v2.4) vía Tavily
 'use strict';
 
-const config = require('./config');
-const fetch = require('node-fetch');
+const axios = require('axios');
+
+const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
 
 /**
- * Realiza una búsqueda web optimizada para LLMs.
- * @param {string} query - El término de búsqueda técnico.
- * @returns {Promise<string>} - Contexto enriquecido de los resultados.
+ * Realiza una búsqueda técnica en la web
  */
 async function buscarEnWeb(query) {
-  if (!config.ai.tavily.apiKey) {
-    console.log('[SEARCH] ⚠️ No hay TAVILY_API_KEY configurada. Saltando búsqueda web.');
-    return '';
-  }
-
-  console.log(`[SEARCH] 🔍 Buscando en la web (Tavily): "${query}"`);
-
-  try {
-    const response = await fetch('https://api.tavily.com/search', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        api_key: config.ai.tavily.apiKey,
-        query: query,
-        search_depth: 'advanced', // Mayor profundidad para temas técnicos de ingeniería
-        include_answer: true,
-        max_results: 5,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error Tavily: ${response.statusText}`);
+    if (!TAVILY_API_KEY || TAVILY_API_KEY === 'tu_tavily_key_aqui') {
+        console.warn('[SEARCH] ⚠️ Tavily API Key no configurada.');
+        return 'Búsqueda web no disponible.';
     }
 
-    const data = await response.json();
-    
-    let contexto = '\n\n## 🌐 INVESTIGACIÓN TÉCNICA WEB (LIVE)\n';
-    contexto += `*Fuentes consultadas en tiempo real para complementar el cerebro local.*\n\n`;
+    console.log(`[SEARCH] 🔍 Buscando: "${query}"...`);
 
-    if (data.answer) {
-      contexto += `> **Resumen Ejecutivo:** ${data.answer}\n\n`;
+    try {
+        const response = await axios.post('https://api.tavily.com/search', {
+            api_key: TAVILY_API_KEY,
+            query: query,
+            search_depth: "advanced",
+            include_answer: true,
+            max_results: 5
+        });
+
+        const results = response.data.results.map(r => ({
+            title: r.title,
+            url: r.url,
+            content: r.content.substring(0, 500) + '...'
+        }));
+
+        const summary = response.data.answer || "No hay resumen directo, consulte los enlaces.";
+        
+        return {
+            summary: summary,
+            sources: results
+        };
+
+    } catch (err) {
+        console.error(`[SEARCH] ❌ Error en búsqueda web: ${err.message}`);
+        return 'Error al consultar la web.';
     }
-
-    data.results.forEach((res, i) => {
-      contexto += `### Fuente ${i + 1}: ${res.title}\n`;
-      contexto += `URL: ${res.url}\n`;
-      contexto += `Contenido: ${res.content}\n\n`;
-    });
-
-    return contexto;
-  } catch (err) {
-    console.error('[SEARCH] ❌ Error en búsqueda web:', err.message);
-    return '\n\n⚠️ Error en búsqueda web. Usando solo conocimiento local.';
-  }
 }
 
 module.exports = { buscarEnWeb };

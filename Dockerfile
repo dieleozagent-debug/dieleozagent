@@ -1,7 +1,7 @@
 FROM node:20-alpine
 
-# Instalar git y pandoc para operaciones locales y conversión de documentos
-RUN apk add --no-cache git pandoc
+# Instalar git, pandoc, tesseract y poppler para operaciones soberanas de documentos
+RUN apk add --no-cache git pandoc tesseract-ocr tesseract-ocr-data-spa poppler-utils
 
 WORKDIR /app
 
