@@ -5,7 +5,8 @@ const fs = require('fs');
 const path = require('path');
 const TelegramBot = require('node-telegram-bot-api');
 const config = require('./config');
-const { inicializarBrain, procesarMensaje, limpiarHistorial } = require('./agent');
+const { inicializarBrain, procesarMensaje, procesarMensajeSwarm, limpiarHistorial } = require('./agent');
+const { cmdDoctor } = require('../scripts/sicc-harness');
 const { estadoBrain, leerHeartbeat } = require('./brain');
 const { guardar, estadoMemoria } = require('./memory');
 const { leerNoLeidos, formatearCorreos, enviarCorreo } = require('./gmail');
@@ -120,6 +121,7 @@ bot.on('message', async (msg) => {
       `👋 ¡Hola Diego! Soy *${config.agent.name}*.\n\n` +
       `🧠 Cerebro · 💾 Memoria · 📧 Gmail · 🐙 GitHub\n\n` +
       `*/limpiar* · */estado* · */cerebro* · */memoria*\n` +
+      `*/cerebro* · */memoria* · */swarm [pregunta]*\n\n` +
       `*/correos* · */email para|asunto|msg*\n` +
       `*/git repo* — Info del repo LFC2\n` +
       `*/git commits* — Últimos commits\n` +
@@ -127,6 +129,68 @@ bot.on('message', async (msg) => {
       `*/git ls [ruta]* — Listar archivos\n` +
       `*/git cat archivo* — Ver contenido`
     );
+    return;
+  }
+
+  // ── Comando SWARM (DBCD Forensic Debate) ───────────────────────────────────
+  if (texto.startsWith('/swarm ')) {
+    const pregunta = texto.replace('/swarm ', '').trim();
+    if (!pregunta) {
+      await bot.sendMessage(chatId, '🐝 Uso: `/swarm ¿Cómo sanar la Red Vital IP?`', { parse_mode: 'Markdown' });
+      return;
+    }
+
+    await safeSendMessage(chatId, '🐝 *Iniciando Enjambre Secuencial...*\n\nEstamos consultando al Auditor Forense y al Estratega SICC. Esto tomará ~10 minutos (SICC Hard-Cap activo).');
+    await bot.sendChatAction(chatId, 'typing');
+
+    try {
+      const respuestaDebate = await procesarMensajeSwarm(pregunta);
+      await safeSendMessage(chatId, respuestaDebate);
+      console.log(`[BOT] ✅ Swarm completado para: "${pregunta.substring(0, 30)}..."`);
+    } catch (err) {
+      console.error(`[BOT] ❌ Error en Swarm: ${err.message}`);
+      await safeSendMessage(chatId, `❌ Error en el Enjambre: ${err.message}`);
+    }
+    return;
+  }
+
+  // ── Comando DOCTOR (SICC Health Check nativo) ───────────────────────────────
+  if (texto === '/doctor') {
+    await safeSendMessage(chatId, '🩺 *Ejecutando SICC Doctor...*');
+    await bot.sendChatAction(chatId, 'typing');
+    try {
+      const oldLog = console.log;
+      const oldWarn = console.warn;
+      const lines = [];
+      console.log = (...a) => { oldLog(...a); lines.push(a.join(' ')); };
+      console.warn = (...a) => { oldWarn(...a); lines.push(a.join(' ')); };
+      const score = cmdDoctor();
+      console.log = oldLog;
+      console.warn = oldWarn;
+      const emoji = score >= 90 ? '🟢' : score >= 70 ? '🟡' : '🔴';
+      const reporte = `🩺 *SICC Doctor — Health Report*\n\n` +
+        `${emoji} *Score: ${score}/100*\n\n` +
+        `\`\`\`\n${lines.slice(-12).join('\n')}\n\`\`\``;
+      await safeSendMessage(chatId, reporte);
+    } catch (err) {
+      await safeSendMessage(chatId, `❌ Error en Doctor: ${err.message}`);
+    }
+    return;
+  }
+
+  // ── Comando DREAM (Estado del Dreamer) ─────────────────────────────────────
+  if (texto === '/dream') {
+    const dreamsPath = path.join(__dirname, '../brain/DREAMS.md');
+    const dtsPath    = path.join(__dirname, '../brain/PENDING_DTS.md');
+    const dreams = fs.existsSync(dreamsPath)
+      ? (fs.readFileSync(dreamsPath, 'utf8').match(/^- \[(?!DONE)/gm) || []).length : 0;
+    const dts = fs.existsSync(dtsPath)
+      ? (fs.readFileSync(dtsPath, 'utf8').match(/^## DT-DREAM/gm) || []).length : 0;
+    const msg = `💤 *SICC Dreamer — Estado*\n\n` +
+      `⏳ *${dreams}* hipótesis en cola para el ciclo nocturno\n` +
+      `📋 *${dts}* borradores de DT pendientes de aprobación\n\n` +
+      `El Dreamer ejecuta a las *2:00 AM* con el Hard-Cap de CPU activo.`;
+    await safeSendMessage(chatId, msg);
     return;
   }
 

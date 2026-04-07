@@ -1,6 +1,6 @@
-# 🤖 OpenGravity Agent — Ecosistema Soberano v2.3.2
+# 🤖 OpenGravity Agent — Ecosistema Soberano v6.3.3
 
-> **Stack:** Node.js · Telegram Bot API · Groq · Gemini · Docker · Ubuntu Server
+> **Stack:** Node.js · Telegram Bot API · **Ollama (Local)** · Groq · Gemini · Docker · Ubuntu Server
 
 OpenGravity es un **Agente de IA Autónomo y Auditor Transversal** diseñado para operar con soberanía tecnológica total. Utiliza una arquitectura modular de 3 repositorios independientes para separar la lógica de ejecución del conocimiento y los entregables de ingeniería.
 
@@ -23,6 +23,7 @@ agente/
 ├── .agents/workflows/        # 🌀 Protocolos Operativos (Karpathy Loop, SIT, Síntesis)
 ├── brain/                    # 🧠 CEREBRO (Repositorio montado como volumen Docker)
 ├── src/                      # Código fuente del motor
+├── ollama-data/              # 🏠 Almacén de Modelos Locales (gemma4-light:latest)
 ├── docs/                     # 📄 Documentación técnica (Arquitectura, DT Manager)
 ├── Contrato pdf/             # 📚 Fuente RAG para auditoría forense
 ├── Dockerfile                # Imagen Node.js 20-Alpine
@@ -34,11 +35,13 @@ agente/
 
 ## 🚀 Estabilidad y Capacidades Críticas
 
--   **Multi-Provider Fallback**: Groq (Primario Llama-3) -> Gemini (Secundario) -> OpenRouter.
+-   **Multi-Provider Fallback**: **Ollama (Primario Local: gemma4-light:latest)** -> Groq (Secundario Llama-3) -> Gemini.
 -   **Safe Prompt Mode**: Truncado automático a 30,000 caracteres para evitar rechazos de payload en APIs externas.
 -   **Telegram Message Splitter**: División automática de respuestas técnicas largas (>3500 chars) para garantizar la entrega.
 -   **Embeddings Repair**: Sistema de RAG funcional con modelo `models/gemini-embedding-001`.
 -   **Karpathy Loop**: Capacidad de auto-investigación y saneamiento proactivo de documentos mediante Decisiones Técnicas (DTs).
+-   **SICC Hard-Cap (Stability)**: Límite estricto de 3 núcleos para Ollama, garantizando conectividad SSH ininterrumpida.
+-   **Sequential Swarm**: Debate multi-agente forense optimizado para hardware restringido.
 
 ---
 
@@ -63,9 +66,10 @@ Cada repositorio es independiente. Tras cambios en el cerebro o entregables, uti
 ## 🌀 Protocolos Operativos (Slash Commands)
 
 -   `/karpathy-loop`: Inicia auditoría forense en el repositorio `LFC2`.
+-   `/swarm [pregunta]`: Debate forense multi-agente (Auditor + Estratega) en modo secuencial.
 -   `/simulacion-sit`: Simula el impacto de cambios técnicos antes de ejecutarlos.
 -   `/sintesis-memoria`: Graba las lecciones de la sesión en `brain/DBCD_CRITERIA.md`.
--   `/cerebro`: Verifica la integridad de los 10 archivos de identidad del agente.
+-   `/cerebro`: Verifica la integridad de los 11 archivos de identidad del agente.
 
 ---
 
