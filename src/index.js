@@ -146,6 +146,7 @@ bot.on('message', async (msg) => {
 
     try {
       const respuestaDebate = await procesarMensajeSwarm(pregunta);
+      guardar(texto, respuestaDebate, 'SICC-SWARM');
       await safeSendMessage(chatId, respuestaDebate);
       console.log(`[BOT] ✅ Swarm completado para: "${pregunta.substring(0, 30)}..."`);
     } catch (err) {
@@ -172,6 +173,7 @@ bot.on('message', async (msg) => {
       const reporte = `🩺 *SICC Doctor — Health Report*\n\n` +
         `${emoji} *Score: ${score}/100*\n\n` +
         `\`\`\`\n${lines.slice(-12).join('\n')}\n\`\`\``;
+      guardar(texto, `Score: ${score}/100`, 'SYSTEM');
       await safeSendMessage(chatId, reporte);
     } catch (err) {
       await safeSendMessage(chatId, `❌ Error en Doctor: ${err.message}`);
@@ -205,7 +207,9 @@ bot.on('message', async (msg) => {
       console.log = (...a) => { oldLog(...a); lines.push(a.join(' ')); };
       cmdLearn();
       console.log = oldLog;
-      await safeSendMessage(chatId, `✅ *Aprendizaje Completado*\n\n\`\`\`\n${lines.slice(-5).join('\n')}\n\`\`\``);
+      const resumen = lines.slice(-5).join('\n');
+      guardar(texto, resumen, 'SYSTEM');
+      await safeSendMessage(chatId, `✅ *Aprendizaje Completado*\n\n\`\`\`\n${resumen}\n\`\`\``);
     } catch (err) {
       await safeSendMessage(chatId, `❌ Error en Learn: ${err.message}`);
     }
@@ -227,7 +231,9 @@ bot.on('message', async (msg) => {
       console.log = (...a) => { oldLog(...a); lines.push(a.join(' ')); };
       cmdAudit(ruta);
       console.log = oldLog;
-      await safeSendMessage(chatId, `🔬 *Resultados de la Auditoría:* \n\n\`\`\`\n${lines.join('\n').substring(0, 3000)}\n\`\`\``);
+      const resumenAudit = lines.join('\n').substring(0, 3000);
+      guardar(texto, `Resultados de auditoría en ${ruta}`, 'SYSTEM');
+      await safeSendMessage(chatId, `🔬 *Resultados de la Auditoría:* \n\n\`\`\`\n${resumenAudit}\n\`\`\``);
     } catch (err) {
       await safeSendMessage(chatId, `❌ Error en Audit: ${err.message}`);
     }
