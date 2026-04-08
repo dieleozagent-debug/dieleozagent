@@ -1,5 +1,5 @@
 # 📋 Manual del Gestor de DTs (DT Manager)
-> **Versión:** 1.0.1 · **Rol:** Autoresearcher & Optimizer · **SSOT:** [ARCHITECTURE.md](file:///home/administrador/docker/agente/docs/ARCHITECTURE.md)
+> **Versión:** 1.0.1 · **Rol:** Autoresearcher & Optimizer · **SSOT:** [ARCHITECTURE.md](file:///home/administrador/docker/agente/architecture.md)
 
 ## 🛠️ Flujo Operativo para la IA
 
@@ -52,7 +52,7 @@ archivos_actualizar:
 ---
 
 ## 📋 Manual del Gestor de DTs (DT Manager) v2.3.2
-> **Arquitectura:** Modular Soberana (3-Repo) · **SSOT:** [ARCHITECTURE.md](file:///home/administrador/docker/agente/docs/ARCHITECTURE.md)
+> **Arquitectura:** Modular Soberana (3-Repo) · **SSOT:** [ARCHITECTURE.md](file:///home/administrador/docker/agente/architecture.md)
 
 ## 🛠️ Flujo Operativo Cross-Repo
 

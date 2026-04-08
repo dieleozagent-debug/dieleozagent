@@ -172,16 +172,18 @@ function cmdStatus() {
 
 // ── 3. ENTRY POINT ───────────────────────────────────────────────────────────
 
-const [,, cmd, ...args] = process.argv;
+if (require.main === module) {
+  const [,, cmd, ...args] = process.argv;
 
-switch (cmd) {
-  case 'doctor':  process.exit(cmdDoctor() >= 70 ? 0 : 1);
-  case 'learn':   cmdLearn(); break;
-  case 'audit':   cmdAudit(args[0]); break;
-  case 'status':  cmdStatus(); break;
-  default:
-    console.log('SICC Harness CLI v6.4\nUso: node sicc-harness.js [doctor|learn|audit|status]');
-    break;
+  switch (cmd) {
+    case 'doctor':  process.exit(cmdDoctor() >= 70 ? 0 : 1);
+    case 'learn':   cmdLearn(); break;
+    case 'audit':   cmdAudit(args[0]); break;
+    case 'status':  cmdStatus(); break;
+    default:
+      console.log('SICC Harness CLI v6.4\nUso: node sicc-harness.js [doctor|learn|audit|status]');
+      break;
+  }
 }
 
 // Exportar para uso como módulo desde src/index.js

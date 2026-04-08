@@ -13,8 +13,8 @@ const { leerNoLeidos, formatearCorreos, enviarCorreo } = require('./gmail');
 const { infoRepo, ultimosCommits, issuesAbiertos, listarCarpeta, leerArchivo,
         formatearInfo, formatearCommits, formatearIssues, OWNER, REPO } = require('./github');
 
-const DOWNLOADS_DIR = '/app/data/downloads';
-const LOGS_DIR = '/app/data/logs';
+const DOWNLOADS_DIR = path.join(__dirname, '../data/downloads');
+const LOGS_DIR = path.join(__dirname, '../data/logs');
 if (!fs.existsSync(DOWNLOADS_DIR)) fs.mkdirSync(DOWNLOADS_DIR, { recursive: true });
 if (!fs.existsSync(LOGS_DIR)) fs.mkdirSync(LOGS_DIR, { recursive: true });
 

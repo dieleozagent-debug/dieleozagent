@@ -102,3 +102,7 @@ docker compose up -d --build
 *   **Trazabilidad:** Todos los cambios importantes terminan en un commit de Git con el ID del dictamen técnico.
 *   **Brain separado:** Cambios en la identidad/criterios → commit en `brain/`, no en `agente/`.
 *   **Identidad:** El bot es tu **Administrador Contractual + Diseñador UX Specialist**.
+
+---
+> [!NOTE]
+> Para una visión técnica profunda del ecosistema, consulta la [Arquitectura Soberana v6.4](file:///home/administrador/docker/agente/architecture.md).

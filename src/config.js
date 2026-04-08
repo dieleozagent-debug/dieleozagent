@@ -1,7 +1,7 @@
 // config.js — Lectura y validación centralizada de variables de entorno
 'use strict';
 
-require('dotenv').config();
+require('dotenv').config({ path: __dirname + '/../.env' });
 
 /**
  * Lee una variable de entorno. Lanza error si es requerida y no existe.
@@ -18,8 +18,8 @@ function env(key, required = true) {
 const config = {
   // ── Telegram ──────────────────────────────────────────────────────────────
   telegram: {
-    token: env('TELEGRAM_BOT_TOKEN'),
-    userId: env('TELEGRAM_USER_ID'),
+    token: env('TELEGRAM_BOT_TOKEN', false),
+    userId: env('TELEGRAM_USER_ID', false),
   },
 
   // ── Proveedores de IA ─────────────────────────────────────────────────────
@@ -41,6 +41,11 @@ const config = {
       model: env('OPENROUTER_MODEL', false) || 'openai/gpt-4o-mini',
     },
 
+    ollama: {
+      host: env('OLLAMA_HOST', false) || 'http://ollama:11434',
+      model: env('OLLAMA_MODEL', false) || 'sicc-cerebro:latest',
+    },
+
     // ── Búsqueda Web (Tavily) ────────────────────────────────────────────────
     tavily: {
       apiKey: env('TAVILY_API_KEY', false),
@@ -58,14 +63,15 @@ const config = {
 const hasGemini = !!config.ai.gemini.apiKey;
 const hasGroq = !!config.ai.groq.apiKey;
 const hasOpenrouter = !!config.ai.openrouter.apiKey;
+const hasOllama = !!config.ai.ollama.host;
 
-if (!hasGemini && !hasGroq && !hasOpenrouter) {
-  console.error('[CONFIG] ❌ Debes configurar al menos una API de IA (GOOGLE_GEMINI_API_KEY, GROQ_API_KEY o OPENROUTER_API_KEY)');
+if (!hasGemini && !hasGroq && !hasOpenrouter && !hasOllama) {
+  console.error('[CONFIG] ❌ Debes configurar al menos una API de IA (Gemini, Groq, OpenRouter u Ollama)');
   process.exit(1);
 }
 
 console.log(`[CONFIG] ✅ Agente: ${config.agent.name}`);
 console.log(`[CONFIG] ✅ Proveedor primario: ${config.ai.primaryProvider}`);
-console.log(`[CONFIG] ✅ Proveedores disponibles: ${[hasGemini && 'Gemini', hasGroq && 'Groq', hasOpenrouter && 'OpenRouter'].filter(Boolean).join(', ')}`);
+console.log(`[CONFIG] ✅ Proveedores disponibles: ${[hasGemini && 'Gemini', hasGroq && 'Groq', hasOpenrouter && 'OpenRouter', hasOllama && 'Ollama'].filter(Boolean).join(', ')}`);
 
 module.exports = config;

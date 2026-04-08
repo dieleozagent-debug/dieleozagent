@@ -4,12 +4,17 @@
 const fs = require('fs');
 const path = require('path');
 
-const MEMORY_DIR = '/app/data/memory';
-const MAX_DIAS_CARGAR = 3; // Cuántos días de historial inyectar al contexto
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '../data');
+const MEMORY_DIR = path.join(DATA_DIR, 'memory');
+const MAX_DIAS_CARGAR = 3; 
 
 // Asegura que el directorio existe
 if (!fs.existsSync(MEMORY_DIR)) {
-  fs.mkdirSync(MEMORY_DIR, { recursive: true });
+  try {
+    fs.mkdirSync(MEMORY_DIR, { recursive: true });
+  } catch (err) {
+    console.warn(`[MEMORY] ⚠️ No se pudo crear el directorio de memoria: ${err.message}`);
+  }
 }
 
 /**

@@ -12,6 +12,9 @@ services:
       - /home/administrador/docker/agente/brain:/app/data/brain
       # Repo LFC2 montado como espacio de trabajo del agente
       - /home/administrador/docker/LFC2:/app/repos/LFC2
+      # Mapeo de código y scripts para desarrollo y herramientas
+      - /home/administrador/docker/agente/src:/app/src
+      - /home/administrador/docker/agente/scripts:/app/scripts
       # Contratos PDF montados temporalmente para ingesta RAG
       - '/home/administrador/docker/agente/Contrato pdf:/app/Contrato pdf'
     networks:
@@ -21,6 +24,26 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: opengravity-ollama
+    restart: unless-stopped
+    ports:
+      - "11435:11434"
+    volumes:
+      - /home/administrador/ollama-data:/root/.ollama
+    environment:
+      - OLLAMA_KEEP_ALIVE=-1
+    # NOTA: DNS externo — El embedded DNS de supabase_network bloquea UDP/53.
+    # Para descargar modelos, usar: docker run --rm --network host -v /home/administrador/ollama-data:/root/.ollama
+    #                                --entrypoint sh ollama/ollama -c "ollama serve & sleep 5 && ollama pull gemma4:e4b"
+    deploy:
+      resources:
+        limits:
+          cpus: '3'
+    networks:
+      - supabase_network_sicc-local
 
 networks:
   supabase_network_sicc-local:

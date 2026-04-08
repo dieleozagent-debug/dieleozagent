@@ -17,9 +17,12 @@ const SOVEREIGN_INVARIANTS = [
     { rule: "POWER_REDUNDANCY", pattern: /Reducción de carga|Eliminar alimentación Red Vital/i, fix: "Potencia Híbrida / Respaldo 12h" },
     { rule: "VITAL_NODES", pattern: /Menos de 37 nodos|Reducción de torres/i, fix: "37 Nodos Red Vital Mandatorios" },
     { rule: "SECURITY_LAYERS", pattern: /TETRA únicamente|Sin Vital IP/i, fix: "Multi-capa (Red Vital + TETRA + Fibra)" },
+    { rule: "MAINTENANCE_PHILOSOPHY", pattern: /Mantenimiento Preventivo Físico|Recambio por tiempo/i, fix: "Mantenimiento Predictivo / Basado en Condición (N-1)" },
+    { rule: "REDUNDANCY_OVERHEAD", pattern: /Doble canal G.655|Backbone legacy/i, fix: "Red Vital IP (G.652.D) / Backbone Soberano" },
     { old: /Eurobaliza/i, new: "Baliza Virtual (GNSS)" },
     { old: /Caja Negra/i, new: "Arquitectura Abierta SICC" },
-    { old: /Propropietario/i, new: "Soberano" }
+    { old: /Propropietario/i, new: "Soberano" },
+    { old: /Visita técnica trimestral/i, new: "Monitoreo Remoto Vital" }
 ];
 
 const FORBIDDEN_PATHS = /[^a-zA-Z0-9_\-\.\/]/; // Nada que no sea URL-Safe

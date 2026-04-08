@@ -4,8 +4,10 @@
 const fs = require('fs');
 const path = require('path');
 
-// Los archivos del cerebro viven en el volumen persistente
-const BRAIN_DIR = path.join('/app/data/brain');
+// Los archivos del cerebro viven en el volumen persistente (Docker) o localmente (Desarrollo)
+const BRAIN_DIR = fs.existsSync('/app/data/brain') 
+  ? '/app/data/brain' 
+  : path.join(__dirname, '../brain');
 
 // Orden y peso de los archivos en el system prompt
 const BRAIN_FILES = [
