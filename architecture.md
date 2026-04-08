@@ -20,10 +20,13 @@ La separación de preocupaciones se logra mediante tres unidades independientes 
 | **[Brain](https://github.com/dieleozagent-debug/brain)** | SSOT: identidad, criterios, memoria, Skills | Markdown, JSON |
 | **[LFC2](https://github.com/dieleozagent-debug/LFC2)** | Verdad de Ingeniería: planos, DTs, contratos | Markdown, HTML |
 
-### Nodo de Inferencia
-- **Primario (Local):** Ollama con `gemma4-light:latest` (Q4_K_M, 5.0 GB).
-- **SICC Hard-Cap:** Límite estricto de 3 CPUs — garantiza SSH ininterrumpido.
-- **Fallback Cloud:** Groq (Llama-3.3-70B) → Gemini → OpenRouter.
+### Nodo de Inferencia (v6.4.5 Alpha 2026 Edition)
+- **Vigilia (Bot/Swarm):** Cloud-First vía OpenRouter con el motor **Alpha 2026 Elite**.
+  - **Auditor:** `qwen/qwen3.5-flash` (#2 mundial en Legal, $0.065/M).
+  - **Estratega:** `anthropic/claude-sonnet-4.6` (Lógica Senior SIL-4).
+  - **Contexto:** Destilación dinámica vía `google/gemini-3.1-flash-lite-preview` ($0.25/M).
+- **Sueño (Autónomo):** Ollama con `gemma4-light:latest` (Local/Soberano).
+- **SICC Hard-Cap:** Límite estricto de 3 CPUs para procesos locales.
 
 ---
 
@@ -62,7 +65,11 @@ Middleware de planificación CPU-aware que protege el host de 4 núcleos.
 
 > [!TIP]
 > **Paradigma de Inteligencia Asimétrica (Vigilia vs Sueño):** 
-> Para optimizar la usabilidad (UX), el sistema prioriza proveedores Cloud de alta velocidad (Groq/Gemini) durante la interacción diurna en Telegram (respuestas < 1 min). El procesamiento profundo y soberano se reserva para el **Dreamer Nocturno**, donde Ollama realiza escaneos exhaustivos sin presión de tiempo.
+> Para optimizar la usabilidad (UX) y el gasto de créditos, el sistema utiliza un **Enjambre Híbrido** diurno (abril 2026) en Telegram. El **80% del trabajo forense** lo realiza un modelo de bajo costo y alta precisión legal (Qwen 3.5), dejando el razonamiento costoso solo para la validación final. El procesamiento profundo y 100% soberano se reserva para el **Dreamer Nocturno** (Ollama).
+
+### 3. Block Thinking & Destilación Dinámica
+Mecanismo para evadir el **Error 413 (Token Limit)** en nubes comerciales.
+- **Lógica:** Si el contexto RAG + Skills excede 10k caracteres, el sistema invoca un "Sumarizador Flash" que sintetiza la información antes de la inferencia principal, manteniendo la coherencia técnica sin saturar el payload.
 
 ### 3. SICC Dreamer (Autonomía Nocturna)
 El Agente trabaja mientras Diego duerme — sin intervención humana.
