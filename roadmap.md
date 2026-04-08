@@ -21,18 +21,29 @@
 *   **Saneamiento Karpathy O&M:** Auditoría forense del manual de O&M y contratos de LFC2 completada con éxito. ✅
 *   **Reparación Dreamer:** Fix de `run-sicc.sh` (propagación args) y configuración de Cron. ✅ (08/04/2026)
 *   **Saneamiento Eléctrico:** Purga de "Detección de Vía" en matriz 110V DC. ✅ (08/04/2026)
-*   **Integración de Comandos:** Activación de `/learn` y `/audit` nativos en Telegram. ✅ (08/04/2026)
-*   **Conectividad Soberana:** Blindaje de red interna entre Docker y Ollama (`http://ollama:11434`). ✅ (08/04/2026)
-*   **Trazabilidad Forense:** Registro automático de comandos técnicos en la memoria persistente. ✅ (08/04/2026)
-*   **Resolución de Crisis de Tokens (v6.4.5):** Implementación de **Block Thinking** y Destilación Dinámica para evadir el Error 413. ✅ (08/04/2026)
-*   **Inteligencia Asimétrica (Vigilia):** Activación del motor **Alpha 2026 Elite** (OpenRouter) para Telegram. ✅ (08/04/2026)
-*   **Enjambre Híbrido de Bajo Costo:** Integración de **Qwen 3.5 Flash (Legal #2)** para auditoría a $0.065/M. ✅ (08/04/2026)
-*   **LTM Supabase Integration:** Motor RAG vectorial 100% operativo para búsqueda en contratos. ✅ (08/04/2026)
-*   **Sincronización de Memoria (v6.4.8):** Alineación total de 23 archivos del Brain, 7 Skills y 3 Workflows operativos. ✅ (08/04/2026)
-*   **Resolución de Crisis de Tokens (v6.4.5):** Implementación de **Block Thinking** y Destilación Dinámica para evadir el Error 413. ✅ (08/04/2026)
-*   **Inteligencia Asimétrica (Vigilia):** Activación del motor **Alpha 2026 Elite** (OpenRouter) para Telegram. ✅ (08/04/2026)
-*   **Enjambre Híbrido de Bajo Costo:** Integración de **Qwen 3.5 Flash (Legal #2)** para auditoría a $0.065/M. ✅ (08/04/2026)
-*   **Evolución Estratégica:** Despliegue de **Claude 4.6 (Sonnet/Opus)** para decisiones senior SIL-4. ✅ (08/04/2026)
+*   **Integración de Comandos:**# 🗺️ ROADMAP: SICC SOVEREIGN TOWER (Alpha 2026 Edition)
+## El Viaje de la Semilla al Plato Blindado
+
+### 🎬 1. ORIGEN: ¿QUÉ INICIAMOS? (MARZO 2026)
+Iniciamos con el **Saneamiento Técnico v6.4**, un proceso de purga radical para eliminar el "Legado" (Cobre, RBC, GSM-R) del proyecto LFC. El objetivo era evolucionar de una IA aditiva (N+1) a un Motor Deductivo (N-1) capaz de auditar contratos masivos.
+
+### ⚔️ 2. ACCIÓN: ¿QUÉ HICIMOS? (ABRIL 2026)
+*   **Matriz de Memoria (Brain Sync):** Elevamos el contexto activo del agente a 17 archivos maestros, integrando el Roadmap en la conciencia permanente. ✅
+*   **Motor Alpha 2026:** Reparamos el cargador de Skills para soportar Markdown (Lógica Híbrida). ✅
+*   **La Primera Regla:** Ejecutamos el **Dictamen FENOCO**, blindando 25 MM USD de CAPEX al declarar el Gateway como Obra Complementaria (Sec 25.4). ✅
+*   **Evolución Tower Control:** Transformamos el Front de LFC2 en un Dashboard **Contract-First**, exponiendo las Reglas de Juego antes que la ingeniería. ✅
+
+### 🛡️ 3. PROPÓSITO: ¿POR QUÉ LO HICIMOS?
+Para eliminar la ambigüedad que genera exposición financiera. Cada decisión de ingeniería en LFC debe ser **"Contractualmente Letal"**: si la ley/norma no lo exige, LFC no lo paga. Hemos creado el blindaje para que Ardanuy y el EPC tengan una base normativa inexpugnable ante la ANI.
+
+### ⚙️ 4. EJECUCIÓN: ¿QUÉ VAMOS A HACER? (NEXT)
+*   **Dictámenes por Equipo (The Law-Link):** Cada "Plato Servido" (V.1 a V.5) debe tener su sustento contractual explícito (Ley, Norma, Resolución).
+*   **Ciclo de Sueño (Night Audit):** Uso intensivo de Ollama (8PM-7AM) para auditar los 70+ entregables y vincularlos a su ADN normativo.
+*   **Indexación Vercel:** Automatizar la exposición de los 23 archivos del Brain como soporte de validación pública.
+
+### 🏁 5. ESTADO ACTUAL Y FIN (HACIA EL CIERRE)
+*   **Estado:** **Fase de Blindaje Jurídico-Técnico Proactivo.** 🕵️‍♂️⚖️
+*   **Horizonte:** Cierre de la Ingeniería de Detalle con **0% de riesgo por asunción voluntaria**. Entrega de la Torre de Control validada como SSOT para la Interventoría.
 
 *   **Alineación de Arquitectura y Cerebro:** Revisión comparativa vs Karpathy-Loop y actualización del manual maestro de arquitectura. ✅ (08/04/2026)
 *   **Sintonización de Skills:** Optimización del prompt dinámico para los 4 dominios corregidos (Telecom, Capex, OM, Contracts). ✅ (08/04/2026)
