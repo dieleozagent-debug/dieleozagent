@@ -1,8 +1,8 @@
-# 🗺️ ROADMAP DE SOBERANÍA TÉCNICA (SICC v6.3.3)
+# 🗺️ ROADMAP DE SOBERANÍA TÉCNICA (SICC v6.4)
 ## Bitácora de Auditoría Forense y Evolución Agéntica
 
-**Última actualización:** 07 de abril de 2026 (Sesión de Estabilización SICC)  
-**Veredicto:** Camino al N-1 (Simplificación Radical)
+**Última actualización:** 08 de abril de 2026 (Sesión de Estabilización SICC v6.4)  
+**Veredicto:** Estabilización de Autonomía Nocturna y Saneamiento Eléctrico Completados
 
 ---
 
@@ -19,12 +19,13 @@
 *   **Estabilidad de Host:** Implementación de **SICC Hard-Cap (3 CPUs)** para blindaje de SSH. ✅
 *   **Swarm Secuencial:** Integración del comando `/swarm` en el bot para debates forenses automáticos y seguros. ✅
 *   **Saneamiento Karpathy O&M:** Auditoría forense del manual de O&M y contratos de LFC2 completada con éxito. ✅
+*   **Reparación Dreamer:** Fix de `run-sicc.sh` (propagación args) y configuración de Cron. ✅ (08/04/2026)
+*   **Saneamiento Eléctrico:** Purga de "Detección de Vía" en matriz 110V DC. ✅ (08/04/2026)
 
 ## 🌀 2. ¿EN QUÉ VAMOS? (CURRENT)
-*   **Alineación de Arquitectura y Cerebro:** Revisión comparativa vs Karpathy-Loop y actualización del manual maestro de arquitectura. ✅ (07/04/2026)
+*   **Alineación de Arquitectura y Cerebro:** Revisión comparativa vs Karpathy-Loop y actualización del manual maestro de arquitectura. ✅ (08/04/2026)
+*   **Sintonización de Skills:** Optimización del prompt dinámico para los 4 dominios corregidos (Telecom, Capex, OM, Contracts).
 *   **Evolución del Cerebro:** Transición del pensamiento acumulativo **N+1** (apilar normas) al deductivo **N-1** (estrategia de mínimos necesarios).
-*   **Auditoría de Incoherencias:** Resolviendo la brecha entre el Alcance (AT1) y el Diseño para imponer el **Wayside-Zero**.
-*   **SSOT Mental:** Actualización de los reportes de inferencia soberana.
 
 ## ⚙️ 3. ¿QUÉ ESTAMOS HACIENDO? (ACTIVE)
 *   **Auditoría de Anexos Financieros:** Preparando el Karpathy-Loop para revisar las matrices CAPEX/OPEX.

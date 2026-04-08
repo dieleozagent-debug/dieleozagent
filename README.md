@@ -1,4 +1,4 @@
-# 🤖 OpenGravity Agent — Ecosistema Soberano v6.3.3
+# 🤖 OpenGravity Agent — Ecosistema Soberano v6.4
 
 > **Stack:** Node.js · Telegram Bot API · **Ollama (Local)** · Groq · Gemini · Docker · Ubuntu Server
 
@@ -36,12 +36,13 @@ agente/
 ## 🚀 Estabilidad y Capacidades Críticas
 
 -   **Multi-Provider Fallback**: **Ollama (Primario Local: gemma4-light:latest)** -> Groq (Secundario Llama-3) -> Gemini.
--   **Safe Prompt Mode**: Truncado automático a 30,000 caracteres para evitar rechazos de payload en APIs externas.
--   **Telegram Message Splitter**: División automática de respuestas técnicas largas (>3500 chars) para garantizar la entrega.
--   **Embeddings Repair**: Sistema de RAG funcional con modelo `models/gemini-embedding-001`.
--   **Karpathy Loop**: Capacidad de auto-investigación y saneamiento proactivo de documentos mediante Decisiones Técnicas (DTs).
--   **SICC Hard-Cap (Stability)**: Límite estricto de 3 núcleos para Ollama, garantizando conectividad SSH ininterrumpida.
--   **Sequential Swarm**: Debate multi-agente forense optimizado para hardware restringido.
+-   **Resource Governor**: Middleware CPU-aware que escala a cloud o encola tareas según la carga del host.
+-   **SICC Dreamer**: Capacidad de auditoría autónoma nocturna (sin intervención humana) vía cron.
+-   **Safe Prompt Mode**: Truncado automático de payloads para garantizar estabilidad en APIs externas.
+-   **Telegram Message Splitter**: División automática de respuestas técnicas largas.
+-   **Karpathy Loop**: Auto-investigación y saneamiento proactivo de documentos (Purge Mode).
+-   **SICC Hard-Cap (Stability)**: Límite estricto de 3 núcleos para Ollama, garantizando SSH ininterrumpido.
+-   **Sequential Swarm**: Debate multi-agente forense optimizado (Auditor vs Estratega).
 
 ---
 
