@@ -186,11 +186,15 @@ async function llamarOllama(mensajeUsuario, _, contextoRAG = '', historialLocal 
     { role: 'user', content: mensajeUsuario },
   ];
 
-  const respuesta = await client.chat.completions.create({
-    model: config.ai.ollama.model,
-    messages: msgs,
-  });
-  return respuesta.choices[0].message.content;
+  try {
+    const respuesta = await client.chat.completions.create({
+      model: config.ai.ollama.model,
+      messages: msgs,
+    });
+    return respuesta.choices[0].message.content;
+  } catch (err) {
+    throw new Error(`Ollama Error: ${err.message}`);
+  }
 }
 
 // ── Selección de proveedor con fallback automático ────────────────────────────
@@ -338,18 +342,35 @@ async function procesarMensajeSwarm(textoUsuario) {
     
     const promptAgente = `[MODO SWARM - ROL: ${agente.nombre}]\n${agente.prompt}\n\nREGLAS: Responde de forma concisa pero letal.\n\n${contextoPrevio}`;
     
+    let respuestaAgente = '';
+    let proveedorAgente = '';
+
     try {
-      // Usamos llamarOllama directamente con un historial local para no contaminar la sesión general
-      const respuesta = await llamarOllama(promptAgente, null, '', []);
-      
-      debateBuffer += `🎭 **${agente.nombre}**\n${respuesta}\n\n---\n\n`;
-      contextoPrevio += `Respuesta de ${agente.nombre}:\n${respuesta}\n\n`;
+      // 1. Intento Soberano (Ollama)
+      try {
+        console.log(`[SWARM] 🏛️ Intentando llamado soberano (Ollama) para ${agente.nombre}...`);
+        respuestaAgente = await llamarOllama(promptAgente, null, '', []);
+        proveedorAgente = 'Ollama (Gemma4)';
+      } catch (ollamaErr) {
+        console.warn(`[SWARM] ⚠️ Ollama falló (${ollamaErr.message}). Activando fallback a la nube...`);
+        // 2. Fallback a la nube (Groq/Gemini)
+        const proveedoresCloud = ordenProveedores().filter(p => p.id !== 'ollama');
+        if (proveedoresCloud.length === 0) throw ollamaErr;
+
+        const bestCloud = proveedoresCloud[0];
+        console.log(`[SWARM] ☁️ Usando fallback cloud: ${bestCloud.id}`);
+        respuestaAgente = await bestCloud.fn(promptAgente, null, '');
+        proveedorAgente = `${bestCloud.id} (Cloud)`;
+      }
+
+      debateBuffer += `🎭 **${agente.nombre}** *(${proveedorAgente})*\n${respuestaAgente}\n\n---\n\n`;
+      contextoPrevio += `Respuesta de ${agente.nombre}:\n${respuestaAgente}\n\n`;
       
       // Delay de seguridad entre agentes para liberar CPU
       await new Promise(resolve => setTimeout(resolve, 2000));
     } catch (err) {
-      console.error(`[SWARM] ❌ Error en ${agente.nombre}:`, err.message);
-      debateBuffer += `⚠️ **${agente.nombre}** falló: ${err.message}\n\n`;
+      console.error(`[SWARM] ❌ Error total en ${agente.nombre}:`, err.message);
+      debateBuffer += `⚠️ **${agente.nombre}** falló tras reintentos: ${err.message}\n\n`;
     }
   }
 

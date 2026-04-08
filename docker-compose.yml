@@ -5,6 +5,10 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      - BRAIN_ROOT=/app/data/brain
+      - LFC2_ROOT=/app/repos/LFC2
+      - OLLAMA_HOST=http://ollama:11434
     volumes:
       # Datos persistentes del agente (memoria, logs)
       - /home/administrador/data-agente:/app/data

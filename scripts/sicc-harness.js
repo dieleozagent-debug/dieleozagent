@@ -17,10 +17,10 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 const os = require('os');
+const config = require('../src/config');
 
-const AGENTE_ROOT = path.join(__dirname, '..');
-const LFC2_ROOT   = '/home/administrador/docker/LFC2';
-const BRAIN_ROOT  = path.join(AGENTE_ROOT, 'brain');
+const LFC2_ROOT   = config.paths.lfc2;
+const BRAIN_ROOT  = config.paths.brain;
 const DREAMS_FILE = path.join(BRAIN_ROOT, 'DREAMS.md');
 const PENDING_DTS = path.join(BRAIN_ROOT, 'PENDING_DTS.md');
 
@@ -100,6 +100,8 @@ function cmdDoctor() {
 
   // Git status de LFC2
   try {
+    // Asegurar que el directorio es seguro para git (especialmente dentro de Docker)
+    execSync(`git config --global --add safe.directory ${LFC2_ROOT}`);
     const gitStatus = execSync(`git -C ${LFC2_ROOT} status --porcelain`).toString().trim();
     if (gitStatus) {
       console.log(`[WARN]  LFC2 tiene cambios sin commit (${gitStatus.split('\n').length} archivos)`);
@@ -109,6 +111,22 @@ function cmdDoctor() {
   } catch (e) {
     score -= 5; errores.push('No se puede acceder a git LFC2');
     console.log('[FAIL]  LFC2 — Git inaccesible');
+  }
+
+  // Ollama Connectivity
+  try {
+    const ollamaStatus = execSync(`curl -s -o /dev/null -w "%{http_code}" ${config.ai.ollama.host}/api/tags`).toString().trim();
+    if (ollamaStatus === '200') {
+      console.log(`[PASS]  Ollama: ${config.ai.ollama.host} — OK`);
+    } else {
+      score -= 10;
+      errores.push(`Ollama inaccesible (HTTP ${ollamaStatus})`);
+      console.log(`[FAIL]  Ollama: ${config.ai.ollama.host} — Error HTTP ${ollamaStatus}`);
+    }
+  } catch (e) {
+    score -= 10;
+    errores.push('Ollama inaccesible (Connection Refused)');
+    console.log(`[FAIL]  Ollama: ${config.ai.ollama.host} — No responde`);
   }
 
   // Dreamer queue

@@ -57,6 +57,12 @@ const config = {
     name: env('AGENT_NAME', false) || 'OpenGravity',
     language: env('AGENT_LANGUAGE', false) || 'es',
   },
+
+  // ── Rutas (Sovereign Paths) ───────────────────────────────────────────────
+  paths: {
+    brain: env('BRAIN_ROOT', false) || path.join(__dirname, '../brain'),
+    lfc2: env('LFC2_ROOT', false) || '/home/administrador/docker/LFC2',
+  },
 };
 
 // Validación: al menos un proveedor de IA debe estar configurado
