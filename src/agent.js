@@ -17,13 +17,27 @@ function seleccionarSkills(textoUsuario) {
   const texto = textoUsuario.toLowerCase();
   let injected = '';
   try {
-    const archivos = fs.readdirSync(SKILLS_DIR).filter(f => f.endsWith('.json'));
+    const archivos = fs.readdirSync(SKILLS_DIR);
     for (const archivo of archivos) {
-      const skill = JSON.parse(fs.readFileSync(require('path').join(SKILLS_DIR, archivo), 'utf8'));
-      const match = skill.activadores.some(a => texto.includes(a.toLowerCase()));
-      if (match) {
-        injected += '\n\n' + skill.prompt_injection;
-        console.log(`[SKILLS] 🎯 Skill cargado: ${skill.id}`);
+      if (archivo.endsWith('.json')) {
+        const skill = JSON.parse(fs.readFileSync(require('path').join(SKILLS_DIR, archivo), 'utf8'));
+        const match = skill.activadores.some(a => texto.includes(a.toLowerCase()));
+        if (match) {
+          injected += '\n\n' + skill.prompt_injection;
+          console.log(`[SKILLS] 🎯 Skill (JSON) cargado: ${skill.id}`);
+        }
+      } else if (archivo.endsWith('.md')) {
+        // Lógica para skills en Markdown: usamos el nombre del archivo (sin extensión) como activador
+        const skillId = archivo.replace('.md', '').toLowerCase();
+        // Si el usuario menciona palabras clave del skill o el nombre del archivo directamente
+        const activadoresMD = [skillId, ...skillId.split('_'), ...skillId.split('-')];
+        const matchMD = activadoresMD.some(a => a.length > 3 && texto.includes(a));
+        
+        if (matchMD) {
+          const contenidoMD = fs.readFileSync(require('path').join(SKILLS_DIR, archivo), 'utf8');
+          injected += `\n\n## SKILL CAPABILITY: ${skillId.toUpperCase()}\n\n${contenidoMD}`;
+          console.log(`[SKILLS] 📚 Skill (MD) cargado: ${skillId}`);
+        }
       }
     }
   } catch (e) {
@@ -42,38 +56,40 @@ const OpenAI = require('openai');
 const historial = [];
 const MAX_HISTORIAL = 20;
 
-// System prompt: brain + memoria reciente, construido al arrancar
-let SYSTEM_PROMPT = '';
+// System prompts: full para Ollama/Dreamer, fast para Cloud/Bot
+let PROMPT_FULL = '';
+let PROMPT_FAST = '';
 
 function inicializarBrain() {
-  const brain   = construirSystemPrompt();
-  const memoria = cargarMemoriaReciente();
+  const brainFull = construirSystemPrompt('full');
+  const brainFast = construirSystemPrompt('fast');
+  const memoria   = cargarMemoriaReciente();
 
-  SYSTEM_PROMPT = brain;
+  PROMPT_FULL = brainFull;
+  PROMPT_FAST = brainFast;
+
   if (memoria) {
-    SYSTEM_PROMPT +=
-      '\n\n' + '═'.repeat(60) +
-      '\n## MEMORIA DE CONVERSACIONES ANTERIORES\n\n' +
-      memoria +
-      '\n' + '═'.repeat(60);
-    console.log('[AGENTE] ✅ Memoria reciente inyectada en el system prompt');
+    const memBlock = '\n\n' + '═'.repeat(60) + '\n## MEMORIA RECIENTE\n\n' + memoria + '\n' + '═'.repeat(60);
+    PROMPT_FULL += memBlock;
+    PROMPT_FAST += memBlock;
+    console.log('[AGENTE] ✅ Memoria reciente inyectada en system prompts');
   }
 }
 
 // ── Proveedores de IA ─────────────────────────────────────────────────────────
 
-async function llamarGemini(mensajeUsuario, archivoTmpInfo, contextoRAG = '') {
+async function llamarGemini(mensajeUsuario, archivoTmpInfo, contextoRAG = '', systemPrompt = null) {
   const genAI = new GoogleGenerativeAI(config.ai.gemini.apiKey);
   const fileManager = new GoogleAIFileManager(config.ai.gemini.apiKey);
   
+  const finalSystemPrompt = systemPrompt || PROMPT_FAST;
   let systemInstruction = contextoRAG 
-    ? SYSTEM_PROMPT + '\n\n' + contextoRAG 
-    : SYSTEM_PROMPT;
+    ? finalSystemPrompt + '\n\n' + contextoRAG 
+    : finalSystemPrompt;
 
-  // Modo seguro: Si el prompt es demasiado grande, truncamos para evitar errores de payload
-  if (systemInstruction.length > 30000) {
-    console.warn(`[AGENTE] ⚠️ System Prompt muy grande (${systemInstruction.length}). Truncando a 30k chars.`);
-    systemInstruction = systemInstruction.substring(0, 30000) + '\n... [TRUNCADO POR SEGURIDAD]';
+  // Modo seguro (Cloud caps at 15k for stability)
+  if (systemInstruction.length > 15000) {
+    systemInstruction = systemInstruction.substring(0, 15000) + '\n... [TRUNCADO POR SEGURIDAD]';
   }
 
   console.log(`[AGENTE] 🔵 Invocando llamarGemini. Modelo: ${config.ai.gemini.model}. Chars: ${systemInstruction.length}`);
@@ -122,16 +138,17 @@ async function llamarGemini(mensajeUsuario, archivoTmpInfo, contextoRAG = '') {
   }
 }
 
-async function llamarGroq(mensajeUsuario, _, contextoRAG = '') {
+async function llamarGroq(mensajeUsuario, _, contextoRAG = '', systemPrompt = null) {
   const groq = new Groq({ apiKey: config.ai.groq.apiKey });
   
+  const finalSystemPrompt = systemPrompt || PROMPT_FAST;
   let systemInstruction = contextoRAG 
-    ? SYSTEM_PROMPT + '\n\n' + contextoRAG 
-    : SYSTEM_PROMPT;
+    ? finalSystemPrompt + '\n\n' + contextoRAG 
+    : finalSystemPrompt;
 
-  // Modo seguro
-  if (systemInstruction.length > 30000) {
-    systemInstruction = systemInstruction.substring(0, 30000) + '\n... [TRUNCADO POR SEGURIDAD]';
+  // Límite estricto para Groq Free Tier (15k chars ≈ 4k-5k tokens)
+  if (systemInstruction.length > 15000) {
+    systemInstruction = systemInstruction.substring(0, 15000) + '\n... [TRUNCADO POR SEGURIDAD]';
   }
 
   console.log(`[AGENTE] 🟠 Invocando llamarGroq. Modelo: ${config.ai.groq.model}. Chars: ${systemInstruction.length}`);
@@ -147,19 +164,20 @@ async function llamarGroq(mensajeUsuario, _, contextoRAG = '') {
   return respuesta.choices[0].message.content;
 }
 
-async function llamarOpenRouter(mensajeUsuario, _, contextoRAG = '') {
+async function llamarOpenRouter(mensajeUsuario, _, contextoRAG = '', systemPrompt = null, modelOverride = null) {
   const client = new OpenAI({
     baseURL: 'https://openrouter.ai/api/v1',
     apiKey: config.ai.openrouter.apiKey,
     defaultHeaders: { 'HTTP-Referer': 'http://localhost', 'X-Title': config.agent.name },
   });
   
+  const finalSystemPrompt = systemPrompt || PROMPT_FAST;
   const systemInstruction = contextoRAG 
-    ? SYSTEM_PROMPT + '\n\n' + contextoRAG 
-    : SYSTEM_PROMPT;
+    ? finalSystemPrompt + '\n\n' + contextoRAG 
+    : finalSystemPrompt;
 
   const respuesta = await client.chat.completions.create({
-    model: config.ai.openrouter.model,
+    model: modelOverride || config.ai.openrouter.model,
     messages: [
       { role: 'system', content: systemInstruction },
       ...historial.map(h => ({ role: h.role, content: h.content })),
@@ -170,15 +188,16 @@ async function llamarOpenRouter(mensajeUsuario, _, contextoRAG = '') {
   return respuesta.choices[0].message.content;
 }
 
-async function llamarOllama(mensajeUsuario, _, contextoRAG = '', historialLocal = null) {
+async function llamarOllama(mensajeUsuario, _, contextoRAG = '', historialLocal = null, systemPrompt = null) {
   const client = new OpenAI({
     baseURL: `${config.ai.ollama.host}/v1`,
     apiKey: 'ollama', 
   });
   
+  const finalSystemPrompt = systemPrompt || PROMPT_FULL;
   const systemInstruction = contextoRAG 
-    ? SYSTEM_PROMPT + '\n\n' + contextoRAG 
-    : SYSTEM_PROMPT;
+    ? finalSystemPrompt + '\n\n' + contextoRAG 
+    : finalSystemPrompt;
 
   const msgs = [
     { role: 'system', content: systemInstruction },
@@ -197,8 +216,6 @@ async function llamarOllama(mensajeUsuario, _, contextoRAG = '', historialLocal 
   }
 }
 
-// ── Selección de proveedor con fallback automático ────────────────────────────
-
 function ordenProveedores() {
   const todos = [
     { id: 'ollama',     fn: llamarOllama,     habilitado: !!config.ai.ollama.host },
@@ -208,13 +225,37 @@ function ordenProveedores() {
   ].filter(p => p.habilitado);
 
   const primario = config.ai.primaryProvider;
-  console.log(`[AGENTE] 🔍 Debug ordenProveedores: primario=${primario}, keys: gemini=${!!config.ai.gemini.apiKey}, groq=${!!config.ai.groq.apiKey}, openrouter=${!!config.ai.openrouter.apiKey}`);
+  console.log(`[AGENTE] 🔍 Debug: primario=${primario}, keys: gemini=${!!config.ai.gemini.apiKey}, groq=${!!config.ai.groq.apiKey}`);
   const res = [
     ...todos.filter(p => p.id === primario),
     ...todos.filter(p => p.id !== primario),
   ];
-  console.log(`[AGENTE] 📋 Orden de proveedores calculado: ${res.map(p => p.id).join(' -> ')}. Tamaño System Prompt: ${SYSTEM_PROMPT.length} chars.`);
+  console.log(`[AGENTE] 📋 Orden: ${res.map(p => p.id).join(' -> ')}. Prompts: Fast=${PROMPT_FAST.length}, Full=${PROMPT_FULL.length}`);
   return res;
+}
+
+/**
+ * Destila un contexto largo en una síntesis cohesiva usando un modelo rápido.
+ */
+async function sumarizarContexto(contextoLargo) {
+  console.log(`[BLOCK-THINKING] 🧠 Destilando bloque de contexto largo (${contextoLargo.length} caracteres)...`);
+  
+  // Usamos el modelo ultra-rápido definido para el resumidor
+  const modelSumarizador = config.ai.swarm.sumarizador;
+  
+  try {
+    const resumen = await llamarOpenRouter(
+      `Sintetiza la información clave técnica de este fragmento para que un ingeniero senior tome una decisión rápida. No pierdas datos críticos ni nombres de archivos.`,
+      null, 
+      contextoLargo, 
+      "Eres un sintetizador técnico forense.",
+      modelSumarizador
+    );
+    return `## SÍNTESIS DE CONTEXTO (Destilado):\n${resumen}`;
+  } catch (err) {
+    console.warn(`[BLOCK-THINKING] ⚠️ Fallo en destilación: ${err.message}. Usando truncado.`);
+    return contextoLargo.substring(0, 5000) + '... [TRUNCADO]';
+  }
 }
 
 /**
@@ -264,27 +305,27 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo) {
     }
   }
 
+  // Obtener Skills antes de construir el contexto final
   const skillsContext = seleccionarSkills(textoUsuario);
-  const contextoFinal = (contextoRAG || '') + (contextoWeb || '') + (skillsContext || '');
+  let contextoFinal = (contextoRAG || '') + (contextoWeb || '') + (skillsContext || '');
+  
+  // Pensamiento por Bloques: si el contexto es muy grande (> 10k), lo destilamos
+  if (contextoFinal.length > 10000) {
+    contextoFinal = await sumarizarContexto(contextoFinal);
+  }
 
   for (const proveedor of proveedores) {
     try {
-      // Saltar Ollama si CPU está crítica — dejar que fallen los proveedores y caiga al cloud
-      if (recursos.level === 'CRITICAL' && proveedor.id === 'ollama') {
-        console.log('[AGENT] ⏭️ Saltando Ollama por CPU crítica → fallback a cloud.');
-        continue;
-      }
+      // ── MODO ASIMÉTRICO ───────────────────────────────────────────────────
+      // Si estamos en el Bot (Vigilia), preferimos Cloud + Prompt Fast
+      const currentPrompt = (proveedor.id === 'ollama') ? PROMPT_FULL : PROMPT_FAST;
 
-      // Solo Gemini soporta File API en nuestra config actual
-      if (archivoTmpInfo && proveedor.id !== 'gemini') {
-        console.log(`[AGENTE] ⏭️ Saltando ${proveedor.id} porque hay un archivo adjunto.`);
-        continue;
-      }
+      console.log(`[AGENTE] Usando proveedor: ${proveedor.id} (Prompt: ${currentPrompt.length} chars)`);
+      const respuesta = await proveedor.fn(textoUsuario, archivoTmpInfo, contextoFinal, currentPrompt);
 
-      console.log(`[AGENTE] Usando proveedor: ${proveedor.id}`);
-      const respuesta = await proveedor.fn(textoUsuario, archivoTmpInfo, contextoFinal);
+      if (!respuesta) throw new Error('Respuesta vacía del proveedor');
 
-      // Guardar en historial de sesión (sin el archivo para simplificar memoria larga)
+      // Guardar en historial de sesión
       const textoFinalUsr = archivoTmpInfo ? `[Archivo: ${archivoTmpInfo.name}] ${textoUsuario}` : textoUsuario;
       historial.push({ role: 'user',      content: textoFinalUsr });
       historial.push({ role: 'assistant', content: respuesta    });
@@ -346,22 +387,29 @@ async function procesarMensajeSwarm(textoUsuario) {
     let proveedorAgente = '';
 
     try {
-      // 1. Intento Soberano (Ollama)
-      try {
-        console.log(`[SWARM] 🏛️ Intentando llamado soberano (Ollama) para ${agente.nombre}...`);
-        respuestaAgente = await llamarOllama(promptAgente, null, '', []);
-        proveedorAgente = 'Ollama (Gemma4)';
-      } catch (ollamaErr) {
-        console.warn(`[SWARM] ⚠️ Ollama falló (${ollamaErr.message}). Activando fallback a la nube...`);
-        // 2. Fallback a la nube (Groq/Gemini)
-        const proveedoresCloud = ordenProveedores().filter(p => p.id !== 'ollama');
-        if (proveedoresCloud.length === 0) throw ollamaErr;
+      const proveedoresSwarm = ordenProveedores();
+      const mejorProveedor = proveedoresSwarm[0];
 
-        const bestCloud = proveedoresCloud[0];
-        console.log(`[SWARM] ☁️ Usando fallback cloud: ${bestCloud.id}`);
-        respuestaAgente = await bestCloud.fn(promptAgente, null, '');
-        proveedorAgente = `${bestCloud.id} (Cloud)`;
-      }
+      // ── MODO HÍBRIDO ASIMÉTRICO ───────────────────────────────────────────
+      // Asignamos el modelo según el rol del agente (solo aplica a OpenRouter/Cloud)
+      const modelRoles = {
+        'AUDITOR FORENSE': config.ai.swarm.auditor,
+        'ESTRATEGA SICC': config.ai.swarm.strategist
+      };
+      const modelOverride = (mejorProveedor.id === 'openrouter') ? modelRoles[agente.nombre] : null;
+
+      console.log(`[SWARM] 🤖 Invocando a ${agente.nombre} vía ${mejorProveedor.id} (${modelOverride || 'default'})...`);
+      
+      // Si el contexto previo es largo, lo destilamos antes de pasarlo al siguiente agente
+      const promptOptimizado = contextoPrevio.length > 5000 
+        ? await sumarizarContexto(contextoPrevio) 
+        : contextoPrevio;
+
+      // El prompt del sistema depende de si el proveedor es local o nube
+      const currentPrompt = (mejorProveedor.id === 'ollama') ? PROMPT_FULL : PROMPT_FAST;
+
+      respuestaAgente = await mejorProveedor.fn(promptAgente, null, promptOptimizado, currentPrompt, modelOverride);
+      proveedorAgente = mejorProveedor.id === 'ollama' ? 'Ollama (Soberano)' : `${mejorProveedor.id} (${modelOverride || 'Cloud'})`;
 
       debateBuffer += `🎭 **${agente.nombre}** *(${proveedorAgente})*\n${respuestaAgente}\n\n---\n\n`;
       contextoPrevio += `Respuesta de ${agente.nombre}:\n${respuestaAgente}\n\n`;
@@ -384,5 +432,6 @@ module.exports = {
   limpiarHistorial,
   llamarOllama,
   config,
-  SYSTEM_PROMPT
+  PROMPT_FULL,
+  PROMPT_FAST
 };

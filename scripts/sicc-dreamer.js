@@ -77,19 +77,17 @@ async function inferirConOllama(hipotesis) {
 
   // Importamos dinámicamente para no cargar el config completo en modo cron
   const OpenAI = require('openai');
-  const ollamaHost = process.env.OLLAMA_HOST || 'http://localhost:11435';
+  const ollamaHost = process.env.OLLAMA_HOST || 'http://ollama:11434';
   const ollamaModel = process.env.OLLAMA_MODEL || 'gemma4-light:latest';
 
   const client = new OpenAI({ baseURL: `${ollamaHost}/v1`, apiKey: 'ollama' });
 
-  const systemPrompt = `Eres el AUDITOR FORENSE SICC operando en modo AUTÓNOMO (Dreamer).
-Tu misión: analizar la hipótesis técnica dada y generar un BORRADOR DE DECISIÓN TÉCNICA (DT) conciso.
-Formato de respuesta obligatorio:
-## DT-DRAFT: [título de 5 palabras]
-**Hallazgo:** [1 párrafo]
-**Evidencia:** [archivo o cláusula]
-**Propuesta de Saneamiento:** [acción concreta]
-**Impacto CAPEX:** [alto/medio/bajo]`;
+  const { construirSystemPrompt } = require('../src/brain');
+  const brainFull = construirSystemPrompt('full');
+
+  const systemPrompt = `Eres el AUDITOR FORENSE SICC operando en modo AUTÓNOMO (Dreamer).\n\n` + 
+    `CEREBRO DE REFERENCIA:\n${brainFull}\n\n` +
+    `Tu misión: analizar la hipótesis técnica dada y generar un BORRADOR DE DECISIÓN TÉCNICA (DT) conciso.`;
 
   const respuesta = await client.chat.completions.create({
     model: ollamaModel,

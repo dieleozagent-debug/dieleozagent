@@ -46,6 +46,13 @@ const config = {
       model: env('OLLAMA_MODEL', false) || 'sicc-cerebro:latest',
     },
 
+    // ── Swarm de Alta Velocidad (Hybrid Mode) ──────────────────────────────
+    swarm: {
+      auditor: env('SWARM_MODEL_AUDITOR', false) || 'deepseek/deepseek-chat',
+      strategist: env('SWARM_MODEL_STRATEGIST', false) || 'anthropic/claude-3.5-sonnet',
+      sumarizador: env('SUMMARIZER_MODEL', false) || 'meta-llama/llama-3.1-8b-instant',
+    },
+
     // ── Búsqueda Web (Tavily) ────────────────────────────────────────────────
     tavily: {
       apiKey: env('TAVILY_API_KEY', false),

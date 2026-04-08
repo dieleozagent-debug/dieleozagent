@@ -33,15 +33,15 @@ agente/
 
 ---
 
-## 🚀 Estabilidad y Capacidades Críticas
+## 🚀 Estabilidad y Capacidades Críticas (v6.4.8 Alpha 2026 Edition)
 
--   **Multi-Provider Fallback**: **Ollama (Primario Local: gemma4-light:latest)** -> Groq (Secundario Llama-3) -> Gemini.
--   **Resource Governor**: Middleware CPU-aware que escala a cloud o encola tareas según la carga del host.
--   **SICC Dreamer**: Capacidad de auditoría autónoma nocturna (sin intervención humana) vía cron.
--   **Safe Prompt Mode**: Truncado automático de payloads para garantizar estabilidad en APIs externas.
--   **Telegram Message Splitter**: División automática de respuestas técnicas largas.
--   **Karpathy Loop**: Auto-investigación y saneamiento proactivo de documentos (Purge Mode).
--   **SICC Hard-Cap (Stability)**: Límite estricto de 3 núcleos para Ollama, garantizando SSH ininterrumpido.
+-   **Hybrid Swarm Engine**: Auditoría forense vía **Qwen 3.5 Flash** ($0.065/M) y Estrategia vía **Claude 4.6**.
+-   **Multi-Provider Fallback**: **Ollama (Local)** -> Gemini 3.1 -> Groq -> OpenRouter.
+-   **Memory Matrix**: Gestión asimétrica de 23 archivos de identidad y misión.
+-   **Multilevel Skills**: Soporte dinámico para módulos JSON (Voz) y Markdown (Workflows).
+-   **Long Term Memory (LTM)**: Integración nativa con **Supabase Vector DB** para RAG contractual.
+-   **Resource Governor**: Middleware CPU-aware que protege el host de 4 núcleos.
+-   **SICC Dreamer**: Auditoría autónoma nocturna vía Ollama (cron 2AM).
 -   **Sequential Swarm**: Debate multi-agente forense optimizado (Auditor vs Estratega).
 
 ---

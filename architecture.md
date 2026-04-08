@@ -20,11 +20,14 @@ La separación de preocupaciones se logra mediante tres unidades independientes 
 | **[Brain](https://github.com/dieleozagent-debug/brain)** | SSOT: identidad, criterios, memoria, Skills | Markdown, JSON |
 | **[LFC2](https://github.com/dieleozagent-debug/LFC2)** | Verdad de Ingeniería: planos, DTs, contratos | Markdown, HTML |
 
-### Nodo de Inferencia (v6.4.5 Alpha 2026 Edition)
+### Nodo de Inferencia (v6.4.8 Alpha 2026 Edition)
 - **Vigilia (Bot/Swarm):** Cloud-First vía OpenRouter con el motor **Alpha 2026 Elite**.
-  - **Auditor:** `qwen/qwen3.5-flash` (#2 mundial en Legal, $0.065/M).
+  - **Auditor:** `qwen/qwen3.5-flash-02-23` (#2 mundial en Legal, $0.065/M).
   - **Estratega:** `anthropic/claude-sonnet-4.6` (Lógica Senior SIL-4).
   - **Contexto:** Destilación dinámica vía `google/gemini-3.1-flash-lite-preview` ($0.25/M).
+- **Capa de Memoria Contractual (LTM):** **Supabase Vector DB**.
+  - **Función:** Almacena el ADN de contrato (PDFs) en embeddings de 768d (Gemini).
+  - **RAG:** Recuperación reactiva de cláusulas para alimentar al Swarm.
 - **Sueño (Autónomo):** Ollama con `gemma4-light:latest` (Local/Soberano).
 - **SICC Hard-Cap:** Límite estricto de 3 CPUs para procesos locales.
 
@@ -78,26 +81,42 @@ El Agente trabaja mientras Diego duerme — sin intervención humana.
 - **SSOT Files:** `brain/DREAMS.md` (cola) · `brain/PENDING_DTS.md` (aprobación).
 - **Bot:** `/dream` — Estado de la cola y borradores pendientes.
 
-### 4. Skills Registry Modular (Anti-Inflación Cognitiva)
-El system prompt pasa de monolito estático (29k chars) a contexto dinámico especializado.
-- **Mecánica:** `seleccionarSkills(texto)` detecta el dominio del mensaje y carga solo el Skill relevante.
-- **Skills disponibles:**
-  - `brain/skills/skill-telecom.json` — Red Vital IP, AREMA Comms, G.652.D
-  - `brain/skills/skill-capex.json` — Optimización CAPEX, WBS financiera
-  - `brain/skills/skill-om.json` — O&M soberano, mantenimiento predictivo
-  - `brain/skills/skill-contracts.json` — AT1, AT10, Cláusulas ANI, Ley 1508
-- **Efecto:** System prompt dinámico < 10k chars → 3× más rápido, ~60% menos alucinaciones.
-
-### 5. Métricas Cuantitativas (Sovereign Health Score)
-`lfc-doctor.js` genera un score numérico (0-100) para medir la pureza del sistema.
-- `100 - 10 por cada falla de DNA (RBC, GSM-R)` - `10 por rutas rotas` - `10 por Git sucio`
-
-### 6. Auto-Aprendizaje de Skills (Recursive Mapping)
-`lfc_learn.js` escanea LFC2 y mapea dinámicamente nuevos entregables — sin lista estática.
+### 4. Skills Registry Multinivel (Active Capability)
+El Agente carga dinámicamente habilidades según la intención del usuario detectada en `src/agent.js`.
+- **Skills JSON (Conocimiento de Dominio):**
+  - `skill-telecom.json`: Red Vital IP, G.652.D, AREMA Comms.
+  - `skill-capex.json`: Optimización financiera, WBS.
+  - `skill-om.json`: Mantenimiento predictivo, O&M soberano.
+  - `skill-contracts.json`: Ley 1508, Cláusulas ANI.
+- **Workflows MD (Manuales de Operación):**
+  - `dbcd_scan.md`: Protocolo de escaneo de impurezas.
+  - `dt_execute.md`: Guía para redactar Decisiones Técnicas blindadas.
+  - `web_research.md`: Motor de investigación profunda en tiempo real.
 
 ---
 
-## ⚖️ Comparativa Arquitectónica
+## 🧠 Matriz de Memoria del Cerebro (23 Archivos)
+
+La identidad del Agente se distribuye en una jerarquía de archivos Markdown inyectados asimétricamente:
+
+1. **Memoria Activa (Inyectada en cada Prompt):**
+   - `SOUL.md`: Alma y voz.
+   - `IDENTITY.md`: Identidad y soberanía.
+   - `AUTODETERMINACION_v3`: Lógica Deductiva N-1.
+   - `INFERENCIA_RADICAL`: Auditoría de ADN técnico.
+   - `INFERENCIA_DISENO_RECTOR`: Las reglas de la "Cocina" SICC.
+   - `LFC_ROLE.md`: Misión contractual.
+   - `DBCD_CRITERIA.md`: Criterios de diseño SSOT.
+   - `P42_METODOLOGIA.md`: Guía de auditoría de brecha.
+
+2. **Memoria Reactiva (Solo si se solicita):**
+   - `DREAMS.md`: Tareas nocturnas.
+   - `ROADMAP.md`: Estado del proyecto.
+   - `HEARTBEAT.md`: Tareas de corta duración.
+   - `PENDING_DTS.md`: Borradores en espera de firma.
+
+3. **Log de Experimentos:**
+   - `RESEARCH_LOG.md`: Bitácora histórica de sesiones.
 
 | Característica | autoresearch (Karpathy) | claw-code (UltraWorkers) | OpenGravity SICC v6.4 |
 |:---|:---|:---|:---|
