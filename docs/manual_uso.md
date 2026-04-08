@@ -13,6 +13,8 @@ El bot es tu interfaz principal para la supervisión y toma de decisiones. Solo 
 | Comando | Función | Uso Sugerido |
 |:---|:---|:---|
 | `/doctor` | **SICC Health Report** | Verificar pureza técnica y adherencia al DBCD. |
+| `/learn` | **Auto-Aprendizaje** | Mapear recursivamente el repositorio LFC2 y actualizar rutas. |
+| `/audit [ruta]` | **Karpathy Loop** | Ejecutar auditoría forense manual sobre una carpeta específica. |
 | `/swarm [pregunta]` | **Debate Forense** | Disparar debate entre Auditor y Estratega (SICC v6.4). |
 | `/dream` | **Vigilia del Auditor** | Ver hipótesis en cola y borradores de DT generados por la noche. |
 | `/git ls [ruta]` | **Explorador LFC2** | Listar archivos del repositorio de ingeniería desde el celular. |

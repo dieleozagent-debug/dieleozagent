@@ -6,7 +6,7 @@ const path = require('path');
 const TelegramBot = require('node-telegram-bot-api');
 const config = require('./config');
 const { inicializarBrain, procesarMensaje, procesarMensajeSwarm, limpiarHistorial } = require('./agent');
-const { cmdDoctor } = require('../scripts/sicc-harness');
+const { cmdDoctor, cmdLearn, cmdAudit } = require('../scripts/sicc-harness');
 const { estadoBrain, leerHeartbeat } = require('./brain');
 const { guardar, estadoMemoria } = require('./memory');
 const { leerNoLeidos, formatearCorreos, enviarCorreo } = require('./gmail');
@@ -120,8 +120,9 @@ bot.on('message', async (msg) => {
     await safeSendMessage(chatId,
       `👋 ¡Hola Diego! Soy *${config.agent.name}*.\n\n` +
       `🧠 Cerebro · 💾 Memoria · 📧 Gmail · 🐙 GitHub\n\n` +
-      `*/limpiar* · */estado* · */cerebro* · */memoria*\n` +
-      `*/cerebro* · */memoria* · */swarm [pregunta]*\n\n` +
+      `*/doctor* · */learn* · */audit [ruta]*\n` +
+      `*/dream* · */swarm [pregunta]* · */limpiar*\n` +
+      `*/estado* · */cerebro* · */memoria*\n\n` +
       `*/correos* · */email para|asunto|msg*\n` +
       `*/git repo* — Info del repo LFC2\n` +
       `*/git commits* — Últimos commits\n` +
@@ -191,6 +192,45 @@ bot.on('message', async (msg) => {
       `📋 *${dts}* borradores de DT pendientes de aprobación\n\n` +
       `El Dreamer ejecuta a las *2:00 AM* con el Hard-Cap de CPU activo.`;
     await safeSendMessage(chatId, msg);
+    return;
+  }
+
+  // ── Comando LEARN (Auto-mapeo recursivo) ───────────────────────────────────
+  if (texto === '/learn') {
+    await safeSendMessage(chatId, '🧠 *SICC Brain: Inicia aprendizaje recursivo...*');
+    await bot.sendChatAction(chatId, 'typing');
+    try {
+      const oldLog = console.log;
+      const lines = [];
+      console.log = (...a) => { oldLog(...a); lines.push(a.join(' ')); };
+      cmdLearn();
+      console.log = oldLog;
+      await safeSendMessage(chatId, `✅ *Aprendizaje Completado*\n\n\`\`\`\n${lines.slice(-5).join('\n')}\n\`\`\``);
+    } catch (err) {
+      await safeSendMessage(chatId, `❌ Error en Learn: ${err.message}`);
+    }
+    return;
+  }
+
+  // ── Comando AUDIT (Karpathy Loop manual) ───────────────────────────────────
+  if (texto.startsWith('/audit ')) {
+    const ruta = texto.replace('/audit ', '').trim();
+    if (!ruta) {
+      await safeSendMessage(chatId, '⚠️ Uso: `/audit IV_Ingenieria_basica`');
+      return;
+    }
+    await safeSendMessage(chatId, `🔬 *Iniciando Auditoría Forense en:* \`${ruta}\`...`);
+    await bot.sendChatAction(chatId, 'typing');
+    try {
+      const oldLog = console.log;
+      const lines = [];
+      console.log = (...a) => { oldLog(...a); lines.push(a.join(' ')); };
+      cmdAudit(ruta);
+      console.log = oldLog;
+      await safeSendMessage(chatId, `🔬 *Resultados de la Auditoría:* \n\n\`\`\`\n${lines.join('\n').substring(0, 3000)}\n\`\`\``);
+    } catch (err) {
+      await safeSendMessage(chatId, `❌ Error en Audit: ${err.message}`);
+    }
     return;
   }
 

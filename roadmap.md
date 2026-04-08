@@ -21,6 +21,7 @@
 *   **Saneamiento Karpathy O&M:** Auditoría forense del manual de O&M y contratos de LFC2 completada con éxito. ✅
 *   **Reparación Dreamer:** Fix de `run-sicc.sh` (propagación args) y configuración de Cron. ✅ (08/04/2026)
 *   **Saneamiento Eléctrico:** Purga de "Detección de Vía" en matriz 110V DC. ✅ (08/04/2026)
+*   **Integración de Comandos:** Activación de `/learn` y `/audit` nativos en Telegram. ✅ (08/04/2026)
 
 ## 🌀 2. ¿EN QUÉ VAMOS? (CURRENT)
 *   **Alineación de Arquitectura y Cerebro:** Revisión comparativa vs Karpathy-Loop y actualización del manual maestro de arquitectura. ✅ (08/04/2026)
@@ -36,17 +37,14 @@
 *   **Alta Disponibilidad:** Inclusión de Microondas como failover del backbone (99.9%).
 *   **Seguridad Unificada:** Aplicación de la Parte 17 de AREMA para el Hazard Log.
 
-## 🚩 5. ¿QUÉ FALTA? (MISSING)
 *   **Blindaje AT10:** Validar que la capacidad de surcos refleje la ganancia del **Non-Stop Gateway**.
-*   **Matrices Eléctricas:** Eliminar menciones a "Circuitos de Vía" en la lógica de alimentación de 110 V DC.
 *   **Certificación Masterchef:** Consolidar el dossier final en formato PDF/HTML.
 
 ## 🚀 6. ¿PARA DÓNDE VAMOS? (FUTURE)
 *   **Certificación SICC:** Validación final de la matriz de trazabilidad contrato-diseño.
 *   **Simulación SIT-Final:** Prueba de impacto completa antes de la entrega final a la ANI.
 
-## 🏗️ 7. ARQUITECTURA AGÉNTICA AVANZADA (V6.4 PLANNED)
-*   **Integración Agéntica Core:** Comandos `/doctor` (Health Score) y `/learn` (Auto-mapeo) nativos en Telegram.
+## 🚩 5. ¿QUÉ FALTA? (MISSING)
 *   **Sovereign Snapshot:** Automatización de backups del repo `brain` para resiliencia total del alma del agente.
 *   **Swarm Expansion:** Inclusión de roles especializados (Legal-Contractual y CAPEX Hunter) en el enjambre.
 *   **Curaduría RAG:** Ciclos de re-indexación automática de la Vector DB (Supabase) post-saneamiento forense.
