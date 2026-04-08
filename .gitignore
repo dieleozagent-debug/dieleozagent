@@ -24,5 +24,6 @@ brain/
 
 # Documentos pesados (Manuales, PDFs > 50MB) - SICC Sovereign Protection
 docs/
+docs/00_Referencia_Normativa_Contractual_LFC/
 *.pdf
 "Contrato pdf/"
