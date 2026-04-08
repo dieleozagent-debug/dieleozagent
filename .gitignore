@@ -24,3 +24,5 @@ brain/
 
 # Documentos pesados (Manuales, PDFs > 50MB) - SICC Sovereign Protection
 docs/
+*.pdf
+"Contrato pdf/"
