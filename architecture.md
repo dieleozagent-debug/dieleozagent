@@ -60,6 +60,10 @@ Middleware de planificación CPU-aware que protege el host de 4 núcleos.
 - **Script:** `scripts/resource-governor.js`
 - **Integración:** Wired directamente en `src/agent.js` antes de `llamarOllama()`.
 
+> [!TIP]
+> **Paradigma de Inteligencia Asimétrica (Vigilia vs Sueño):** 
+> Para optimizar la usabilidad (UX), el sistema prioriza proveedores Cloud de alta velocidad (Groq/Gemini) durante la interacción diurna en Telegram (respuestas < 1 min). El procesamiento profundo y soberano se reserva para el **Dreamer Nocturno**, donde Ollama realiza escaneos exhaustivos sin presión de tiempo.
+
 ### 3. SICC Dreamer (Autonomía Nocturna)
 El Agente trabaja mientras Diego duerme — sin intervención humana.
 - **Ciclo Cron:** `0 2 * * *` — Solo si CPU < 80%.
