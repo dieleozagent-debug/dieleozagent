@@ -8,7 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-const REPO_ROOT = '/home/administrador/docker/LFC2';
+const REPO_ROOT = process.env.LFC2_ROOT || '/app/repos/LFC2';
 
 // 1. EL TRÁNSITO DE LA SOBERANÍA (Terminology & Compliance)
 const SOVEREIGN_INVARIANTS = [

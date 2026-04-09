@@ -61,7 +61,7 @@ function parityGuard(texto) {
 
 // ── 2. COMANDOS ──────────────────────────────────────────────────────────────
 
-function cmdDoctor() {
+async function cmdDoctor() {
   console.log('\n🩺 SICC DOCTOR — Diagnóstico de Salud Soberana v6.4');
   console.log('═'.repeat(55));
 
@@ -114,20 +114,29 @@ function cmdDoctor() {
     console.log('[FAIL]  LFC2 — Git inaccesible');
   }
 
-  // Ollama Connectivity
+  // Ollama Connectivity (Native Node Check)
   try {
-    const ollamaStatus = execSync(`curl -s -o /dev/null -w "%{http_code}" ${config.ai.ollama.host}/api/tags`).toString().trim();
-    if (ollamaStatus === '200') {
+    const http = require('http');
+    const checkOllama = () => new Promise((resolve, reject) => {
+      const req = http.get(`${config.ai.ollama.host}/api/tags`, (res) => {
+        resolve(res.statusCode === 200);
+      });
+      req.on('error', (e) => reject(e));
+      req.setTimeout(2000, () => { req.destroy(); reject(new Error('Timeout')); });
+    });
+
+    const isOllamaUp = await checkOllama().catch(() => false);
+    if (isOllamaUp) {
       console.log(`[PASS]  Ollama: ${config.ai.ollama.host} — OK`);
     } else {
       score -= 10;
-      errores.push(`Ollama inaccesible (HTTP ${ollamaStatus})`);
-      console.log(`[FAIL]  Ollama: ${config.ai.ollama.host} — Error HTTP ${ollamaStatus}`);
+      errores.push('Ollama inaccesible (Connection Refused/Timeout)');
+      console.log(`[FAIL]  Ollama: ${config.ai.ollama.host} — No responde`);
     }
   } catch (e) {
     score -= 10;
-    errores.push('Ollama inaccesible (Connection Refused)');
-    console.log(`[FAIL]  Ollama: ${config.ai.ollama.host} — No responde`);
+    errores.push('Ollama — Error en el check de conectividad');
+    console.log(`[FAIL]  Ollama: — Falló verificación`);
   }
 
   // Dreamer queue
@@ -195,7 +204,9 @@ if (require.main === module) {
   const [,, cmd, ...args] = process.argv;
 
   switch (cmd) {
-    case 'doctor':  process.exit(cmdDoctor() >= 70 ? 0 : 1);
+    case 'doctor':  
+      cmdDoctor().then(score => process.exit(score >= 70 ? 0 : 1));
+      break;
     case 'learn':   cmdLearn(); break;
     case 'audit':   cmdAudit(args[0]); break;
     case 'status':  cmdStatus(); break;

@@ -205,7 +205,7 @@ bot.on('message', async (msg) => {
       const lines = [];
       console.log = (...a) => { oldLog(...a); lines.push(a.join(' ')); };
       console.warn = (...a) => { oldWarn(...a); lines.push(a.join(' ')); };
-      const score = cmdDoctor();
+      const score = await cmdDoctor();
       console.log = oldLog;
       console.warn = oldWarn;
       const emoji = score >= 90 ? '🟢' : score >= 70 ? '🟡' : '🔴';
@@ -267,23 +267,31 @@ bot.on('message', async (msg) => {
     await bot.sendChatAction(chatId, 'typing');
 
     try {
-      // 1. Búsqueda proactiva de archivos relacionados
-      const findCmd = `find ${config.paths.lfc2} -iname "*${tema.split(' ')[0]}*" | head -10`;
+      // 1. Búsqueda inteligente (Ignora "Ingeniería" si hay especialidad)
+      const keyword = tema.toLowerCase().includes('ingeniería') ? tema.split(' ').slice(1).join(' ') : tema;
+      const findCmd = `find ${config.paths.lfc2} -iname "*${keyword}*" | grep -v "/old/" | head -5`;
+      
       exec(findCmd, async (err, stdout) => {
         const archivos = stdout.trim();
+        let rutaAuditar = config.paths.lfc2;
+        
         if (!archivos) {
-          await safeSendMessage(chatId, `⚠️ No se encontraron archivos para: \`${tema}\`. Intentando auditoría general de la raíz.`);
-          cmdAudit(config.paths.lfc2);
+          await safeSendMessage(chatId, `⚠️ No se encontraron archivos específicos para: \`${keyword}\`. Auditando raíz...`);
         } else {
           await safeSendMessage(chatId, `📂 *Archivos localizados:*\n\`\`\`\n${archivos}\n\`\`\``);
-          // Tomar el primer archivo o carpeta para auditar
-          const rutaAuditar = archivos.split('\n')[0];
-          cmdAudit(rutaAuditar);
+          rutaAuditar = archivos.split('\n')[0];
         }
 
-        // Recuperar logs del harness (simulado aquí capturando console.log en sicc-harness)
-        // Nota: cmdAudit imprime a console.log, necesitamos capturarlo o confiar en que se ejecutó.
-        await safeSendMessage(chatId, `✅ *Proceso Karpathy completado.* Revisa los dictámenes en \`brain/PENDING_DTS.md\``);
+        // 2. Ejecutar Auditoría capturando salida
+        const oldLog = console.log;
+        const lines = [];
+        console.log = (...a) => { oldLog(...a); lines.push(a.join(' ')); };
+        cmdAudit(rutaAuditar);
+        console.log = oldLog;
+
+        const resumenAudit = lines.join('\n').substring(0, 3000);
+        await safeSendMessage(chatId, `🔬 *Dictamen Karpathy:* \n\n\`\`\`\n${resumenAudit}\n\`\`\``);
+        await safeSendMessage(chatId, `✅ *Proceso completado.* Los hallazgos se han registrado en el cerebro.`);
       });
     } catch (err) {
       await safeSendMessage(chatId, `❌ Error en Protocolo Karpathy: ${err.message}`);
