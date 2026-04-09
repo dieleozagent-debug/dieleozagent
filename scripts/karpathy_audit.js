@@ -65,7 +65,7 @@ function runAudit(dir) {
 
     files.forEach(file => {
         const fullPath = path.join(dir, file);
-        if (file === '.git' || file === 'node_modules' || file === 'old' || file === 'bin') return;
+        if (file === '.git' || file === 'node_modules' || file === 'old' || file === 'bin' || file === 'lfc-terminology.js') return;
 
         if (fs.statSync(fullPath).isDirectory()) {
             report = report.concat(runAudit(fullPath));

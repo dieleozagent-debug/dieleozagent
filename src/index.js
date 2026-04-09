@@ -267,9 +267,11 @@ bot.on('message', async (msg) => {
     await bot.sendChatAction(chatId, 'typing');
 
     try {
-      // 1. Búsqueda inteligente (Ignora "Ingeniería" si hay especialidad)
-      const keyword = tema.toLowerCase().includes('ingeniería') ? tema.split(' ').slice(1).join(' ') : tema;
-      const findCmd = `find ${config.paths.lfc2} -iname "*${keyword}*" | grep -v "/old/" | head -5`;
+      // 1. Búsqueda inteligente (Ignora "Ingeniería" y normaliza acentos)
+      let keyword = tema.toLowerCase().includes('ingeniería') ? tema.split(' ').slice(1).join(' ') : tema;
+      // Normalizar: quitar acentos para la búsqueda en archivos
+      const normalizedKeyword = keyword.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const findCmd = `find ${config.paths.lfc2} -iname "*${normalizedKeyword}*" | grep -v "/old/" | head -5`;
       
       exec(findCmd, async (err, stdout) => {
         const archivos = stdout.trim();
