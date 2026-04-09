@@ -16,7 +16,7 @@ La arquitectura de **OpenGravity** está diseñada para la **Soberanía Tecnoló
 ### Nodo de Inferencia (v8.0 Sovereign Edition)
 - **Vigilia (Bot/Swarm):** Cloud-First vía OpenRouter con integración de la **Metodología 42 ALPHA**.
 - **Capa de Memoria Contractual:** Supabase Vector DB calibrado para ingesta forense de la "Biblia Legal".
-- **Auditoría Sistémica (Punto 42 Engine v8.2):** 
+- **Auditoría Sistémica (Punto 42 Engine v8.4):** 
     - Motor `karpathy_audit.js` con detección de **ADN Foráneo** (ETCS, CENELEC, DWDM).
     - Integración de la **Matriz de Trazabilidad Forense** (Norma Mandatoria vs Propuesta LFC).
     - Generación de **Registro Ejecutivo de Deficiencias (RED)** con rangos de impacto CAPEX.
@@ -40,13 +40,13 @@ Validación de 5 fases con **Saneamiento de Nomenclatura**. Detecta términos le
 
 ---
 
-## 🛡️ Capacidades de Soberanía v8.0 (Implemented)
+## 🛡️ Capacidades de Soberanía v8.4 (Implemented)
 
 ### 1. SICC Sweep Orchestrator
 Script `sicc-sweep.js` para ejecutar auditorías recursivas en carpetas legacy (I-X).
 
-### 2. Forensic RED Generation
-Documentación de vulnerabilidades CAPEX en tiempo real para aprobación ejecutiva.
+### 2. Forensic RED Generation & Input Data Blockers
+Documentación de vulnerabilidades CAPEX en tiempo real y establecimiento de bloqueadores de ingeniería (Input Data) como condición procesal para diseños de Ardanuy.
 
 ---
-v8.2.0 Michelin "Punto 42" Edition - 09/04/2026
+v8.4.1 Michelin "Sovereign Input Data" Edition - 09/04/2026

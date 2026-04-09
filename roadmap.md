@@ -8,18 +8,17 @@
 
 ### ⚙️ 4. EJECUCIÓN: ¿QUÉ VAMOS A HACER? (ESTADO ACTUAL)
 
-*   **🏆 HITOS LOGRADOS (v8.0 "Punto 42"):**
-    *   **[v7.3.0] Portal Soberano 7.3:** Despliegue de 07 Dictámenes activos (49M USD ahorro).
-    *   **[v7.3.5] DT-015 Fibra:** Blindaje Backbone G.652.D / 48 hilos.
-    *   **[v8.0.0] Punto 42 Alpha:** Inyección de metodología sistémica (Verbos Rectores).
+*   **🏆 HITOS LOGRADOS (v8.4 "Punto 42"):**
     *   **[v8.0.1] DNA Sweep:** Barrido masivo de carpetas legacy (I-X) y generación de reporte RED.
     *   **[v8.0.2] DNA Purify:** Purga de "DWDM/G.655" en el portal de dictámenes.
+    *   **[v8.3.0] Track Logic:** Consolidación Geométrica de Vía (Supresión de Desvíos redundantes).
+    *   **[v8.4.1] PAN Categorization:** Saneamiento de Pasos a Nivel y reglas GIS (Shapefiles + Consulta Previa).
 
-*   **🌙 PRÓXIMOS PASOS (Hacia el Saneamiento Masivo):**
+*   **🌙 PRÓXIMOS PASOS (Fase de Validación y Sweep):**
     - [x] **Barrido Masivo Legacy (I-X):** Reporte RED generado en el cerebro.
-    - [/] **Sesión de Sueño Sustractiva (N-1):** Iniciar ciclo para redactar DTs de supresión de sistemas ENCE/EOT sin Verbo Rector.
-    - [ ] **Saneamiento de Ingeniería de Detalle:** Aplicar el Punto 42 a los planos de Vía y Estructuras.
-    - [x] **Actualización de Vercel:** Portal v7.3 sincronizado con ingeniería pura.
+    - [x] **Sesión de Sueño Sustractiva (N-1):** Dictámenes emitidos (22 DTs Live).
+    - [/] **Validación Integral de DTs (Dreamer):** Escaneo profundo de los 22 Dictámenes Maestros durante la ventana nocturna para detectar problemas, colisiones cruzadas y vacíos forenses.
+    - [ ] **Saneamiento de Ingeniería de Detalle:** Aplicar el Punto 42 a los planos de Vía y Estructuras (Esperando Input Data de la PMO).
 
 ### 🚨 ANÁLISIS DE FALLO DE INGESTA (VERDICTO DIEGO)
 *   **Problema:** La transición a Ollama Nomic (768 dims) causó una discrepancia con el núcleo legacy (3072 dims) y saturó la CPU al 100%.
