@@ -15,6 +15,12 @@ const { infoRepo, ultimosCommits, issuesAbiertos, listarCarpeta, leerArchivo,
 const { exec } = require('child_process');
 const cron = require('node-cron');
 
+console.log('--------------------------------------------------');
+console.log('🛡️ SICC GUARDIA ACTIVADA (v7.2 Hyper-Productive)');
+console.log('⏰ Lun-Vie: 20:00 - 07:00 (Cada 3h)');
+console.log('⏰ Fin de Semana: Vie 17:00 - Lun 07:00 (Cada 4h)');
+console.log('--------------------------------------------------');
+
 const DOWNLOADS_DIR = path.join(__dirname, '../data/downloads');
 const LOGS_DIR = path.join(__dirname, '../data/logs');
 if (!fs.existsSync(DOWNLOADS_DIR)) fs.mkdirSync(DOWNLOADS_DIR, { recursive: true });
@@ -100,23 +106,30 @@ cron.schedule('30 08 * * *', async () => {
   }
 }, { timezone: BOGOTA_TZ });
 
-// 2. Ingesta Masiva y Sueño Karpathy (08:00 PM)
-cron.schedule('00 20 * * *', async () => {
-  console.log('[CRON] 🌙 Iniciando ciclo nocturno (Ingesta + Dreamer)...');
+// 2. Ciclo de Sueño SICC (Ventanas Operativas v7.2 - Hyper-Productivity)
+const ejecutarCicloNocturno = () => {
+  console.log('[CRON] 🌙 Iniciando ventana operativa (Ingesta + Dreamer Forense)...');
   const docPath = '/app/repos/LFC2/docs/00_Referencia_Normativa_Contractual_LFC/';
   const cmdIngesta = `node src/ingest_masivo.js "${docPath}" > data/logs/ingesta_biblia.log 2>&1`;
-  const cmdDreamer = `node src/dreamer.js >> data/logs/dreamer.log 2>&1`;
+  // Pivotamos al script "sicc-dreamer.js" que tiene el motor de análisis proactivo
+  const cmdDreamer = `node scripts/sicc-harness.js dream >> data/logs/dreamer.log 2>&1`;
 
   exec(`${cmdIngesta} && ${cmdDreamer}`, (error) => {
     if (error) {
       console.error('[CRON] ❌ Error en ciclo nocturno:', error.message);
-      safeSendMessage(config.telegram.userId, `⚠️ *Fallo en ciclo nocturno:* ${error.message}`);
     } else {
-      console.log('[CRON] ✅ Ciclo nocturno completado con éxito.');
-      safeSendMessage(config.telegram.userId, `🌙 *Ciclo Nocturno Completado:* Biblia Legal ingerida y sueños decantados.`);
+      console.log('[CRON] ✅ Ciclo completado con éxito.');
     }
   });
-}, { timezone: BOGOTA_TZ });
+};
+
+// A. Vigilia Nocturna (Lun-Vie): 8PM, 11PM, 2AM, 5AM
+cron.schedule('0 20,23,02,05 * * 1-5', ejecutarCicloNocturno, { timezone: BOGOTA_TZ });
+
+// B. Guardia de Fin de Semana (Inicia Viernes 5PM)
+cron.schedule('0 17,21 * * 5', ejecutarCicloNocturno, { timezone: BOGOTA_TZ }); // Vie
+cron.schedule('0 */04 * * 6,0', ejecutarCicloNocturno, { timezone: BOGOTA_TZ }); // Sáb-Dom cada 4h
+cron.schedule('0 02,05 * * 1', ejecutarCicloNocturno, { timezone: BOGOTA_TZ });   // Final Lun AM
 
 // ── Registro de Salud (cada hora) ─────────────────────────────────────────────
 setInterval(async () => {

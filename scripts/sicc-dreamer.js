@@ -19,10 +19,10 @@ const os   = require('os');
 const { checkYEncolar, getCpuLoad } = require('./resource-governor');
 
 const AGENTE_ROOT = path.join(__dirname, '..');
-const BRAIN_ROOT  = path.join(AGENTE_ROOT, 'brain');
+const BRAIN_ROOT  = process.env.BRAIN_ROOT || path.join(AGENTE_ROOT, 'brain');
 const DREAMS_FILE = path.join(BRAIN_ROOT, 'DREAMS.md');
 const PENDING_DTS = path.join(BRAIN_ROOT, 'PENDING_DTS.md');
-const LOG_FILE    = '/var/log/sicc-dreamer.log';
+const LOG_FILE    = path.join(AGENTE_ROOT, 'data/logs/dreamer.log');
 
 const DRY_RUN = process.argv.includes('--dry-run');
 
@@ -44,7 +44,7 @@ function parsearDreams() {
 
   for (const linea of lineas) {
     // Formato: - [PRIORIDAD] [TIMESTAMP] [origen:X] hipótesis
-    const match = linea.match(/^- \[(\w+)\] \[([^\]]+)\] \[origen:([^\]]+)\] (.+)$/);
+    const match = linea.match(/^-\s*\[(\w+)\]\s*\[([^\]]+)\]\s*\[origen:([^\]]+)\]\s*(.+)$/);
     if (match) {
       pendientes.push({
         prioridad: match[1],

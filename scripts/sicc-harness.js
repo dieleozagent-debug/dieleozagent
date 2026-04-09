@@ -198,6 +198,17 @@ function cmdStatus() {
   console.log(`Pending DTs:  ${dtCount} borradores`);
 }
 
+function cmdDream() {
+  console.log('\n😴 SICC DREAM — Activando Ciclo de Sueño Forense Manual...');
+  try {
+    const output = execSync(`node ${path.join(AGENTE_ROOT, 'scripts/sicc-dreamer.js')}`).toString();
+    console.log(output);
+  } catch (e) {
+    console.error('[HARNESS] ❌ Error en sicc-dreamer.js:', e.message);
+    process.exit(1);
+  }
+}
+
 // ── 3. ENTRY POINT ───────────────────────────────────────────────────────────
 
 if (require.main === module) {
@@ -209,6 +220,7 @@ if (require.main === module) {
       break;
     case 'learn':   cmdLearn(); break;
     case 'audit':   cmdAudit(args[0]); break;
+    case 'dream':   cmdDream(); break;
     case 'status':  cmdStatus(); break;
     default:
       console.log('SICC Harness CLI v6.4\nUso: node sicc-harness.js [doctor|learn|audit|status]');
