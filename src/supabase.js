@@ -2,11 +2,11 @@
 'use strict';
 
 const { Pool } = require('pg');
+const axios = require('axios');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const config = require('./config');
 
 const genAI = new GoogleGenerativeAI(config.ai.gemini.apiKey);
-let modeloFuncional = null;
 
 const dbConfig = {
     host: process.env.DB_HOST || 'supabase_db_sicc-local',
@@ -19,27 +19,21 @@ const dbConfig = {
 const pool = new Pool(dbConfig);
 
 /**
- * Intenta obtener un embedding probando varios modelos conocidos
+ * Obtener Vector Embedding de un texto usando Ollama LOCAL (Soberanía Total)
+ * Modelo: nomic-embed-text (768 dimensiones, compatible con Supabase v6.5)
  */
 async function obtenerEmbedding(texto) {
-    const candidatos = [
-        { model: "text-embedding-004" },
-        { model: "models/text-embedding-004" },
-        { model: "embedding-001" },
-        { model: "models/embedding-001" }
-    ];
-
-    if (modeloFuncional) {
-        const result = await genAI.getGenerativeModel(modeloFuncional).embedContent(texto);
-        return result.embedding.values;
-    }
-
-    for (const cand of candidatos) {
+    try {
+        const response = await axios.post(`${config.ai.ollama.host}/api/embeddings`, {
+            model: "nomic-embed-text",
+            prompt: texto
+        });
+        return response.data.embedding;
+    } catch (localErr) {
+        console.warn(`[SUPABASE] ⚠️ Ollama Local falló, intentando Cloud Gemini...`);
         try {
-            const model = genAI.getGenerativeModel(cand);
+            const model = genAI.getGenerativeModel({ model: "models/text-embedding-004" });
             const result = await model.embedContent(texto);
-            modeloFuncional = cand; // Guardamos el que funcionó
-            console.log(`[SUPABASE] ✅ Modelo funcional detectado: ${JSON.stringify(cand)}`);
             return result.embedding.values;
         } catch (e) {
             // Seguir probando
