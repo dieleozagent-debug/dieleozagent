@@ -24,7 +24,7 @@ const pool = new Pool(dbConfig);
  */
 async function obtenerEmbedding(texto) {
     try {
-        const response = await axios.post(`${config.ai.ollama.host}/api/embeddings`, {
+        const response = await axios.post(`http://localhost:11434/api/embeddings`, {
             model: "nomic-embed-text",
             prompt: texto
         });
