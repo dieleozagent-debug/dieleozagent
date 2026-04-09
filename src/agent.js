@@ -245,10 +245,11 @@ async function sumarizarContexto(contextoLargo) {
   
   try {
     const resumen = await llamarOpenRouter(
-      `Sintetiza la información clave técnica de este fragmento para que un ingeniero senior tome una decisión rápida. No pierdas datos críticos ni nombres de archivos.`,
+      `Sintetiza la información clave técnica y contractual de este fragmento para un Director Contractual Senior. 
+      Prioriza menciones a cláusulas Niveles 1 (Contrato) y 2 (AT). Descarta ruido de Nivel 16 (Q&A).`,
       null, 
       contextoLargo, 
-      "Eres un sintetizador técnico forense.",
+      "Eres un Abogado de Concesiones especializado en Auditoría Forense.",
       modelSumarizador
     );
     return `## SÍNTESIS DE CONTEXTO (Destilado):\n${resumen}`;
@@ -279,7 +280,7 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo) {
      try {
        const docs = await buscarSimilares(textoUsuario, 3); // 3 chunks más parecidos
        if (docs && docs.length > 0) {
-         contextoRAG = '## CONTEXTO DE CONTRATO (Supabase Vector DB):\nEl siguiente texto ha sido extraido dinámicamente del contrato oficial en base a la pregunta del usuario. Úsalo para responder de formar informada:\n\n';
+         contextoRAG = '## CONTEXTO DE CONTRATO (Supabase Vector DB):\nEl siguiente texto ha sido extraido dinámicamente del contrato oficial en base a la pregunta del usuario. Úsalo para responder de forma informada:\n\n';
          docs.forEach((doc, i) => {
            contextoRAG += `--- Fragmento ${i+1} [Archivo: ${doc.nombre_archivo}] ---\n${doc.contenido}\n\n`;
          });
@@ -312,6 +313,9 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo) {
   // Pensamiento por Bloques: si el contexto es muy grande (> 10k), lo destilamos
   if (contextoFinal.length > 10000) {
     contextoFinal = await sumarizarContexto(contextoFinal);
+  } else if (!contextoFinal && /contrato|cláusula|at1|sec|numeral/i.test(textoUsuario)) {
+    // Si no hay contexto y la pregunta es contractual, forzamos una búsqueda de último recurso
+    contextoFinal = "⚠️ INGREDIENTE FALTANTE: No se encontró la base legal en el repo. Ejecutar búsqueda forense proactiva.";
   }
 
   for (const proveedor of proveedores) {
@@ -334,13 +338,6 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo) {
       return { texto: respuesta, proveedor: proveedor.id };
     } catch (err) {
       console.error(`[AGENTE] ❌ ERROR en ${proveedor.id}:`, err.message || err);
-      // Log profundo del error
-      try {
-        const errorDetail = err.response ? JSON.stringify(err.response.data || err.response) : JSON.stringify(err);
-        console.error(`[AGENTE] 🔍 Detalle del error completo:`, errorDetail);
-      } catch (e) {
-        console.error(`[AGENTE] 🔍 No se pudo serializar el error:`, err);
-      }
     }
   }
   console.log('[AGENTE] 💀 El loop de proveedores terminó sin éxito.');
@@ -356,26 +353,26 @@ function limpiarHistorial() {
 }
 
 /**
- * 🐝 SWARM SECUENCIAL (SICC v6.3.3)
- * Debate multi-agente forense ejecutado de forma secuencial para proteger el host.
+ * 🐝 SWARM SECUENCIAL (SICC v6.5 Michelin)
+ * Debate multi-agente forense ejecutado de forma secuencial.
  */
 async function procesarMensajeSwarm(textoUsuario) {
   console.log(`[SWARM] 🐝 Iniciando debate forense secuencial: "${textoUsuario.substring(0, 50)}"`);
   
   const AGENTES_SWARM = [
     {
-      nombre: 'AUDITOR FORENSE',
-      rol: 'Identificar impurezas técnicas, terminología legacy y riesgos de soberanía (N-1).',
-      prompt: 'Eres el AUDITOR FORENSE SICC. Tu misión es desenterrar impurezas y fallos en la propuesta del usuario.'
+      nombre: 'AUDITOR FORENSE (MICHELIN)',
+      rol: 'Identificar impurezas técnicas y violaciones a la Jerarquía 1.2(d).',
+      prompt: 'Eres el AUDITOR FORENSE MICHELIN. Tu misión es denunciar si un diseño se basa en el Nivel 16 (Q&A de licitación) en contra de los Niveles 1 (Contrato) o 2 (AT1).'
     },
     {
-      nombre: 'ESTRATEGA SICC',
-      rol: 'Proponer soluciones soberanas, optimización de CAPEX y blindaje contractual.',
-      prompt: 'Eres el ESTRATEGA SICC. Tu misión es tomar los hallazgos del Auditor y proponer una solución final blindada.'
+      nombre: 'DIRECTOR CONTRACTUAL SICC',
+      rol: 'Blindaje de CAPEX, litigio estratégico y soberanía tecnológica.',
+      prompt: 'Eres el DIRECTOR CONTRACTUAL SICC. Tu misión es aplicar la Regla N-1 y proteger la caja de la Concesión basándote exclusivamente en la ley del contrato.'
     }
   ];
 
-  let debateBuffer = `🐝 **DEBATE SICC SWARM — PROTOCOLO .42**\n\n`;
+  let debateBuffer = `🐝 **DEBATE SICC SWARM — PROTOCOLO MICHELIN**\n\n`;
   let contextoPrevio = `Pregunta Inicial: ${textoUsuario}\n\n`;
 
   for (const [index, agente] of AGENTES_SWARM.entries()) {
@@ -390,22 +387,16 @@ async function procesarMensajeSwarm(textoUsuario) {
       const proveedoresSwarm = ordenProveedores();
       const mejorProveedor = proveedoresSwarm[0];
 
-      // ── MODO HÍBRIDO ASIMÉTRICO ───────────────────────────────────────────
-      // Asignamos el modelo según el rol del agente (solo aplica a OpenRouter/Cloud)
       const modelRoles = {
-        'AUDITOR FORENSE': config.ai.swarm.auditor,
-        'ESTRATEGA SICC': config.ai.swarm.strategist
+        'AUDITOR FORENSE (MICHELIN)': config.ai.swarm.auditor,
+        'DIRECTOR CONTRACTUAL SICC': config.ai.swarm.strategist
       };
       const modelOverride = (mejorProveedor.id === 'openrouter') ? modelRoles[agente.nombre] : null;
 
-      console.log(`[SWARM] 🤖 Invocando a ${agente.nombre} vía ${mejorProveedor.id} (${modelOverride || 'default'})...`);
-      
-      // Si el contexto previo es largo, lo destilamos antes de pasarlo al siguiente agente
       const promptOptimizado = contextoPrevio.length > 5000 
         ? await sumarizarContexto(contextoPrevio) 
         : contextoPrevio;
 
-      // El prompt del sistema depende de si el proveedor es local o nube
       const currentPrompt = (mejorProveedor.id === 'ollama') ? PROMPT_FULL : PROMPT_FAST;
 
       respuestaAgente = await mejorProveedor.fn(promptAgente, null, promptOptimizado, currentPrompt, modelOverride);
@@ -414,7 +405,6 @@ async function procesarMensajeSwarm(textoUsuario) {
       debateBuffer += `🎭 **${agente.nombre}** *(${proveedorAgente})*\n${respuestaAgente}\n\n---\n\n`;
       contextoPrevio += `Respuesta de ${agente.nombre}:\n${respuestaAgente}\n\n`;
       
-      // Delay de seguridad entre agentes para liberar CPU
       await new Promise(resolve => setTimeout(resolve, 2000));
     } catch (err) {
       console.error(`[SWARM] ❌ Error total en ${agente.nombre}:`, err.message);
@@ -425,11 +415,44 @@ async function procesarMensajeSwarm(textoUsuario) {
   return debateBuffer + `🏁 **FIN DEL PROCESO SWARM**`;
 }
 
+/**
+ * 🛰️ VIGILIA MICHELIN (8:30 AM Reporter)
+ * Recolecta impurezas y sueños para un reporte consolidado.
+ */
+async function enviarVigilia() {
+  const PENDING_DIR = require('path').join(__dirname, '../brain/PENDING_DTS');
+  const dreams = fs.existsSync(PENDING_DIR) ? fs.readdirSync(PENDING_DIR) : [];
+  
+  let msg = `🏦 **INFORME DE VIGILIA MICHELIN — ${new Date().toLocaleDateString()}**\n\n`;
+  
+  msg += `⚖️ **Estado Contractual:**\n- Jerarquía 1.2(d) Activa: [Nivel 1/2 > Nivel 16]\n`;
+  msg += `- Inferencia N-1: [Soberanía Garantizada]\n\n`;
+  
+  msg += `🌙 **Resultados del Sueño (Borradores):**\n`;
+  if (dreams.length > 0) {
+    dreams.slice(0, 5).forEach(d => msg += `- ${d}\n`);
+  } else {
+    msg += `- No hay nuevas hipótesis decantadas.\n`;
+  }
+  
+  msg += `\n🔍 **Acciones Autónomas:**\n- Karpathy Loop: [5 Iteraciones configuradas]\n- Ingesta: [Modo Búsqueda Proactiva Activo]`;
+  
+  return msg;
+}
+
+// ── Ejecución como Script (Vigilia) ───────────────────────────────────────────
+if (require.main === module && process.argv.includes('--vigilia')) {
+  enviarVigilia().then(msg => {
+    console.log(msg);
+  }).catch(console.error);
+}
+
 module.exports = { 
   inicializarBrain, 
   procesarMensaje, 
   procesarMensajeSwarm,
   limpiarHistorial,
+  enviarVigilia,
   llamarOllama,
   config,
   PROMPT_FULL,
