@@ -20,7 +20,11 @@ Diego da la dirección. El sistema ejecuta, valida y mejora — incluso mientras
 - **Vigilia (Bot/Swarm):** Cloud-First vía OpenRouter con el motor **Alpha 2026 Elite**.
 - **Capa de Memoria Contractual (LTM):** **Supabase Vector DB (Soberanía Local recalibrada a 768 dims)**.
 - **Ingesta Masiva (Biblia Legal):** OCR Forense y Embeddings locales vía **Ollama (nomic-embed-text)**.
-- **Sueño (Autónomo):** Ollama con `gemma4-light:latest` (Local/Soberano).
+- **Topología de Red Aislada (Ollama Sandbox):** 
+  - Ollama corre en el contenedor aislado `opengravity-ollama` mapeando el repositorio físico de modelos: `/home/administrador/ollama-data` -> `/root/.ollama`.
+  - Compilación Local: Se compila a partir de archivos `.gguf` invocando a Docker internamente (`docker exec ... ollama create [modelo] -f Modelfile.light`).
+  - Puerto de Inferencia: Se comunica internamente a la red del agente vía `http://ollama:11434` o al host en el fallback port `11435`.
+- **Control Bot CLI:** El bot de Telegram actúa encapsulado dentro del contenedor `opengravity-agente`. Cuando se le ordena un `/cmd`, este ejecuta nativamente sh en Alpine, protegiendo al host subyacente.
 
 ---
 
