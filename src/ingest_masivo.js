@@ -22,7 +22,7 @@ async function extraerTextoCompleto(filePath) {
 
     try {
         // 1. Intento por defecto con pdftotext (Layout preservado)
-        execSync(`pdftotext -layout "${filePath}" "${tempText}"`);
+        execSync(`/usr/bin/pdftotext -layout "${filePath}" "${tempText}"`);
         text = fs.readFileSync(tempText, 'utf8').trim();
 
         // 2. Si detectamos que es una imagen (poco texto), usamos Tesseract por lotes a 300 DPI
@@ -31,7 +31,7 @@ async function extraerTextoCompleto(filePath) {
             const tempImgBase = `/tmp/${nombreBase}_img`;
             
             // Extraer imágenes a 300 DPI para máxima fidelidad OCR
-            execSync(`pdftoppm -r 300 -png "${filePath}" "${tempImgBase}"`);
+            execSync(`/usr/bin/pdftoppm -r 300 -png "${filePath}" "${tempImgBase}"`);
             
             const images = fs.readdirSync('/tmp').filter(f => f.startsWith(path.basename(tempImgBase)));
             text = '';
@@ -40,7 +40,7 @@ async function extraerTextoCompleto(filePath) {
                 const imgPath = `/tmp/${img}`;
                 const outBase = `/tmp/${img}_ocr`;
                 try {
-                    execSync(`tesseract "${imgPath}" "${outBase}" -l spa`);
+                    execSync(`/usr/bin/tesseract "${imgPath}" "${outBase}" -l spa`);
                     const pageText = fs.readFileSync(`${outBase}.txt`, 'utf8').trim();
                     text += pageText + '\n\n';
                     const pageNum = img.split('-').pop().match(/\d+/)[0];
