@@ -35,11 +35,13 @@ Diego da la dirección. El sistema ejecuta, valida y mejora — incluso mientras
 Auto-mejora del corpus de ingeniería mediante detección y eliminación de impurezas.
 
 ### 2. Motor de Dictámenes & DT Lifecycle (Approved)
-El motor de Decisiones Técnicas (DT) es el vehículo de la iteración:
-- **Flujo:** Dictamen Jurídico → Propuesta Técnica → **Decision Técnica (DT)**.
+El motor de Decisiones Técnicas (DT) ha evolucionado a la **v7.0 Michelin**:
+- **Batch Masterchef:** Los dictámenes y entregables no se sirven de forma aislada. Se utiliza `node scripts/lfc-cli.js [purify|serve]` para garantizar la consistencia transversal N-1 en toda la biblioteca.
 - **Desacuerdos:** Si el usuario no está de acuerdo, puede marcar el `.md` de la DT con una "Nota de Desacuerdo" o instrucción vía chat; el Agente generará una REVISIÓN inmediata.
-- **Vercel:** Los dictámenes se sirven en `https://lfc-2.vercel.app/DICTAMENES/`.
+- **Vercel Blindage:** Las rutas se sirven en `https://lfc-2.vercel.app/`. Se han implementado `rewrites` sistémicos para mapear el Análisis Contractual Forense sin errores 404.
 - **Iteración Humana:** Los especialistas de **Ardanuy, EPC y LFC** revisan los `.md` de las DTs, añaden sus notas y el Agente itera sobre estas notas para mejorar el diseño final.
+
+---
 
 ### 3. SICC Dreamer (Autonomía Nocturna & El Sueño Brillante)
 - **Ciclo Cron:** Ventana de **8:00 PM - 7:00 AM (COL)**.
@@ -47,13 +49,13 @@ El motor de Decisiones Técnicas (DT) es el vehículo de la iteración:
 
 ---
 
-## 🛡️ Capacidades de Soberanía v6.4 (Implemented)
+## 🛡️ Capacidades de Soberanía v7.0 (Implemented)
 
-### 1. SICC Harness CLI (Parity Guard)
-Evita la regresión de ADN técnico (ej. prohíbe términos legacy).
+### 1. SICC Masterchef CLI (Batch Purifier)
+Motor central de purga y servido que aplica el DNA técnico (lfc-terminology.js) en bloque.
 
-### 2. Skills Registry Multinivel
-Carga dinámica de habilidades por dominio (`skill-contracts`, `skill-telecom`, `web_research`).
+### 2. Sinapsis Neural Sync
+Los 5 Pilares del Cerebro (Soul, Identity, DNA, Memory, Architecture) están sincronizados mediante el archivo `SYNOPSIS.md`.
 
 ---
-v1.0.1 - 08/04/2026
+v1.0.2 Michelin Edition - 09/04/2026

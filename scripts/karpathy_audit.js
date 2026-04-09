@@ -6,6 +6,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 const REPO_ROOT = '/home/administrador/docker/LFC2';
 
@@ -44,6 +45,15 @@ function auditFile(filePath) {
     // Check Path Integrity
     if (FORBIDDEN_PATHS.test(relativePath)) {
         violations.push(`[RUTA] Nombre no seguro (Zero-Accents Violation): ${relativePath}`);
+    }
+
+    // SIT LINTING: Syntax Check (SICC v7.0)
+    if (path.extname(filePath) === '.js') {
+        try {
+            execSync(`node -c "${filePath}"`, { stdio: 'ignore' });
+        } catch (e) {
+            violations.push(`[CRIT] ADN CORRUPTO: Error de sintaxis detectado. El archivo no es ejecutable.`);
+        }
     }
 
     return violations;
