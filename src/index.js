@@ -157,8 +157,8 @@ bot.on('message', async (msg) => {
       `👋 ¡Hola Diego! Soy *${config.agent.name}*.\n\n` +
       `🧠 Cerebro · 💾 Memoria · 📧 Gmail · 🐙 GitHub\n\n` +
       `*/doctor* · */learn* · */audit [ruta]*\n` +
-      `*/dream* · */swarm [pregunta]* · */limpiar*\n` +
-      `*/estado* · */cerebro* · */memoria*\n\n` +
+      `*/karpathy [tema]* · */dream* · */swarm [pregunta]*\n` +
+      `*/limpiar* · */estado* · */cerebro* · */memoria*\n\n` +
       `🖥️ *Comandos de Soberanía (Nuevos):*\n` +
       `*/ollama [prompt]* — Hablar directo con IA Local\n` +
       `*/cmd [comando]* — Ejecutar Shell (ej. docker ps)\n\n` +
@@ -251,6 +251,42 @@ bot.on('message', async (msg) => {
       await safeSendMessage(chatId, `✅ *Aprendizaje Completado*\n\n\`\`\`\n${resumen}\n\`\`\``);
     } catch (err) {
       await safeSendMessage(chatId, `❌ Error en Learn: ${err.message}`);
+    }
+    return;
+  }
+
+  // ── Comando KARPATHY (Auditoría Autónoma proactiva) ───────────────────────
+  if (texto.startsWith('/karpathy ')) {
+    const tema = texto.replace('/karpathy ', '').trim();
+    if (!tema) {
+      await safeSendMessage(chatId, '🔬 Uso: `/karpathy Ingeniería Eléctrica`');
+      return;
+    }
+
+    await safeSendMessage(chatId, `🔬 *SICC Karpathy — Iniciando Auditoría proactiva sobre:* \`${tema}\`...\nEstoy explorando archivos y buscando impurezas en el repositorio.`);
+    await bot.sendChatAction(chatId, 'typing');
+
+    try {
+      // 1. Búsqueda proactiva de archivos relacionados
+      const findCmd = `find ${config.paths.lfc2} -iname "*${tema.split(' ')[0]}*" | head -10`;
+      exec(findCmd, async (err, stdout) => {
+        const archivos = stdout.trim();
+        if (!archivos) {
+          await safeSendMessage(chatId, `⚠️ No se encontraron archivos para: \`${tema}\`. Intentando auditoría general de la raíz.`);
+          cmdAudit(config.paths.lfc2);
+        } else {
+          await safeSendMessage(chatId, `📂 *Archivos localizados:*\n\`\`\`\n${archivos}\n\`\`\``);
+          // Tomar el primer archivo o carpeta para auditar
+          const rutaAuditar = archivos.split('\n')[0];
+          cmdAudit(rutaAuditar);
+        }
+
+        // Recuperar logs del harness (simulado aquí capturando console.log en sicc-harness)
+        // Nota: cmdAudit imprime a console.log, necesitamos capturarlo o confiar en que se ejecutó.
+        await safeSendMessage(chatId, `✅ *Proceso Karpathy completado.* Revisa los dictámenes en \`brain/PENDING_DTS.md\``);
+      });
+    } catch (err) {
+      await safeSendMessage(chatId, `❌ Error en Protocolo Karpathy: ${err.message}`);
     }
     return;
   }

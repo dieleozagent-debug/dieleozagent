@@ -14,6 +14,7 @@
     *   **[v6.4.24] Purga Deductiva N-1:** Limpieza forense de Sistemas.
     *   **[v6.5.01] Michelin Autonomy:** Implementación de `dreamer.js` y `michelin-verify.py`.
     *   **[v7.0.0] Soberanía Total:** Embeddings locales vía Ollama Nomic con calibración de Supabase a 768 dimensiones.
+    *   **[v7.1.0] Michelin Saneamiento:** Resolución de conflicto Telegram 409 y purga atómica de CAPEX FENOCO (Gateways).
 
 *   **🚀 EL FLUJO DE TRABAJO (SICC MICHELIN ENGINE):**
     1.  **Vigilia (8:30 AM):** Reporte consolidado de bloqueantes y sueños.
@@ -24,9 +25,9 @@
     - [x] **Blindaje AT10 vs Moving Block:** DT-SICC-2026-002 emitida. Grep forense ejecutado exitosamente. Capacidad protegida.
     - [/] **Simulación de Sueño Masiva:** Ejecutar el `dreamer.js` secuencialmente sobre todo el corpus tras la ingesta.
     - [ ] **Saneamiento de Dimensiones de Vectores:** [ABORTADO] Se mantiene el estándar de 3072 dimensiones validado por Diego. No se realizará la purga a 768.
-    - [ ] **Saneamiento de CAPEX FENOCO:** Purga física de Gateways en Telecomunicaciones y Civil basándose en Sec 25.4.
-    - [ ] **Auditoría Forense de Inventario:** Validar que la WBS Presupuestal refleje el ahorro de 25 MM USD del Dictamen 01.
-    - [ ] **Validación de Estados de Telegram:** Resolver conflictos de comunicación (Error 409) y asegurar respuesta letal de comandos.
+    - [x] **Saneamiento de CAPEX FENOCO:** Purga física de Gateways en Telecomunicaciones y Civil basándose en Sec 25.4.
+    - [x] **Auditoría Forense de Inventario:** Validar que la WBS Presupuestal refleje el ahorro de 25 MM USD del Dictamen 01. -> ✅ **LÍNEA BASE MICHELIN v4.0 ESTABLECIDA ($241.7B COP).**
+    - [x] **Validación de Estados de Telegram:** Resolución de Error 409 e implementación de autonomía `/karpathy`.
 
 ### 🚨 ANÁLISIS DE FALLO DE INGESTA (VERDICTO DIEGO)
 *   **Problema:** La transición a Ollama Nomic (768 dims) causó una discrepancia con el núcleo legacy (3072 dims) y saturó la CPU al 100%.

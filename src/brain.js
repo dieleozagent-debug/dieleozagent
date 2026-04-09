@@ -4,9 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const BRAIN_DIR = fs.existsSync('/app/data/brain') 
-  ? '/app/data/brain' 
-  : path.join(__dirname, '../brain');
+const BRAIN_DIR = config.paths.brain;
 
 const BRAIN_FILES = [
   { file: 'SOUL.md',            label: 'ALMA Y PERSONALIDAD',           required: true  },
@@ -65,7 +63,18 @@ function estadoBrain() {
 function leerHeartbeat() {
   const hbPath = path.join(BRAIN_DIR, 'HEARTBEAT.md');
   if (!fs.existsSync(hbPath)) return [];
-  return [{ nombre: 'Heartbeat', descripcion: 'Activo' }];
+  
+  const content = fs.readFileSync(hbPath, 'utf8');
+  const lines = content.split('\n');
+  const pendientes = lines
+    .filter(line => line.trim().startsWith('- [ ]'))
+    .map(line => {
+      const desc = line.replace('- [ ]', '').trim();
+      return { nombre: 'Pendiente', descripcion: desc };
+    })
+    .filter(t => t.descripcion && !t.descripcion.toLowerCase().includes('activo') && t.descripcion.length > 5);
+
+  return pendientes;
 }
 
 module.exports = { construirSystemPrompt, estadoBrain, leerHeartbeat };
