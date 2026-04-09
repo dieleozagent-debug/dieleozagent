@@ -1,6 +1,6 @@
-# 🤖 OpenGravity Agent — Ecosistema Soberano v6.4
+# 🤖 OpenGravity Agent — Ecosistema Soberano v7.0 (Michelin Edition)
 
-> **Stack:** Node.js · Telegram Bot API · **Ollama (Local)** · Groq · Gemini · Docker · Ubuntu Server
+> **Stack:** Node.js · Telegram Bot API · **Ollama (Local)** · OpenRouter · Docker · Supabase Vector DB (768 dims)
 
 OpenGravity es un **Agente de IA Autónomo y Auditor Transversal** diseñado para operar con soberanía tecnológica total. Utiliza una arquitectura modular de 3 repositorios independientes para separar la lógica de ejecución del conocimiento y los entregables de ingeniería.
 
@@ -33,7 +33,7 @@ agente/
 
 ---
 
-## 🚀 Estabilidad y Capacidades Críticas (v6.4.8 Alpha 2026 Edition)
+## 🚀 Estabilidad y Capacidades Críticas (v7.0 Soberanía Total)
 
 -   **Hybrid Swarm Engine**: Auditoría forense vía **Qwen 3.5 Flash** ($0.065/M) y Estrategia vía **Claude 4.6**.
 -   **Multi-Provider Fallback**: **Ollama (Local)** -> Gemini 3.1 -> Groq -> OpenRouter.
@@ -64,13 +64,15 @@ Cada repositorio es independiente. Tras cambios en el cerebro o entregables, uti
 
 ---
 
-## 🌀 Protocolos Operativos (Slash Commands)
+## 🌀 Protocolos Operativos (Slash Commands Telegram)
 
+-   `/ollama [prompt]`: **[Soberano]** Ejecuta Inferencia Directa con el servidor local sin depender de la nube.
+-   `/cmd [comando]`: **[Soberano]** Interfaz de consola remota para ejecución shell pura (Ej: `docker ps`).
+-   `/swarm [pregunta]`: Debate forense multi-agente (Auditor vs Estratega) en modo secuencial.
 -   `/karpathy-loop`: Inicia auditoría forense en el repositorio `LFC2`.
--   `/swarm [pregunta]`: Debate forense multi-agente (Auditor + Estratega) en modo secuencial.
 -   `/simulacion-sit`: Simula el impacto de cambios técnicos antes de ejecutarlos.
 -   `/sintesis-memoria`: Graba las lecciones de la sesión en `brain/DBCD_CRITERIA.md`.
--   `/cerebro`: Verifica la integridad de los 11 archivos de identidad del agente.
+-   `/cerebro`: Verifica la integridad funcional de la identidad del agente.
 
 ---
 

@@ -16,9 +16,10 @@ Diego da la dirección. El sistema ejecuta, valida y mejora — incluso mientras
 | **[Brain](https://github.com/dieleozagent-debug/brain)** | SSOT: identidad, criterios, memoria, Skills | Markdown, JSON |
 | **[LFC2](https://github.com/dieleozagent-debug/LFC2)** | Verdad de Ingeniería: planos, DTs, contratos | Markdown, HTML |
 
-### Nodo de Inferencia (v6.4.18 Alpha 2026 Edition)
+### Nodo de Inferencia (v7.0 Sovereign 2026 Edition)
 - **Vigilia (Bot/Swarm):** Cloud-First vía OpenRouter con el motor **Alpha 2026 Elite**.
-- **Capa de Memoria Contractual (LTM):** **Supabase Vector DB** (Conocimiento de Reglas de Negocio).
+- **Capa de Memoria Contractual (LTM):** **Supabase Vector DB (Soberanía Local recalibrada a 768 dims)**.
+- **Ingesta Masiva (Biblia Legal):** OCR Forense y Embeddings locales vía **Ollama (nomic-embed-text)**.
 - **Sueño (Autónomo):** Ollama con `gemma4-light:latest` (Local/Soberano).
 
 ---

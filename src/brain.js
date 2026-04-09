@@ -53,4 +53,19 @@ function construirSystemPrompt(modo = 'full') {
   return secciones.join('\n');
 }
 
-module.exports = { construirSystemPrompt };
+function estadoBrain() {
+  let res = '';
+  for (const { file, label } of BRAIN_FILES) {
+    const presente = fs.existsSync(path.join(BRAIN_DIR, file));
+    res += `${presente ? '✅' : '❌'} ${label} (${file})\n`;
+  }
+  return res;
+}
+
+function leerHeartbeat() {
+  const hbPath = path.join(BRAIN_DIR, 'HEARTBEAT.md');
+  if (!fs.existsSync(hbPath)) return [];
+  return [{ nombre: 'Heartbeat', descripcion: 'Activo' }];
+}
+
+module.exports = { construirSystemPrompt, estadoBrain, leerHeartbeat };

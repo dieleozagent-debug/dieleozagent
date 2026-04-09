@@ -9,8 +9,8 @@ const config = require('./config');
 const genAI = new GoogleGenerativeAI(config.ai.gemini.apiKey);
 
 const dbConfig = {
-    host: process.env.DB_HOST || 'supabase_db_sicc-local',
-    port: process.env.DB_PORT || 5432,
+    host: process.env.DB_HOST || '127.0.0.1',
+    port: process.env.DB_PORT || 54322,
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || 'postgres',
     database: 'postgres'

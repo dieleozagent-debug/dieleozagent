@@ -5,13 +5,14 @@ const fs = require('fs');
 const path = require('path');
 const TelegramBot = require('node-telegram-bot-api');
 const config = require('./config');
-const { inicializarBrain, procesarMensaje, procesarMensajeSwarm, limpiarHistorial } = require('./agent');
+const { inicializarBrain, procesarMensaje, procesarMensajeSwarm, limpiarHistorial, llamarOllama } = require('./agent');
 const { cmdDoctor, cmdLearn, cmdAudit } = require('../scripts/sicc-harness');
 const { estadoBrain, leerHeartbeat } = require('./brain');
 const { guardar, estadoMemoria } = require('./memory');
 const { leerNoLeidos, formatearCorreos, enviarCorreo } = require('./gmail');
 const { infoRepo, ultimosCommits, issuesAbiertos, listarCarpeta, leerArchivo,
         formatearInfo, formatearCommits, formatearIssues, OWNER, REPO } = require('./github');
+const { exec } = require('child_process');
 
 const DOWNLOADS_DIR = path.join(__dirname, '../data/downloads');
 const LOGS_DIR = path.join(__dirname, '../data/logs');
@@ -123,6 +124,9 @@ bot.on('message', async (msg) => {
       `*/doctor* · */learn* · */audit [ruta]*\n` +
       `*/dream* · */swarm [pregunta]* · */limpiar*\n` +
       `*/estado* · */cerebro* · */memoria*\n\n` +
+      `🖥️ *Comandos de Soberanía (Nuevos):*\n` +
+      `*/ollama [prompt]* — Hablar directo con IA Local\n` +
+      `*/cmd [comando]* — Ejecutar Shell (ej. docker ps)\n\n` +
       `*/correos* · */email para|asunto|msg*\n` +
       `*/git repo* — Info del repo LFC2\n` +
       `*/git commits* — Últimos commits\n` +
@@ -239,6 +243,36 @@ bot.on('message', async (msg) => {
     }
     return;
   }
+
+  // ── Comando OLLAMA (Inferencia Local Soberana) ────────────────────────────
+  if (texto.startsWith('/ollama ')) {
+    const prompt = texto.replace('/ollama ', '').trim();
+    if (!prompt) return;
+    await safeSendMessage(chatId, '🖥️ *Ollama Local:* Pensando...');
+    await bot.sendChatAction(chatId, 'typing');
+    try {
+      const resultado = await llamarOllama(prompt);
+      await safeSendMessage(chatId, `🖥️ *Ollama_v7.0:*\n\n${resultado}`);
+    } catch (err) {
+      await safeSendMessage(chatId, `❌ Error en Ollama: ${err.message}`);
+    }
+    return;
+  }
+
+  // ── Comando CMD (Ejecución Terminal) ──────────────────────────────────────
+  if (texto.startsWith('/cmd ')) {
+    const comando = texto.replace('/cmd ', '').trim();
+    if (!comando) return;
+    await safeSendMessage(chatId, `💻 *Ejecutando:* \`${comando}\``);
+    exec(comando, { timeout: 15000 }, async (error, stdout, stderr) => {
+      let output = stdout || stderr || 'Sin salida.';
+      if (error) output += `\nError: ${error.message}`;
+      const preview = output.substring(0, 3000);
+      await safeSendMessage(chatId, `\`\`\`bash\n${preview}\n\`\`\``);
+    });
+    return;
+  }
+
 
   // ── Comandos GitHub ───────────────────────────────────────────────────────
   if (texto.startsWith('/git ')) {
