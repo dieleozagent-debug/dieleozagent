@@ -6,7 +6,7 @@ const path = require('path');
 const { execSync } = require('child_process');
 const { obtenerEmbedding, insertarFragmento, pool } = require('./supabase');
 
-const DATA_DIR = '/app/Contrato pdf';
+const DATA_DIR = process.argv[2] || '/app/Contrato pdf';
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
