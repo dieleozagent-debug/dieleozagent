@@ -1,33 +1,25 @@
-# 🗺️ Conectividad DirectaAP DE SOBERANÍA TÉCNICA (SICC v6.5 - MICHELIN EDITION)
+# 🗺️ ROADMAP DE SOBERANÍA TÉCNICA (SICC v8.0 - MICHELIN EDITION)
 ## Bitácora de Auditoría Forense y Evolución Agéntica
 
-**Última actualización:** 09 de abril de 2026 (Fase v7.0 Soberanía Total)  
-**Veredicto:** El Agente opera como Director Contractual Autónomo. El Cerebro contractual se ha re-calibrado localmente (768 dims) permitiendo la ingesta forense y el ciclo de Sueño Karpathy con autonomía del 100%.
+**Última actualización:** 09 de abril de 2026 (Fase v8.0 Punto 42 Sweep)  
+**Veredicto:** El Agente ha evolucionado a **Auditor Forense Sistémico**. Se ha completado el barrido masivo de las carpetas legacy (I-X) bajo la **Metodología Punto 42**, identificando una "Grasa Contractual" crítica en ingeniería de detalle.
 
 ---
 
 ### ⚙️ 4. EJECUCIÓN: ¿QUÉ VAMOS A HACER? (ESTADO ACTUAL)
 
-*   **🏆 HITOS LOGRADOS (Nivel Soberano):**
-    *   **[v6.4.19] Dashboard Contractual:** Portal de Dictámenes Jurídicos.
-    *   **[v6.4.22] Dictamen SICC-01 (FENOCO):** Blindaje de 25 MM USD.
-    *   **[v6.4.24] Purga Deductiva N-1:** Limpieza forense de Sistemas.
-    *   **[v6.5.01] Michelin Autonomy:** Implementación de `dreamer.js` y `michelin-verify.py`.
-    *   **[v7.0.0] Soberanía Total:** Embeddings locales vía Ollama Nomic con calibración de Supabase a 768 dimensiones.
-    *   **[v7.1.0] Michelin Saneamiento:** Resolución de conflicto Telegram 409 y purga atómica de CAPEX FENOCO (Gateways).
+*   **🏆 HITOS LOGRADOS (v8.0 "Punto 42"):**
+    *   **[v7.3.0] Portal Soberano 7.3:** Despliegue de 07 Dictámenes activos (49M USD ahorro).
+    *   **[v7.3.5] DT-015 Fibra:** Blindaje Backbone G.652.D / 48 hilos.
+    *   **[v8.0.0] Punto 42 Alpha:** Inyección de metodología sistémica (Verbos Rectores).
+    *   **[v8.0.1] DNA Sweep:** Barrido masivo de carpetas legacy (I-X) y generación de reporte RED.
+    *   **[v8.0.2] DNA Purify:** Purga de "DWDM/G.655" en el portal de dictámenes.
 
-*   **🚀 EL FLUJO DE TRABAJO (SICC MICHELIN ENGINE):**
-    1.  **Vigilia (8:30 AM):** Reporte consolidado de bloqueantes y sueños.
-    2.  **Operación Diurna:** Inferencia forense asistida por el Director Contractual.
-    3.  **Sueño (20:00 - 07:00):** Ciclo autónomo de 5 iteraciones (Karpathy Loop) para decantar propuestas.
-
-*   **🌙 PRÓXIMOS PASOS (Hacia la Autonomía Total):**
-    - [x] **Blindaje AT10 vs Moving Block:** DT-SICC-2026-002 emitida. Grep forense ejecutado exitosamente. Capacidad protegida.
-    - [/] **Simulación de Sueño Masiva:** Ejecutar el `dreamer.js` secuencialmente sobre todo el corpus tras la ingesta.
-    - [ ] **Saneamiento de Dimensiones de Vectores:** [ABORTADO] Se mantiene el estándar de 3072 dimensiones validado por Diego. No se realizará la purga a 768.
-    - [x] **Saneamiento de CAPEX FENOCO:** Purga física de Gateways en Telecomunicaciones y Civil basándose en Sec 25.4.
-    - [x] **Auditoría Forense de Inventario:** Validar que la WBS Presupuestal refleje el ahorro de 25 MM USD del Dictamen 01. -> ✅ **LÍNEA BASE MICHELIN v4.0 ESTABLECIDA ($241.7B COP).**
-    - [x] **Validación de Estados de Telegram:** Resolución de Error 409 e implementación de autonomía `/karpathy`.
+*   **🌙 PRÓXIMOS PASOS (Hacia el Saneamiento Masivo):**
+    - [x] **Barrido Masivo Legacy (I-X):** Reporte RED generado en el cerebro.
+    - [/] **Sesión de Sueño Sustractiva (N-1):** Iniciar ciclo para redactar DTs de supresión de sistemas ENCE/EOT sin Verbo Rector.
+    - [ ] **Saneamiento de Ingeniería de Detalle:** Aplicar el Punto 42 a los planos de Vía y Estructuras.
+    - [x] **Actualización de Vercel:** Portal v7.3 sincronizado con ingeniería pura.
 
 ### 🚨 ANÁLISIS DE FALLO DE INGESTA (VERDICTO DIEGO)
 *   **Problema:** La transición a Ollama Nomic (768 dims) causó una discrepancia con el núcleo legacy (3072 dims) y saturó la CPU al 100%.
