@@ -15,7 +15,7 @@ const BRAIN_FILES = [
   { file: 'LFC_ROLE.md',        label: 'ROL CONTRACTUAL LFC',           required: false },
   { file: 'DBCD_CRITERIA.md',   label: 'CRITERIOS DISEÑO & CAPEX',      required: false },
   { file: 'DREAMS.md',          label: 'SUEÑOS Y TAREAS NOCTURNAS',     required: false },
-  { file: 'ROADMAP.md',         label: 'HOJA DE RUTA (ROADMAP)',        required: false },
+  { file: 'Conectividad DirectaAP.md',         label: 'HOJA DE RUTA (Conectividad DirectaAP)',        required: false },
   { file: 'PENDIENTES_COLABORACION.md', label: 'PENDIENTES (ACCOUNTABILITY)', required: false },
   { file: 'USER.md',            label: 'CONTEXTO DEL USUARIO (DIEGO)',  required: false },
 ];

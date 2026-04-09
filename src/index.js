@@ -13,6 +13,7 @@ const { leerNoLeidos, formatearCorreos, enviarCorreo } = require('./gmail');
 const { infoRepo, ultimosCommits, issuesAbiertos, listarCarpeta, leerArchivo,
         formatearInfo, formatearCommits, formatearIssues, OWNER, REPO } = require('./github');
 const { exec } = require('child_process');
+const cron = require('node-cron');
 
 const DOWNLOADS_DIR = path.join(__dirname, '../data/downloads');
 const LOGS_DIR = path.join(__dirname, '../data/logs');
@@ -82,6 +83,40 @@ setInterval(async () => {
     }
   }
 }, 30 * 60 * 1000);
+
+// ── Programador de Tareas Interno (Unificación de Autonomía) ────────────────
+const BOGOTA_TZ = 'America/Bogota';
+
+// 1. Vigilia Michelin (08:30 AM)
+cron.schedule('30 08 * * *', async () => {
+  console.log('[CRON] 🛰️ Iniciando Vigilia Michelin...');
+  try {
+    const { enviarVigilia } = require('./agent');
+    const msg = await enviarVigilia();
+    await safeSendMessage(config.telegram.userId, msg);
+    console.log('[CRON] ✅ Reporte de Vigilia enviado.');
+  } catch (err) {
+    console.error('[CRON] ❌ Error en Vigilia:', err.message);
+  }
+}, { timezone: BOGOTA_TZ });
+
+// 2. Ingesta Masiva y Sueño Karpathy (08:00 PM)
+cron.schedule('00 20 * * *', async () => {
+  console.log('[CRON] 🌙 Iniciando ciclo nocturno (Ingesta + Dreamer)...');
+  const docPath = '/app/repos/LFC2/docs/00_Referencia_Normativa_Contractual_LFC/';
+  const cmdIngesta = `node src/ingest_masivo.js "${docPath}" > data/logs/ingesta_biblia.log 2>&1`;
+  const cmdDreamer = `node src/dreamer.js >> data/logs/dreamer.log 2>&1`;
+
+  exec(`${cmdIngesta} && ${cmdDreamer}`, (error) => {
+    if (error) {
+      console.error('[CRON] ❌ Error en ciclo nocturno:', error.message);
+      safeSendMessage(config.telegram.userId, `⚠️ *Fallo en ciclo nocturno:* ${error.message}`);
+    } else {
+      console.log('[CRON] ✅ Ciclo nocturno completado con éxito.');
+      safeSendMessage(config.telegram.userId, `🌙 *Ciclo Nocturno Completado:* Biblia Legal ingerida y sueños decantados.`);
+    }
+  });
+}, { timezone: BOGOTA_TZ });
 
 // ── Registro de Salud (cada hora) ─────────────────────────────────────────────
 setInterval(async () => {

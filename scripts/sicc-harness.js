@@ -34,8 +34,8 @@ const SOVEREIGN_TERMS = [
 ];
 
 const LEGACY_TERMS = [
-  'Caja Negra', 'Eurobaliza', 'GSM-R', 'DWDM', 'G.655',
-  'EN 50128', 'Circuitos de Vía', 'mantenimiento físico correctivo',
+  'Caja Negra', 'Eurobaliza', 'GSM-R', 'Conectividad SFP-LR', 'G.652.D',
+  'EN 50716', 'Circuitos de Vía', 'mantenimiento físico correctivo',
 ];
 
 function parityGuard(texto) {

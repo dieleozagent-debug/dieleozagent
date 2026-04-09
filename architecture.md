@@ -18,8 +18,9 @@ Diego da la dirección. El sistema ejecuta, valida y mejora — incluso mientras
 
 ### Nodo de Inferencia (v7.0 Sovereign 2026 Edition)
 - **Vigilia (Bot/Swarm):** Cloud-First vía OpenRouter con el motor **Alpha 2026 Elite**.
-- **Capa de Memoria Contractual (LTM):** **Supabase Vector DB (Soberanía Local recalibrada a 768 dims)**.
-- **Ingesta Masiva (Biblia Legal):** OCR Forense y Embeddings locales vía **Ollama (nomic-embed-text)**.
+- **Capa de Memoria Contractual (LTM):** **Supabase Vector DB (3072 dims - Google Method)**. 
+  - *Veredicto:* Se mantiene la estructura de 3072 dimensiones por ser la validada contractualmente.
+- **Ingesta Masiva (Biblia Legal):** OCR Forense local (Tesseract) + Ingesta vía **Google LLM Free (3072 dims)**.
 - **Topología de Red Aislada (Ollama Sandbox):** 
   - Ollama corre en el contenedor aislado `opengravity-ollama` mapeando el repositorio físico de modelos: `/home/administrador/ollama-data` -> `/root/.ollama`.
   - Compilación Local: Se compila a partir de archivos `.gguf` invocando a Docker internamente (`docker exec ... ollama create [modelo] -f Modelfile.light`).

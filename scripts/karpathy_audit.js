@@ -18,7 +18,7 @@ const SOVEREIGN_INVARIANTS = [
     { rule: "VITAL_NODES", pattern: /Menos de 37 nodos|Reducción de torres/i, fix: "37 Nodos Red Vital Mandatorios" },
     { rule: "SECURITY_LAYERS", pattern: /TETRA únicamente|Sin Vital IP/i, fix: "Multi-capa (Red Vital + TETRA + Fibra)" },
     { rule: "MAINTENANCE_PHILOSOPHY", pattern: /Mantenimiento Preventivo Físico|Recambio por tiempo/i, fix: "Mantenimiento Predictivo / Basado en Condición (N-1)" },
-    { rule: "REDUNDANCY_OVERHEAD", pattern: /Doble canal G.655|Backbone legacy/i, fix: "Red Vital IP (G.652.D) / Backbone Soberano" },
+    { rule: "REDUNDANCY_OVERHEAD", pattern: /Doble canal G.652.D|Backbone legacy/i, fix: "Red Vital IP (G.652.D) / Backbone Soberano" },
     { old: /Eurobaliza/i, new: "Baliza Virtual (GNSS)" },
     { old: /Caja Negra/i, new: "Arquitectura Abierta SICC" },
     { old: /Propropietario/i, new: "Soberano" },

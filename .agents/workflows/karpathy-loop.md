@@ -7,7 +7,7 @@ description: Protocolo de Simulación de Impacto y Trazabilidad (SIT) para Cambi
 Este protocolo permite que el Agente audite sistemáticamente los 3 repositorios (`agente`, `brain`, `LFC2`), identifique desviaciones soberanas y ejecute el saneamiento determinista usando el Enjambre Híbrido.
 
 ## 1. Fase de Planificación (Active Memory)
-- El Agente revisa `ROADMAP.md` y `HEARTBEAT.md` para identificar el próximo paso del plan.
+- El Agente revisa `Conectividad DirectaAP.md` y `HEARTBEAT.md` para identificar el próximo paso del plan.
 - Si no hay uno, realiza un escaneo exploratorio en `/home/administrador/docker/LFC2/` buscando términos prohibidos (GSM-R, RBC, ETCS, UNISIG) usando `grep`.
 
 ## 2. Auditoría Forense en Enjambre (Swarm)

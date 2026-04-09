@@ -1,4 +1,4 @@
-# 🗺️ ROADMAP DE SOBERANÍA TÉCNICA (SICC v6.5 - MICHELIN EDITION)
+# 🗺️ Conectividad DirectaAP DE SOBERANÍA TÉCNICA (SICC v6.5 - MICHELIN EDITION)
 ## Bitácora de Auditoría Forense y Evolución Agéntica
 
 **Última actualización:** 09 de abril de 2026 (Fase v7.0 Soberanía Total)  
@@ -21,10 +21,17 @@
     3.  **Sueño (20:00 - 07:00):** Ciclo autónomo de 5 iteraciones (Karpathy Loop) para decantar propuestas.
 
 *   **🌙 PRÓXIMOS PASOS (Hacia la Autonomía Total):**
-    - [/] **Ingesta de Biblia Legal:** Protocolo Michelin soberano (OCR + Nomic local) automatizado y blindado (20:00).
+    - [x] **Blindaje AT10 vs Moving Block:** DT-SICC-2026-002 emitida. Grep forense ejecutado exitosamente. Capacidad protegida.
     - [/] **Simulación de Sueño Masiva:** Ejecutar el `dreamer.js` secuencialmente sobre todo el corpus tras la ingesta.
+    - [ ] **Saneamiento de Dimensiones de Vectores:** [ABORTADO] Se mantiene el estándar de 3072 dimensiones validado por Diego. No se realizará la purga a 768.
     - [ ] **Saneamiento de CAPEX FENOCO:** Purga física de Gateways en Telecomunicaciones y Civil basándose en Sec 25.4.
     - [ ] **Auditoría Forense de Inventario:** Validar que la WBS Presupuestal refleje el ahorro de 25 MM USD del Dictamen 01.
+    - [ ] **Validación de Estados de Telegram:** Resolver conflictos de comunicación (Error 409) y asegurar respuesta letal de comandos.
+
+### 🚨 ANÁLISIS DE FALLO DE INGESTA (VERDICTO DIEGO)
+*   **Problema:** La transición a Ollama Nomic (768 dims) causó una discrepancia con el núcleo legacy (3072 dims) y saturó la CPU al 100%.
+*   **Decisión:** Se aborta la migración a Ollama para la ingesta masiva. Se restaura el "Google-Method" (OCR local + LLM Google Free) que produce resultados correctos y estables.
+*   **Cron/Vigilia:** Se detectó que el path de Node en el crontab del host es erróneo. Se actualizará a la ruta de NVM para restaurar la autonomía.
 
 ### 🏁 5. ESTADO ACTUAL Y CIERRE
 El sistema opera bajo **Soberanía Judicial Michelin**. No se acepta ningún ingrediente de Nivel 16 contra el Contrato Maestro.
@@ -39,7 +46,7 @@ El sistema opera bajo **Soberanía Judicial Michelin**. No se acepta ningún ing
 *   **Plan de Uso:** Enviar *Directriz de Ingeniería obligatoria* exigiendo que el modelo (OpenTrack/Viriato) sea parametrizado exclusivamente para arquitecturas *Moving Block (Cantón Virtual)*, donde el *headway* se basa en curvas de frenado y no en infraestructura física en vía férrea (DBCD V002, AT1 Tabla 17). 
 
 **CASO 2: Disponibilidad de Red Vital IP (Brecha Contractual APP)**
-*   **Análisis:** El marco legal está abierto a interpretaciones de "fuerza mayor" si hay caídas en la fibra DWDM G.655.
+*   **Análisis:** El marco legal está abierto a interpretaciones de "fuerza mayor" si hay caídas en la fibra Conectividad SFP-LR G.652.D.
 *   **Plan de Uso:** Ejecutar DT formal para forzar el *Addendum SLA-VIP-01*. Imponer latencia ≤ 5ms, disponibilidad ≥ 99.999% y penalidades exigibles automáticas sin excepciones. No firmar fases hasta tener la traza óptica OTDR.
 
 **CASO 3: Jerarquía Normativa & Auditoría Repositorio (Prioridad SICC)**
