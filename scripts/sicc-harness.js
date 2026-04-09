@@ -18,6 +18,7 @@ const path = require('path');
 const { execSync } = require('child_process');
 const os = require('os');
 const config = require('../src/config');
+const AGENTE_ROOT = path.join(__dirname, '..');
 
 const LFC2_ROOT   = config.paths.lfc2;
 const BRAIN_ROOT  = config.paths.brain;

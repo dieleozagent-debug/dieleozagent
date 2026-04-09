@@ -3,6 +3,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const config = require('./config');
 
 const BRAIN_DIR = config.paths.brain;
 
