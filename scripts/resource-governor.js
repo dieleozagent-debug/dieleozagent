@@ -14,6 +14,16 @@ const DREAMS_FILE = path.join(config.paths.brain, 'DREAMS.md');
 const CPU_ALERT_THRESHOLD = 0.99; // 99% de carga → permitir manual hoy
 const CPU_CRITICAL_THRESHOLD = 0.99; // 99% → permitir manual hoy
 
+function isWeekend() {
+  const now = new Date();
+  const day = now.getDay(); // 0: Dom, 1: Lun, ..., 5: Vie, 6: Sab
+  const hour = now.getHours();
+  if (day === 0 || day === 6) return true;
+  if (day === 5 && hour >= 17) return true; // Viernes tarde
+  if (day === 1 && hour < 7) return true;   // Lunes madrugada
+  return false;
+}
+
 /**
  * Retorna la carga de CPU normalizada (0.0 a 1.0) sobre el núcleo más cargado.
  * Usa el promedio de 1 minuto de os.loadavg(), normalizado por núm. de CPUs.
@@ -31,6 +41,15 @@ function getCpuLoad() {
 function evaluarRecursos() {
   const load = getCpuLoad();
   const mem = process.memoryUsage();
+
+  if (isWeekend()) {
+    return {
+      ok: true,
+      level: 'AGGRESSIVE',
+      load,
+      message: `🚀 MODO AGRESIVO FDS ACTIVADO. CPU al ${Math.round(load * 100)}%. Ignorando límites para agotar cola.`,
+    };
+  }
 
   if (load >= CPU_CRITICAL_THRESHOLD) {
     return {

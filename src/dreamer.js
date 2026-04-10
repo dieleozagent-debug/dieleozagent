@@ -10,12 +10,12 @@
 
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
 const { procesarMensaje, PROMPT_FULL } = require('./agent');
-const { guardar } = require('./memory');
+const { cargarMemoriaReciente } = require('./memory');
+const { getCpuLoad } = require('../scripts/resource-governor');
 
 const PENDING_DIR = path.join(__dirname, '../brain/PENDING_DTS');
+const DREAMS_FILE = path.join(__dirname, '../data/brain/DREAMS.md');
 const NOTEBOOK_THOUGHTS = path.join(__dirname, '../docs/pensamientos notebooklm.txt');
 
 if (!fs.existsSync(PENDING_DIR)) fs.mkdirSync(PENDING_DIR, { recursive: true });
@@ -30,9 +30,18 @@ async function ejecutarSueno(especialidad) {
     let hipotesisActual = `Revisión forense de la especialidad: ${especialidad}. 
     Objetivo: Eliminar impurezas Nivel 16 y optimizar CAPEX mediante N-1.`;
 
-    // 🔄 BUCLE DE KARPATHY (5 Iteraciones)
-    for (let i = 1; i <= 5; i++) {
-        console.log(`[DREAMER] 🧬 Iteración ${i}/5...`);
+    const numPasses = parseInt(process.env.KARPATHY_PASSES) || 15;
+    
+    // 🔄 BUCLE DE KARPATHY (Dinámico 5-15)
+    for (let i = 1; i <= numPasses; i++) {
+        console.log(`[DREAMER] 🧬 Iteración ${i}/${numPasses}...`);
+        
+        // Verificación de pánico de CPU solo si no estamos en fin de semana
+        const load = getCpuLoad();
+        if (load > 2.0 && i > 5) {
+            console.warn(`[DREAMER] ⚠️ Carga extrema (${Math.round(load*100)}%). Deteniendo en iteración ${i} para proteger el host.`);
+            break;
+        }
         
         const promptIteracion = `
         [LOOP DE SUEÑO - ITERACIÓN ${i}]
