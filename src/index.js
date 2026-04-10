@@ -108,10 +108,9 @@ cron.schedule('30 08 * * *', async () => {
 
 // 2. Ciclo de Sueño SICC (Ventanas Operativas v7.2 - Hyper-Productivity)
 const ejecutarCicloNocturno = () => {
-  console.log('[CRON] 🌙 Iniciando ventana operativa (Ingesta + Dreamer Forense)...');
+  console.log('[CRON] 🌙 Iniciando ventana operativa (Ingesta Biblia Legal + Dreamer)...');
   const docPath = '/app/repos/LFC2/docs/00_Referencia_Normativa_Contractual_LFC/';
-  const cmdIngesta = `node src/ingest_masivo.js "${docPath}" > data/logs/ingesta_biblia.log 2>&1`;
-  // Pivotamos al script "sicc-dreamer.js" que tiene el motor de análisis proactivo
+  const cmdIngesta = `node src/ingest_masivo.js "${docPath}" >> data/logs/ingesta_biblia.log 2>&1`;
   const cmdDreamer = `node scripts/sicc-harness.js dream >> data/logs/dreamer.log 2>&1`;
 
   exec(`${cmdIngesta} && ${cmdDreamer}`, (error) => {
@@ -126,10 +125,11 @@ const ejecutarCicloNocturno = () => {
 // A. Vigilia Nocturna (Lun-Vie): 8PM, 11PM, 2AM, 5AM
 cron.schedule('0 20,23,02,05 * * 1-5', ejecutarCicloNocturno, { timezone: BOGOTA_TZ });
 
-// B. Guardia de Fin de Semana (Inicia Viernes 5PM)
-cron.schedule('0 17,21 * * 5', ejecutarCicloNocturno, { timezone: BOGOTA_TZ }); // Vie
-cron.schedule('0 */04 * * 6,0', ejecutarCicloNocturno, { timezone: BOGOTA_TZ }); // Sáb-Dom cada 4h
-cron.schedule('0 02,05 * * 1', ejecutarCicloNocturno, { timezone: BOGOTA_TZ });   // Final Lun AM
+// B. MISIÓN FIN DE SEMANA (Biblia Legal Surge)
+// Inicia Viernes 10PM y corre intensivo Sábado y Domingo
+cron.schedule('0 22 * * 5', ejecutarCicloNocturno, { timezone: BOGOTA_TZ }); // Viernes Inicio
+cron.schedule('0 */06 * * 6,0', ejecutarCicloNocturno, { timezone: BOGOTA_TZ }); // Sáb-Dom cada 6h
+cron.schedule('0 02,05 * * 1', ejecutarCicloNocturno, { timezone: BOGOTA_TZ });   // Cierre Lunes AM
 
 // ── Registro de Salud (cada hora) ─────────────────────────────────────────────
 setInterval(async () => {

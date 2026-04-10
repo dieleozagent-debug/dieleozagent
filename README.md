@@ -1,6 +1,6 @@
-# 🤖 OpenGravity Agent — Ecosistema Soberano v7.0 (Michelin Edition)
+# 🤖 OpenGravity Agent — Ecosistema Soberano v8.5.1 (Sovereign Sweep)
 
-> **Stack:** Node.js · Telegram Bot API · **Ollama (Local)** · OpenRouter · Docker · Supabase Vector DB (768 dims)
+> **Stack:** Node.js · **Recursive Ingest v7.2** · **Ollama 768-dim** · Docker · **RED Protocol Engine**
 
 OpenGravity es un **Agente de IA Autónomo y Auditor Transversal** diseñado para operar con soberanía tecnológica total. Utiliza una arquitectura modular de 3 repositorios independientes para separar la lógica de ejecución del conocimiento y los entregables de ingeniería.
 
@@ -33,16 +33,12 @@ agente/
 
 ---
 
-## 🚀 Estabilidad y Capacidades Críticas (v7.0 Soberanía Total)
-
--   **Hybrid Swarm Engine**: Auditoría forense vía **Qwen 3.5 Flash** ($0.065/M) y Estrategia vía **Claude 4.6**.
+-   **Forensic Ingest v7.2**: Ingesta recursiva blindada con **Aislamiento de Lotes** y Lock de proceso.
+-   **RED Protocol Integration**: Generación autónoma de Registros Ejecutivos de Deficiencias en el cerebro.
+-   **Memory Matrix**: Gestión de dimensiones calibrada (768 dims) para integridad de embeddings.
 -   **Multi-Provider Fallback**: **Ollama (Local)** -> Gemini 3.1 -> Groq -> OpenRouter.
--   **Memory Matrix**: Gestión asimétrica de 23 archivos de identidad y misión.
--   **Multilevel Skills**: Soporte dinámico para módulos JSON (Voz) y Markdown (Workflows).
--   **Long Term Memory (LTM)**: Integración nativa con **Supabase Vector DB** para RAG contractual.
--   **Resource Governor**: Middleware CPU-aware que protege el host de 4 núcleos.
--   **SICC Dreamer**: Auditoría autónoma nocturna vía Ollama (cron 2AM).
 -   **Sequential Swarm**: Debate multi-agente forense optimizado (Auditor vs Estratega).
+-   **SICC Dreamer**: Auditoría autónoma nocturna con institucionalización de DTs (v7.2).
 
 ---
 
@@ -66,10 +62,11 @@ Cada repositorio es independiente. Tras cambios en el cerebro o entregables, uti
 
 ## 🌀 Protocolos Operativos (Slash Commands Telegram)
 
--   `/ollama [prompt]`: **[Soberano]** Ejecuta Inferencia Directa con el servidor local sin depender de la nube.
--   `/cmd [comando]`: **[Soberano]** Interfaz de consola remota para ejecución shell pura (Ej: `docker ps`).
--   `/swarm [pregunta]`: Debate forense multi-agente (Auditor vs Estratega) en modo secuencial.
--   `/karpathy-loop`: Inicia auditoría forense en el repositorio `LFC2`.
+-   `/ollama [prompt]`: **[Soberano]** Ejecuta Inferencia Directa con el servidor local.
+-   `/cmd [comando]`: **[Soberano]** Interfaz de consola remota para ejecución shell pura.
+-   `/audit [ruta]`: **[Soberano]** Inicia Karpathy Loop v8.4 y genera reporte RED.
+-   `/swarm [pregunta]`: Debate forense multi-agente en modo secuencial.
+-   `/karpathy-loop`: Auditoría forense automatizada en el repositorio `LFC2`.
 -   `/simulacion-sit`: Simula el impacto de cambios técnicos antes de ejecutarlos.
 -   `/sintesis-memoria`: Graba las lecciones de la sesión en `brain/DBCD_CRITERIA.md`.
 -   `/cerebro`: Verifica la integridad funcional de la identidad del agente.

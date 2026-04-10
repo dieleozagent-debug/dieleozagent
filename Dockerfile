@@ -1,7 +1,7 @@
 FROM node:20-alpine
 
 # Instalar git, pandoc, tesseract y poppler para operaciones soberanas de documentos
-RUN apk add --no-cache git pandoc tesseract-ocr tesseract-ocr-data-spa poppler-utils
+RUN apk add --no-cache git pandoc tesseract-ocr tesseract-ocr-data-spa poppler-utils ttf-dejavu font-noto
 
 WORKDIR /app
 

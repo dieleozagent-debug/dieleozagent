@@ -1,7 +1,7 @@
-# 🗺️ ROADMAP DE SOBERANÍA TÉCNICA (SICC v8.0 - MICHELIN EDITION)
+# 🗺️ ROADMAP DE SOBERANÍA TÉCNICA (SICC v8.5.1 - SOVEREIGN SWEEP)
 ## Bitácora de Auditoría Forense y Evolución Agéntica
 
-**Última actualización:** 09 de abril de 2026 (Fase v8.0 Punto 42 Sweep)  
+**Última actualización:** 10 de abril de 2026 (v8.5.1 Sovereign Sweep)  
 **Veredicto:** El Agente ha evolucionado a **Auditor Forense Sistémico**. Se ha completado el barrido masivo de las carpetas legacy (I-X) bajo la **Metodología Punto 42**, identificando una "Grasa Contractual" crítica en ingeniería de detalle.
 
 ---
@@ -13,17 +13,16 @@
     *   **[v8.0.2] DNA Purify:** Purga de "DWDM/G.655" en el portal de dictámenes.
     *   **[v8.3.0] Track Logic:** Consolidación Geométrica de Vía (Supresión de Desvíos redundantes).
     *   **[v8.4.1] PAN Categorization:** Saneamiento de Pasos a Nivel y reglas GIS (Shapefiles + Consulta Previa).
+    *   **[v8.5.0] Forensic Ingestion v7.1:** Estabilización de ingesta masiva (768 dims) con aislamiento total de lotes (Lock + Batch Isolation).
 
-*   **🌙 PRÓXIMOS PASOS (Fase de Validación y Sweep):**
-    - [x] **Barrido Masivo Legacy (I-X):** Reporte RED generado en el cerebro.
-    - [x] **Sesión de Sueño Sustractiva (N-1):** Dictámenes emitidos (22 DTs Live).
-    - [/] **Validación Integral de DTs (Dreamer):** Escaneo profundo de los 22 Dictámenes Maestros durante la ventana nocturna para detectar problemas, colisiones cruzadas y vacíos forenses.
-    - [ ] **Saneamiento de Ingeniería de Detalle:** Aplicar el Punto 42 a los planos de Vía y Estructuras (Esperando Input Data de la PMO).
+    - [x] **Validación Integral de DTs (Dreamer):** Escaneo profundo de los 22 Dictámenes Maestros.
+    - [x] **Estandarización AT3 (Fibra):** Institucionalización de G.652.D y 48 hilos (DT-SICC-2026-015).
+    - [ ] **Misión Fin de Semana:** Ingesta recursiva de la carpeta 00_Referencia_Normativa (Biblia Legal).
 
-### 🚨 ANÁLISIS DE FALLO DE INGESTA (VERDICTO DIEGO)
-*   **Problema:** La transición a Ollama Nomic (768 dims) causó una discrepancia con el núcleo legacy (3072 dims) y saturó la CPU al 100%.
-*   **Decisión:** Se aborta la migración a Ollama para la ingesta masiva. Se restaura el "Google-Method" (OCR local + LLM Google Free) que produce resultados correctos y estables.
-*   **Cron/Vigilia:** Se detectó que el path de Node en el crontab del host es erróneo. Se actualizará a la ruta de NVM para restaurar la autonomía.
+### ✅ ÉXITO EN ESTABILIZACIÓN DE INGESTA
+*   **Logro:** Se resolvió la discrepancia de dimensiones (768 vs 3072) mediante purga atómica (TRUNCATE) y recalibración de Supabase.
+*   **Blindaje:** Implementación de **Aislamiento por Lotes** (v7.1.0) que elimina errores de memoria (ENOBUFS) y colisiones de archivos en `/tmp`.
+*   **Estado:** El motor es ahora capaz de procesar documentos de >500 páginas de forma desatendida.
 
 ### 🏁 5. ESTADO ACTUAL Y CIERRE
 El sistema opera bajo **Soberanía Judicial Michelin**. No se acepta ningún ingrediente de Nivel 16 contra el Contrato Maestro.

@@ -9,8 +9,8 @@ const config = require('./config');
 const genAI = new GoogleGenerativeAI(config.ai.gemini.apiKey);
 
 const dbConfig = {
-    host: process.env.DB_HOST || '127.0.0.1',
-    port: process.env.DB_PORT || 54322,
+    host: process.env.DB_HOST || 'supabase_db_sicc-local',
+    port: process.env.DB_PORT || 5432,
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || 'postgres',
     database: 'postgres'
@@ -24,23 +24,31 @@ const pool = new Pool(dbConfig);
  */
 async function obtenerEmbedding(texto) {
     try {
-        const response = await axios.post(`http://localhost:11434/api/embeddings`, {
+        const response = await axios.post(`http://opengravity-ollama:11434/api/embeddings`, {
             model: "nomic-embed-text",
             prompt: texto
         });
-        return response.data.embedding;
-    } catch (localErr) {
-        console.warn(`[SUPABASE] ⚠️ Ollama Local falló, intentando Cloud Gemini...`);
-        try {
-            const model = genAI.getGenerativeModel({ model: "models/text-embedding-004" });
-            const result = await model.embedContent(texto);
-            return result.embedding.values;
-        } catch (e) {
-            // Seguir probando
-        }
+    const vector = response.data.embedding;
+    if (vector.length !== 768) {
+        console.warn(`[SUPABASE] ⚠️ Ollama devolvió ${vector.length} dimensiones, se esperaba 768.`);
     }
+    return vector;
+  } catch (localErr) {
+    console.warn(`[SUPABASE] ⚠️ Ollama Local falló, intentando Cloud Gemini...`);
+    try {
+      const model = genAI.getGenerativeModel({ model: "models/text-embedding-004" });
+      const result = await model.embedContent(texto);
+      const vector = result.embedding.values;
+      if (vector.length !== 768) {
+          console.warn(`[SUPABASE] ⚠️ Gemini devolvió ${vector.length} dimensiones, se esperaba 768.`);
+      }
+      return vector;
+    } catch (e) {
+      // Seguir probando
+    }
+  }
 
-    throw new Error("Ningún modelo de embeddings de Google respondió (404/400). Verifica tu API Key.");
+  throw new Error("Ningún modelo de embeddings de Google respondió (404/400). Verifica tu API Key.");
 }
 
 async function insertarFragmento(archivoNombre, contenido, vector) {

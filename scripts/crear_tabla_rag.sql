@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS contrato_documentos (
     id BIGSERIAL PRIMARY KEY,
     nombre_archivo TEXT NOT NULL,
     contenido TEXT NOT NULL,
-    embedding vector(768) -- Tamaño estándar para Gemini Embeddings (text-embedding-004)
+    embedding vector(768) -- Dimensión estándar para nomic-embed-text y text-embedding-004
 );
 
 -- Crear una función para buscar por similitud (RAG)
