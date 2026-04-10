@@ -198,6 +198,77 @@ function cmdStatus() {
   console.log(`Pending DTs:  ${dtCount} borradores`);
 }
 
+async function cmdApprove(id) {
+  if (!id) {
+    console.error('[HARNESS] ❌ Error: Debes proporcionar un ID (competo o parcial, ej: DREAM-1234)');
+    process.exit(1);
+  }
+
+  console.log(`\n👨‍🍳 SICC COOKER — Procesando aprobación para ID: ${id}`);
+  
+  if (!fs.existsSync(PENDING_DTS)) {
+    console.error('[HARNESS] ❌ Error: No se encuentra brain/PENDING_DTS.md');
+    process.exit(1);
+  }
+
+  const content = fs.readFileSync(PENDING_DTS, 'utf8');
+  
+  // Buscar el bloque de la DT
+  const dtRegex = new RegExp(`## DT-${id}.*?\\n([\\s\\S]*?)(?=\\n## DT-|\\n---|$|\\*Requiere)`, 'g');
+  const match = dtRegex.exec(content);
+
+  if (!match) {
+    console.error(`[HARNESS] ❌ Error: No se encontró el borrador con ID ${id}`);
+    process.exit(1);
+  }
+
+  const dtBody = match[1];
+
+  // 1. EXTRAER DJ (Dictamen Jurídico)
+  const djMatch = dtBody.match(/### ⚖️ DICTAMEN JURÍDICO([\s\S]*?)(?=### 🛠️ DECISIÓN TÉCNICA|###|$)/);
+  if (djMatch) {
+    const djContent = djMatch[1].trim();
+    const djPath = path.join(LFC2_ROOT, 'II_A_Analisis_Contractual/dictamenes', `DJ-${id}.md`);
+    
+    // Asegurar directorio
+    fs.mkdirSync(path.dirname(djPath), { recursive: true });
+    fs.writeFileSync(djPath, `# DICTAMEN JURÍDICO - SICC\n\n${djContent}`);
+    console.log(`[COOKER] ✅ DJ guardado en: ${djPath}`);
+  }
+
+  // 2. EXTRAER DT (Decisión Técnica) Y REGLAS DE COCINA
+  const dtActionMatch = dtBody.match(/\[COOKING_RULE: (.*?)]/);
+  if (dtActionMatch) {
+    const rule = dtActionMatch[1]; // Ej: "1.1.102 -> 3"
+    console.log(`[COOKER] 🛠️ Aplicando regla de cocina: ${rule}`);
+    
+    const [item, action] = rule.split('->').map(s => s.trim());
+    const newValue = action;
+
+    // Localizar WBS Michelin
+    const wbsPath = path.join(LFC2_ROOT, 'IX_WBS_Planificacion/WBS_Presupuestal_v4_0_MICHELIN.md');
+    if (fs.existsSync(wbsPath)) {
+      let wbsContent = fs.readFileSync(wbsPath, 'utf8');
+      
+      // Regex para encontrar la línea del item y cambiar la cantidad
+      // Formato: | **1.1.102** | Descripcion | Cantidad | ...
+      const itemRegex = new RegExp(`(\\| \\*\\*${item}\\*\\* \\| .*? \\| )(\\d+)( \\| )`, 'g');
+      
+      if (itemRegex.test(wbsContent)) {
+        wbsContent = wbsContent.replace(itemRegex, `$1${newValue}$3`);
+        fs.writeFileSync(wbsPath, wbsContent);
+        console.log(`[COOKER] ✅ WBS actualizada: Item ${item} ahora es ${newValue}`);
+      } else {
+        console.warn(`[COOKER] ⚠️ No se encontró el item ${item} en la WBS.`);
+      }
+    }
+  }
+
+  // 3. ACTUALIZAR ESTADO EN PENDING_DTS.md
+  // (Simplificado: solo marcar como ejecutada en el log)
+  console.log(`[HARNESS] 🛡️ DT-${id} institucionalizada.`);
+}
+
 function cmdDream() {
   console.log('\n😴 SICC DREAM — Activando Ciclo de Sueño Forense Manual...');
   try {
@@ -222,6 +293,7 @@ if (require.main === module) {
     case 'audit':   cmdAudit(args[0]); break;
     case 'dream':   cmdDream(); break;
     case 'status':  cmdStatus(); break;
+    case 'approve': cmdApprove(args[0]); break;
     default:
       console.log('SICC Harness CLI v6.4\nUso: node sicc-harness.js [doctor|learn|audit|status]');
       break;

@@ -1,4 +1,4 @@
-# 🏛️ Arquitectura Soberana — OpenGravity SICC v8.5.1 "Sovereign Sweep"
+# 🏛️ Arquitectura Soberana — OpenGravity SICC v8.6 "Infinite Guard"
 ## 🌌 Visión General
 
 La arquitectura de **OpenGravity** está diseñada para la **Soberanía Tecnológica Total** y la **Auditoría Forense Sistémica**. Opera bajo la metodología de validación contractual Punto 42, asegurando que cada ítem de ingeniería tenga un respaldo literal en el Contrato Maestro.
@@ -48,4 +48,4 @@ Script `sicc-sweep.js` para ejecutar auditorías recursivas en carpetas legacy (
 Documentación de vulnerabilidades CAPEX en tiempo real y establecimiento de bloqueadores de ingeniería (Input Data) como condición procesal para diseños de Ardanuy.
 
 ---
-v8.5.1 Michelin "Sovereign Sweep" Edition - 10/04/2026
+v8.6 Michelin "Infinite Guard" Edition - 10/04/2026

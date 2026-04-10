@@ -1,4 +1,4 @@
-# 🤖 OpenGravity Agent — Ecosistema Soberano v8.5.1 (Sovereign Sweep)
+# 🤖 OpenGravity Agent — Ecosistema Soberano v8.6 (Infinite Guard)
 
 > **Stack:** Node.js · **Recursive Ingest v7.2** · **Ollama 768-dim** · Docker · **RED Protocol Engine**
 

@@ -20,8 +20,9 @@ services:
       - /home/administrador/docker/agente/src:/app/src
       - /home/administrador/docker/agente/scripts:/app/scripts
       # Contratos PDF montados temporalmente para ingesta RAG
-      - '/home/administrador/docker/agente/Contrato pdf:/app/Contrato pdf'
-      - '/home/administrador/docker/agente/.env:/app/.env'
+      - /home/administrador/docker/agente/docs:/app/repos/LFC2/docs
+      - /home/administrador/docker/agente/Contrato pdf:/app/Contrato pdf
+      - /home/administrador/docker/agente/.env:/app/.env
     networks:
       - supabase_network_sicc-local
     logging:

@@ -122,13 +122,12 @@ const ejecutarCicloNocturno = () => {
   });
 };
 
-// A. Vigilia Nocturna (Lun-Vie): 8PM, 11PM, 2AM, 5AM
-cron.schedule('0 20,23,02,05 * * 1-5', ejecutarCicloNocturno, { timezone: BOGOTA_TZ });
+// A. Vigilia Nocturna (Lun-Jue): 8PM, 11PM, 2AM, 5AM
+cron.schedule('0 20,23,02,05 * * 1-4', ejecutarCicloNocturno, { timezone: BOGOTA_TZ });
 
-// B. MISIÓN FIN DE SEMANA (Biblia Legal Surge)
-// Inicia Viernes 10PM y corre intensivo Sábado y Domingo
-cron.schedule('0 22 * * 5', ejecutarCicloNocturno, { timezone: BOGOTA_TZ }); // Viernes Inicio
-cron.schedule('0 */06 * * 6,0', ejecutarCicloNocturno, { timezone: BOGOTA_TZ }); // Sáb-Dom cada 6h
+// B. MISIÓN INFINITA (Fin de Semana - Inicia Viernes 4PM)
+cron.schedule('0 16,20,00 * * 5', ejecutarCicloNocturno, { timezone: BOGOTA_TZ }); // Viernes Early Surge
+cron.schedule('0 */04 * * 6,0', ejecutarCicloNocturno, { timezone: BOGOTA_TZ }); // Sáb-Dom Continuo (cada 4h)
 cron.schedule('0 02,05 * * 1', ejecutarCicloNocturno, { timezone: BOGOTA_TZ });   // Cierre Lunes AM
 
 // ── Registro de Salud (cada hora) ─────────────────────────────────────────────

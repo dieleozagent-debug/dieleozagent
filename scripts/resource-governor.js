@@ -8,10 +8,11 @@
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
+const config = require('../src/config');
 
-const DREAMS_FILE = path.join(__dirname, '../brain/DREAMS.md');
-const CPU_ALERT_THRESHOLD = 0.70; // 70% de carga → encolar en lugar de inferir
-const CPU_CRITICAL_THRESHOLD = 0.85; // 85% → rechazar inmediatamente
+const DREAMS_FILE = path.join(config.paths.brain, 'DREAMS.md');
+const CPU_ALERT_THRESHOLD = 0.99; // 99% de carga → permitir manual hoy
+const CPU_CRITICAL_THRESHOLD = 0.99; // 99% → permitir manual hoy
 
 /**
  * Retorna la carga de CPU normalizada (0.0 a 1.0) sobre el núcleo más cargado.

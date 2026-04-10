@@ -17,9 +17,10 @@ const fs   = require('fs');
 const path = require('path');
 const os   = require('os');
 const { checkYEncolar, getCpuLoad } = require('./resource-governor');
+const config = require('../src/config');
 
 const AGENTE_ROOT = path.join(__dirname, '..');
-const BRAIN_ROOT  = process.env.BRAIN_ROOT || path.join(AGENTE_ROOT, 'brain');
+const BRAIN_ROOT  = config.paths.brain;
 const DREAMS_FILE = path.join(BRAIN_ROOT, 'DREAMS.md');
 const PENDING_DTS = path.join(BRAIN_ROOT, 'PENDING_DTS.md');
 const LOG_FILE    = path.join(AGENTE_ROOT, 'data/logs/dreamer.log');
@@ -43,8 +44,8 @@ function parsearDreams() {
   const pendientes = [];
 
   for (const linea of lineas) {
-    // Formato: - [PRIORIDAD] [TIMESTAMP] [origen:X] hipótesis
-    const match = linea.match(/^-\s*\[(\w+)\]\s*\[([^\]]+)\]\s*\[origen:([^\]]+)\]\s*(.+)$/);
+    // Formato: - [ ] [PRIORIDAD] [TIMESTAMP] [origen:X] hipótesis
+    const match = linea.match(/^-\s*\[[\s/x]?\]\s*\[(\w+)\]\s*\[([^\]]+)\]\s*\[origen:([^\]]+)\]\s*(.+)$/);
     if (match) {
       pendientes.push({
         prioridad: match[1],
@@ -56,8 +57,9 @@ function parsearDreams() {
     }
   }
 
-  // Ordenar: HIGH primero
-  return pendientes.sort((a, b) => (a.prioridad === 'HIGH' ? -1 : 1));
+  // Ordenar: HIGH > NORMAL > LOW
+  const weight = { 'HIGH': 3, 'NORMAL': 2, 'LOW': 1 };
+  return pendientes.sort((a, b) => (weight[b.prioridad] || 0) - (weight[a.prioridad] || 0));
 }
 
 // ── Marcar hipótesis como procesada ──────────────────────────────────────────
@@ -87,7 +89,11 @@ async function inferirConOllama(hipotesis) {
 
   const systemPrompt = `Eres el AUDITOR FORENSE SICC operando en modo AUTÓNOMO (Dreamer).\n\n` + 
     `CEREBRO DE REFERENCIA:\n${brainFull}\n\n` +
-    `Tu misión: analizar la hipótesis técnica dada y generar un BORRADOR DE DECISIÓN TÉCNICA (DT) conciso.`;
+    `Tu misión es aplicar la METODOLOGÍA PUNTO 42 para realizar una RE-INGENIERÍA DE COHERENCIA TÉCNICA.\n\n` +
+    `DEBES GENERAR DOS BLOQUES DISTINTOS PARA CADA HALLAZGO:\n\n` +
+    `1. [DJ] DICTAMEN JURÍDICO: Define la REGLA DE NEGOCIO basada en el Contrato Maestro. Es el sustento legal y la restricción (Ej: "La Cláusula X prohíbe Y"). Destino: Carpeta de Dictámenes.\n` +
+    `2. [DT] DECISIÓN TÉCNICA: Define la EJECUCIÓN TÉCNICA en la WBS. Es el ajuste de cantidades o especificaciones (Ej: "Reducir de 4 a 3 puestos en el ítem L3-Z"). Destino: WBS / Ingeniería.\n\n` +
+    `FILOSOFÍA: Deducción N-1. Si no hay Verbo Rector en el Contrato, es excedente (Grasa).`;
 
   const respuesta = await client.chat.completions.create({
     model: ollamaModel,
@@ -131,7 +137,8 @@ async function runDreamer() {
 
   // Control de CPU: el Dreamer tiene su propio límite. Respetamos el Hard-Cap SICC.
   const cpuLoad = getCpuLoad();
-  if (cpuLoad > 0.80 && !DRY_RUN) {
+  const force = process.argv.includes('--force');
+  if (cpuLoad > 0.80 && !DRY_RUN && !force) {
     log('[DREAMER] ⚠️ CPU > 80%. Dreamer posponiendo ejecución. Hasta mañana.');
     process.exit(0);
   }
@@ -155,8 +162,8 @@ async function runDreamer() {
       break;
     }
 
-    // Verificar recursos antes de cada inferencia
-    const recursos = checkYEncolar(item.hipotesis, 'dreamer');
+    // Verificar recursos antes de cada inferencia (honor --force)
+    const recursos = force ? { ok: true } : checkYEncolar(item.hipotesis, 'dreamer');
     if (!recursos.ok && !DRY_RUN) {
       log(`[DREAMER] 🚦 Recursos insuficientes para hipótesis. Posponiendo.`);
       continue;
