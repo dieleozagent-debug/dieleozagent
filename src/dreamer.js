@@ -10,6 +10,8 @@
 
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
 const { procesarMensaje, PROMPT_FULL } = require('./agent');
 const { cargarMemoriaReciente } = require('./memory');
 const { getCpuLoad } = require('../scripts/resource-governor');
