@@ -8,6 +8,7 @@ const { buscarSimilares } = require('./supabase');
 const { buscarEnWeb } = require('./search');
 const { enviarAlerta } = require('./notifications');
 const { encolarHallazgo } = require('./digest');
+const { rutarEstrategiaAdvisor } = require('./advisor');
 const fs = require('fs');
 const path = require('path');
 const { checkYEncolar, evaluarRecursos } = require('../scripts/resource-governor');
@@ -519,25 +520,34 @@ function limpiarHistorial() {
  * Debate multi-agente forense ejecutado de forma secuencial.
  */
 async function procesarMensajeSwarm(textoUsuario) {
-  console.log(`[SWARM] 🐝 Iniciando debate forense secuencial: "${textoUsuario.substring(0, 50)}"`);
+  console.log(`[SWARM] 🐝 Iniciando debate forense dinámico (Patrón Advisor): "${textoUsuario.substring(0, 50)}"`);
   
-  const AGENTES_SWARM = [
-    {
-      nombre: 'AUDITOR FORENSE (MICHELIN)',
-      rol: 'Identificar impurezas técnicas y violaciones a la Jerarquía 1.2(d).',
-      prompt: 'Eres el AUDITOR FORENSE MICHELIN. Tu misión es denunciar si un diseño se basa en el Nivel 16 (Q&A de licitación) en contra de los Niveles 1 (Contrato) o 2 (AT1).'
+  // 1. 🧠 FASE ADVISOR (Ruteo Inteligente)
+  const dnaDestilado = (typeof destilarCerebro === 'function') ? destilarCerebro() : '';
+  const decisionAdvisor = await rutarEstrategiaAdvisor(textoUsuario, dnaDestilado);
+  
+  // 🤖 Selección dinámica de agentes
+  let miembros = [
+    { 
+      nombre: 'AUDITOR FORENSE (MICHELIN)', 
+      prompt: 'Eres el AUDITOR FORENSE MICHELIN. Tu misión es denunciar si un diseño se basa en el Nivel 16 (Q&A de licitación) en contra de los Niveles 1 (Contrato) o 2 (AT1).' 
     },
-    {
-      nombre: 'DIRECTOR CONTRACTUAL SICC',
-      rol: 'Blindaje de CAPEX, litigio estratégico y soberanía tecnológica.',
-      prompt: 'Eres el DIRECTOR CONTRACTUAL SICC. Tu misión es aplicar la Regla N-1 y proteger la caja de la Concesión basándote exclusivamente en la ley del contrato.'
+    { 
+      nombre: 'DIRECTOR CONTRACTUAL SICC', 
+      prompt: 'Eres el DIRECTOR CONTRACTUAL SICC. Tu misión es aplicar la Regla N-1 y proteger la caja de la Concesión basándote exclusivamente en la ley del contrato.' 
     }
   ];
 
-  let debateBuffer = `🐝 **DEBATE SICC SWARM — PROTOCOLO MICHELIN**\n\n`;
+  if (decisionAdvisor.especialista === 'LEGAL') {
+    miembros = [miembros[0]]; // Solo Auditor
+  } else if (decisionAdvisor.especialista === 'GESTION') {
+    return { texto: `ℹ️ **ADVISOR:** He determinado que esta es una tarea de gestión simple: ${decisionAdvisor.razonamiento}`, proveedor: 'advisor' };
+  }
+
+  let debateBuffer = `🧐 **RAZONAMIENTO ADVISOR:** ${decisionAdvisor.razonamiento}\n\n`;
   let contextoPrevio = `Pregunta Inicial: ${textoUsuario}\n\n`;
 
-  for (const [index, agente] of AGENTES_SWARM.entries()) {
+  for (const [index, agente] of miembros.entries()) {
     console.log(`[SWARM] 🤖 Agente ${index + 1}/2: ${agente.nombre} en proceso...`);
     
     const promptAgente = `[MODO SWARM - ROL: ${agente.nombre}]\n${agente.prompt}\n\nREGLAS: Responde de forma concisa pero letal.\n\n${contextoPrevio}`;
