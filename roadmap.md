@@ -17,6 +17,8 @@
     * *[v9.2.0] Resilient Swarm (Context Slimming):* Optimización de tokens para evitar errores 429 (Rate Limits) en modelos gratuitos.
     * *[v9.3.0] Manual Signature & Traceability:* Muro de fuego fiscal que prohíbe el uso de Sonnet sin permiso explícito y registro de auditoría Michelin.
     * *[v9.4.0] Morning Digest Protocol:* Implementación de notificaciones consolidadas y búfer de hallazgos forenses. [ESTABLE]
+    * *[v9.5.0] Advisor Orchestration & Genetic Evolution:* Ruteo inteligente y registro de aprendizaje en el cerebro. [ESTABLE]
+    * *[v9.5.5] Systemic Hardening:* Optimización final de la arquitectura de agentes y consolidación de la v9.5. [ESTABLE]
 
     - [x] **Validación Integral de DTs (Dreamer):** Escaneo profundo de los 22 Dictámenes Maestros.
     - [x] **Estandarización AT3 (Fibra):** Institucionalización de G.652.D y 48 hilos (DT-SICC-2026-015).

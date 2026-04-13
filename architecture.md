@@ -1,7 +1,7 @@
-# 🏛️ Arquitectura Soberana — OpenGravity SICC v9.3.0 "Manual Signature"
+# 🏛️ Arquitectura Soberana — OpenGravity SICC v9.5.5 "Advisor Strategy"
 ## 🌌 Visión General
 
-La arquitectura de **OpenGravity** está diseñada para la **Soberanía Tecnológica Total** y la **Auditoría Forense Sistémica**. Opera bajo la metodología de validación contractual Punto 42, asegurando que cada ítem de ingeniería tenga un respaldo literal en el Contrato Maestro.
+La arquitectura de **OpenGravity** está diseñada para la **Sovereignty Technological Total** y la **Auditoría Forense Sistémica**. Opera bajo la metodología de validación contractual Punto 42, asegurando que cada ítem de ingeniería tenga un respaldo literal en el Contrato Maestro.
 
 ---
 
@@ -19,7 +19,10 @@ La arquitectura de **OpenGravity** está diseñada para la **Soberanía Tecnoló
 -   **Morning Digest & Búfer Michelin (v9.4):** 
     - Supresión de notificaciones rutinarias durante el procesamiento masivo.
     - Acumulación de hallazgos en `data/logs/michelin-findings.json`.
-    - Envío de reporte consolidado vía Telegram para revisión ejecutiva.
+-   **Orquestación Advisor & Evolución Genética (v9.5):**
+    - **Capa Advisor:** Ruteador inteligente (Cloud Free/Local) que selecciona especialistas.
+    - **Aprendizaje Genético:** El sistema documenta propuestas de mejora en `brain/GENETIC_EVOLUTION.md`.
+    - **Soberanía Híbrida:** Prioridad en modelos Cloud Free de alto contexto (1M) con fallback local obligatorio.
 -   **Modo Factoría Serial (v8.8.1):** 
     - Orquestación serial de Peones locales (`qwen2.5:1.5b`) para minería forense de bajo impacto.
     - Sistema de **Enfriamiento de CPU (>85%)** para resiliencia del host.
