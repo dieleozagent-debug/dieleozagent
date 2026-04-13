@@ -9,6 +9,9 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
+// Conexión con el Búfer Michelin (v9.6.1)
+const { encolarHallazgo } = require('../src/digest');
+
 const REPO_ROOT = process.env.LFC2_ROOT || '/home/administrador/docker/LFC2';
 
 // 1. REGLAS MAESTRAS (SICC_METHODOLOGY_42_ALPHA)
@@ -74,6 +77,16 @@ function auditFile(filePath) {
             violations.push(`[LEGACY] Término Prohibido: "${term}". Invalida la Pureza SICC.`);
         }
     });
+
+    // ❤️ ENVÍO AL BÚFER MICHELIN (v9.6.1)
+    if (violations.length > 0) {
+        encolarHallazgo(
+            `Patrulla Forense: ${relativePath}`,
+            `${violations.length} deficiencias detectadas. ADN o Legacy terms comprometidos.`,
+            '🔬',
+            { archivo: relativePath, deficiencias: violations }
+        );
+    }
 
     return violations;
 }

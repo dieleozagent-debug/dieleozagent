@@ -12,6 +12,7 @@ const { guardar, estadoMemoria } = require('./memory');
 const { leerNoLeidos, formatearCorreos, enviarCorreo } = require('./gmail');
 const { infoRepo, ultimosCommits, issuesAbiertos, listarCarpeta, leerArchivo,
         formatearInfo, formatearCommits, formatearIssues, OWNER, REPO } = require('./github');
+const { startPatrol, stopPatrol, getPatrolStatus } = require('./patrol');
 const { exec } = require('child_process');
 const cron = require('node-cron');
 
@@ -179,7 +180,11 @@ bot.on('message', async (msg) => {
       `*/git commits* — Últimos commits\n` +
       `*/git issues* — Issues abiertos\n` +
       `*/git ls [ruta]* — Listar archivos\n` +
-      `*/git cat archivo* — Ver contenido`
+      `*/git cat archivo* — Ver contenido\n\n` +
+      `🛰️ **Patrulla Forense (v9.6):**\n` +
+      `*/dream_on* — Activar Patrulla 24/7\n` +
+      `*/dream_off* — Detener Patrulla\n` +
+      `*/dream_status* — Estado del vigilante`
     );
     return;
   }
@@ -363,6 +368,32 @@ bot.on('message', async (msg) => {
       const preview = output.substring(0, 3000);
       await safeSendMessage(chatId, `\`\`\`bash\n${preview}\n\`\`\``);
     });
+    return;
+  }
+
+  // ── Comandos de Patrulla v9.6.1 (Dreamer) ──────────────────────────────────
+  if (texto === '/dream_on') {
+    const res = startPatrol(bot, chatId);
+    await safeSendMessage(chatId, res);
+    return;
+  }
+
+  if (texto === '/dream_off') {
+    const res = stopPatrol();
+    await safeSendMessage(chatId, res);
+    return;
+  }
+
+  if (texto === '/dream_status') {
+    const st = getPatrolStatus();
+    const emoji = st.active ? '🛰️' : '🛑';
+    await safeSendMessage(chatId, 
+      `${emoji} *Estatus de Patrulla SICC*\n\n` +
+      `• Estado: ${st.active ? '*ACTIVA*' : '*DETENIDA*'}\n` +
+      `• Carpeta Actual: \`#${st.folderIndex + 1}\`\n` +
+      `• Carga CPU: ${st.cpu}%\n\n` +
+      `📝 _${st.msg}_`
+    );
     return;
   }
 
