@@ -2,7 +2,7 @@
 'use strict';
 
 const config = require('./config');
-const { construirSystemPrompt } = require('./brain');
+const { construirSystemPrompt, destilarCerebro } = require('./brain');
 const { cargarMemoriaReciente } = require('./memory');
 const { buscarSimilares } = require('./supabase');
 const { buscarEnWeb } = require('./search');
@@ -59,6 +59,30 @@ const MAX_HISTORIAL = 20;
 // System prompts: full para Ollama/Dreamer, fast para Cloud/Bot
 let PROMPT_FULL = '';
 let PROMPT_FAST = '';
+
+// ESPECIALIDADES SICC v8.9.0
+const ESPECIALIDADES = {
+  'LEGAL': `Eres un ABOGADO DE CONCESIONES SICC. Tu misión es el blindaje contractual. 
+           Prioriza la jerarquía 1.2(d) y el Contrato Maestro. No des opiniones técnicas sin base legal.`,
+  'TECNICO-FERROVIARIO': `Eres un INGENIERO DE SEÑALIZACIÓN FERROVIARIA SICC. Tu misión es la soberanía técnica. 
+                         Prioriza estándares AREMA y CENELEC. Enfócate en lógica de interlocking y capacidad.`,
+  'GESTION': `Eres un ASISTENTE DE GESTIÓN BILINGÜE SICC. Tu misión es la síntesis operativa y el orden.`
+};
+
+const FLOW_LOG_PATH = require('path').join(__dirname, '../data/logs/flow-resilience.json');
+
+function logFlow(entry) {
+  try {
+    const ts = new Date().toISOString();
+    const line = JSON.stringify({ ts, ...entry }) + '\n';
+    if (!fs.existsSync(require('path').dirname(FLOW_LOG_PATH))) {
+      fs.mkdirSync(require('path').dirname(FLOW_LOG_PATH), { recursive: true });
+    }
+    fs.appendFileSync(FLOW_LOG_PATH, line);
+  } catch (e) {
+    console.warn('[FLOW-LOG] ⚠️ No se pudo guardar el log de flujo:', e.message);
+  }
+}
 
 function inicializarBrain() {
   const brainFull = construirSystemPrompt('full');
@@ -189,68 +213,150 @@ async function llamarOpenRouter(mensajeUsuario, _, contextoRAG = '', systemPromp
 }
 
 async function llamarOllama(mensajeUsuario, _, contextoRAG = '', historialLocal = null, systemPrompt = null) {
-  const client = new OpenAI({
-    baseURL: `${config.ai.ollama.host}/v1`,
-    apiKey: 'ollama', 
-  });
-  
-  const finalSystemPrompt = systemPrompt || PROMPT_FULL;
-  const systemInstruction = contextoRAG 
-    ? finalSystemPrompt + '\n\n' + contextoRAG 
-    : finalSystemPrompt;
+  // Intentar primero con el host de config, luego fallback a localhost (Host-Native Sovereignty)
+  const hostsTry = [config.ai.ollama.host, 'http://localhost:11434'].filter(Boolean);
+  let lastErr = null;
 
-  const msgs = [
-    { role: 'system', content: systemInstruction },
-    ...(historialLocal || historial).map(h => ({ role: h.role, content: h.content })),
-    { role: 'user', content: mensajeUsuario },
-  ];
+  for (const host of hostsTry) {
+    try {
+      const client = new OpenAI({ baseURL: `${host}/v1`, apiKey: 'ollama' });
+      const finalSystemPrompt = systemPrompt || PROMPT_FULL;
+      const systemInstruction = contextoRAG ? finalSystemPrompt + '\n\n' + contextoRAG : finalSystemPrompt;
 
-  try {
-    const respuesta = await client.chat.completions.create({
-      model: config.ai.ollama.model,
-      messages: msgs,
-    });
-    return respuesta.choices[0].message.content;
-  } catch (err) {
-    throw new Error(`Ollama Error: ${err.message}`);
+      const msgs = [
+        { role: 'system', content: systemInstruction },
+        ...(historialLocal || historial).map(h => ({ role: h.role, content: h.content })),
+        { role: 'user', content: mensajeUsuario },
+      ];
+
+      const respuesta = await client.chat.completions.create({
+        model: config.ai.ollama.model,
+        messages: msgs,
+      });
+      return respuesta.choices[0].message.content;
+    } catch (err) {
+      lastErr = err;
+      console.warn(`[OLLAMA] ⚠️ Fallo en host ${host}: ${err.message}. Intentando siguiente...`);
+    }
   }
+  throw new Error(`Ollama Error: ${lastErr.message}`);
 }
 
 function ordenProveedores() {
   const todos = [
-    { id: 'ollama',     fn: llamarOllama,     habilitado: !!config.ai.ollama.host },
-    { id: 'gemini',     fn: llamarGemini,     habilitado: !!config.ai.gemini.apiKey },
-    { id: 'groq',       fn: llamarGroq,       habilitado: !!config.ai.groq.apiKey },
-    { id: 'openrouter', fn: llamarOpenRouter, habilitado: !!config.ai.openrouter.apiKey },
-  ].filter(p => p.habilitado);
+    { id: 'gemini',     fn: llamarGemini },
+    { id: 'groq',       fn: llamarGroq },
+    { id: 'openrouter', fn: llamarOpenRouter },
+    { id: 'ollama',     fn: llamarOllama },
+  ].filter(p => {
+    if (p.id === 'gemini')     return !!config.ai.gemini.apiKey;
+    if (p.id === 'groq')       return !!config.ai.groq.apiKey;
+    if (p.id === 'openrouter') return !!config.ai.openrouter.apiKey;
+    if (p.id === 'ollama')     return !!config.ai.ollama.host;
+    return false;
+  });
 
   const primario = config.ai.primaryProvider;
-  console.log(`[AGENTE] 🔍 Debug: primario=${primario}, keys: gemini=${!!config.ai.gemini.apiKey}, groq=${!!config.ai.groq.apiKey}`);
   const res = [
     ...todos.filter(p => p.id === primario),
     ...todos.filter(p => p.id !== primario),
   ];
-  console.log(`[AGENTE] 📋 Orden: ${res.map(p => p.id).join(' -> ')}. Prompts: Fast=${PROMPT_FAST.length}, Full=${PROMPT_FULL.length}`);
   return res;
 }
 
 /**
- * Destila un contexto largo en una síntesis cohesiva usando un modelo rápido.
+ * ADVISOR MAESTRO (Router v8.9.0)
+ * Decide la especialidad de la consulta para optimizar el ruteo.
  */
-async function sumarizarContexto(contextoLargo) {
-  console.log(`[BLOCK-THINKING] 🧠 Destilando bloque de contexto largo (${contextoLargo.length} caracteres)...`);
-  
-  // Usamos el modelo ultra-rápido definido para el resumidor
-  const modelSumarizador = config.ai.swarm.sumarizador;
+async function rutarEspecialidad(textoUsuario) {
+  const modelRouter = 'phi3.5:latest'; // Microsoft Phi-3.5 es superior en lógica de ruteo
   
   try {
-    const resumen = await llamarOpenRouter(
+    const port = (process.env.NODE_ENV === 'production') ? '11434' : '11435';
+    const client = new OpenAI({ baseURL: `http://localhost:${port}/v1`, apiKey: 'ollama' });
+    const res = await client.chat.completions.create({
+      model: modelRouter,
+      messages: [
+        { 
+          role: 'system', 
+          content: `Eres un clasificador SICC estrictamente limitado. 
+          ETIQUETAS PERMITIDAS:
+          - LEGAL: Relacionado con contratos, multas, cláusulas, leyes, jerarquía normativa, anexos legales.
+          - TECNICO-FERROVIARIO: Relacionado con ingeniería, señales, obra, fibra, capacidad, interlocking, hardware, planos.
+          - GESTION: Relacionado con minutas, correos, organización, tareas administrativas, resúmenes.
+
+          EJEMPLOS:
+          "¿Debo pagar la multa?" -> LEGAL
+          "Calcula la capacidad de vía" -> TECNICO-FERROVIARIO
+          "Resume la reunión" -> GESTION
+
+          Responde ÚNICAMENTE con la etiqueta en mayúsculas.` 
+        },
+        { role: 'user', content: textoUsuario }
+      ],
+      max_tokens: 10,
+      temperature: 0 // Forzamos determinismo
+    });
+    
+    const etiqueta = res.choices[0].message.content.trim().toUpperCase();
+    console.log(`[ADVISOR-ROUTER] 🧭 Especialidad detectada: ${etiqueta}`);
+    return ESPECIALIDADES[etiqueta] ? etiqueta : 'GESTION';
+  } catch (err) {
+    console.warn('[ADVISOR-ROUTER] ⚠️ Fallo en ruteo, usando GESTION por defecto.');
+    return 'GESTION';
+  }
+}
+
+/**
+ * Gateway de Ahorro: Intenta secuencialmente proveedores gratuitos o locales.
+ */
+async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt = null) {
+  const proveedoresFree = [
+    { id: 'gemini',     fn: llamarGemini },
+    { id: 'groq',       fn: llamarGroq },
+    { id: 'ollama',     fn: llamarOllama },
+    { id: 'openrouter', fn: async (q, a, ctx, hist, sp) => llamarOpenRouter(q, a, ctx, sp, 'openrouter/free') }
+  ];
+
+  let lastErr = null;
+  for (const p of proveedoresFree) {
+    // Verificar si el proveedor está configurado (Ollama tiene host, los demás apikey)
+    const status = !!(config.ai[p.id]?.apiKey || (p.id === 'ollama' && config.ai.ollama.host));
+    if (!status) continue;
+
+    try {
+      console.log(`[GATEWAY-AHORRO] 💸 Intentando vía gratuita: ${p.id.toUpperCase()}...`);
+      const respuesta = await p.fn(pregunta, null, contextoRAG, null, systemPrompt);
+      
+      // Validar que la respuesta no sea un error encubierto (ej: 'Error: context length')
+      if (respuesta && !respuesta.toLowerCase().includes('error') && respuesta.length > 5) {
+        return { texto: respuesta, proveedor: p.id };
+      }
+    } catch (err) {
+      lastErr = err;
+      console.warn(`[GATEWAY-AHORRO] ⚠️ Fallo en ${p.id}: ${err.message}`);
+    }
+  }
+
+  // Fallback final a OpenRouter con el modelo más barato (Llama 8B) SOLO si todo lo gratuito falló
+  console.warn('[GATEWAY-AHORRO] 🚨 Vías gratuitas agotadas (incluyendo OpenRouter Free). Usando Low Cost...');
+  const lowCostModel = 'meta-llama/llama-3.1-8b-instruct';
+  const res = await llamarOpenRouter(pregunta, null, contextoRAG, systemPrompt, lowCostModel);
+  return { texto: res, proveedor: 'openrouter-lowcost' };
+}
+
+/**
+ * Destila un contexto largo en una síntesis cohesiva usando el Multiplexor Free.
+ */
+async function sumarizarContexto(contextoLargo) {
+  console.log(`[BLOCK-THINKING] 🧠 Destilando bloque de contexto largo (${contextoLargo.length} caracteres) con Multiplexor Free...`);
+  
+  try {
+    const { texto: resumen } = await llamarMultiplexadorFree(
       `Sintetiza la información clave técnica y contractual de este fragmento para un Director Contractual Senior. 
       Prioriza menciones a cláusulas Niveles 1 (Contrato) y 2 (AT). Descarta ruido de Nivel 16 (Q&A).`,
-      null, 
       contextoLargo, 
-      "Eres un Abogado de Concesiones especializado en Auditoría Forense.",
-      modelSumarizador
+      "Eres un Abogado de Concesiones especializado en Auditoría Forense."
     );
     return `## SÍNTESIS DE CONTEXTO (Destilado):\n${resumen}`;
   } catch (err) {
@@ -262,8 +368,15 @@ async function sumarizarContexto(contextoLargo) {
 /**
  * Procesa un mensaje y retorna { texto, proveedor }. Acepta archivo opcional.
  */
-async function procesarMensaje(textoUsuario, archivoTmpInfo) {
+async function procesarMensaje(textoUsuario, archivoTmpInfo, forcedSystemPrompt = null) {
   const proveedores = ordenProveedores();
+  
+  // RUTEADOR ADVISOR (v8.9.0)
+  let especialidadPrompt = '';
+  if (!forcedSystemPrompt) {
+    const especialidad = await rutarEspecialidad(textoUsuario);
+    especialidadPrompt = ESPECIALIDADES[especialidad];
+  }
   
   // ── Resource Governor: verificar CPU antes de inferir con Ollama ──────────
   const recursos = evaluarRecursos();
@@ -310,24 +423,50 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo) {
   const skillsContext = seleccionarSkills(textoUsuario);
   let contextoFinal = (contextoRAG || '') + (contextoWeb || '') + (skillsContext || '');
   
-  // Pensamiento por Bloques: si el contexto es muy grande (> 10k), lo destilamos
-  if (contextoFinal.length > 10000) {
-    contextoFinal = await sumarizarContexto(contextoFinal);
-  } else if (!contextoFinal && /contrato|cláusula|at1|sec|numeral/i.test(textoUsuario)) {
-    // Si no hay contexto y la pregunta es contractual, forzamos una búsqueda de último recurso
-    contextoFinal = "⚠️ INGREDIENTE FALTANTE: No se encontró la base legal en el repo. Ejecutar búsqueda forense proactiva.";
+  // Construir Prompt Final (Contexto + Especialidad) — v9.1.1
+  const currentPromptBase = PROMPT_FAST; // Usamos la versión fast por defecto para nube/ahorro
+  const finalPrompt = forcedSystemPrompt || (currentPromptBase + '\n\n' + (especialidadPrompt || ''));
+
+  // ── ESCUDO FISCAL v9.2.0 (Slim Context Mode) ─────────────────────────────
+  // Intentamos primero el Multiplexor Free con contexto destilado para evitar Rate Limits (429)
+  console.log(`[FISCAL-SHIELD] 🛡️ Priorizando Multiplexor Free (Slim Mode)...`);
+  try {
+    const dnaDestilado = destilarCerebro();
+    const promptSlim = forcedSystemPrompt || (dnaDestilado + '\n\n' + (especialidadPrompt || ''));
+    
+    const resFree = await llamarMultiplexadorFree(textoUsuario, contextoFinal, promptSlim);
+    if (resFree && resFree.texto && !resFree.texto.toLowerCase().includes('error')) {
+      console.log(`[FISCAL-SHIELD] ✅ Éxito vía ${resFree.proveedor.toUpperCase()}. Ahorro garantizado.`);
+      
+      // Guardar en historial de sesión
+      const textoFinalUsr = archivoTmpInfo ? `[Archivo: ${archivoTmpInfo.name}] ${textoUsuario}` : textoUsuario;
+      historial.push({ role: 'user',      content: textoFinalUsr });
+      historial.push({ role: 'assistant', content: resFree.texto });
+      while (historial.length > MAX_HISTORIAL * 2) historial.shift();
+
+      return { texto: resFree.texto, proveedor: resFree.proveedor };
+    }
+  } catch (errFree) {
+    console.warn(`[FISCAL-SHIELD] ⚠️ Gateway Gratuito falló: ${errFree.message}. Escalando a proveedores de reserva...`);
   }
 
+  // Si fallan los gratuitos, procedemos al loop tradicional pero con precaución fiscal
   for (const proveedor of proveedores) {
     try {
-      // ── MODO ASIMÉTRICO ───────────────────────────────────────────────────
-      // Si estamos en el Bot (Vigilia), preferimos Cloud + Prompt Fast
-      const currentPrompt = (proveedor.id === 'ollama') ? PROMPT_FULL : PROMPT_FAST;
-
-      console.log(`[AGENTE] Usando proveedor: ${proveedor.id} (Prompt: ${currentPrompt.length} chars)`);
-      const respuesta = await proveedor.fn(textoUsuario, archivoTmpInfo, contextoFinal, currentPrompt);
+      console.log(`[AGENTE] Usando proveedor: ${proveedor.id}`);
+      const start = Date.now();
+      const respuesta = await proveedor.fn(textoUsuario, archivoTmpInfo, contextoFinal, finalPrompt);
+      const duration = Date.now() - start;
 
       if (!respuesta) throw new Error('Respuesta vacía del proveedor');
+
+      logFlow({
+        type: 'chat',
+        prompt: textoUsuario.substring(0, 50),
+        provider: proveedor.id,
+        duration,
+        status: 'OK'
+      });
 
       // Guardar en historial de sesión
       const textoFinalUsr = archivoTmpInfo ? `[Archivo: ${archivoTmpInfo.name}] ${textoUsuario}` : textoUsuario;
@@ -337,7 +476,24 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo) {
 
       return { texto: respuesta, proveedor: proveedor.id };
     } catch (err) {
+      const duration = 0;
+      const msg = (err.message || '').toLowerCase();
+      const esReintentable = msg.includes('402') || msg.includes('credits') || msg.includes('limit') || msg.includes('429') || msg.includes('500') || msg.includes('eai_again');
+
+      logFlow({
+        type: 'fallback',
+        prompt: textoUsuario.substring(0, 50),
+        provider: proveedor.id,
+        error: err.message,
+        retryable: esReintentable
+      });
+
       console.error(`[AGENTE] ❌ ERROR en ${proveedor.id}:`, err.message || err);
+      
+      if (!esReintentable) {
+         return { texto: `⚠️ Error crítico en ${proveedor.id}: ${err.message}`, proveedor: proveedor.id };
+      }
+      console.warn(`[AGENTE] 🔄 Reintentando con el siguiente proveedor debido a fallo de infraestructura...`);
     }
   }
   console.log('[AGENTE] 💀 El loop de proveedores terminó sin éxito.');
@@ -382,37 +538,107 @@ async function procesarMensajeSwarm(textoUsuario) {
     
     let respuestaAgente = '';
     let proveedorAgente = '';
+    let éxitoAgente = false;
 
-    try {
-      const proveedoresSwarm = ordenProveedores();
-      const mejorProveedor = proveedoresSwarm[0];
+    const proveedoresDisponibles = ordenProveedores();
 
-      const modelRoles = {
-        'AUDITOR FORENSE (MICHELIN)': config.ai.swarm.auditor,
-        'DIRECTOR CONTRACTUAL SICC': config.ai.swarm.strategist
-      };
-      const modelOverride = (mejorProveedor.id === 'openrouter') ? modelRoles[agente.nombre] : null;
+    for (const proveedor of proveedoresDisponibles) {
+      try {
+        const modelRoles = {
+          'AUDITOR FORENSE (MICHELIN)': config.ai.swarm.auditor,
+          'DIRECTOR CONTRACTUAL SICC': config.ai.swarm.strategist
+        };
+        const modelOverride = (proveedor.id === 'openrouter') ? modelRoles[agente.nombre] : null;
 
-      const promptOptimizado = contextoPrevio.length > 5000 
-        ? await sumarizarContexto(contextoPrevio) 
-        : contextoPrevio;
+        const promptOptimizado = contextoPrevio.length > 5000 
+          ? await sumarizarContexto(contextoPrevio) 
+          : contextoPrevio;
 
-      const currentPrompt = (mejorProveedor.id === 'ollama') ? PROMPT_FULL : PROMPT_FAST;
+        const currentPrompt = (proveedor.id === 'ollama') ? PROMPT_FULL : PROMPT_FAST;
 
-      respuestaAgente = await mejorProveedor.fn(promptAgente, null, promptOptimizado, currentPrompt, modelOverride);
-      proveedorAgente = mejorProveedor.id === 'ollama' ? 'Ollama (Soberano)' : `${mejorProveedor.id} (${modelOverride || 'Cloud'})`;
+        respuestaAgente = await proveedor.fn(promptAgente, null, promptOptimizado, currentPrompt, modelOverride);
+        proveedorAgente = proveedor.id === 'ollama' ? 'Ollama (Soberano)' : `${proveedor.id} (${modelOverride || 'Cloud'})`;
 
-      debateBuffer += `🎭 **${agente.nombre}** *(${proveedorAgente})*\n${respuestaAgente}\n\n---\n\n`;
-      contextoPrevio += `Respuesta de ${agente.nombre}:\n${respuestaAgente}\n\n`;
-      
-      await new Promise(resolve => setTimeout(resolve, 2000));
-    } catch (err) {
-      console.error(`[SWARM] ❌ Error total en ${agente.nombre}:`, err.message);
-      debateBuffer += `⚠️ **${agente.nombre}** falló tras reintentos: ${err.message}\n\n`;
+        debateBuffer += `🎭 **${agente.nombre}** *(${proveedorAgente})*\n${respuestaAgente}\n\n---\n\n`;
+        contextoPrevio += `Respuesta de ${agente.nombre}:\n${respuestaAgente}\n\n`;
+        éxitoAgente = true;
+        break; 
+      } catch (err) {
+        console.error(`[SWARM] ⚠️ Fallo en ${agente.nombre} con ${proveedor.id}:`, err.message);
+        const msg = (err.message || '').toLowerCase();
+        const esReintentable = msg.includes('402') || msg.includes('credits') || msg.includes('limit') || msg.includes('429') || msg.includes('500');
+        
+        if (!esReintentable) {
+           debateBuffer += `⚠️ **${agente.nombre}** falló irreparablemente en ${proveedor.id}: ${err.message}\n\n`;
+           break; 
+        }
+        console.warn(`[SWARM] 🔄 Reintentando ${agente.nombre} con proveedor de respaldo...`);
+      }
     }
+
+    if (!éxitoAgente) {
+      debateBuffer += `💀 **${agente.nombre}** quedó fuera de combate (Todos los proveedores fallaron).\n\n`;
+    }
+    
+    await new Promise(resolve => setTimeout(resolve, 1000));
   }
 
   return debateBuffer + `🏁 **FIN DEL PROCESO SWARM**`;
+}
+
+/**
+ * 🏭 FACTORÍA DE PEONES SICC (v8.8.1 Serial Batch Edition)
+ * Ejecuta múltiples agentes Ollama en SERIE para minería de datos protegiendo la CPU.
+ */
+async function ejecutarFactoriaPeones(tema, contexto) {
+  console.log(`[FACTORY] 🏭 Iniciando factoría de peones (Modo Serial Batch) para: ${tema}`);
+  
+  const PEON_MODEL = 'qwen2.5:1.5b'; // El peón ultra-ligero y eficiente recomendado
+  
+  const PEONES = [
+    { id: 'legal', prompt: 'Extrae todos los VERBOS RECTORES (obligaciones) y multas asociadas.' },
+    { id: 'tecnico', prompt: 'Extrae especificaciones técnicas críticas, cantidades y ANS (SLA).' },
+    { id: 'purity', prompt: 'Identifica ADN legacy: términos CENELEC, ETCS o marcas intrusas.' }
+  ];
+
+  let resultados = [];
+
+  for (const peon of PEONES) {
+    // 🚦 Validación de CPU antes de cada peón (Resiliencia de Hardware)
+    const recursos = evaluarRecursos();
+    if (recursos.load > 0.85) {
+      console.warn(`[FACTORY] 🛑 CPU al ${Math.round(recursos.load*100)}%. Pausando 10s para enfriamiento...`);
+      await new Promise(r => setTimeout(r, 10000));
+    }
+
+    try {
+      console.log(`[FACTORY] 🤖 Peón ${peon.id.toUpperCase()} iniciando (Modelo: ${PEON_MODEL})...`);
+      
+      // Llamada directa usando el modelo de peón específico
+      const client = new OpenAI({ 
+        baseURL: 'http://localhost:11434/v1', // Forzamos local para peones ligeros
+        apiKey: 'ollama' 
+      });
+
+      const res = await client.chat.completions.create({
+        model: PEON_MODEL,
+        messages: [
+          { role: 'system', content: 'Eres un Asistente Técnico de Ingeniería. Tu tarea es extraer datos objetivos de un texto técnico de infraestructura.' },
+          { role: 'user', content: `TAREA: ${peon.prompt}\n\nCONTEXTO:\n${contexto}` }
+        ],
+      });
+
+      console.log(`[FACTORY] ✅ Peón ${peon.id.toUpperCase()} completado.`);
+      resultados.push(`### 🛡️ Reporte Peón ${peon.id.toUpperCase()}\n${res.choices[0].message.content}`);
+    } catch (e) {
+      console.error(`[FACTORY] ❌ Error en Peón ${peon.id}:`, e.message);
+      resultados.push(`### 🛡️ Reporte Peón ${peon.id.toUpperCase()}\n[FALLO DE MINERÍA: ${e.message}]`);
+    }
+  }
+
+  const reporteFinal = `## 🏺 REPORTE DE SÍNTESIS FACTORÍA SICC\n\n${resultados.join('\n\n')}`;
+  logFlow({ type: 'factory', topic: tema, status: 'DONE', mode: 'serial' });
+  return reporteFinal;
 }
 
 /**
@@ -451,6 +677,8 @@ module.exports = {
   inicializarBrain, 
   procesarMensaje, 
   procesarMensajeSwarm,
+  ejecutarFactoriaPeones,
+  llamarMultiplexadorFree,
   limpiarHistorial,
   enviarVigilia,
   llamarOllama,

@@ -12,15 +12,20 @@
 
 const fs = require('fs');
 const path = require('path');
-const { procesarMensaje, PROMPT_FULL } = require('./agent');
+const { procesarMensaje, PROMPT_FULL, ejecutarFactoriaPeones, llamarMultiplexadorFree } = require('./agent');
 const { cargarMemoriaReciente } = require('./memory');
 const { getCpuLoad } = require('../scripts/resource-governor');
 
+const { enviarAlerta } = require('./notifications');
+
 const PENDING_DIR = path.join(__dirname, '../brain/PENDING_DTS');
+const BLOCKER_DIR = path.join(__dirname, '../brain/BLOCKERS');
+const OPERATIONS_DASHBOARD = path.join(__dirname, '../brain/SICC_OPERATIONS.md');
 const DREAMS_FILE = path.join(__dirname, '../data/brain/DREAMS.md');
 const NOTEBOOK_THOUGHTS = path.join(__dirname, '../docs/pensamientos notebooklm.txt');
 
 if (!fs.existsSync(PENDING_DIR)) fs.mkdirSync(PENDING_DIR, { recursive: true });
+if (!fs.existsSync(BLOCKER_DIR)) fs.mkdirSync(BLOCKER_DIR, { recursive: true });
 
 async function ejecutarSueno(especialidad) {
     console.log(`[DREAMER] 🌙 Iniciando ciclo de sueño para: ${especialidad}`);
@@ -29,44 +34,83 @@ async function ejecutarSueno(especialidad) {
         ? fs.readFileSync(NOTEBOOK_THOUGHTS, 'utf8').substring(0, 5000) 
         : '';
 
-    let hipotesisActual = `Revisión forense de la especialidad: ${especialidad}. 
-    Objetivo: Eliminar impurezas Nivel 16 y optimizar CAPEX mediante N-1.`;
-
-    const numPasses = parseInt(process.env.KARPATHY_PASSES) || 15;
+    // 🏭 FASE 0: FACTORÍA DE PEONES (Minería Paralela)
+    console.log(`[DREAMER] 🏭 Activando Factoría de Peones para extraer ADN contractual...`);
+    const factoryReport = await ejecutarFactoriaPeones(especialidad, pensamientosBase);
     
-    // 🔄 BUCLE DE KARPATHY (Dinámico 5-15)
+    let hipotesisActual = `Revisión forense de la especialidad: ${especialidad}.\n\n` +
+                          `${factoryReport}\n\n` +
+                          `Objetivo: Eliminar impurezas Nivel 16 y optimizar CAPEX mediante N-1.`;
+
+    const numPasses = parseInt(process.env.KARPATHY_PASSES) || 5; // Reducimos pasadas ya que el peón ya minó datos
+    
+    // 🔄 BUCLE DE KARPATHY (PEONES FREE)
     for (let i = 1; i <= numPasses; i++) {
-        console.log(`[DREAMER] 🧬 Iteración ${i}/${numPasses}...`);
+        console.log(`[DREAMER] 🧬 Iteración ${i}/${numPasses} (Modo Peón)...`);
         
-        // Verificación de pánico de CPU solo si no estamos en fin de semana
         const load = getCpuLoad();
         if (load > 2.0 && i > 5) {
-            console.warn(`[DREAMER] ⚠️ Carga extrema (${Math.round(load*100)}%). Deteniendo en iteración ${i} para proteger el host.`);
+            console.warn(`[DREAMER] ⚠️ Carga extrema (${Math.round(load*100)}%). Deteniendo en iteración ${i}.`);
             break;
         }
         
         const promptIteracion = `
-        [LOOP DE SUEÑO - ITERACIÓN ${i}]
-        Estás decantando una solución soberana. 
-        Basado en estos pensamientos de referencia:
-        ---
-        ${pensamientosBase}
-        ---
+        [LOOP DE SUEÑO - PEÓN - ITERACIÓN ${i}]
+        Sintetiza y limpia la propuesta actual eliminando redundancias y "grasa" técnica.
         Propuesta actual: ${hipotesisActual}
-        
-        TAREA: Mejora la propuesta. Busca contradicciones con el Contrato L1 (APP 001) y la Sec 1.2(d). 
-        Elimina cualquier 'Gateway' o costo no justificado por el AT1.
         `;
 
-        const { texto: refinamiento } = await procesarMensaje(promptIteracion, null);
+        // USAMOS EL MULTIPLEXOR FREE PARA LAS ITERACIONES (COSTO $0)
+        const { texto: refinamiento, proveedor } = await llamarMultiplexadorFree(promptIteracion, null, "Responde solo con la propuesta mejorada.");
+        console.log(`[DREAMER] ✅ Iteración ${i} completada via: ${proveedor.toUpperCase()}`);
         hipotesisActual = refinamiento;
+        await new Promise(r => setTimeout(r, 1000));
+    }
+
+    // 🧠 FASE DE ASESOR (RAZONAMIENTO PROFUNDO)
+    console.log(`[DREAMER] 🏛️ Invocando al ASESOR para decantación final...`);
+    const promptAsesor = `
+    [DECANTACIÓN SICC - ASESOR]
+    Has recibido el trabajo de los peones. Tu misión es dar el veredicto final.
+    Basado en:
+    ---
+    ${pensamientosBase}
+    ---
+    Propuesta procesada: ${hipotesisActual}
+    
+    TAREA: 
+    1. Si hay una contradicción insalvable con el Contrato L1 o la Sec 1.2(d), responde iniciando con "BLOCKER: [Motivo]".
+    2. Si es coherente, genera la Decisión Técnica final.
+    `;
+
+    const { texto: finalVeredict, proveedor } = await procesarMensaje(promptAsesor, null);
+    
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    
+    if (finalVeredict.includes('BLOCKER:')) {
+        console.warn(`[DREAMER] 🚨 Bloqueo detectado. Generando reporte de Blocker...`);
+        const blockerFileName = `BLOCKER-${especialidad.replace(/ /g, '_')}-${timestamp}.md`;
+        const blockerPath = path.join(BLOCKER_DIR, blockerFileName);
         
-        // Pequeño delay para no saturar Ollama/Host
-        await new Promise(r => setTimeout(r, 2000));
+        const blockerDoc = `
+# 🚨 BLOQUEO DE RAZONAMIENTO SICC
+**Especialidad:** ${especialidad}
+**Origen:** Dreamer v8.7 asimétrico
+**Veredicto del Asesor (${proveedor}):**
+${finalVeredict}
+
+## Contexto para Diego:
+Los peones intentaron resolver esto durante ${numPasses} iteraciones pero el Asesor identificó un punto ciego contractual o técnico irresoluble.
+        `;
+        fs.writeFileSync(blockerPath, blockerDoc);
+        
+        // Actualizar Dashboard y Notificar
+        await actualizarDashboard(especialidad, '🚨 BLOCKER', finalVeredict);
+        await enviarAlerta(`🚨 *SICC BLOCKER DETECTADO*\n\n*Especialidad:* ${especialidad}\n\n${finalVeredict.substring(0, 500)}...`);
+        return;
     }
 
     // 🏺 DECANTACIÓN FINAL
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const fileName = `DT-DREAM-${especialidad.replace(/ /g, '_')}-${timestamp}.md`;
     const finalPath = path.join(PENDING_DIR, fileName);
 
@@ -77,7 +121,7 @@ async function ejecutarSueno(especialidad) {
 **Estado:** PENDIENTE FIRMA JURÍDICA
 
 ## 🏛️ Propuesta Soberana (Michelin Certified)
-${hipotesisActual}
+${finalVeredict}
 
 ---
 *Generado autónomamente durante el ciclo de sueño SICC.*
@@ -85,6 +129,34 @@ ${hipotesisActual}
 
     fs.writeFileSync(finalPath, docFinal);
     console.log(`[DREAMER] ✅ Sueño decantado en: ${fileName}`);
+
+    // Actualizar Dashboard y Notificar
+    await actualizarDashboard(especialidad, '✅ ÉXITO', fileName);
+    await enviarAlerta(`🏺 *SICC DT GENERADA*\n\n*Especialidad:* ${especialidad}\n*Archivo:* \`${fileName}\``);
+}
+
+/**
+ * Mantiene el dashboard de operaciones sincronizado
+ */
+async function actualizarDashboard(especialidad, estado, detalle) {
+    if (!fs.existsSync(OPERATIONS_DASHBOARD)) return;
+    
+    let content = fs.readFileSync(OPERATIONS_DASHBOARD, 'utf8');
+    const timestamp = new Date().toLocaleString();
+
+    if (estado.includes('BLOCKER')) {
+        const blockerEntry = `- **${especialidad}** (${timestamp}): ${detalle.substring(0, 100)}...`;
+        content = content.replace('## 🚨 BLOCKERS ACTIVOS (Juicio de Diego Requerido)\n*No hay bloqueos activos en este momento.*', `## 🚨 BLOCKERS ACTIVOS (Juicio de Diego Requerido)\n${blockerEntry}`);
+    } else {
+        const dtEntry = `- [ ] [${especialidad} - ${timestamp}](file:///home/administrador/docker/agente/brain/PENDING_DTS/${detalle})`;
+        content = content.replace('## 🏺 DECISIONES TÉCNICAS (PENDIENTES DE FIRMA)', `## 🏺 DECISIONES TÉCNICAS (PENDIENTES DE FIRMA)\n${dtEntry}`);
+    }
+
+    // Actualizar sección de estado de factoría
+    const factorySection = `## 🧬 ESTADO DE LA FACTORÍA (Última Carrera)\n- **Tema:** ${especialidad}\n- **Estado:** ${estado}\n- **Fecha:** ${timestamp}`;
+    content = content.replace(/## 🧬 ESTADO DE LA FACTORÍA \(Última Carrera\)\n[\s\S]*?\n\n/g, factorySection + '\n\n');
+
+    fs.writeFileSync(OPERATIONS_DASHBOARD, content);
 }
 
 // Exportar para el cron

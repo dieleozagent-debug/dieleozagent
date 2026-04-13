@@ -9,19 +9,19 @@ const fs = require('fs');
 const path = require('path');
 const { llamarOllama } = require('../src/agent');
 
-const Conectividad DirectaAP_PATH = '/home/administrador/docker/agente/roadmap.md';
+const ROADMAP_PATH = '/home/administrador/docker/agente/roadmap.md';
 
 async function runSwarmPilot() {
     console.log(`\n--------------------------------------------------`);
     console.log(`🐝 SICC SWARM PILOT - VALIDACIÓN DE ENJAMBRE`);
     console.log(`--------------------------------------------------\n`);
 
-    if (!fs.existsSync(Conectividad DirectaAP_PATH)) {
+    if (!fs.existsSync(ROADMAP_PATH)) {
         console.error("❌ Error: roadmap.md no encontrado.");
         return;
     }
 
-    const content = fs.readFileSync(Conectividad DirectaAP_PATH, 'utf8');
+    const content = fs.readFileSync(ROADMAP_PATH, 'utf8');
 
     // Definición de Agentes
     const agent1 = {

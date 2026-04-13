@@ -10,11 +10,17 @@ const BRAIN_DIR = config.paths.brain;
 const BRAIN_FILES = [
   { file: 'SOUL.md',            label: 'ALMA Y PERSONALIDAD',           required: true  },
   { file: 'IDENTITY.md',        label: 'IDENTIDAD SOBERANA',            required: true  },
-  { file: 'AUTODETERMINACION_CEREBRO_v3_N_1.md', label: 'LÓGICA N-1 (DEDUCTIVA)', required: false },
+  { file: 'SYNOPSIS.md',        label: 'SINOPSIS DEL CEREBRO',          required: true  },
+  { file: 'MEMORIA_GENETICA.md', label: 'MEMORIA GENÉTICA (LECCIONES)',  required: true  },
+  { file: 'INFERENCIA_RADICAL_N_MENOS_1.md', label: 'LÓGICA N-1 (DEDUCTIVA)', required: true },
+  { file: 'P42_METODOLOGIA.md', label: 'METODOLOGÍA PUNTO 42',          required: false },
+  { file: 'AGENTS.md',          label: 'MANUAL OPERATIVO AGENTES',      required: false },
+  { file: 'UX_DESIGN_SYSTEM.md', label: 'UX/UI DESIGN SYSTEM',          required: false },
   { file: 'LFC_ROLE.md',        label: 'ROL CONTRACTUAL LFC',           required: false },
   { file: 'DBCD_CRITERIA.md',   label: 'CRITERIOS DISEÑO & CAPEX',      required: false },
   { file: 'DREAMS.md',          label: 'SUEÑOS Y TAREAS NOCTURNAS',     required: false },
-  { file: 'Conectividad DirectaAP.md',         label: 'HOJA DE RUTA (Conectividad DirectaAP)',        required: false },
+  { file: 'ROADMAP.md',         label: 'HOJA DE RUTA SICC',             required: false },
+  { file: 'SICC_OPERATIONS.md', label: 'DASHBOARD DE OPERACIONES',      required: false },
   { file: 'PENDIENTES_COLABORACION.md', label: 'PENDIENTES (ACCOUNTABILITY)', required: false },
   { file: 'USER.md',            label: 'CONTEXTO DEL USUARIO (DIEGO)',  required: false },
 ];
@@ -78,4 +84,15 @@ function leerHeartbeat() {
   return pendientes;
 }
 
-module.exports = { construirSystemPrompt, estadoBrain, leerHeartbeat };
+function destilarCerebro() {
+  const soul = leerArchivo('SOUL.md') || '';
+  const identity = leerArchivo('IDENTITY.md') || '';
+  
+  // Extraemos solo las primeras líneas de misión y los axiomas clave
+  const missionSoul = soul.split('\n').slice(0, 10).join('\n');
+  const missionIdentity = identity.split('\n').slice(0, 10).join('\n');
+  
+  return `## ADN DESTILADO (Michelin v9.2)\n${missionIdentity}\n\n${missionSoul}\n\nREGLA SOBERANA: Priorizar Jerarquía 1.2(d) y Ahorro de CAPEX (N-1).`;
+}
+
+module.exports = { construirSystemPrompt, estadoBrain, leerHeartbeat, destilarCerebro };

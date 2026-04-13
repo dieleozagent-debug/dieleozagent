@@ -42,8 +42,13 @@ const config = {
     },
 
     ollama: {
-      host: env('OLLAMA_HOST', false) || 'http://ollama:11434',
-      model: env('OLLAMA_MODEL', false) || 'sicc-cerebro:latest',
+      host: (function() {
+        const fs = require('fs');
+        const isDocker = fs.existsSync('/.dockerenv');
+        if (process.env.OLLAMA_HOST) return process.env.OLLAMA_HOST;
+        return isDocker ? 'http://opengravity-ollama:11434' : 'http://localhost:11435';
+      })(),
+      model: env('OLLAMA_MODEL', false) || 'gemma4-light:latest',
     },
 
     // ── Swarm de Alta Velocidad (Hybrid Mode) ──────────────────────────────

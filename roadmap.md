@@ -1,7 +1,7 @@
-# 🗺️ ROADMAP DE SOBERANÍA TÉCNICA (SICC v8.6 - INFINITE GUARD)
+# 🗺️ ROADMAP DE SOBERANÍA TÉCNICA (SICC v9.2.0 - RESILIENT SWARM)
 ## Bitácora de Auditoría Forense y Evolución Agéntica
 
-**Última actualización:** 10 de abril de 2026 (v8.6 Infinite Guard)  
+**Última actualización:** 13 de abril de 2026 (v8.8.1 Factory Edition)  
 **Veredicto:** El Agente ha evolucionado a **Auditor Forense Sistémico**. Se ha completado el barrido masivo de las carpetas legacy (I-X) bajo la **Metodología Punto 42**, identificando una "Grasa Contractual" crítica en ingeniería de detalle.
 
 ---
@@ -9,15 +9,16 @@
 ### ⚙️ 4. EJECUCIÓN: ¿QUÉ VAMOS A HACER? (ESTADO ACTUAL)
 
 *   **🏆 HITOS LOGRADOS (v8.4 "Punto 42"):**
-    *   **[v8.0.1] DNA Sweep:** Barrido masivo de carpetas legacy (I-X) y generación de reporte RED.
-    *   **[v8.0.2] DNA Purify:** Purga de "DWDM/G.655" en el portal de dictámenes.
-    *   **[v8.3.0] Track Logic:** Consolidación Geométrica de Vía (Supresión de Desvíos redundantes).
-    *   **[v8.4.1] PAN Categorization:** Saneamiento de Pasos a Nivel y reglas GIS (Shapefiles + Consulta Previa).
-    *   **[v8.5.0] Forensic Ingestion v7.1:** Estabilización de ingesta masiva (768 dims) con aislamiento total de lotes (Lock + Batch Isolation).
+    *   **[v8.7.0] Sovereign Resiliency:** Implementación de failover dinámico (Cloud -> On-Premise) con registro en `data/logs/flow-resilience.json`.
+    *   **[v8.7.1] Asymmetric Hybrid Thinking:** Despliegue del protocolo Ejecutor (Gemini Flash) + Asesor (Pro/Ollama) para optimización de tokens y razonamiento profundo.
+    *   **[v8.8.1] SICC Factory Mode:** Institucionalización de la Factoría Serial con Peones Locales (`qwen2.5`) y Dashboard Operativo en `SICC_OPERATIONS.md`.
+    * *[v8.8.2] Forensic Alerting:* Notificaciones proactivas vía Telegram para Blockers y DTs en tiempo real.
+    * *[v9.1.5] Fiscal Shield & Brain Sync:* Saneamiento de dislexia cognitiva y prioridad de Gasto $0 (Ollama/Free).
+    * *[v9.2.0] Resilient Swarm (Context Slimming):* Optimización de tokens para evitar errores 429 (Rate Limits) en modelos gratuitos.
 
     - [x] **Validación Integral de DTs (Dreamer):** Escaneo profundo de los 22 Dictámenes Maestros.
     - [x] **Estandarización AT3 (Fibra):** Institucionalización de G.652.D y 48 hilos (DT-SICC-2026-015).
-    - [ ] **Misión Fin de Semana:** Ingesta recursiva de la carpeta 00_Referencia_Normativa (Biblia Legal).
+    *   **[PAUSADA] Ingesta Masiva "Biblia Legal" (AREMA MRE 2025):** Detenida en pág. 1500/4000 para liberar CPU (>250% load) y priorizar el despliegue del Modo Factoría v8.8. Pendiente reprogramación con `cpulimit`.
 
 ### ✅ ÉXITO EN ESTABILIZACIÓN DE INGESTA
 *   **Logro:** Se resolvió la discrepancia de dimensiones (768 vs 3072) mediante purga atómica (TRUNCATE) y recalibración de Supabase.
@@ -47,3 +48,7 @@ El sistema opera bajo **Soberanía Judicial Michelin**. No se acepta ningún ing
 **CASO 4: Purga Deductiva N-1 del Diseño Base**
 *   **Análisis:** Sobreviven menciones a "EOC", "señales laterales inter-estación" y "balizas pasivas continuas".
 *   **Plan de Uso:** Ordenar un *Grep Forense* de la WBS y los flujos derivados y aplicar purga atómica que reduzca las señales exclusivamente a los 5 Nodos/ENCE autorizados contractualmente. Cada componente eliminado se documentará como "Ahorro Blindado de CAPEX".
+
+**CASO 5: Bloqueos de Razonamiento Conjunto (Handoff Diego-Agente)**
+*   **Análisis:** Situaciones de "Callejón sin Salida" donde el Contrato es ambiguo.
+*   **Plan de Uso:** Los mini-agentes depositarán reportes detallados en `brain/BLOCKERS/` e informarán inmediatamente vía **Telegram** y en el tablero `brain/SICC_OPERATIONS.md` para resolución manual protegida.

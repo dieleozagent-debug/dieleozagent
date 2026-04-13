@@ -8,13 +8,22 @@ const config = require('./config');
 
 const genAI = new GoogleGenerativeAI(config.ai.gemini.apiKey);
 
+const fs = require('fs');
+const isDocker = fs.existsSync('/.dockerenv');
+
 const dbConfig = {
     host: process.env.DB_HOST || 'supabase_db_sicc-local',
-    port: process.env.DB_PORT || 5432,
+    port: parseInt(process.env.DB_PORT) || 5432,
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || 'postgres',
-    database: 'postgres'
+    database: process.env.DB_NAME || 'postgres'
 };
+
+// 🛰️ AJUSTE DE PRIORIDAD SOBERANA (v8.9.6)
+if (!isDocker && (dbConfig.host === 'supabase_db_sicc-local' || dbConfig.port === 5432)) {
+    dbConfig.host = 'localhost';
+    dbConfig.port = 54322; // Puerto expuesto en el host
+}
 
 const pool = new Pool(dbConfig);
 
@@ -24,7 +33,9 @@ const pool = new Pool(dbConfig);
  */
 async function obtenerEmbedding(texto) {
     try {
-        const response = await axios.post(`http://opengravity-ollama:11434/api/embeddings`, {
+        const port = (process.env.NODE_ENV === 'production') ? '11434' : '11435';
+        const host = `http://localhost:${port}`;
+        const response = await axios.post(`${host}/api/embeddings`, {
             model: "nomic-embed-text",
             prompt: texto
         });
@@ -36,7 +47,7 @@ async function obtenerEmbedding(texto) {
   } catch (localErr) {
     console.warn(`[SUPABASE] ⚠️ Ollama Local falló, intentando Cloud Gemini...`);
     try {
-      const model = genAI.getGenerativeModel({ model: "models/text-embedding-004" });
+      const model = genAI.getGenerativeModel({ model: "embedding-001" });
       const result = await model.embedContent(texto);
       const vector = result.embedding.values;
       if (vector.length !== 768) {
@@ -44,11 +55,11 @@ async function obtenerEmbedding(texto) {
       }
       return vector;
     } catch (e) {
-      // Seguir probando
+      console.error(`[SUPABASE] ❌ Error final en Embeddings: ${e.message}`);
     }
   }
 
-  throw new Error("Ningún modelo de embeddings de Google respondió (404/400). Verifica tu API Key.");
+  throw new Error("Ningún modelo de embeddings respondió satisfactoriamente.");
 }
 
 async function insertarFragmento(archivoNombre, contenido, vector) {

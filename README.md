@@ -1,6 +1,6 @@
-# 🤖 OpenGravity Agent — Ecosistema Soberano v8.6 (Infinite Guard)
+# 🤖 OpenGravity Agent — Ecosistema Soberano v8.8.1 (Factory Edition)
 
-> **Stack:** Node.js · **Recursive Ingest v7.2** · **Ollama 768-dim** · Docker · **RED Protocol Engine**
+> **Stack:** Node.js · **Batch Factoría Serial v8.8** · **Qwen 2.5 1.5B (Host)** · Docker · **RED Protocol Engine**
 
 OpenGravity es un **Agente de IA Autónomo y Auditor Transversal** diseñado para operar con soberanía tecnológica total. Utiliza una arquitectura modular de 3 repositorios independientes para separar la lógica de ejecución del conocimiento y los entregables de ingeniería.
 
@@ -38,7 +38,8 @@ agente/
 -   **Memory Matrix**: Gestión de dimensiones calibrada (768 dims) para integridad de embeddings.
 -   **Multi-Provider Fallback**: **Ollama (Local)** -> Gemini 3.1 -> Groq -> OpenRouter.
 -   **Sequential Swarm**: Debate multi-agente forense optimizado (Auditor vs Estratega).
--   **SICC Dreamer**: Auditoría autónoma nocturna con institucionalización de DTs (v7.2).
+-   **SICC Factory Mode (v8.8)**: Minería serial con enfriamiento de CPU y Peones ultra-ligeros.
+-   **Digital Dashboard**: Tablero `brain/SICC_OPERATIONS.md` para gestión centralizada de Blockers y DTs.
 
 ---
 
