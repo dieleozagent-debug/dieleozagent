@@ -1,4 +1,4 @@
-# 🤖 OpenGravity Agent — Ecosistema Soberano v8.8.1 (Factory Edition)
+# 🤖 OpenGravity Agent — Ecosistema Soberano v9.4.0 (Morning Digest Edition)
 
 > **Stack:** Node.js · **Batch Factoría Serial v8.8** · **Qwen 2.5 1.5B (Host)** · Docker · **RED Protocol Engine**
 
@@ -6,7 +6,7 @@ OpenGravity es un **Agente de IA Autónomo y Auditor Transversal** diseñado par
 
 ---
 
-## 🏛️ Arquitectura Soberana (3-Repo Structure)
+## 🏛️ Arquitectura Soberana — OpenGravity SICC v9.4.0 "Morning Digest"
 
 El proyecto está dividido en tres unidades git independientes sincronizadas proactivamente:
 
@@ -33,12 +33,13 @@ agente/
 
 ---
 
--   **Forensic Ingest v7.2**: Ingesta recursiva blindada con **Aislamiento de Lotes** y Lock de proceso.
--   **RED Protocol Integration**: Generación autónoma de Registros Ejecutivos de Deficiencias en el cerebro.
--   **Memory Matrix**: Gestión de dimensiones calibrada (768 dims) para integridad de embeddings.
--   **Multi-Provider Fallback**: **Ollama (Local)** -> Gemini 3.1 -> Groq -> OpenRouter.
--   **Sequential Swarm**: Debate multi-agente forense optimizado (Auditor vs Estratega).
--   **SICC Factory Mode (v8.8)**: Minería serial con enfriamiento de CPU y Peones ultra-ligeros.
+-   **Protocolo de Gobernanza v9.4.0 (Morning Digest):** 
+    - **Muro de Fuego de Sonnet:** Escalación automática prohibida. Alertas Rojas inmediatas ante bloqueo de CAPEX.
+    - **Búfer Michelin:** Los hallazgos forenses no críticos se encolan en `data/logs/michelin-findings.json`.
+    - **Digest Consolidado:** Notificación única en Telegram con la síntesis de hallazgos para revisión ejecutiva.
+    - **Trazabilidad Michelin:** Registro obligatorio de trazas para auditar el uso del ADN del cerebro.
+-   **Sequential Swarm**: Debate multi-agente forense optimizado (Auditor vs Director).
+-   **SICC Factory Mode**: Minería serial con enfriamiento de CPU y Peones ultra-ligeros.
 -   **Digital Dashboard**: Tablero `brain/SICC_OPERATIONS.md` para gestión centralizada de Blockers y DTs.
 
 ---

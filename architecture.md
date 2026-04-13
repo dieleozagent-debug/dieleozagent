@@ -1,4 +1,4 @@
-# 🏛️ Arquitectura Soberana — OpenGravity SICC v9.2.0 "Resilient Swarm"
+# 🏛️ Arquitectura Soberana — OpenGravity SICC v9.3.0 "Manual Signature"
 ## 🌌 Visión General
 
 La arquitectura de **OpenGravity** está diseñada para la **Soberanía Tecnológica Total** y la **Auditoría Forense Sistémica**. Opera bajo la metodología de validación contractual Punto 42, asegurando que cada ítem de ingeniería tenga un respaldo literal en el Contrato Maestro.
@@ -11,24 +11,18 @@ La arquitectura de **OpenGravity** está diseñada para la **Soberanía Tecnoló
 | :--- | :--- | :--- |
 | **Agente** | Motor de ejecución, Auditor forense, Bot Telegram | Node.js, Docker |
 | **Brain** | SSOT: Metodología Punto 42, RED, DBCD, Identidad | Markdown, JSON |
-| **LFC2** | Verdad de Ingeniería: Carpetas I-X, Planos, DTs | Markdown, HTML |
+## 🏗️ Pilares del Diseño (v9.4)
 
-### Nodo de Inferencia (v8.0 Sovereign Edition)
-- **Vigilia (Bot/Swarm):** Inteligencia Asimétrica (Gemini Pro/Claude) con **Resiliencia Automática N-1** (Salto a Ollama/Gemini Free en caso de fallo de créditos/nube).
-- **Capa de Memoria Contractual:** Supabase Vector DB calibrado para ingesta forense de la "Biblia Legal" a **768 dimensiones** (Nomic-Local/Ollama).
-- **Auditoría Sistémica (Punto 42 Engine v8.7):** 
-    - Motor `karpathy_audit.js` con detección de **ADN Foráneo** y reporte RED.
-    - **Sovereign Ingestion Engine v7.2:** Estrategia de **Identidad de Lote** (Total Isolation) con procesamiento recursivo optimizado.
-    - **Protocolo de Resiliencia Soberana:** Captura de errores 402/429/5xx con rotación dinámica de proveedores (Cloud Pro -> Cloud Free -> Local).
--   **Topología de Red Aislada (Ollama Sandbox):** 
-    - Ollama corre en el contenedor aislado `opengravity-ollama` mapeando `/home/administrador/ollama-data`.
+-   **Modularidad de Repositorios (3-Repo Sync):** Separación física de Lógica (Agente), Conocimiento (Brain) y Entregables (LFC2).
+-   **Escudo Fiscal Cuádruple:** Prioridad absoluta de gasto $0.00: `Ollama (Local)` -> `Gemini Free` -> `Groq Free` -> `OpenRouter Free`.
+-   **Muro de Fuego Fiscal (v9.3):** Prohibición de escalación automática a Sonnet. Requiere firma manual de Diego en `SICC_OPERATIONS.md`.
+-   **Morning Digest & Búfer Michelin (v9.4):** 
+    - Supresión de notificaciones rutinarias durante el procesamiento masivo.
+    - Acumulación de hallazgos en `data/logs/michelin-findings.json`.
+    - Envío de reporte consolidado vía Telegram para revisión ejecutiva.
 -   **Modo Factoría Serial (v8.8.1):** 
     - Orquestación serial de Peones locales (`qwen2.5:1.5b`) para minería forense de bajo impacto.
     - Sistema de **Enfriamiento de CPU (>85%)** para resiliencia del host.
--   **Protocolo de Gasto Cero v9.2.0 (Fiscal Shield & Slimming):** 
-    - Inversión de Prioridad: Intento obligatorio del Multiplexor Free primero.
-    - **Context Slimming (v9.2):** Destilación automática del ADN (.md) para evitar errores 429 (Rate Limit) por sobrecarga de información.
-    - **Soberanía del Host (Port 11435):** Ollama mapeado en el puerto 11435 para acceso directo desde el Host Ubuntu, evitando colisiones de red Docker.
 -   **Tablero de Operaciones (Dashboard):** 
     - Centralización en `brain/SICC_OPERATIONS.md` para auditoría humana rápida.
     - Notificaciones Push vía Telegram para `BLOCKERS` y `DTs`.

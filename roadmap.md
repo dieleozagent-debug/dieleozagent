@@ -1,4 +1,4 @@
-# 🗺️ ROADMAP DE SOBERANÍA TÉCNICA (SICC v9.2.0 - RESILIENT SWARM)
+# 🗺️ ROADMAP DE SOBERANÍA TÉCNICA (SICC v9.4.0 - MORNING DIGEST)
 ## Bitácora de Auditoría Forense y Evolución Agéntica
 
 **Última actualización:** 13 de abril de 2026 (v8.8.1 Factory Edition)  
@@ -15,6 +15,8 @@
     * *[v8.8.2] Forensic Alerting:* Notificaciones proactivas vía Telegram para Blockers y DTs en tiempo real.
     * *[v9.1.5] Fiscal Shield & Brain Sync:* Saneamiento de dislexia cognitiva y prioridad de Gasto $0 (Ollama/Free).
     * *[v9.2.0] Resilient Swarm (Context Slimming):* Optimización de tokens para evitar errores 429 (Rate Limits) en modelos gratuitos.
+    * *[v9.3.0] Manual Signature & Traceability:* Muro de fuego fiscal que prohíbe el uso de Sonnet sin permiso explícito y registro de auditoría Michelin.
+    * *[v9.4.0] Morning Digest Protocol:* Implementación de notificaciones consolidadas y búfer de hallazgos forenses. [ESTABLE]
 
     - [x] **Validación Integral de DTs (Dreamer):** Escaneo profundo de los 22 Dictámenes Maestros.
     - [x] **Estandarización AT3 (Fibra):** Institucionalización de G.652.D y 48 hilos (DT-SICC-2026-015).

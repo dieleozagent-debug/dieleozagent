@@ -53,9 +53,9 @@ const config = {
 
     // ── Swarm de Alta Velocidad (Hybrid Mode) ──────────────────────────────
     swarm: {
-      auditor: env('SWARM_MODEL_AUDITOR', false) || 'deepseek/deepseek-chat',
-      strategist: env('SWARM_MODEL_STRATEGIST', false) || 'anthropic/claude-3.5-sonnet',
-      sumarizador: env('SUMMARIZER_MODEL', false) || 'meta-llama/llama-3.1-8b-instant',
+      auditor: env('SWARM_MODEL_AUDITOR', false) || 'google/gemini-2.0-flash-lite-preview-02-05:free',
+      strategist: env('SWARM_MODEL_STRATEGIST', false) || 'google/gemini-2.0-flash-lite-preview-02-05:free',
+      sumarizador: env('SUMMARIZER_MODEL', false) || 'google/gemini-2.0-flash-lite-preview-02-05:free',
     },
 
     // ── Búsqueda Web (Tavily) ────────────────────────────────────────────────

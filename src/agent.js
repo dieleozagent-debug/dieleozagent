@@ -6,11 +6,55 @@ const { construirSystemPrompt, destilarCerebro } = require('./brain');
 const { cargarMemoriaReciente } = require('./memory');
 const { buscarSimilares } = require('./supabase');
 const { buscarEnWeb } = require('./search');
+const { enviarAlerta } = require('./notifications');
+const { encolarHallazgo } = require('./digest');
+const fs = require('fs');
+const path = require('path');
 const { checkYEncolar, evaluarRecursos } = require('../scripts/resource-governor');
 
 // Skills Registry — carga modular de contexto especializado
 const SKILLS_DIR = require('path').join(__dirname, '../brain/skills');
-const fs = require('fs');
+
+// ── FUNCIONES DE GOBERNANZA v9.3.0 ──────────────────────────────────────────
+
+function registrarTrazaMichelin(pregunta, proveedor, contextoUsado) {
+  const logPath = path.join(__dirname, '../data/logs/michelin-traces.json');
+  const traza = {
+    timestamp: new Date().toISOString(),
+    pregunta: pregunta.substring(0, 100),
+    proveedor,
+    brain_active: true,
+    context_length: (contextoUsado || '').length
+  };
+  
+  try {
+    let logs = [];
+    if (fs.existsSync(logPath)) {
+      logs = JSON.parse(fs.readFileSync(logPath, 'utf8'));
+    }
+    logs.push(traza);
+    if (logs.length > 100) logs.shift();
+    fs.writeFileSync(logPath, JSON.stringify(logs, null, 2));
+  } catch (e) {
+    console.warn('[TRAZA] ⚠️ No se pudo registrar la traza Michelin:', e.message);
+  }
+}
+
+async function registrarBloqueoSICC(pregunta, error) {
+  const opsPath = path.join(__dirname, '../brain/SICC_OPERATIONS.md');
+  const timestamp = new Date().toISOString();
+  const entrada = `\n### 🚨 BLOQUEO DE FIRMA (${timestamp})\n- **Problema:** Fallo total de vías gratuitas/locales.\n- **Consulta:** ${pregunta}\n- **Error:** ${error}\n- **Acción Requerida:** [DIEGO] Debe autorizar desbloqueo con SONNET o resolver manual.\n`;
+  
+  try {
+    fs.appendFileSync(opsPath, entrada);
+    console.log('[GOBERNANZA] 🛡️ Bloqueo registrado en SICC_OPERATIONS.md.');
+    
+    // 📢 NOTIFICACIÓN PROACTIVA A TELEGRAM
+    await enviarAlerta(`🛡️ *BLOCKER DE SOBERANÍA*\n\nHe agotado las opciones gratuitas para la consulta:\n"${pregunta.substring(0, 100)}..."\n\nError: ${error}\n\nRevisarDashboard: [SICC_OPERATIONS.md]`);
+  } catch (e) {
+    console.error('[GOBERNANZA] ❌ Fallo al registrar bloqueo:', e.message);
+  }
+}
 
 function seleccionarSkills(textoUsuario) {
   if (!fs.existsSync(SKILLS_DIR)) return '';
@@ -444,61 +488,23 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo, forcedSystemPrompt 
       historial.push({ role: 'assistant', content: resFree.texto });
       while (historial.length > MAX_HISTORIAL * 2) historial.shift();
 
+      registrarTrazaMichelin(textoUsuario, resFree.proveedor, contextoFinal);
       return { texto: resFree.texto, proveedor: resFree.proveedor };
     }
   } catch (errFree) {
-    console.warn(`[FISCAL-SHIELD] ⚠️ Gateway Gratuito falló: ${errFree.message}. Escalando a proveedores de reserva...`);
+    // ── MURO DE FUEGO v9.3.0 (Firma Requerida) ─────────────────────────────
+    // Si fallan los gratuitos, NO escalamos a Sonnet automáticamente.
+    // Registramos el bloqueo y terminamos la ejecución esperando firma.
+    await registrarBloqueoSICC(textoUsuario, errFree.message);
+    return { 
+      texto: `🛡️ **BLOQUEO DE SOBERANÍA:** He agotado las vías gratuitas y locales. Para no afectar el CAPEX sin permiso, he registrado este caso en el Dashboard de Operaciones. Por favor, autoriza el uso de Sonnet o resuelve manualmente.`, 
+      proveedor: 'muro-de-fuego' 
+    };
   }
-
-  // Si fallan los gratuitos, procedemos al loop tradicional pero con precaución fiscal
-  for (const proveedor of proveedores) {
-    try {
-      console.log(`[AGENTE] Usando proveedor: ${proveedor.id}`);
-      const start = Date.now();
-      const respuesta = await proveedor.fn(textoUsuario, archivoTmpInfo, contextoFinal, finalPrompt);
-      const duration = Date.now() - start;
-
-      if (!respuesta) throw new Error('Respuesta vacía del proveedor');
-
-      logFlow({
-        type: 'chat',
-        prompt: textoUsuario.substring(0, 50),
-        provider: proveedor.id,
-        duration,
-        status: 'OK'
-      });
-
-      // Guardar en historial de sesión
-      const textoFinalUsr = archivoTmpInfo ? `[Archivo: ${archivoTmpInfo.name}] ${textoUsuario}` : textoUsuario;
-      historial.push({ role: 'user',      content: textoFinalUsr });
-      historial.push({ role: 'assistant', content: respuesta    });
-      while (historial.length > MAX_HISTORIAL * 2) historial.shift();
-
-      return { texto: respuesta, proveedor: proveedor.id };
-    } catch (err) {
-      const duration = 0;
-      const msg = (err.message || '').toLowerCase();
-      const esReintentable = msg.includes('402') || msg.includes('credits') || msg.includes('limit') || msg.includes('429') || msg.includes('500') || msg.includes('eai_again');
-
-      logFlow({
-        type: 'fallback',
-        prompt: textoUsuario.substring(0, 50),
-        provider: proveedor.id,
-        error: err.message,
-        retryable: esReintentable
-      });
-
-      console.error(`[AGENTE] ❌ ERROR en ${proveedor.id}:`, err.message || err);
-      
-      if (!esReintentable) {
-         return { texto: `⚠️ Error crítico en ${proveedor.id}: ${err.message}`, proveedor: proveedor.id };
-      }
-      console.warn(`[AGENTE] 🔄 Reintentando con el siguiente proveedor debido a fallo de infraestructura...`);
-    }
-  }
-  console.log('[AGENTE] 💀 El loop de proveedores terminó sin éxito.');
+  
+  console.log('[AGENTE] 💀 El flujo terminó inesperadamente.');
   return {
-    texto: '⚠️ Todos los proveedores fallaron o el archivo no es compatible.',
+    texto: '⚠️ Error interno inesperado en el motor de decisión.',
     proveedor: 'ninguno',
   };
 }
@@ -540,40 +546,35 @@ async function procesarMensajeSwarm(textoUsuario) {
     let proveedorAgente = '';
     let éxitoAgente = false;
 
-    const proveedoresDisponibles = ordenProveedores();
+    // ── BLINDAJE FISCAL SWARM v9.2.7 (Zero-Cost First) ──────────────────
+    try {
+      const promptOptimizado = contextoPrevio.length > 5000 
+        ? await sumarizarContexto(contextoPrevio) 
+        : contextoPrevio;
 
-    for (const proveedor of proveedoresDisponibles) {
-      try {
-        const modelRoles = {
-          'AUDITOR FORENSE (MICHELIN)': config.ai.swarm.auditor,
-          'DIRECTOR CONTRACTUAL SICC': config.ai.swarm.strategist
-        };
-        const modelOverride = (proveedor.id === 'openrouter') ? modelRoles[agente.nombre] : null;
+      const currentPrompt = PROMPT_FAST; // Swarm siempre usa Prompt Fast para ahorro
+      const modelOverride = (index === 0) ? config.ai.swarm.auditor : config.ai.swarm.strategist;
+      
+      console.log(`[SWARM] 🤖 Invocando ${agente.nombre} vía Escudo Fiscal...`);
+      const resAgente = await llamarMultiplexadorFree(promptAgente, promptOptimizado, currentPrompt);
+      
+      respuestaAgente = resAgente.texto;
+      proveedorAgente = resAgente.proveedor;
 
-        const promptOptimizado = contextoPrevio.length > 5000 
-          ? await sumarizarContexto(contextoPrevio) 
-          : contextoPrevio;
+      // 📥 ENCOLAR HALLAZGO MICHELIN (Silencioso para el Digest)
+      encolarHallazgo(
+        `Reporte: ${agente.nombre}`,
+        respuestaAgente.substring(0, 150) + '...',
+        (index === 0) ? '🧠' : '⚖️',
+        { agente: agente.nombre, proveedor: proveedorAgente }
+      );
 
-        const currentPrompt = (proveedor.id === 'ollama') ? PROMPT_FULL : PROMPT_FAST;
-
-        respuestaAgente = await proveedor.fn(promptAgente, null, promptOptimizado, currentPrompt, modelOverride);
-        proveedorAgente = proveedor.id === 'ollama' ? 'Ollama (Soberano)' : `${proveedor.id} (${modelOverride || 'Cloud'})`;
-
-        debateBuffer += `🎭 **${agente.nombre}** *(${proveedorAgente})*\n${respuestaAgente}\n\n---\n\n`;
-        contextoPrevio += `Respuesta de ${agente.nombre}:\n${respuestaAgente}\n\n`;
-        éxitoAgente = true;
-        break; 
-      } catch (err) {
-        console.error(`[SWARM] ⚠️ Fallo en ${agente.nombre} con ${proveedor.id}:`, err.message);
-        const msg = (err.message || '').toLowerCase();
-        const esReintentable = msg.includes('402') || msg.includes('credits') || msg.includes('limit') || msg.includes('429') || msg.includes('500');
-        
-        if (!esReintentable) {
-           debateBuffer += `⚠️ **${agente.nombre}** falló irreparablemente en ${proveedor.id}: ${err.message}\n\n`;
-           break; 
-        }
-        console.warn(`[SWARM] 🔄 Reintentando ${agente.nombre} con proveedor de respaldo...`);
-      }
+      debateBuffer += `🎭 **${agente.nombre}** *(${proveedorAgente})*\n${respuestaAgente}\n\n---\n\n`;
+      contextoPrevio += `Respuesta de ${agente.nombre}:\n${respuestaAgente}\n\n`;
+      éxitoAgente = true;
+    } catch (err) {
+      console.error(`[SWARM] ⚠️ Fallo total en ${agente.nombre}:`, err.message);
+      debateBuffer += `💀 **${agente.nombre}** quedó fuera de combate: ${err.message}\n\n`;
     }
 
     if (!éxitoAgente) {
@@ -684,5 +685,7 @@ module.exports = {
   llamarOllama,
   config,
   PROMPT_FULL,
-  PROMPT_FAST
+  PROMPT_FAST,
+  registrarBloqueoSICC,
+  registrarTrazaMichelin
 };
