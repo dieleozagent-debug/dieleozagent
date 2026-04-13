@@ -9,10 +9,11 @@ const os = require('os');
 const fs = require('fs');
 const path = require('path');
 const config = require('../src/config');
-
 const DREAMS_FILE = path.join(config.paths.brain, 'DREAMS.md');
-const CPU_ALERT_THRESHOLD = 0.99; // 99% de carga → permitir manual hoy
-const CPU_CRITICAL_THRESHOLD = 0.99; // 99% → permitir manual hoy
+
+// Umbrales SICC v9.6.2 (Protección de Host de 4 núcleos)
+const CPU_ALERT_THRESHOLD = 0.80;    // 80% → El Dreamer debe entrar en pausa (Modo Siesta)
+const CPU_CRITICAL_THRESHOLD = 0.95; // 95% → Bloqueo total (Inferencia rechazada)
 
 function isWeekend() {
   const now = new Date();
