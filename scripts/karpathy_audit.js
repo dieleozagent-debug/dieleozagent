@@ -21,6 +21,9 @@ const SOVEREIGN_INVARIANTS = [
     { rule: "NO_RBC", pattern: /RBC|ERTMS|Level 2/i, fix: "SICC PTC Virtual / Servidor Maestro" },
     { rule: "SOVEREIGN_NET", pattern: /GSM-R|Red Privada/i, fix: "Red Vital IP / TETRA" },
     { rule: "FIBER_SPEC", pattern: /G\.655|NZ-DSF/i, fix: "G.652.D (Backbone Soberano)" },
+    { rule: "SATELITE_MANDATE", pattern: /Microondas|Radioenlace/i, fix: "Satélite (Habilitación AT1 / Mayor Calidad S. 9.11)" },
+    { rule: "FENOCO_GATEWAY_REJECTION", pattern: /Gateway FENOCO|Pasarela Lógica/i, fix: "Material Rodante (Bien Revertible S. 3.3.c) - Stop & Switch" },
+    { rule: "FINANCIAL_PADLOCK", pattern: /Obra Complementaria|Desarrollo Adicional/i, fix: "Bloqueo Preoperativo (Sección 25.4.f) - Fondeo Externo Requerido" },
     { rule: "BLOCK_LEGACY", pattern: /Canton Fijo|Bloque Fijo|Eurobaliza/i, fix: "Canton Virtual / Baliza Virtual (GNSS)" },
     { rule: "POWER_LEGACY", pattern: /Circuitos de Via (?!PaN)/i, fix: "Contadores de Ejes SIL-4 / Radar" }
 ];
