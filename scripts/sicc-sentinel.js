@@ -11,13 +11,14 @@ const { llamarMultiplexadorFree, registrarBloqueoSICC } = require('../src/agent'
 const { enviarAlerta } = require('../src/notifications');
 
 const INGESTOR_PATH = path.join(__dirname, '../src/ingest_masivo.js');
+const DATA_DIR = '/home/administrador/docker/agente/Contrato pdf';
 const LOG_PATH = path.join(__dirname, '../data/logs/sentinel-audit.log');
 
 async function sentinelLoop() {
     console.log('🛡️ [SENTINEL] Iniciando Guardia Autónoma (Costo 0)...');
     
-    // 1. Ejecutar Ingestor Masivo
-    const child = spawn('node', [INGESTOR_PATH], {
+    // 1. Ejecutar Ingestor Masivo con la ruta del HOST
+    const child = spawn('node', [INGESTOR_PATH, DATA_DIR], {
         env: { ...process.env, NODE_ENV: 'production' }
     });
 
