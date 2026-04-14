@@ -50,17 +50,27 @@ async function run() {
 
         for (const fullPath of archivos) {
             const archivo = path.basename(fullPath);
+            const checkpointFile = fullPath + '.checkpoint';
             console.log(`\n📄 [PROTOCOLO-RECURSIVO] Procesando: ${archivo}...`);
             
+            let startFrom = 1;
+            if (fs.existsSync(checkpointFile)) {
+                startFrom = parseInt(fs.readFileSync(checkpointFile, 'utf8')) + 1;
+                console.log(`   📝 Checkpoint detectado. Reanudando desde página ${startFrom}.`);
+            }
+
             try {
                 const info = execSync(`pdfinfo "${fullPath}"`, { maxBuffer: MAX_BUF }).toString();
                 const pagesMatch = info.match(/Pages:\s+(\d+)/);
                 const totalPages = pagesMatch ? parseInt(pagesMatch[1]) : 0;
                 console.log(`   📊 Documento con ${totalPages} páginas.`);
 
-                if (totalPages === 0) continue;
+                if (totalPages === 0 || startFrom > totalPages) {
+                    console.log(`   ⏭️ Saltando documento (ya procesado o vacío).`);
+                    continue;
+                }
 
-                for (let startPage = 1; startPage <= totalPages; startPage += BATCH_SIZE) {
+                for (let startPage = startFrom; startPage <= totalPages; startPage += BATCH_SIZE) {
                     const endPage = Math.min(startPage + BATCH_SIZE - 1, totalPages);
                     
                     // AISLAMIENTO: Crear carpeta única para este lote
@@ -115,6 +125,11 @@ async function run() {
                                 console.error(`\n      ❌ Fallo en página ${pageNum}: ${err.message}`);
                             }
                         }
+                        
+                        // ✅ GUARDAR CHECKPOINT tras éxito de lote
+                        fs.writeFileSync(checkpointFile, endPage.toString());
+                        console.log(`\n   💾 Checkpoint actualizado: pág ${endPage}`);
+
                         fs.rmSync(batchDir, { recursive: true, force: true });
                         
                     } catch (err) {

@@ -106,34 +106,38 @@ console.log(`[BOT] 🤖 ${config.agent.name} iniciado (v8.7). Esperando mensajes
 console.log(`[BOT] 🔒 Solo responde al usuario ID: ${config.telegram.userId}`);
 
 // ── Heartbeat periódico (cada 30 minutos) ─────────────────────────────────────
-setInterval(async () => {
-  console.log('[HEARTBEAT] ⏰ Revisión periódica...');
-  const tareas = leerHeartbeat();
-  if (tareas.length > 0) {
-    const lista = tareas.map(t => `• *${t.nombre}:* ${t.descripcion}`).join('\n');
-    try {
-      await safeSendMessage(config.telegram.userId,
-        `⏰ *Heartbeat — Tareas pendientes:*\n\n${lista}`
-      );
-    } catch (err) {
-      console.warn(`[HEARTBEAT] ⚠️ ${err.message}`);
-    }
-  }
-}, 30 * 60 * 1000);
+// HEARTBEAT REDUNDANTE ELIMINADO V9.13
 
 // ── Programador de Tareas Interno (Unificación de Autonomía) ────────────────
 const BOGOTA_TZ = 'America/Bogota';
 
-// 1. Vigilia Michelin (08:00 AM) - Reporte Consolidado Institucional
+// 1. Vigilia Michelin (08:00 AM) - Reporte Consolidado Institucional Dinámico
 cron.schedule('00 08 * * *', async () => {
-  console.log('[CRON] 🛰️ Iniciando Vigilia Michelin y Reporte Forense (8:00 AM)...');
+  console.log('[CRON] 🛰️ Iniciando Vigilia Michelin Dinámica (8:00 AM)...');
   try {
     const { enviarVigilia } = require('./agent');
+    const { pool } = require('./supabase');
+    const { execSync } = require('child_process');
+    
+    // Obtener Clima Dinámico
+    let climaReal = '14°C (Nublado)';
+    try {
+        climaReal = execSync('curl -s "https://wttr.in/Bogota?format=3"', { encoding: 'utf8' }).trim();
+    } catch (e) { console.warn('[CRON] Error obteniendo clima'); }
+
+    // Obtener Conteo de Brain
+    let brainCount = 'Desconocido';
+    try {
+        const res = await pool.query('SELECT count(*) FROM contrato_documentos');
+        brainCount = res.rows[0].count;
+    } catch (e) { console.warn('[CRON] Error obteniendo conteo de fragmentos'); }
+
     const resumenAudit = await obtenerResumenForense();
     const msgVigilia = await enviarVigilia();
     
     const reporteCompleto = `🌅 *REPORTE MATUTINO SICC — ${new Date().toLocaleDateString()}*\n\n` +
-      `🌤️ ${resumenAudit.clima}\n\n` +
+      `🌤️ *Clima:* ${climaReal}\n` +
+      `🧠 *Brain Pureness:* ${brainCount} fragmentos\n\n` +
       `${resumenAudit.crossRefReporte}\n` +
       `${resumenAudit.zeroResidueReporte}\n\n` +
       `--- \n` +
@@ -141,7 +145,7 @@ cron.schedule('00 08 * * *', async () => {
       `🛰️ *Dictamen de Vigilia Nocturna:*\n${msgVigilia}`;
 
     await safeSendMessage(config.telegram.userId, reporteCompleto);
-    console.log('[CRON] ✅ Reporte Institucional consolidado enviado.');
+    console.log('[CRON] ✅ Reporte Institucional dinámico enviado.');
   } catch (err) {
     console.error('[CRON] ❌ Error en Reporte Matutino:', err.message);
   }
@@ -171,21 +175,16 @@ cron.schedule('0 16,20,00 * * 5', ejecutarCicloNocturno, { timezone: BOGOTA_TZ }
 cron.schedule('0 */04 * * 6,0', ejecutarCicloNocturno, { timezone: BOGOTA_TZ }); // Sáb-Dom Continuo (cada 4h)
 cron.schedule('0 02,05 * * 1', ejecutarCicloNocturno, { timezone: BOGOTA_TZ });   // Cierre Lunes AM
 
-// 3. Backup Automatizado SICC (03:00 AM)
-cron.schedule('0 03 * * *', () => {
-  const ts = new Date().toISOString().split('T')[0];
-  const backupFile = `/app/data/backups/sicc_backup_${ts}.tar.gz`;
-  const backupDir = path.join(config.paths.data, 'backups');
-  
-  if (!fs.existsSync(backupDir)) fs.mkdirSync(backupDir, { recursive: true });
-
-  console.log(`[BACKUP] 📂 Iniciando respaldo diario SICC: ${backupFile}`);
-  exec(`tar -czf ${backupFile} -C /app data/brain data/memory data/logs`, async (error) => {
+// 3. Backup Automatizado SICC (06:00 AM) - Después de la Guardia
+cron.schedule('00 06 * * *', () => {
+  console.log('[BACKUP] 📂 Iniciando respaldo soberano SICC (06:00 AM)...');
+  exec(`bash scripts/sicc-backup.sh`, async (error, stdout, stderr) => {
     if (error) {
       console.error('[BACKUP] ❌ Error en backup:', error.message);
+      await safeSendMessage(config.telegram.userId, `🚨 *FALLO DE RESPALDO SICC*\n\nError: ${error.message}`);
     } else {
       console.log('[BACKUP] ✅ Respaldo completado exitosamente.');
-      await safeSendMessage(config.telegram.userId, `📦 *SICC Backup Completo*\nFecha: ${ts}\nUbicación: \`/app/data/backups/\``);
+      // Omitimos mensaje diario para reducir ruido, solo logueamos. Si falla, avisará.
     }
   });
 }, { timezone: BOGOTA_TZ });
@@ -213,15 +212,14 @@ cron.schedule('0 * * * *', async () => {
   }
 }, { timezone: BOGOTA_TZ });
 
-// ── Monitor de Bloqueos de Misión [TAREA 3] ─────────────────────────────────
+// ── Monitor de Bloqueos Críticos (Inmediato ante fallo) ─────────────────────
 setInterval(async () => {
   if (EstadoGlobalErrores.bloqueos.size > 0) {
     const list = Array.from(EstadoGlobalErrores.bloqueos).join(', ');
-    console.error(`[GUARD] 🚨 BLOQUEO CRÍTICO ACTIVO: ${list}`);
+    console.error(`[GUARD] 🚨 EVENTO CRÍTICO DETECTADO: ${list}`);
     await safeSendMessage(config.telegram.userId, 
-      `🚨 *SICC BLOCKER DETECTADO*\n\nSe han detectado errores críticos de infraestructura o cuota (${list}).\nEl sistema requiere intervención manual o firma para escalar a modelos de pago.`
+      `🚨 *SICC CRITICAL EVENT*\n\nSe ha detectado un bloqueo de infraestructura (${list}).\nEl sistema requiere atención inmediata para continuar la misión.`
     );
-    // Limpiamos bloqueos tras notificar para evitar spam, pero el log de salud los retendrá
     EstadoGlobalErrores.bloqueos.clear();
   }
 }, 30 * 60 * 1000); // Revisión cada 30 min alineada con Heartbeat
