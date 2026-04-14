@@ -3,6 +3,8 @@ services:
     build: .
     container_name: opengravity-agente
     restart: unless-stopped
+    command: bash ./scripts/night-shift.sh
+
     env_file:
       - .env
     environment:
