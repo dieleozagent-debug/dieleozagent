@@ -24,6 +24,9 @@ const SOVEREIGN_INVARIANTS = [
     { rule: "SATELITE_MANDATE", pattern: /Microondas|Radioenlace/i, fix: "Satélite (Habilitación AT1 / Mayor Calidad S. 9.11)" },
     { rule: "FENOCO_GATEWAY_REJECTION", pattern: /Gateway FENOCO|Pasarela Lógica/i, fix: "Material Rodante (Bien Revertible S. 3.3.c) - Stop & Switch" },
     { rule: "FINANCIAL_PADLOCK", pattern: /Obra Complementaria|Desarrollo Adicional/i, fix: "Bloqueo Preoperativo (Sección 25.4.f) - Fondeo Externo Requerido" },
+    { rule: "CATENARY_REJECTION", pattern: /Catenaria|Electrificación Futura|Tracción Eléctrica/i, fix: "Tracción Diésel-Eléctrica (Sin previsión de Catenaria - Dictamen 2026-04-13)" },
+    { rule: "AUTONOMY_LIMIT", pattern: /8 horas|48 horas|Radiación nula/i, fix: "Máximo 4 Horas (DBCD V002 / Optimización CAPEX)" },
+    { rule: "NORMATIVE_FRONT", pattern: /RETIE.*Locomotora|RETIE integral/i, fix: "FRA 49 CFR Parte 236 (RETIE solo para cables)" },
     { rule: "BLOCK_LEGACY", pattern: /Canton Fijo|Bloque Fijo|Eurobaliza/i, fix: "Canton Virtual / Baliza Virtual (GNSS)" },
     { rule: "POWER_LEGACY", pattern: /Circuitos de Via (?!PaN)/i, fix: "Contadores de Ejes SIL-4 / Radar" }
 ];

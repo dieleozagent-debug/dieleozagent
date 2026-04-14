@@ -13,7 +13,7 @@ services:
       # Datos persistentes del agente (memoria, logs)
       - /home/administrador/data-agente:/app/data
       # Sincronización del cerebro (Brain as Code)
-      - /home/administrador/docker/agente/brain:/app/data/brain
+      - /home/administrador/docker/agente/brain:/app/brain
       # Repo LFC2 montado como espacio de trabajo del agente
       - /home/administrador/docker/LFC2:/app/repos/LFC2
       # Mapeo de código y scripts para desarrollo y herramientas

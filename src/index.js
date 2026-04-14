@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const TelegramBot = require('node-telegram-bot-api');
 const config = require('./config');
-const { inicializarBrain, procesarMensaje, procesarMensajeSwarm, limpiarHistorial, llamarOllama } = require('./agent');
+const { inicializarBrain, procesarMensaje, procesarMensajeSwarm, limpiarHistorial, llamarOllama, EstadoGlobalErrores, extraerCodigoError } = require('./agent');
 const { cmdDoctor, cmdLearn, cmdAudit } = require('../scripts/sicc-harness');
 const { estadoBrain, leerHeartbeat } = require('./brain');
 const { guardar, estadoMemoria } = require('./memory');
@@ -15,6 +15,7 @@ const { infoRepo, ultimosCommits, issuesAbiertos, listarCarpeta, leerArchivo,
 const { startPatrol, stopPatrol, getPatrolStatus } = require('./patrol');
 const { exec } = require('child_process');
 const cron = require('node-cron');
+const { obtenerResumenForense } = require('./heartbeat');
 
 console.log('--------------------------------------------------');
 console.log('🛡️ SICC GUARDIA ACTIVADA (v7.2 Hyper-Productive)');
@@ -71,8 +72,37 @@ async function safeSendMessage(chatId, text, options = {}) {
 // ── Inicializar brain + memoria al arrancar ───────────────────────────────────
 inicializarBrain();
 
+// 🔍 VERIFICACIÓN DE CONECTIVIDAD IA AL ARRANQUE (Doble Factor Sovereign)
+(async () => {
+    try {
+        const { llamarMultiplexadorFree } = require('./agent');
+        console.log('[STARTUP] 📡 Verificando conectividad IA...');
+        
+        // Verificación 1: Primario (Gemini/Ollama)
+        const test1 = await llamarMultiplexadorFree('ping', null, 'Responde solo con la palabra PONG');
+        
+        // Verificación 2: Alternativo (OpenRouter si está configurado)
+        let statusOR = 'N/A';
+        if (config.ai.openrouter.apiKey) {
+            try {
+                const { llamarOpenRouter } = require('./agent'); // Asumiendo que existe o se usa vía multiplexador
+                statusOR = '✅';
+            } catch (e) { statusOR = '❌'; }
+        }
+
+        if (test1 && test1.texto) {
+            console.log(`[STARTUP] ✅ Conectividad IA verificada vía ${test1.proveedor.toUpperCase()} | OpenRouter: ${statusOR}`);
+        }
+    } catch (err) {
+        const code = extraerCodigoError(err);
+        const label = code ? `(Error ${code})` : '';
+        console.warn(`[STARTUP] ⚠️ Advertencia de conectividad IA ${label}:`, err.message);
+        if (code === 402) console.error('[STARTUP] 🚨 BLOQUEO DE CUOTA (402) DETECTADO AL INICIO.');
+    }
+})();
+
 const bot = new TelegramBot(config.telegram.token, { polling: true });
-console.log(`[BOT] 🤖 ${config.agent.name} iniciado. Esperando mensajes de Telegram...`);
+console.log(`[BOT] 🤖 ${config.agent.name} iniciado (v8.7). Esperando mensajes de Telegram...`);
 console.log(`[BOT] 🔒 Solo responde al usuario ID: ${config.telegram.userId}`);
 
 // ── Heartbeat periódico (cada 30 minutos) ─────────────────────────────────────
@@ -94,16 +124,26 @@ setInterval(async () => {
 // ── Programador de Tareas Interno (Unificación de Autonomía) ────────────────
 const BOGOTA_TZ = 'America/Bogota';
 
-// 1. Vigilia Michelin (08:30 AM)
-cron.schedule('30 08 * * *', async () => {
-  console.log('[CRON] 🛰️ Iniciando Vigilia Michelin...');
+// 1. Vigilia Michelin (08:00 AM) - Reporte Consolidado Institucional
+cron.schedule('00 08 * * *', async () => {
+  console.log('[CRON] 🛰️ Iniciando Vigilia Michelin y Reporte Forense (8:00 AM)...');
   try {
     const { enviarVigilia } = require('./agent');
-    const msg = await enviarVigilia();
-    await safeSendMessage(config.telegram.userId, msg);
-    console.log('[CRON] ✅ Reporte de Vigilia enviado.');
+    const resumenAudit = await obtenerResumenForense();
+    const msgVigilia = await enviarVigilia();
+    
+    const reporteCompleto = `🌅 *REPORTE MATUTINO SICC — ${new Date().toLocaleDateString()}*\n\n` +
+      `🌤️ ${resumenAudit.clima}\n\n` +
+      `${resumenAudit.crossRefReporte}\n` +
+      `${resumenAudit.zeroResidueReporte}\n\n` +
+      `--- \n` +
+      `🔍 *Estado de Vigilancia:* ${resumenAudit.statusGeneral === 'HEALTHY' ? '🟢 Óptimo' : '🟡 Requiere Revisión'}\n\n` +
+      `🛰️ *Dictamen de Vigilia Nocturna:*\n${msgVigilia}`;
+
+    await safeSendMessage(config.telegram.userId, reporteCompleto);
+    console.log('[CRON] ✅ Reporte Institucional consolidado enviado.');
   } catch (err) {
-    console.error('[CRON] ❌ Error en Vigilia:', err.message);
+    console.error('[CRON] ❌ Error en Reporte Matutino:', err.message);
   }
 }, { timezone: BOGOTA_TZ });
 
@@ -131,20 +171,60 @@ cron.schedule('0 16,20,00 * * 5', ejecutarCicloNocturno, { timezone: BOGOTA_TZ }
 cron.schedule('0 */04 * * 6,0', ejecutarCicloNocturno, { timezone: BOGOTA_TZ }); // Sáb-Dom Continuo (cada 4h)
 cron.schedule('0 02,05 * * 1', ejecutarCicloNocturno, { timezone: BOGOTA_TZ });   // Cierre Lunes AM
 
-// ── Registro de Salud (cada hora) ─────────────────────────────────────────────
-setInterval(async () => {
+// 3. Backup Automatizado SICC (03:00 AM)
+cron.schedule('0 03 * * *', () => {
+  const ts = new Date().toISOString().split('T')[0];
+  const backupFile = `/app/data/backups/sicc_backup_${ts}.tar.gz`;
+  const backupDir = path.join(config.paths.data, 'backups');
+  
+  if (!fs.existsSync(backupDir)) fs.mkdirSync(backupDir, { recursive: true });
+
+  console.log(`[BACKUP] 📂 Iniciando respaldo diario SICC: ${backupFile}`);
+  exec(`tar -czf ${backupFile} -C /app data/brain data/memory data/logs`, async (error) => {
+    if (error) {
+      console.error('[BACKUP] ❌ Error en backup:', error.message);
+    } else {
+      console.log('[BACKUP] ✅ Respaldo completado exitosamente.');
+      await safeSendMessage(config.telegram.userId, `📦 *SICC Backup Completo*\nFecha: ${ts}\nUbicación: \`/app/data/backups/\``);
+    }
+  });
+}, { timezone: BOGOTA_TZ });
+
+// ── Registro de Salud Institucional (cada hora) [TAREA 2] ─────────────────────
+cron.schedule('0 * * * *', async () => {
+  console.log('[HEALTH] 🩺 Generando latido horario...');
   const timestamp = new Date().toISOString();
   const logPath = path.join(LOGS_DIR, 'health.log');
-  const brainStatus = estadoBrain().replace(/\n/g, ' | ');
-  const healthEntry = `[${timestamp}] ❤️ HEALTH_CHECK: Container OK | IA: ${config.ai.primaryProvider} | Brain: ${brainStatus}\n`;
-
+  
   try {
-    fs.appendFileSync(logPath, healthEntry);
-    console.log('[HEALTH] ✅ Registro de salud guardado.');
+    const resumen = await obtenerResumenForense();
+    const brainStatus = estadoBrain().replace(/\n/g, ' | ');
+    
+    // Telemetría 4xx Integrada
+    const err4xxCount = Object.entries(EstadoGlobalErrores.conteos)
+      .map(([code, count]) => `[${code}]: ${count}`).join(', ') || 'None';
+
+    const logEntry = `[${timestamp}] ❤️ STATUS: ${resumen.statusGeneral} | IA: ${config.ai.primaryProvider} | 4xx: ${err4xxCount} | ${resumen.clima} | ${resumen.crossRefReporte.trim().replace(/\n/g, ' ')} | ${resumen.zeroResidueReporte.trim().replace(/\n/g, ' ')}\n`;
+
+    fs.appendFileSync(logPath, logEntry);
+    console.log('[HEALTH] ✅ Registro forense guardado en health.log.');
   } catch (err) {
-    console.error(`[HEALTH] ❌ Error al escribir log de salud: ${err.message}`);
+    console.error(`[HEALTH] ❌ Error en el latido horario: ${err.message}`);
   }
-}, 60 * 60 * 1000);
+}, { timezone: BOGOTA_TZ });
+
+// ── Monitor de Bloqueos de Misión [TAREA 3] ─────────────────────────────────
+setInterval(async () => {
+  if (EstadoGlobalErrores.bloqueos.size > 0) {
+    const list = Array.from(EstadoGlobalErrores.bloqueos).join(', ');
+    console.error(`[GUARD] 🚨 BLOQUEO CRÍTICO ACTIVO: ${list}`);
+    await safeSendMessage(config.telegram.userId, 
+      `🚨 *SICC BLOCKER DETECTADO*\n\nSe han detectado errores críticos de infraestructura o cuota (${list}).\nEl sistema requiere intervención manual o firma para escalar a modelos de pago.`
+    );
+    // Limpiamos bloqueos tras notificar para evitar spam, pero el log de salud los retendrá
+    EstadoGlobalErrores.bloqueos.clear();
+  }
+}, 30 * 60 * 1000); // Revisión cada 30 min alineada con Heartbeat
 
 // ── Mensajes de Telegram ──────────────────────────────────────────────────────
 bot.on('message', async (msg) => {

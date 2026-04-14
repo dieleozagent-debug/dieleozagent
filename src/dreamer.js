@@ -34,15 +34,16 @@ async function ejecutarSueno(especialidad) {
         ? fs.readFileSync(NOTEBOOK_THOUGHTS, 'utf8').substring(0, 5000) 
         : '';
 
-    // 🏭 FASE 0: FACTORÍA DE PEONES (Minería Paralela)
-    console.log(`[DREAMER] 🏭 Activando Factoría de Peones para extraer ADN contractual...`);
-    const factoryReport = await ejecutarFactoriaPeones(especialidad, pensamientosBase);
-    
-    let hipotesisActual = `Revisión forense de la especialidad: ${especialidad}.\n\n` +
-                          `${factoryReport}\n\n` +
-                          `Objetivo: Eliminar impurezas Nivel 16 y optimizar CAPEX mediante N-1.`;
+    try {
+        // 🏭 FASE 0: FACTORÍA DE PEONES (Minería Paralela)
+        console.log(`[DREAMER] 🏭 Activando Factoría de Peones para extraer ADN contractual...`);
+        const factoryReport = await ejecutarFactoriaPeones(especialidad, pensamientosBase);
+        
+        let hipotesisActual = `Revisión forense de la especialidad: ${especialidad}.\n\n` +
+                              `${factoryReport}\n\n` +
+                              `Objetivo: Eliminar impurezas Nivel 16 y optimizar CAPEX mediante N-1.`;
 
-    const numPasses = parseInt(process.env.KARPATHY_PASSES) || 5; // Reducimos pasadas ya que el peón ya minó datos
+        const numPasses = parseInt(process.env.KARPATHY_PASSES) || 5; 
     
     // 🔄 BUCLE DE KARPATHY (PEONES FREE)
     for (let i = 1; i <= numPasses; i++) {
@@ -88,8 +89,8 @@ async function ejecutarSueno(especialidad) {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     
     if (finalVeredict.includes('BLOCKER:')) {
-        console.warn(`[DREAMER] 🚨 Bloqueo detectado. Generando reporte de Blocker...`);
-        const blockerFileName = `BLOCKER-${especialidad.replace(/ /g, '_')}-${timestamp}.md`;
+        const safeSubject = especialidad.replace(/[^a-z0-9]/gi, '_').substring(0, 100);
+        const blockerFileName = `BLOCKER-${safeSubject}-${timestamp}.md`;
         const blockerPath = path.join(BLOCKER_DIR, blockerFileName);
         
         const blockerDoc = `
@@ -111,7 +112,8 @@ Los peones intentaron resolver esto durante ${numPasses} iteraciones pero el Ase
     }
 
     // 🏺 DECANTACIÓN FINAL
-    const fileName = `DT-DREAM-${especialidad.replace(/ /g, '_')}-${timestamp}.md`;
+    const safeSubject = especialidad.replace(/[^a-z0-9]/gi, '_').substring(0, 100);
+    const fileName = `DT-DREAM-${safeSubject}-${timestamp}.md`;
     const finalPath = path.join(PENDING_DIR, fileName);
 
     const docFinal = `
@@ -133,6 +135,11 @@ ${finalVeredict}
     // Actualizar Dashboard y Notificar
     await actualizarDashboard(especialidad, '✅ ÉXITO', fileName);
     await enviarAlerta(`🏺 *SICC DT GENERADA*\n\n*Especialidad:* ${especialidad}\n*Archivo:* \`${fileName}\``);
+    } catch (err) {
+        console.error(`[DREAMER] ❌ Error fatal en ciclo de sueño: ${err.message}`);
+        await actualizarDashboard(especialidad, '🚨 ERROR FATAL', err.message);
+        await enviarAlerta(`🚨 *ERROR FATAL EN DREAMER*\n\n*Especialidad:* ${especialidad}\n\n*Error:* ${err.message}`);
+    }
 }
 
 /**

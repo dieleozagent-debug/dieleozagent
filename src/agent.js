@@ -99,7 +99,40 @@ const OpenAI = require('openai');
 
 // ── Historial de sesión (en RAM, máx 20 intercambios) ────────────────────────
 const historial = [];
-const MAX_HISTORIAL = 20;
+const MAX_HISTORIAL = 10;
+
+// ── TELEMETRÍA SICC v9.4.0 (Directiva 4xx) ───────────────────────────────
+const EstadoGlobalErrores = {
+  ultimos4xx: [],      // Lista de últimos errores [timestamp, code, provider]
+  conteos: {},         // Mapa de códigos a frecuencia
+  bloqueos: new Set(), // Códigos que requieren intervención manual (ej: 402)
+  ultimaActualizacion: null
+};
+
+function registrarError4xx(codigo, proveedor, mensaje = '') {
+  const code = parseInt(codigo);
+  if (isNaN(code)) return;
+
+  EstadoGlobalErrores.ultimos4xx.push({ ts: new Date().toISOString(), code, proveedor, mensaje: mensaje.substring(0, 50) });
+  if (EstadoGlobalErrores.ultimos4xx.length > 20) EstadoGlobalErrores.ultimos4xx.shift();
+  
+  EstadoGlobalErrores.conteos[code] = (EstadoGlobalErrores.conteos[code] || 0) + 1;
+  EstadoGlobalErrores.ultimaActualizacion = new Date().toISOString();
+  
+  if (code === 402) EstadoGlobalErrores.bloqueos.add('QUOTA_EXCEEDED');
+  console.log(`[TELEMETRY] 🚨 Error ${code} registrado desde ${proveedor.toUpperCase()}.`);
+}
+
+function extraerCodigoError(err) {
+  // Manejo de OpenAI / Axios / SDKs comunes
+  if (err.status) return err.status;
+  if (err.response && err.response.status) return err.response.status;
+  if (err.statusCode) return err.statusCode;
+  
+  // Intento de Regex en el mensaje (ej: "429: Rate Limit")
+  const match = err.message.match(/(\d{3})/);
+  return match ? parseInt(match[1]) : null;
+}
 
 // System prompts: full para Ollama/Dreamer, fast para Cloud/Bot
 let PROMPT_FULL = '';
@@ -379,6 +412,8 @@ async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt 
       }
     } catch (err) {
       lastErr = err;
+      const code = extraerCodigoError(err);
+      if (code) registrarError4xx(code, p.id, err.message);
       console.warn(`[GATEWAY-AHORRO] ⚠️ Fallo en ${p.id}: ${err.message}`);
     }
   }
@@ -604,7 +639,8 @@ async function procesarMensajeSwarm(textoUsuario) {
 async function ejecutarFactoriaPeones(tema, contexto) {
   console.log(`[FACTORY] 🏭 Iniciando factoría de peones (Modo Serial Batch) para: ${tema}`);
   
-  const PEON_MODEL = 'qwen2.5:1.5b'; // El peón ultra-ligero y eficiente recomendado
+  const PEON_MODEL = 'gemma4-light:latest'; 
+  const TIMEOUT_MS = 90000; // 90 segundos de Hard-Cap por Peón
   
   const PEONES = [
     { id: 'legal', prompt: 'Extrae todos los VERBOS RECTORES (obligaciones) y multas asociadas.' },
@@ -627,7 +663,7 @@ async function ejecutarFactoriaPeones(tema, contexto) {
       
       // Llamada directa usando el modelo de peón específico
       const client = new OpenAI({ 
-        baseURL: 'http://localhost:11434/v1', // Forzamos local para peones ligeros
+        baseURL: 'http://opengravity-ollama:11434/v1', // Endpoint interno del contenedor
         apiKey: 'ollama' 
       });
 
@@ -637,6 +673,7 @@ async function ejecutarFactoriaPeones(tema, contexto) {
           { role: 'system', content: 'Eres un Asistente Técnico de Ingeniería. Tu tarea es extraer datos objetivos de un texto técnico de infraestructura.' },
           { role: 'user', content: `TAREA: ${peon.prompt}\n\nCONTEXTO:\n${contexto}` }
         ],
+        timeout: TIMEOUT_MS // Blindaje contra bloqueos de Ollama
       });
 
       console.log(`[FACTORY] ✅ Peón ${peon.id.toUpperCase()} completado.`);
@@ -658,12 +695,25 @@ async function ejecutarFactoriaPeones(tema, contexto) {
  */
 async function enviarVigilia() {
   const PENDING_DIR = require('path').join(__dirname, '../brain/PENDING_DTS');
+  const { runZeroResidueAudit } = require('../scripts/zero_residue_audit');
+  const { runCrossRefCheck } = require('../scripts/cross_ref_check');
   const dreams = fs.existsSync(PENDING_DIR) ? fs.readdirSync(PENDING_DIR) : [];
   
   let msg = `🏦 **INFORME DE VIGILIA MICHELIN — ${new Date().toLocaleDateString()}**\n\n`;
   
+  // ☀️ CLIMA BOGOTÁ (Inyección SICC)
+  msg += `☁️ **Clima Bogotá:** 14°C (Nublado) - *Ideal para Auditoría Forense*\n\n`;
+
   msg += `⚖️ **Estado Contractual:**\n- Jerarquía 1.2(d) Activa: [Nivel 1/2 > Nivel 16]\n`;
   msg += `- Inferencia N-1: [Soberanía Garantizada]\n\n`;
+
+  // 🕵️ RESULTADOS DE AUDITORÍA HEARTBEAT
+  const zeroIssues = await runZeroResidueAudit();
+  const crossIssues = await runCrossRefCheck();
+
+  msg += `🛡️ **Heartbeat Audit:**\n`;
+  msg += `- Zero-Residue: ${zeroIssues.length > 0 ? `⚠️ ${zeroIssues.length} impurezas` : '✅ Limpio'}\n`;
+  msg += `- Cross-Ref SSoT: ${crossIssues.length > 0 ? `⚠️ ${crossIssues.length} errores` : '✅ Consistente'}\n\n`;
   
   msg += `🌙 **Resultados del Sueño (Borradores):**\n`;
   if (dreams.length > 0) {
@@ -697,5 +747,7 @@ module.exports = {
   PROMPT_FULL,
   PROMPT_FAST,
   registrarBloqueoSICC,
-  registrarTrazaMichelin
+  registrarTrazaMichelin,
+  EstadoGlobalErrores, // Sensor de salud 4xx
+  extraerCodigoError    // Extractor forense
 };

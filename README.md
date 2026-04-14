@@ -33,36 +33,33 @@ agente/
 
 ---
 
--   **Protocolo de Gobernanza v9.4.0 (Morning Digest):** 
+-   **Protocolo de Gobernanza v9.9 (Night Shift):** 
     - **Muro de Fuego de Sonnet:** Escalación automática prohibida. Alertas Rojas inmediatas ante bloqueo de CAPEX.
     - **Búfer Michelin:** Los hallazgos forenses no críticos se encolan en `data/logs/michelin-findings.json`.
     - **Digest Consolidado:** Notificación única en Telegram con la síntesis de hallazgos para revisión ejecutiva.
     - **Trazabilidad Michelin:** Registro obligatorio de trazas para auditar el uso del ADN del cerebro.
 -   **Sequential Swarm**: Debate multi-agente forense optimizado (Auditor vs Director).
--   **SICC Factory Mode**: Minería serial con enfriamiento de CPU y Peones ultra-ligeros.
--   **Digital Dashboard**: Tablero `brain/SICC_OPERATIONS.md` para gestión centralizada de Blockers y DTs.
+-   **SICC Factory Mode**: Minería serial con enfriamiento
+### 3. SICC Dreamer (Autonomía de Saneamiento)
+- **Ciclo Night Shift:** Ráfagas técnicas de **10 minutos por hora**.
+- **Orquestador:** Gestionado por `scripts/night-shift.sh` y `scripts/sicc-sentinel.js`.
+- **Misión N-1:** El Dreamer está facultado para redactar DTs de supresión masiva basadas en los hallazgos del reporte RED y la Biblia Legal.
 
 ---
 
-## 🛠️ Instalación y Despliegue
+## 🛡️ Capacidades de Soberanía v9.9 (The Night Shift)
 
-### 1. Variables de Entorno (.env)
-Asegúrate de configurar `AI_PRIMARY_PROVIDER=groq` y las claves correspondientes para evitar cuellos de botella por rate-limiting en Gemini.
+### 1. SICC Sentinel & Autonomous Self-Healing
+El Centinela (`sicc-sentinel.js`) monitorea la ingesta masiva 24/7. Ante errores (429, 500, timeouts), utiliza el Multiplexador Free para autodiagnosticarse y aplicar parches de configuración sin intervención humana.
 
-### 2. Levantar con Docker
-
-```bash
-cd /home/administrador/docker/agente
-docker compose up -d --build
-```
-
-### 3. Sincronización de Repositorios
-
-Cada repositorio es independiente. Tras cambios en el cerebro o entregables, utiliza `git push` en sus respectivas carpetas para mantener la nube actualizada.
+### 2. Guardia Nocturna Perpetua
+Orquestación mediante bucles infinitos que combinan la ingesta de la "Biblia Legal" con periodos de decantación técnica intensa (Sueño).
+- **Ruta de la Verdad (PDFs):** `/home/administrador/docker/agente/Contrato pdf/`
+- **Registro de Autonomía:** `data/logs/night-shift.log` y `brain/SICC_OPERATIONS.md`.
 
 ---
-
-## 🌀 Protocolos Operativos (Slash Commands Telegram)
+v9.9 Michelin "Night Shift Edition" — 14/04/2026
+Operativos (Slash Commands Telegram)
 
 -   `/ollama [prompt]`: **[Soberano]** Ejecuta Inferencia Directa con el servidor local.
 -   `/cmd [comando]`: **[Soberano]** Interfaz de consola remota para ejecución shell pura.

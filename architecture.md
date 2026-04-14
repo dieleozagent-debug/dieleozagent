@@ -56,5 +56,27 @@ Script `sicc-sweep.js` y lógica de `agent.js` para ejecutar auditorías recursi
 ### 2. Flujo Asimétrico (Ejecutor + Asesor)
 Uso de modelos rápidos (Peones) para el bulto del trabajo y escalado a modelos de alta inteligencia (Asesores) solo para decantación y bloqueos críticos. Generación automática de **Blockers** para razonamiento conjunto Diego-Agente.
 
+### 3. SICC Sentinel (Auto-Saneamiento v1.0)
+El `sicc-sentinel.js` actúa como un "wrapper" inteligente sobre el motor de ingesta masiva.
+- **Detección:** Captura errores 429, 500 y de sistema (PDFinfo/PDFTOPPM).
+- **Inferencia:** Consulta al Multiplexador Free (OpenRouter/Groq/Google) para obtener diagnósticos de "Costo $0".
+- **Reparación:** Capacidad de aplicar cambios de configuración y re-intentar la ingesta automáticamente.
+
 ---
-v8.8.1 Michelin "Factory Edition" — 13/04/2026
+
+## 🌙 Arquitectura de Guardia Nocturna (The Night Shift)
+
+```mermaid
+graph TD
+    A[Cron/Bucle Infinito] --> B{Centinela Sentinel}
+    B -->|Logs OK| C[Ingesta Masiva Biblia Legal]
+    B -->|Fallo| D[Diagnóstico AI Costo 0]
+    D -->|Fix Sugerido| E[Aplicar Parche & Retry]
+    C --> F[Rafaga de Sueño 10 min]
+    F --> G[Decantación Técnica DTs]
+    G --> H[Vigilia Morning Digest 08:30]
+    H --> A
+```
+
+---
+v9.9 Michelin "Night Shift Edition" — 14/04/2026
