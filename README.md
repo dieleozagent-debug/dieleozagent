@@ -1,4 +1,4 @@
-# 🤖 OpenGravity Agent — Ecosistema Soberano v9.4.0 (Morning Digest Edition)
+# 🤖 OpenGravity Agent — Ecosistema Soberano v12.2 "Paz Estructural"
 
 > **Stack:** Node.js · **Batch Factoría Serial v8.8** · **Qwen 2.5 1.5B (Host)** · Docker · **RED Protocol Engine**
 
@@ -6,7 +6,7 @@ OpenGravity es un **Agente de IA Autónomo y Auditor Transversal** diseñado par
 
 ---
 
-## 🏛️ Arquitectura Soberana — OpenGravity SICC v9.4.0 "Morning Digest"
+## 🏛️ Arquitectura Soberana — OpenGravity SICC v12.2 "Paz Estructural"
 
 El proyecto está dividido en tres unidades git independientes sincronizadas proactivamente:
 
@@ -47,18 +47,19 @@ agente/
 
 ---
 
-## 🛡️ Capacidades de Soberanía v9.9 (The Night Shift)
+## 🛡️ Capacidades de Soberanía v12.2 (Zero-Residue)
 
-### 1. SICC Sentinel & Autonomous Self-Healing
-El Centinela (`sicc-sentinel.js`) monitorea la ingesta masiva 24/7. Ante errores (429, 500, timeouts), utiliza el Multiplexador Free para autodiagnosticarse y aplicar parches de configuración sin intervención humana.
+### 1. Ingesta Manual Soberana
+El sistema ha erradicado los lanzadores automáticos ("Algo") y la persistencia agresiva. La ingesta es ahora un acto de voluntad humana:
+- **Telegram Command:** `/ingesta` (Lanza el motor resiliente v12.1).
+- **Control Forense:** El proceso se detiene o entra en backoff exponencial ante 429, nunca se reinicia sin mando.
 
-### 2. Guardia Nocturna Perpetua
-Orquestación mediante bucles infinitos que combinan la ingesta de la "Biblia Legal" con periodos de decantación técnica intensa (Sueño).
-- **Ruta de la Verdad (PDFs):** `/home/administrador/docker/agente/Contrato pdf/`
-- **Registro de Autonomía:** `data/logs/night-shift.log` y `brain/SICC_OPERATIONS.md`.
+### 2. Patrulla Pasiva (Passive Patrol)
+El agente monitorea el backlog y los archivos pendientes, pero tiene prohibido el auto-lanzamiento de tareas pesadas. El sistema permanece ocioso y silencioso hasta recibir una orden explícita.
+- **Registro de Silencio:** `data/logs/patrol.log`.
 
 ---
-v9.9 Michelin "Night Shift Edition" — 14/04/2026
+v12.2 "Zero Absolute" — 15/04/2026
 Operativos (Slash Commands Telegram)
 
 -   `/ollama [prompt]`: **[Soberano]** Ejecuta Inferencia Directa con el servidor local.
@@ -69,6 +70,7 @@ Operativos (Slash Commands Telegram)
 -   `/simulacion-sit`: Simula el impacto de cambios técnicos antes de ejecutarlos.
 -   `/sintesis-memoria`: Graba las lecciones de la sesión en `brain/DBCD_CRITERIA.md`.
 -   `/cerebro`: Verifica la integridad funcional de la identidad del agente.
+-   `/ingesta`: **[Manual]** Inicia el motor de ingesta masiva de la Biblia Legal con resiliencia v12.1.
 
 ---
 

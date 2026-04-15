@@ -1,4 +1,4 @@
-# 🏛️ Arquitectura Soberana — OpenGravity SICC v12.0 "Paz Estructural"
+# 🏛️ Arquitectura Soberana — OpenGravity SICC v12.2 "Paz Estructural"
 
 ## 🌌 Visión General
 
@@ -11,6 +11,7 @@ La arquitectura de **OpenGravity** v12.0 evoluciona hacia un modelo de **Nodo Ú
 -   **Soberanía de Construcción (Build-Purity):** Prohibición de inyectar scripts de persistencia en imágenes de Docker. El sistema se construye de forma estéril.
 -   **Resiliencia Interna (Internal Backoff):** Gestión nativa de errores `429 Too Many Requests` mediante backoff exponencial dentro del motor de Node.js.
 -   **Orquestación Consolidada:** Eliminación de archivos compose duplicados y servicios sidecar redundantes.
+-   **Patrulla Pasiva (Passive Patrol):** El agente observa el estado del backlog pero tiene prohibido el auto-lanzamiento (spawning) de procesos pesados sin una orden de ejecución explícita.
 
 ---
 
@@ -21,8 +22,8 @@ El motor `ingest_masivo.js` ahora gestiona su propia cuota de API.
 - **Backoff Exponencial:** Ante errores 429, el sistema espera tiempos incrementales (15s, 30s, 60s...) antes de reintentar.
 - **Concurrencia Balanceada:** Ajustada a `CONCURRENCY = 2` para garantizar flujo constante sin bloqueos.
 
-### 2. SICC Sentinel (Legacy - DEPRECATED)
-El antiguo `sicc-sentinel.js` y sus bucles de shell externos han sido erradicados para evitar la auto-regeneración alucinatoria y el spam de logs.
+### 2. SICC Sentinel (Legacy - ERADICATED)
+El antiguo `sicc-sentinel.js` y sus bucles de shell externos han sido erradicados. Se ha implementado una purga de nivel Root para eliminar crons ocultos y scripts zombis.
 
 ---
 
@@ -54,5 +55,9 @@ graph TD
 **Problema:** Usar bucles de shell `while true` para reiniciar procesos que fallan por cuota (429) garantiza un DoS self-inflicted.
 **Lección:** Los reintentos deben ser inteligentes y asíncronos en la capa de aplicación, no ciegos en la capa de sistema operativo.
 
+### 4. La Persistencia Modular Oculta (Root-Level)
+**Problema:** El spam sobrevivió a la limpieza de crontab porque estaba en `/etc/cron.d/sicc-persistence`, un archivo de configuración modular de sistema invisible para comandos de usuario estándar.
+**Lección:** En auditorías forenses, no basta con `crontab -l`. Se debe auditar `/etc/cron.*`, `/etc/systemd/system/` y `/usr/local/bin/` en busca de binarios parásitos.
+
 ---
-v12.0 "Paz Soberana" — 15/04/2026
+v12.2 "Paz Estructural" — 15/04/2026 (Certificado Zero-Residue)
