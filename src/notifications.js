@@ -12,7 +12,7 @@ const bot = new TelegramBot(config.telegram.token);
  */
 async function enviarAlerta(texto) {
   if (!config.telegram.token || !config.telegram.userId) {
-    console.warn('[NOTIFY] ⚠️ Configuración de Telegram incompleta. Alerta no enviada.');
+    console.warn('[NOTIFY] [SICC WARN] Configuración de Telegram incompleta. Alerta no enviada.');
     return;
   }
 
@@ -30,7 +30,7 @@ async function enviarAlerta(texto) {
       try {
         await bot.sendMessage(config.telegram.userId, chunk, { parse_mode: undefined });
       } catch (err2) {
-        console.error('[NOTIFY] ❌ Error enviando Telegram:', err2.message);
+        console.error('[NOTIFY] [SICC FAIL] Error enviando Telegram:', err2.message);
       }
     }
   }

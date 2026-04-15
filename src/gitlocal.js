@@ -25,7 +25,7 @@ function repoDisponible() {
 function pull() {
   if (!repoDisponible()) throw new Error('Repo LFC2 no está montado en /app/repos/LFC2');
   const resultado = exec('git pull origin main');
-  console.log(`[GIT] ✅ pull: ${resultado}`);
+  console.log(`[GIT] [SICC OK] pull: ${resultado}`);
   return resultado;
 }
 
@@ -65,7 +65,7 @@ function commitYPush(mensaje) {
   exec('git add -A');
   const commit = exec(`git commit -m "${mensaje.replace(/"/g, "'")}"`);
   const push   = exec('git push origin main');
-  console.log(`[GIT] ✅ commit+push: ${commit}`);
+  console.log(`[GIT] [SICC OK] commit+push: ${commit}`);
   return { commit, push };
 }
 
@@ -95,7 +95,7 @@ function escribirLocal(ruta, contenido) {
   const rutaCompleta = path.join(REPO_PATH, ruta);
   fs.mkdirSync(path.dirname(rutaCompleta), { recursive: true });
   fs.writeFileSync(rutaCompleta, contenido, 'utf8');
-  console.log(`[GIT] ✅ Archivo escrito: ${ruta}`);
+  console.log(`[GIT] [SICC OK] Archivo escrito: ${ruta}`);
 }
 
 module.exports = { repoDisponible, pull, status, log, diffStat, commitYPush, listarLocal, leerLocal, escribirLocal, REPO_PATH, REPO_NAME };

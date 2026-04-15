@@ -51,7 +51,7 @@ async function extraerTextoPDF(filePath) {
 
         return '';
     } catch (err) {
-        console.error(`[INGEST] ❌ Error total en ${path.basename(filePath)}: ${err.message}`);
+        console.error(`[INGEST] [SICC FAIL] Error total en ${path.basename(filePath)}: ${err.message}`);
         return '';
     }
 }
@@ -81,7 +81,7 @@ async function procesarArchivo(filePath) {
     }
 
     if (!contenido || contenido.trim().length < 20) {
-        console.warn(`[INGEST] ⚠️ Sin contenido legible en: ${nombreBase}`);
+        console.warn(`[INGEST] [SICC WARN] Sin contenido legible en: ${nombreBase}`);
         return;
     }
 
@@ -94,10 +94,10 @@ async function procesarArchivo(filePath) {
             await insertarFragmento(nombreBase, chunks[i], vector);
             if (i % 5 === 0) process.stdout.write('.');
         } catch (err) {
-            console.error(`\n[INGEST] ❌ Error en fragmento ${i}: ${err.message}`);
+            console.error(`\n[INGEST] [SICC FAIL] Error en fragmento ${i}: ${err.message}`);
         }
     }
-    console.log(`\n[INGEST] ✅ Éxito: ${nombreBase}`);
+    console.log(`\n[INGEST] [SICC OK] Éxito: ${nombreBase}`);
 }
 
 async function run() {

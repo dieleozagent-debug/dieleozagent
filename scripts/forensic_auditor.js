@@ -1,43 +1,44 @@
 /**
- * KARPATHY AUDIT PROTOCOL (SICC v8.0 "Punto 42")
- * Objetivo: Validación Contractual Sistémica (5 Fases).
+ * 🛡️ SICC FORENSIC AUDITOR (v12.0)
+ * Objetivo: Escaneo Determinístico de Pureza Contractual.
  * 
- * Filosofía: "Deducción N-1. Si no hay Verbo Rector en el AT, es excedente."
+ * Filosofía: "Si el Verbo Rector no existe en el AT, o si el término es Propietario, es Bloqueo."
  */
+
+'use strict';
 
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-
-// Conexión con el Búfer Michelin (v9.6.1)
+const config = require('../src/config');
 const { encolarHallazgo } = require('../src/digest');
 
-const REPO_ROOT = process.env.LFC2_ROOT || '/home/administrador/docker/LFC2';
+const REPO_ROOT = fs.existsSync(path.join(__dirname, '../brain')) ? path.join(__dirname, '../') : config.paths.lfc2;
 
-// 1. REGLAS MAESTRAS (SICC_METHODOLOGY_42_ALPHA)
+// 1. REGLAS MAESTRAS (Deducción N-1)
 const RECTOR_VERBS = ['instalar', 'instalará', 'operar', 'operará', 'mantener', 'mantendrá', 'suministrar', 'proveer'];
 
 const SOVEREIGN_INVARIANTS = [
     { rule: "NO_RBC", pattern: /RBC|ERTMS|Level 2/i, fix: "SICC PTC Virtual / Servidor Maestro" },
-    { rule: "SOVEREIGN_NET", pattern: /GSM-R|Red Privada/i, fix: "Red Vital IP / TETRA" },
-    { rule: "FIBER_SPEC", pattern: /G\.655|NZ-DSF/i, fix: "G.652.D (Backbone Soberano)" },
-    { rule: "SATELITE_MANDATE", pattern: /Microondas|Radioenlace/i, fix: "Satélite (Habilitación AT1 / Mayor Calidad S. 9.11)" },
-    { rule: "FENOCO_GATEWAY_REJECTION", pattern: /Gateway FENOCO|Pasarela Lógica/i, fix: "Material Rodante (Bien Revertible S. 3.3.c) - Stop & Switch" },
-    { rule: "FINANCIAL_PADLOCK", pattern: /Obra Complementaria|Desarrollo Adicional/i, fix: "Bloqueo Preoperativo (Sección 25.4.f) - Fondeo Externo Requerido" },
+    { rule: "V_BLOCK_REJECTION", pattern: /V-Block|VBlock/i, fix: "Enclavamiento Electrónico SIL-4 (Arquitectura Abierta)" },
+    { rule: "TOPOLOGY_REJECTION", pattern: /2oo3|Two-out-of-three/i, fix: "SIL-4 Master Server (Evitar Lock-in Propietario)" },
+    { rule: "SOVEREIGN_NET", pattern: /GSM-R|Red Privada/i, fix: "Red Vital IP / TETRA (Solo Voz)" },
+    { rule: "SATELITE_MANDATE", pattern: /Microondas|Radioenlace|Starlink|Viasat/i, fix: "LEO/GEO Genérico (Neutralidad Tecnológica)" },
+    { rule: "FENOCO_GATEWAY_REJECTION", pattern: /Gateway FENOCO|Pasarela Lógica|ITCS Gateway/i, fix: "Interoperabilidad Operacional (Stop & Switch)" },
     { rule: "CATENARY_REJECTION", pattern: /Catenaria|Electrificación Futura|Tracción Eléctrica/i, fix: "Tracción Diésel-Eléctrica (Sin previsión de Catenaria - Dictamen 2026-04-13)" },
-    { rule: "AUTONOMY_LIMIT", pattern: /8 horas|48 horas|Radiación nula/i, fix: "Máximo 4 Horas (DBCD V002 / Optimización CAPEX)" },
-    { rule: "NORMATIVE_FRONT", pattern: /RETIE.*Locomotora|RETIE integral/i, fix: "FRA 49 CFR Parte 236 (RETIE solo para cables)" },
-    { rule: "BLOCK_LEGACY", pattern: /Canton Fijo|Bloque Fijo|Eurobaliza/i, fix: "Canton Virtual / Baliza Virtual (GNSS)" },
-    { rule: "POWER_LEGACY", pattern: /Circuitos de Via (?!PaN)/i, fix: "Contadores de Ejes SIL-4 / Radar" }
+    { rule: "CAPEX_HOAX", pattern: /Capital de Emergencia|2\.5\s*MM|USD\s*2\.5/i, fix: "Rechazado (Hoax Financiero). El CAPEX oficial es $726,000,000 COP por locomotora." },
+    { rule: "HALUCINATION_CLAUSE", pattern: /ART 2\.5\(2\)|Umbral de Ecuidadum/i, fix: "Término alucinado. Usar Sección 3.8(a)(i) para plazos." },
+    { rule: "CCO_ERROR", pattern: /Barrancabermeja|PK 201\+470|Sección 20-9/i, fix: "Ubicación CCO: PK 0+000 / Interoperabilidad: Sección 2.209" }
 ];
 
 const LEGACY_BLACKLIST = [
-    'Caja Negra', 'Propietario', 'DWDM', 'SDH', 'Plesiocrono', 'Analogico', 'Cobro por evento'
+    'Peón', 'Peones', 'Sueño', 'Michelin', 'Karpathy', 'Dreamer', 'V-Block',
+    'Canton Fijo', 'Bloque Fijo', 'Eurobaliza', 'NZ-DSF', 'G.655',
+    'Capital de Emergencia', 'Ecuidadum', 'Sección 20-9'
 ];
 
 /**
- * Fase 2: Análisis de Verbos Rectores
- * Busca si el texto tiene una intención contractual mandatoria.
+ * Análisis de Verbos Rectores
  */
 function analyzeRectorVerbs(content) {
     const findings = [];
@@ -61,19 +62,17 @@ function auditFile(filePath) {
     const relativePath = path.relative(REPO_ROOT, filePath);
     let violations = [];
 
-    // A. Detección de Invariantes (ADN Corrupto)
+    // A. Detección de Invariantes
     SOVEREIGN_INVARIANTS.forEach(inv => {
         if (inv.pattern && inv.pattern.test(content)) {
             violations.push(`[ADN] Regresión Detectada: ${inv.rule}. Sugerido: ${inv.fix}`);
         }
     });
 
-    // B. Mapeo de Verbos Rectores (Fase 1/2)
+    // B. Mapeo de Verbos Rectores
     const verbs = analyzeRectorVerbs(content);
-    if (verbs.length === 0 && !filePath.includes('II_Apendices_Tecnicos')) {
-        // Si es un documento de diseño/ conceptual y no tiene verbos rectores, 
-        // podría estar "inventando" especificaciones (Alucinación de Ingeniería).
-        violations.push(`[V8.0] AMBIGÜEDAD DETECTADA: Falta de Verbo Rector. El documento define parámetros sin respaldo contractual aparente (Candidato a N-1).`);
+    if (verbs.length === 0 && !filePath.includes('II_Apendices_Tecnicos') && filePath.endsWith('.md')) {
+        violations.push(`[SICC] AMBIGÜEDAD DETECTADA: Falta de Verbo Rector. El documento define parámetros sin respaldo contractual aparente.`);
     }
 
     // C. Blacklist Sistémica
@@ -84,12 +83,11 @@ function auditFile(filePath) {
         }
     });
 
-    // ❤️ ENVÍO AL BÚFER MICHELIN (v9.6.1)
     if (violations.length > 0) {
         encolarHallazgo(
-            `Patrulla Forense: ${relativePath}`,
-            `${violations.length} deficiencias detectadas. ADN o Legacy terms comprometidos.`,
-            '🔬',
+            `Auditoría Forense: ${relativePath}`,
+            `${violations.length} deficiencias detectadas. ADN o Legacy comprometido.`,
+            'ALERTA',
             { archivo: relativePath, deficiencias: violations }
         );
     }
@@ -97,23 +95,22 @@ function auditFile(filePath) {
     return violations;
 }
 
-/**
- * Generador de Reporte RED (Registro Ejecutivo de Deficiencias)
- */
 function runAudit(targetPath) {
     let report = [];
+    if (!fs.existsSync(targetPath)) return report;
+    
     const stats = fs.statSync(targetPath);
 
     if (stats.isFile()) {
-        if (/\.(md|html|js)$/.test(targetPath)) {
+        if (/\.(md|html|js|txt)$/.test(targetPath)) {
             const issues = auditFile(targetPath);
             if (issues.length > 0) report.push({ file: path.relative(REPO_ROOT, targetPath), issues });
         }
     } else {
         const files = fs.readdirSync(targetPath);
         files.forEach(file => {
+            if (['.git', 'node_modules', 'bin', 'scripts', 'old', 'archive'].includes(file)) return;
             const fullPath = path.join(targetPath, file);
-            if (['.git', 'node_modules', 'bin', 'scripts', 'lfc-terminology.js'].includes(file)) return;
             report = report.concat(runAudit(fullPath));
         });
     }
@@ -123,17 +120,17 @@ function runAudit(targetPath) {
 
 // Entry point
 const args = process.argv.slice(2);
-const target = args[0] ? path.resolve(REPO_ROOT, args[0]) : REPO_ROOT;
+const target = args[0] ? (path.isAbsolute(args[0]) ? args[0] : path.resolve(REPO_ROOT, args[0])) : REPO_ROOT;
 
 console.log("--------------------------------------------------");
-console.log(`📡 SICC V8.0 | KARPATHY AUDIT: PUNTO 42`);
-console.log(`📍 Auditando: ${path.basename(target)}`);
+console.log(`🛡️ SICC V12.0 | FORENSIC AUDITOR`);
+console.log(`📍 Auditando: ${target}`);
 console.log("--------------------------------------------------");
 
 const results = runAudit(target);
 
 if (results.length === 0) {
-    console.log("✅ PUREZA CONTRACTUAL AL 100%. Cumple Metodología Punto 42.");
+    console.log("✅ PUREZA CONTRACTUAL AL 100%. Cumple Estándares SICC v12.0.");
 } else {
     console.log(`⚠️ SE DETECTARON ${results.length} ARCHIVOS CON DEFICIENCIAS (RED).`);
     results.forEach(res => {
@@ -143,4 +140,4 @@ if (results.length === 0) {
 }
 
 console.log("\n--------------------------------------------------");
-console.log("Fín del Audit Forense.");
+console.log("Fin del Audit Forense.");

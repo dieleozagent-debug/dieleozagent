@@ -42,10 +42,10 @@ async function extraerAMarkdown(filePath, maxPages = 20) {
         }
         
         fs.writeFileSync(outPath, markdown);
-        console.log(`[EXTRACT-TO-MD] ✅ Guardado en: ${outPath}`);
+        console.log(`[EXTRACT-TO-MD] [SICC OK] Guardado en: ${outPath}`);
         return outPath;
     } catch (err) {
-        console.error(`[EXTRACT-TO-MD] ❌ Error: ${err.message}`);
+        console.error(`[EXTRACT-TO-MD] [SICC FAIL] Error: ${err.message}`);
         return null;
     }
 }

@@ -34,19 +34,19 @@ async function run() {
         mimeType: 'application/pdf',
         displayName: archivo,
       });
-      console.log(`   ✅ Subido exitosamente: ${uploadResult.file.uri}`);
+      console.log(`   [SICC OK] Subido exitosamente: ${uploadResult.file.uri}`);
       fileUris.push(uploadResult.file);
     } catch (err) {
-      console.error(`   ❌ Error subiendo ${archivo}: ${err.message}`);
+      console.error(`   [SICC FAIL] Error subiendo ${archivo}: ${err.message}`);
     }
   }
 
   if (fileUris.length === 0) {
-    console.log('\n[CACHE] ⚠️ No se subió ningún archivo.');
+    console.log('\n[CACHE] [SICC WARN] No se subió ningún archivo.');
     return;
   }
 
-  console.log('\n[CACHE] 🧠 Generando Caché Masivo del Contexto (System Instruction)...');
+  console.log('\n[CACHE] [SICC BRAIN] Generando Caché Masivo del Contexto (System Instruction)...');
 
   try {
     const ttlSeconds = 60 * 60 * 24 * 7; // Caché dura 7 días
@@ -72,7 +72,7 @@ async function run() {
     console.log(`   GEMINI_CACHE_NAME=${cacheResult.name}`);
     
   } catch (err) {
-    console.error(`\n[CACHE] ❌ Error generando caché: ${err.message}`);
+    console.error(`\n[CACHE] [SICC FAIL] Error generando caché: ${err.message}`);
   }
 }
 

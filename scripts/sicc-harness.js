@@ -5,10 +5,10 @@
  * Filosofía: "Every agent action passes through the harness. No hallucination reaches Git."
  *
  * Comandos:
- *   node scripts/sicc-harness.js doctor       — Health check completo
+ *   node scripts/sicc-harness.js doctor       — Health check forense completo
  *   node scripts/sicc-harness.js learn        — Auto-mapeo de LFC2
- *   node scripts/sicc-harness.js audit [ruta] — Karpathy Loop sobre archivo/carpeta
- *   node scripts/sicc-harness.js dream        — Procesar una hipótesis del Dreamer
+ *   node scripts/sicc-harness.js audit [ruta] — Auditoría sobre archivo/carpeta
+ *   node scripts/sicc-harness.js audit_cycle  — Procesar hipótesis de auditoría
  *   node scripts/sicc-harness.js status       — Estado del sistema (CPU, memoria, Git)
  */
 'use strict';
@@ -22,8 +22,8 @@ const AGENTE_ROOT = path.join(__dirname, '..');
 
 const LFC2_ROOT   = config.paths.lfc2;
 const BRAIN_ROOT  = config.paths.brain;
-const DREAMS_FILE = path.join(BRAIN_ROOT, 'DREAMS.md');
-const PENDING_DTS = path.join(BRAIN_ROOT, 'PENDING_DTS.md');
+const AUDIT_QUEUE = path.join(BRAIN_ROOT, 'AUDIT_QUEUE.md');
+const PENDING_DTS = path.join(BRAIN_ROOT, 'PENDING_DTS');
 
 // ── 1. PARITY GUARD ─────────────────────────────────────────────────────────
 // Valida que los conceptos de una propuesta existen en el SSOT.
@@ -35,8 +35,8 @@ const SOVEREIGN_TERMS = [
 ];
 
 const LEGACY_TERMS = [
-  'Caja Negra', 'Eurobaliza', 'GSM-R', 'Conectividad SFP-LR', 'G.652.D',
-  'EN 50716', 'Circuitos de Vía', 'mantenimiento físico correctivo',
+  'Eurobaliza', 'GSM-R', 'mantenimiento físico correctivo',
+  'Peón', 'Peones', 'Sueño', 'Dreamer', 'Michelin', 'Karpathy Loop'
 ];
 
 function parityGuard(texto) {
@@ -139,11 +139,11 @@ async function cmdDoctor() {
     console.log(`[FAIL]  Ollama: — Falló verificación`);
   }
 
-  // Dreamer queue
-  const dreamCount = fs.existsSync(DREAMS_FILE)
-    ? (fs.readFileSync(DREAMS_FILE, 'utf8').match(/^- \[/gm) || []).length
+  // Audit queue
+  const auditCount = fs.existsSync(AUDIT_QUEUE)
+    ? (fs.readFileSync(AUDIT_QUEUE, 'utf8').match(/^- \[/gm) || []).length
     : 0;
-  console.log(`[INFO]  Dreamer queue: ${dreamCount} hipótesis pendientes`);
+  console.log(`[INFO]  Audit queue: ${auditCount} hipótesis pendientes`);
 
   // Resultado
   console.log('\n' + '═'.repeat(55));
@@ -170,12 +170,12 @@ function cmdLearn() {
 }
 
 function cmdAudit(ruta = LFC2_ROOT) {
-  console.log(`\n🔬 SICC AUDIT — Karpathy Loop sobre: ${ruta}`);
+  console.log(`\n🔬 SICC AUDIT — Auditoría Forense sobre: ${ruta}`);
   try {
-    const output = execSync(`node ${path.join(AGENTE_ROOT, 'scripts/karpathy_audit.js')} ${ruta}`).toString();
+    const output = execSync(`node ${path.join(AGENTE_ROOT, 'scripts/forensic_auditor.js')} ${ruta}`).toString();
     console.log(output);
   } catch (e) {
-    console.error('[HARNESS] ❌ Error en karpathy_audit.js:', e.message);
+    console.error('[HARNESS] ❌ Error en forensic_auditor.js:', e.message);
     process.exit(1);
   }
 }
@@ -190,12 +190,10 @@ function cmdStatus() {
   console.log(`Load (5m):    ${Math.round(l5 / cpus * 100)}%`);
   console.log(`Load (15m):   ${Math.round(l15 / cpus * 100)}%`);
   console.log(`Mem libre:    ${Math.round(os.freemem() / 1024 / 1024)}MB / ${Math.round(os.totalmem() / 1024 / 1024)}MB`);
-  const dreamCount = fs.existsSync(DREAMS_FILE)
-    ? (fs.readFileSync(DREAMS_FILE, 'utf8').match(/^- \[/gm) || []).length : 0;
-  const dtCount = fs.existsSync(PENDING_DTS)
-    ? (fs.readFileSync(PENDING_DTS, 'utf8').match(/^## DT-/gm) || []).length : 0;
-  console.log(`Dreams queue: ${dreamCount} hipótesis`);
-  console.log(`Pending DTs:  ${dtCount} borradores`);
+  const auditCount = fs.existsSync(AUDIT_QUEUE)
+    ? (fs.readFileSync(AUDIT_QUEUE, 'utf8').match(/^- \[/gm) || []).length : 0;
+  console.log(`Audit queue:   ${auditCount} hipótesis`);
+  console.log(`Pending DTs:   En revisión forense`);
 }
 
 async function cmdApprove(id) {
@@ -269,13 +267,13 @@ async function cmdApprove(id) {
   console.log(`[HARNESS] 🛡️ DT-${id} institucionalizada.`);
 }
 
-function cmdDream() {
-  console.log('\n😴 SICC DREAM — Activando Ciclo de Sueño Forense Manual...');
+function cmdAuditCycle() {
+  console.log('\n🛡️ SICC AUDIT CYCLE — Activando Ciclo de Auditoría Forense...');
   try {
-    const output = execSync(`node ${path.join(AGENTE_ROOT, 'scripts/sicc-dreamer.js')}`).toString();
+    const output = execSync(`node ${path.join(AGENTE_ROOT, 'scripts/sicc-simulator.js')}`).toString();
     console.log(output);
   } catch (e) {
-    console.error('[HARNESS] ❌ Error en sicc-dreamer.js:', e.message);
+    console.error('[HARNESS] ❌ Error en sicc-simulator.js:', e.message);
     process.exit(1);
   }
 }
@@ -291,7 +289,7 @@ if (require.main === module) {
       break;
     case 'learn':   cmdLearn(); break;
     case 'audit':   cmdAudit(args[0]); break;
-    case 'dream':   cmdDream(); break;
+    case 'audit_cycle': cmdAuditCycle(); break;
     case 'status':  cmdStatus(); break;
     case 'approve': cmdApprove(args[0]); break;
     default:

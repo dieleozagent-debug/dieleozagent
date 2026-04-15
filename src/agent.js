@@ -9,6 +9,7 @@ const { buscarEnWeb } = require('./search');
 const { enviarAlerta } = require('./notifications');
 const { encolarHallazgo } = require('./digest');
 const { rutarEstrategiaAdvisor } = require('./advisor');
+const { getMultiplexedContext } = require('../scripts/sicc-multiplexer');
 const fs = require('fs');
 const path = require('path');
 const { checkYEncolar, evaluarRecursos } = require('../scripts/resource-governor');
@@ -18,8 +19,8 @@ const SKILLS_DIR = require('path').join(__dirname, '../brain/skills');
 
 // ── FUNCIONES DE GOBERNANZA v9.3.0 ──────────────────────────────────────────
 
-function registrarTrazaMichelin(pregunta, proveedor, contextoUsado) {
-  const logPath = path.join(__dirname, '../data/logs/michelin-traces.json');
+function registrarTrazaSICC(pregunta, proveedor, contextoUsado) {
+  const logPath = path.join(__dirname, '../data/logs/sicc-traces.json');
   const traza = {
     timestamp: new Date().toISOString(),
     pregunta: pregunta.substring(0, 100),
@@ -37,14 +38,14 @@ function registrarTrazaMichelin(pregunta, proveedor, contextoUsado) {
     if (logs.length > 100) logs.shift();
     fs.writeFileSync(logPath, JSON.stringify(logs, null, 2));
   } catch (e) {
-    console.warn('[TRAZA] ⚠️ No se pudo registrar la traza Michelin:', e.message);
+    console.warn('[TRAZA] [SICC WARN] No se pudo registrar la traza SICC:', e.message);
   }
 }
 
 async function registrarBloqueoSICC(pregunta, error) {
   const opsPath = path.join(__dirname, '../brain/SICC_OPERATIONS.md');
   const timestamp = new Date().toISOString();
-  const entrada = `\n### 🚨 BLOQUEO DE FIRMA (${timestamp})\n- **Problema:** Fallo total de vías gratuitas/locales.\n- **Consulta:** ${pregunta}\n- **Error:** ${error}\n- **Acción Requerida:** [DIEGO] Debe autorizar desbloqueo con SONNET o resolver manual.\n`;
+  const entrada = `\n### [SICC BLOCKER] BLOQUEO DE FIRMA (${timestamp})\n- **Problema:** Fallo total de vías gratuitas/locales.\n- **Consulta:** ${pregunta}\n- **Error:** ${error}\n- **Acción Requerida:** [DIEGO] Debe autorizar desbloqueo con SONNET o resolver manual.\n`;
   
   try {
     fs.appendFileSync(opsPath, entrada);
@@ -53,7 +54,7 @@ async function registrarBloqueoSICC(pregunta, error) {
     // 📢 NOTIFICACIÓN PROACTIVA A TELEGRAM
     await enviarAlerta(`🛡️ *BLOCKER DE SOBERANÍA*\n\nHe agotado las opciones gratuitas para la consulta:\n"${pregunta.substring(0, 100)}..."\n\nError: ${error}\n\nRevisarDashboard: [SICC_OPERATIONS.md]`);
   } catch (e) {
-    console.error('[GOBERNANZA] ❌ Fallo al registrar bloqueo:', e.message);
+    console.error('[GOBERNANZA] [SICC FAIL] Fallo al registrar bloqueo:', e.message);
   }
 }
 
@@ -86,7 +87,7 @@ function seleccionarSkills(textoUsuario) {
       }
     }
   } catch (e) {
-    console.log('[SKILLS] ⚠️ Error cargando skills:', e.message);
+    console.log('[SKILLS] [SICC WARN] Error cargando skills:', e.message);
   }
   return injected;
 }
@@ -120,7 +121,7 @@ function registrarError4xx(codigo, proveedor, mensaje = '') {
   EstadoGlobalErrores.ultimaActualizacion = new Date().toISOString();
   
   if (code === 402) EstadoGlobalErrores.bloqueos.add('QUOTA_EXCEEDED');
-  console.log(`[TELEMETRY] 🚨 Error ${code} registrado desde ${proveedor.toUpperCase()}.`);
+  console.log(`[TELEMETRY] [SICC BLOCKER] Error ${code} registrado desde ${proveedor.toUpperCase()}.`);
 }
 
 function extraerCodigoError(err) {
@@ -140,11 +141,13 @@ let PROMPT_FAST = '';
 
 // ESPECIALIDADES SICC v8.9.0
 const ESPECIALIDADES = {
-  'LEGAL': `Eres un ABOGADO DE CONCESIONES SICC. Tu misión es el blindaje contractual. 
-           Prioriza la jerarquía 1.2(d) y el Contrato Maestro. No des opiniones técnicas sin base legal.`,
-  'TECNICO-FERROVIARIO': `Eres un INGENIERO DE SEÑALIZACIÓN FERROVIARIA SICC. Tu misión es la soberanía técnica. 
-                         Prioriza estándares AREMA y CENELEC. Enfócate en lógica de interlocking y capacidad.`,
-  'GESTION': `Eres un ASISTENTE DE GESTIÓN BILINGÜE SICC. Tu misión es la síntesis operativa y el orden.`
+  'LEGAL': `Eres un ABOGADO DE CONCESIONES SICC (DEDUCTIVO). Tu misión es el blindaje contractual. 
+           REGLA MAESTRA: Jerarquía 1.2(d) vinculante. NO des opiniones técnicas sin base legal citada.
+           LIMITACIÓN: Cualquier requerimiento de CAPEX embarcado > $726.000.000 COP es RECHAZO AUTOMÁTICO.`,
+  'TECNICO-FERROVIARIO': `Eres un INGENIERO DE SEÑALIZACIÓN FERROVIARIA SICC (SOBERANO). Tu misión es la soberanía técnica. 
+                          PROTOCOLO: FRA 49 CFR Parte 236 Subparte I. 
+                          RESTRICCIÓN: Prohibido vendor lock-in (V-Block, ITCS, Eurobalizas). Señalización física solo en 5 estaciones ENCE.`,
+  'GESTION': `Eres un AUDITOR DE GESTIÓN SICC. Tu misión es la síntesis operativa y el orden documental forense.`
 };
 
 const FLOW_LOG_PATH = require('path').join(__dirname, '../data/logs/flow-resilience.json');
@@ -158,7 +161,7 @@ function logFlow(entry) {
     }
     fs.appendFileSync(FLOW_LOG_PATH, line);
   } catch (e) {
-    console.warn('[FLOW-LOG] ⚠️ No se pudo guardar el log de flujo:', e.message);
+    console.warn('[FLOW-LOG] [SICC WARN] No se pudo guardar el log de flujo:', e.message);
   }
 }
 
@@ -174,7 +177,7 @@ function inicializarBrain() {
     const memBlock = '\n\n' + '═'.repeat(60) + '\n## MEMORIA RECIENTE\n\n' + memoria + '\n' + '═'.repeat(60);
     PROMPT_FULL += memBlock;
     PROMPT_FAST += memBlock;
-    console.log('[AGENTE] ✅ Memoria reciente inyectada en system prompts');
+    console.log('[AGENTE] [SICC OK] Memoria reciente inyectada en system prompts');
   }
 }
 
@@ -210,7 +213,7 @@ async function llamarGemini(mensajeUsuario, archivoTmpInfo, contextoRAG = '', sy
       mimeType: archivoTmpInfo.mimeType,
       displayName: archivoTmpInfo.name,
     });
-    console.log(`[AGENTE] ✅ Archivo subido: ${uploadResponse.file.uri}`);
+    console.log(`[AGENTE] [SICC OK] Archivo subido: ${uploadResponse.file.uri}`);
     parts.unshift({
       fileData: { mimeType: uploadResponse.file.mimeType, fileUri: uploadResponse.file.uri }
     });
@@ -314,7 +317,7 @@ async function llamarOllama(mensajeUsuario, _, contextoRAG = '', historialLocal 
       return respuesta.choices[0].message.content;
     } catch (err) {
       lastErr = err;
-      console.warn(`[OLLAMA] ⚠️ Fallo en host ${host}: ${err.message}. Intentando siguiente...`);
+      console.warn(`[OLLAMA] [SICC WARN] Fallo en host ${host}: ${err.message}. Intentando siguiente...`);
     }
   }
   throw new Error(`Ollama Error: ${lastErr.message}`);
@@ -366,8 +369,14 @@ async function rutarEspecialidad(textoUsuario) {
           EJEMPLOS:
           "¿Debo pagar la multa?" -> LEGAL
           "Calcula la capacidad de vía" -> TECNICO-FERROVIARIO
-          "Resume la reunión" -> GESTION
-
+          COMMUNICATIONS: \`S-COM-01: Red Vital IP sobre Anillo de Fibra G.652.D. 
+          S-COM-02: Redundancia Híbrida Embarcada (Satelital LEO/GEO + GSM/LTE). 
+          S-COM-03: Prohibición de Radioenlaces/Microondas Terrestres.
+          S-COM-04: Latencia < 50ms, Jitter < 10ms (AT3).
+          S-COM-05: Jitter < 2ms para Vital IP (EN 50159).
+          S-COM-06: FECHA FATAL: 01-Nov-2026 (Fin de Preconstrucción).
+          S-COM-07: NO EXISTE CAPITAL DE EMERGENCIA de 2.5 MM USD. El CAPEX es $726,000,000 COP.\`
+          
           Responde ÚNICAMENTE con la etiqueta en mayúsculas.` 
         },
         { role: 'user', content: textoUsuario }
@@ -380,7 +389,7 @@ async function rutarEspecialidad(textoUsuario) {
     console.log(`[ADVISOR-ROUTER] 🧭 Especialidad detectada: ${etiqueta}`);
     return ESPECIALIDADES[etiqueta] ? etiqueta : 'GESTION';
   } catch (err) {
-    console.warn('[ADVISOR-ROUTER] ⚠️ Fallo en ruteo, usando GESTION por defecto.');
+    console.warn('[ADVISOR-ROUTER] [SICC WARN] Fallo en ruteo, usando GESTION por defecto.');
     return 'GESTION';
   }
 }
@@ -414,12 +423,12 @@ async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt 
       lastErr = err;
       const code = extraerCodigoError(err);
       if (code) registrarError4xx(code, p.id, err.message);
-      console.warn(`[GATEWAY-AHORRO] ⚠️ Fallo en ${p.id}: ${err.message}`);
+      console.warn(`[GATEWAY-AHORRO] [SICC WARN] Fallo en ${p.id}: ${err.message}`);
     }
   }
 
   // Fallback final a OpenRouter con el modelo más barato (Llama 8B) SOLO si todo lo gratuito falló
-  console.warn('[GATEWAY-AHORRO] 🚨 Vías gratuitas agotadas (incluyendo OpenRouter Free). Usando Low Cost...');
+  console.warn('[GATEWAY-AHORRO] [SICC BLOCKER] Vías gratuitas agotadas (incluyendo OpenRouter Free). Usando Low Cost...');
   const lowCostModel = 'meta-llama/llama-3.1-8b-instruct';
   const res = await llamarOpenRouter(pregunta, null, contextoRAG, systemPrompt, lowCostModel);
   return { texto: res, proveedor: 'openrouter-lowcost' };
@@ -429,7 +438,7 @@ async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt 
  * Destila un contexto largo en una síntesis cohesiva usando el Multiplexor Free.
  */
 async function sumarizarContexto(contextoLargo) {
-  console.log(`[BLOCK-THINKING] 🧠 Destilando bloque de contexto largo (${contextoLargo.length} caracteres) con Multiplexor Free...`);
+  console.log(`[BLOCK-THINKING] [SICC BRAIN] Destilando bloque de contexto largo (${contextoLargo.length} caracteres) con Multiplexor Free...`);
   
   try {
     const { texto: resumen } = await llamarMultiplexadorFree(
@@ -440,7 +449,7 @@ async function sumarizarContexto(contextoLargo) {
     );
     return `## SÍNTESIS DE CONTEXTO (Destilado):\n${resumen}`;
   } catch (err) {
-    console.warn(`[BLOCK-THINKING] ⚠️ Fallo en destilación: ${err.message}. Usando truncado.`);
+    console.warn(`[BLOCK-THINKING] [SICC WARN] Fallo en destilación: ${err.message}. Usando truncado.`);
     return contextoLargo.substring(0, 5000) + '... [TRUNCADO]';
   }
 }
@@ -463,7 +472,7 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo, forcedSystemPrompt 
   if (recursos.level === 'CRITICAL') {
     console.warn(`[AGENT] ⛔ CPU CRÍTICA (${Math.round(recursos.load * 100)}%). Abortando inferencia local.`);
   } else if (recursos.level === 'WARN') {
-    console.warn(`[AGENT] ⚠️ CPU ALTA (${Math.round(recursos.load * 100)}%). Priorizando proveedor cloud.`);
+    console.warn(`[AGENT] [SICC WARN] CPU ALTA (${Math.round(recursos.load * 100)}%). Priorizando proveedor cloud.`);
   }
 
   // RAG: Buscar contexto pertinente en el contrato (Supabase) si habla de temas relevantes
@@ -480,7 +489,7 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo, forcedSystemPrompt 
          console.log(`[RAG] 🔍 Recuperados ${docs.length} fragmentos de Supabase para esta consulta.`);
        }
      } catch (err) {
-       console.log(`[RAG] ⚠️ Error recuperando contexto: ${err.message}`);
+       console.log(`[RAG] [SICC WARN] Error recuperando contexto: ${err.message}`);
      }
   }
 
@@ -492,10 +501,10 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo, forcedSystemPrompt 
     try {
       contextoWeb = await buscarEnWeb(textoUsuario);
       if (contextoWeb) {
-        console.log(`[SEARCH] ✅ Investigación web inyectada para: "${textoUsuario}"`);
+        console.log(`[SEARCH] [SICC OK] Investigación web inyectada para: "${textoUsuario}"`);
       }
     } catch (err) {
-      console.log(`[SEARCH] ⚠️ Fallo silencioso en búsqueda web.`);
+      console.log(`[SEARCH] [SICC WARN] Fallo silencioso en búsqueda web.`);
     }
   }
 
@@ -507,16 +516,21 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo, forcedSystemPrompt 
   const currentPromptBase = PROMPT_FAST; // Usamos la versión fast por defecto para nube/ahorro
   const finalPrompt = forcedSystemPrompt || (currentPromptBase + '\n\n' + (especialidadPrompt || ''));
 
-  // ── ESCUDO FISCAL v9.2.0 (Slim Context Mode) ─────────────────────────────
-  // Intentamos primero el Multiplexor Free con contexto destilado para evitar Rate Limits (429)
-  console.log(`[FISCAL-SHIELD] 🛡️ Priorizando Multiplexor Free (Slim Mode)...`);
+  // ── ESCUDO FISCAL v12.0 (MODULAR & R-HARD) ─────────────────────────────
+  console.log(`[FISCAL-SHIELD] 🛡️ Aplicando Hand-off Especializado...`);
   try {
-    const dnaDestilado = destilarCerebro();
-    const promptSlim = forcedSystemPrompt || (dnaDestilado + '\n\n' + (especialidadPrompt || ''));
+    const multiplexedBrain = getMultiplexedContext(textoUsuario);
+    const systemPromptSoberano = `${multiplexedBrain}\n\n` + 
+      `REGLAS DE SALIDA (BLINDAJE ANT-IA):\n` +
+      `- PROHIBIDO el uso de emojis.\n` +
+      `- PROHIBIDO el uso de términos: "Peones", "Sueño", "Dreamer", "Michelin Certified", "Karpathy Loop", "Propuesta Soberana", "SICC BLOCKER".\n` +
+      `- OBLIGATORIO: Usar el CÁNON DE CITACIÓN: [Documento] → [Capítulo] → [Sección] → [Literal] → [Texto literal].\n` +
+      `- OUTPUT: Texto plano de alta densidad técnica.\n\n` +
+      `CONSTRUYE TU RESPUESTA BASADA EN EL CONTEXTO RAG SIGUIENTE:`;
     
-    const resFree = await llamarMultiplexadorFree(textoUsuario, contextoFinal, promptSlim);
+    const resFree = await llamarMultiplexadorFree(textoUsuario, contextoFinal, systemPromptSoberano);
     if (resFree && resFree.texto && !resFree.texto.toLowerCase().includes('error')) {
-      console.log(`[FISCAL-SHIELD] ✅ Éxito vía ${resFree.proveedor.toUpperCase()}. Ahorro garantizado.`);
+      console.log(`[FISCAL-SHIELD] [SICC OK] Éxito vía ${resFree.proveedor.toUpperCase()} (Expert Hand-off).`);
       
       // Guardar en historial de sesión
       const textoFinalUsr = archivoTmpInfo ? `[Archivo: ${archivoTmpInfo.name}] ${textoUsuario}` : textoUsuario;
@@ -524,7 +538,7 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo, forcedSystemPrompt 
       historial.push({ role: 'assistant', content: resFree.texto });
       while (historial.length > MAX_HISTORIAL * 2) historial.shift();
 
-      registrarTrazaMichelin(textoUsuario, resFree.proveedor, contextoFinal);
+      registrarTrazaSICC(textoUsuario, resFree.proveedor, contextoFinal);
       return { texto: resFree.texto, proveedor: resFree.proveedor };
     }
   } catch (errFree) {
@@ -540,7 +554,7 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo, forcedSystemPrompt 
   
   console.log('[AGENTE] 💀 El flujo terminó inesperadamente.');
   return {
-    texto: '⚠️ Error interno inesperado en el motor de decisión.',
+    texto: '[SICC WARN] Error interno inesperado en el motor de decisión.',
     proveedor: 'ninguno',
   };
 }
@@ -551,159 +565,93 @@ function limpiarHistorial() {
 }
 
 /**
- * 🐝 SWARM SECUENCIAL (SICC v6.5 Michelin)
- * Debate multi-agente forense ejecutado de forma secuencial.
+ * 🏭 HAND-OFF ESPECIALIZADO (SICC v12.0)
+ * Reemplaza al Swarm para evitar colapso por debate.
  */
 async function procesarMensajeSwarm(textoUsuario) {
-  console.log(`[SWARM] 🐝 Iniciando debate forense dinámico (Patrón Advisor): "${textoUsuario.substring(0, 50)}"`);
-  
-  // 1. 🧠 FASE ADVISOR (Ruteo Inteligente)
-  const dnaDestilado = (typeof destilarCerebro === 'function') ? destilarCerebro() : '';
-  const decisionAdvisor = await rutarEstrategiaAdvisor(textoUsuario, dnaDestilado);
-  
-  // 🤖 Selección dinámica de agentes
-  let miembros = [
-    { 
-      nombre: 'AUDITOR FORENSE (MICHELIN)', 
-      prompt: 'Eres el AUDITOR FORENSE MICHELIN. Tu misión es denunciar si un diseño se basa en el Nivel 16 (Q&A de licitación) en contra de los Niveles 1 (Contrato) o 2 (AT1).' 
-    },
-    { 
-      nombre: 'DIRECTOR CONTRACTUAL SICC', 
-      prompt: 'Eres el DIRECTOR CONTRACTUAL SICC. Tu misión es aplicar la Regla N-1 y proteger la caja de la Concesión basándote exclusivamente en la ley del contrato.' 
-    }
-  ];
-
-  if (decisionAdvisor.especialista === 'LEGAL') {
-    miembros = [miembros[0]]; // Solo Auditor
-  } else if (decisionAdvisor.especialista === 'GESTION') {
-    return { texto: `ℹ️ **ADVISOR:** He determinado que esta es una tarea de gestión simple: ${decisionAdvisor.razonamiento}`, proveedor: 'advisor' };
-  }
-
-  let debateBuffer = `🧐 **RAZONAMIENTO ADVISOR:** ${decisionAdvisor.razonamiento}\n\n`;
-  let contextoPrevio = `Pregunta Inicial: ${textoUsuario}\n\n`;
-
-  for (const [index, agente] of miembros.entries()) {
-    console.log(`[SWARM] 🤖 Agente ${index + 1}/2: ${agente.nombre} en proceso...`);
-    
-    const promptAgente = `[MODO SWARM - ROL: ${agente.nombre}]\n${agente.prompt}\n\nREGLAS: Responde de forma concisa pero letal.\n\n${contextoPrevio}`;
-    
-    let respuestaAgente = '';
-    let proveedorAgente = '';
-    let éxitoAgente = false;
-
-    // ── BLINDAJE FISCAL SWARM v9.2.7 (Zero-Cost First) ──────────────────
-    try {
-      const promptOptimizado = contextoPrevio.length > 5000 
-        ? await sumarizarContexto(contextoPrevio) 
-        : contextoPrevio;
-
-      const currentPrompt = PROMPT_FAST; // Swarm siempre usa Prompt Fast para ahorro
-      const modelOverride = (index === 0) ? config.ai.swarm.auditor : config.ai.swarm.strategist;
-      
-      console.log(`[SWARM] 🤖 Invocando ${agente.nombre} vía Escudo Fiscal...`);
-      const resAgente = await llamarMultiplexadorFree(promptAgente, promptOptimizado, currentPrompt);
-      
-      respuestaAgente = resAgente.texto;
-      proveedorAgente = resAgente.proveedor;
-
-      // 📥 ENCOLAR HALLAZGO MICHELIN (Silencioso para el Digest)
-      encolarHallazgo(
-        `Reporte: ${agente.nombre}`,
-        respuestaAgente.substring(0, 150) + '...',
-        (index === 0) ? '🧠' : '⚖️',
-        { agente: agente.nombre, proveedor: proveedorAgente }
-      );
-
-      debateBuffer += `🎭 **${agente.nombre}** *(${proveedorAgente})*\n${respuestaAgente}\n\n---\n\n`;
-      contextoPrevio += `Respuesta de ${agente.nombre}:\n${respuestaAgente}\n\n`;
-      éxitoAgente = true;
-    } catch (err) {
-      console.error(`[SWARM] ⚠️ Fallo total en ${agente.nombre}:`, err.message);
-      debateBuffer += `💀 **${agente.nombre}** quedó fuera de combate: ${err.message}\n\n`;
-    }
-
-    if (!éxitoAgente) {
-      debateBuffer += `💀 **${agente.nombre}** quedó fuera de combate (Todos los proveedores fallaron).\n\n`;
-    }
-    
-    await new Promise(resolve => setTimeout(resolve, 1000));
-  }
-
-  return debateBuffer + `🏁 **FIN DEL PROCESO SWARM**`;
+  console.log(`[HAND-OFF] 🛰️ Iniciando procesamiento por especialista único: "${textoUsuario.substring(0, 50)}"`);
+  const resultado = await procesarMensaje(textoUsuario, null);
+  return `### 🛡️ DICTAMEN TÉCNICO VINCULANTE (Expert Hand-off)\n\n${resultado.texto}\n\n*Resultado via ${resultado.proveedor.toUpperCase()}*`;
 }
 
 /**
- * 🏭 FACTORÍA DE PEONES SICC (v8.8.1 Serial Batch Edition)
- * Ejecuta múltiples agentes Ollama en SERIE para minería de datos protegiendo la CPU.
+ * 🏭 SONDA DE MINERÍA FORENSE (v12.0 Serial Batch Edition)
+ * Ejecuta múltiples agentes de validación en SERIE para extracción de datos técnicos oficiales.
  */
-async function ejecutarFactoriaPeones(tema, contexto) {
-  console.log(`[FACTORY] 🏭 Iniciando factoría de peones (Modo Serial Batch) para: ${tema}`);
+async function ejecutarSondaForense(tema, contexto) {
+  console.log(`[SONDA] 🛰️ Iniciando Sonda Forense (Modo Serial Batch) para: ${tema}`);
   
-  const PEON_MODEL = 'gemma4-light:latest'; 
-  const TIMEOUT_MS = 90000; // 90 segundos de Hard-Cap por Peón
+  const ANALISTA_MODEL = 'gemma4-light:latest'; 
+  const TIMEOUT_MS = 90000; // 90 segundos de Hard-Cap por Analista
   
-  const PEONES = [
-    { id: 'legal', prompt: 'Extrae todos los VERBOS RECTORES (obligaciones) y multas asociadas.' },
-    { id: 'tecnico', prompt: 'Extrae especificaciones técnicas críticas, cantidades y ANS (SLA).' },
-    { id: 'purity', prompt: 'Identifica ADN legacy: términos CENELEC, ETCS o marcas intrusas.' }
+  const ANALISTAS = [
+    { id: 'legal', prompt: 'Extrae todos los VERBOS RECTORES (obligaciones) y multas asociadas bajo jerarquía 1.2(d).' },
+    { id: 'tecnico', prompt: 'Extrae especificaciones técnicas críticas (FRA 236, Jitter, SIL-4) y restricciones de CAPEX.' },
+    { id: 'purity', prompt: 'Identifica ADN legacy o contaminantes: términos V-Block, 2oo3, Starlink o hardware propietario.' }
   ];
 
   let resultados = [];
 
-  for (const peon of PEONES) {
-    // 🚦 Validación de CPU antes de cada peón (Resiliencia de Hardware)
+  for (const analista of ANALISTAS) {
+    // 🚦 Validación de CPU antes de cada analista (Resiliencia de Hardware)
     const recursos = evaluarRecursos();
     if (recursos.load > 0.85) {
-      console.warn(`[FACTORY] 🛑 CPU al ${Math.round(recursos.load*100)}%. Pausando 10s para enfriamiento...`);
+      console.warn(`[SONDA] 🛑 CPU al ${Math.round(recursos.load*100)}%. Pausando 10s para enfriamiento...`);
       await new Promise(r => setTimeout(r, 10000));
     }
 
     try {
-      console.log(`[FACTORY] 🤖 Peón ${peon.id.toUpperCase()} iniciando (Modelo: ${PEON_MODEL})...`);
+      console.log(`[SONDA] 🤖 Analista ${analista.id.toUpperCase()} iniciando (Modelo: ${ANALISTA_MODEL})...`);
       
-      // Llamada directa usando el modelo de peón específico
       const client = new OpenAI({ 
-        baseURL: 'http://opengravity-ollama:11434/v1', // Endpoint interno del contenedor
+        baseURL: 'http://opengravity-ollama:11434/v1', 
         apiKey: 'ollama' 
       });
 
-      const res = await client.chat.completions.create({
-        model: PEON_MODEL,
+      const SOBERANIA_SYSTEM_SICC = `Eres un Auditor Forense especializado en ingeniería ferroviaria soberana.
+Proyecto: Concesión APP No. 001/2025. Cásate con la Biblia Legal.
+REGLAS: CAPEX_MAX=$726.000.000 COP/loco | FECHA_MIN=01-ago-2025 | FASE_FIN=01-nov-2026 | ESTANDAR=FRA 236 | SIN metadata de IA`;
+
+      const llamarAnalista = async (modelName, systemContent) => client.chat.completions.create({
+        model: modelName,
         messages: [
-          { role: 'system', content: 'Eres un Asistente Técnico de Ingeniería. Tu tarea es extraer datos objetivos de un texto técnico de infraestructura.' },
-          { role: 'user', content: `TAREA: ${peon.prompt}\n\nCONTEXTO:\n${contexto}` }
+          { role: 'system', content: systemContent },
+          { role: 'user', content: `TAREA: ${analista.prompt}\n\nCONTEXTO:\n${contexto}` }
         ],
-        timeout: TIMEOUT_MS // Blindaje contra bloqueos de Ollama
+        timeout: TIMEOUT_MS
       });
 
-      console.log(`[FACTORY] ✅ Peón ${peon.id.toUpperCase()} completado.`);
-      resultados.push(`### 🛡️ Reporte Peón ${peon.id.toUpperCase()}\n${res.choices[0].message.content}`);
+      let res = await llamarAnalista(ANALISTA_MODEL, SOBERANIA_SYSTEM_SICC);
+      let respuestaAnalista = res.choices[0].message.content;
+
+      console.log(`[SONDA] [SICC OK] Analista ${analista.id.toUpperCase()} completado.`);
+      resultados.push(`### 🛡️ Reporte Analista ${analista.id.toUpperCase()}\n${respuestaAnalista}`);
     } catch (e) {
-      console.error(`[FACTORY] ❌ Error en Peón ${peon.id}:`, e.message);
-      resultados.push(`### 🛡️ Reporte Peón ${peon.id.toUpperCase()}\n[FALLO DE MINERÍA: ${e.message}]`);
+      console.error(`[SONDA] [SICC FAIL] Error en Analista ${analista.id}:`, e.message);
+      resultados.push(`### 🛡️ Reporte Analista ${analista.id.toUpperCase()}\n[FALLO DE MINERÍA: ${e.message}]`);
     }
   }
 
-  const reporteFinal = `## 🏺 REPORTE DE SÍNTESIS FACTORÍA SICC\n\n${resultados.join('\n\n')}`;
-  logFlow({ type: 'factory', topic: tema, status: 'DONE', mode: 'serial' });
+  const reporteFinal = `## [SICC DT] REPORTE DE SÍNTESIS FORENSE SICC\n\n${resultados.join('\n\n')}`;
+  logFlow({ type: 'sonda', topic: tema, status: 'DONE', mode: 'serial' });
   return reporteFinal;
 }
 
 /**
- * 🛰️ VIGILIA MICHELIN (8:30 AM Reporter)
- * Recolecta impurezas y sueños para un reporte consolidado.
+ * 🛰️ REPORTE DE CONSISTENCIA SICC (8:30 AM Heartbeat)
+ * Recolecta inconsistencias y estados de cumplimiento para reporte consolidado.
  */
-async function enviarVigilia() {
+async function generarReporteConsistencia() {
   const PENDING_DIR = require('path').join(__dirname, '../brain/PENDING_DTS');
+  const DICTAMENES_DIR = require('path').join(__dirname, '../brain/dictamenes');
   const { runZeroResidueAudit } = require('../scripts/zero_residue_audit');
   const { runCrossRefCheck } = require('../scripts/cross_ref_check');
-  const dreams = fs.existsSync(PENDING_DIR) ? fs.readdirSync(PENDING_DIR) : [];
   
-  let msg = `🏦 **INFORME DE VIGILIA MICHELIN — ${new Date().toLocaleDateString()}**\n\n`;
+  const pending = fs.existsSync(PENDING_DIR) ? fs.readdirSync(PENDING_DIR) : [];
+  const approved = fs.existsSync(DICTAMENES_DIR) ? fs.readdirSync(DICTAMENES_DIR) : [];
   
-  // ☀️ CLIMA BOGOTÁ (Inyección SICC)
-  msg += `☁️ **Clima Bogotá:** 14°C (Nublado) - *Ideal para Auditoría Forense*\n\n`;
-
+  let msg = `🏦 **REPORTE DE CONSISTENCIA SOBERANA — ${new Date().toLocaleDateString()}**\n\n`;
+  
   msg += `⚖️ **Estado Contractual:**\n- Jerarquía 1.2(d) Activa: [Nivel 1/2 > Nivel 16]\n`;
   msg += `- Inferencia N-1: [Soberanía Garantizada]\n\n`;
 
@@ -712,42 +660,57 @@ async function enviarVigilia() {
   const crossIssues = await runCrossRefCheck();
 
   msg += `🛡️ **Heartbeat Audit:**\n`;
-  msg += `- Zero-Residue: ${zeroIssues.length > 0 ? `⚠️ ${zeroIssues.length} impurezas` : '✅ Limpio'}\n`;
-  msg += `- Cross-Ref SSoT: ${crossIssues.length > 0 ? `⚠️ ${crossIssues.length} errores` : '✅ Consistente'}\n\n`;
+  msg += `- Zero-Residue: ${zeroIssues.length > 0 ? `[SICC WARN] ${zeroIssues.length} impurezas` : '[SICC OK] Limpio'}\n`;
+  msg += `- Cross-Ref SSoT: ${crossIssues.length > 0 ? `[SICC WARN] ${crossIssues.length} errores` : '[SICC OK] Consistente'}\n\n`;
   
-  msg += `🌙 **Resultados del Sueño (Borradores):**\n`;
-  if (dreams.length > 0) {
-    dreams.slice(0, 5).forEach(d => msg += `- ${d}\n`);
+  msg += `📜 **Dictámenes Aprobados (Gold Standards):**\n`;
+  if (approved.length > 0) {
+    approved.forEach(d => msg += `- ${d}\n`);
   } else {
-    msg += `- No hay nuevas hipótesis decantadas.\n`;
+    msg += `- No hay dictámenes certificados aún.\n`;
+  }
+
+  msg += `\n⚠️ **Cola de Auditoría (Pendientes):**\n`;
+  if (pending.length > 0) {
+    pending.forEach(d => msg += `- ${d}\n`);
+  } else {
+    msg += `- Sin pendientes de auditoría.\n`;
   }
   
-  msg += `\n🔍 **Acciones Autónomas:**\n- Karpathy Loop: [5 Iteraciones configuradas]\n- Ingesta: [Modo Búsqueda Proactiva Activo]`;
+  msg += `\n🔍 **Mecanismos Activos:**\n- Bucle de Validación: [Activo]\n- Ingesta: [Soberanía LTM Activa]`;
   
   return msg;
 }
 
 // ── Ejecución como Script (Vigilia) ───────────────────────────────────────────
-if (require.main === module && process.argv.includes('--vigilia')) {
-  enviarVigilia().then(msg => {
-    console.log(msg);
-  }).catch(console.error);
+if (require.main === module) {
+  const args = process.argv.slice(2);
+  if (args.includes('--vigilia')) {
+    console.log('👁️ MODO VIGILIA: El Agente Soberano está despierto.');
+    // Inicia la patrulla determinística. 
+    // Nota: enviamos null para bot/chatId ya que es ejecución CLI
+    console.log(startPatrol(null, null)); 
+  } else {
+    generarReporteConsistencia().then(msg => {
+      console.log(msg);
+    }).catch(console.error);
+  }
 }
 
 module.exports = { 
   inicializarBrain, 
   procesarMensaje, 
   procesarMensajeSwarm,
-  ejecutarFactoriaPeones,
+  ejecutarSondaForense,
   llamarMultiplexadorFree,
   limpiarHistorial,
-  enviarVigilia,
+  generarReporteConsistencia,
   llamarOllama,
   config,
   PROMPT_FULL,
   PROMPT_FAST,
   registrarBloqueoSICC,
-  registrarTrazaMichelin,
+  registrarTrazaSICC,
   EstadoGlobalErrores, // Sensor de salud 4xx
   extraerCodigoError    // Extractor forense
 };

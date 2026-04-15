@@ -9,7 +9,7 @@ require('dotenv').config({ path: __dirname + '/../.env' });
 function env(key, required = true) {
   const value = process.env[key];
   if (required && !value) {
-    console.error(`[CONFIG] ❌ Variable de entorno requerida no definida: ${key}`);
+    console.error(`[CONFIG] [SICC FAIL] Variable de entorno requerida no definida: ${key}`);
     process.exit(1);
   }
   return value || '';
@@ -45,8 +45,7 @@ const config = {
       host: (function() {
         const fs = require('fs');
         const isDocker = fs.existsSync('/.dockerenv');
-        if (process.env.OLLAMA_HOST) return process.env.OLLAMA_HOST;
-        return isDocker ? 'http://opengravity-ollama:11434' : 'http://localhost:11435';
+        return isDocker ? 'http://opengravity-ollama:11434' : 'http://localhost:11434';
       })(),
       model: env('OLLAMA_MODEL', false) || 'gemma4-light:latest',
     },
@@ -84,12 +83,12 @@ const hasOpenrouter = !!config.ai.openrouter.apiKey;
 const hasOllama = !!config.ai.ollama.host;
 
 if (!hasGemini && !hasGroq && !hasOpenrouter && !hasOllama) {
-  console.error('[CONFIG] ❌ Debes configurar al menos una API de IA (Gemini, Groq, OpenRouter u Ollama)');
+  console.error('[CONFIG] [SICC FAIL] Debes configurar al menos una API de IA (Gemini, Groq, OpenRouter u Ollama)');
   process.exit(1);
 }
 
-console.log(`[CONFIG] ✅ Agente: ${config.agent.name}`);
-console.log(`[CONFIG] ✅ Proveedor primario: ${config.ai.primaryProvider}`);
-console.log(`[CONFIG] ✅ Proveedores disponibles: ${[hasGemini && 'Gemini', hasGroq && 'Groq', hasOpenrouter && 'OpenRouter', hasOllama && 'Ollama'].filter(Boolean).join(', ')}`);
+console.log(`[CONFIG] [SICC OK] Agente: ${config.agent.name}`);
+console.log(`[CONFIG] [SICC OK] Proveedor primario: ${config.ai.primaryProvider}`);
+console.log(`[CONFIG] [SICC OK] Proveedores disponibles: ${[hasGemini && 'Gemini', hasGroq && 'Groq', hasOpenrouter && 'OpenRouter', hasOllama && 'Ollama'].filter(Boolean).join(', ')}`);
 
 module.exports = config;

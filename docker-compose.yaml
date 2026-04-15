@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  agente:
+    image: node:20-slim
+    container_name: dieleozagent-debug-dieleozagent-1
+    restart: always
+    volumes:
+      - .:/home/administrador/docker/agente
+    working_dir: /home/administrador/docker/agente
+    command: node src/agent.js --vigilia
+
+networks:
+  default:
+    name: lfc2-network

@@ -13,7 +13,7 @@ if (!fs.existsSync(MEMORY_DIR)) {
   try {
     fs.mkdirSync(MEMORY_DIR, { recursive: true });
   } catch (err) {
-    console.warn(`[MEMORY] ⚠️ No se pudo crear el directorio de memoria: ${err.message}`);
+    console.warn(`[MEMORY] [SICC WARN] No se pudo crear el directorio de memoria: ${err.message}`);
   }
 }
 
@@ -45,7 +45,7 @@ function guardar(textoUsuario, textoAgente, proveedor) {
     }
     fs.appendFileSync(archivo, entrada);
   } catch (err) {
-    console.warn(`[MEMORY] ⚠️ No se pudo guardar: ${err.message}`);
+    console.warn(`[MEMORY] [SICC WARN] No se pudo guardar: ${err.message}`);
   }
 }
 
@@ -65,10 +65,10 @@ function cargarMemoriaReciente() {
       .map(f => fs.readFileSync(path.join(MEMORY_DIR, f), 'utf8').trim())
       .join('\n\n');
 
-    console.log(`[MEMORY] ✅ Cargados ${archivos.length} día(s) de memoria: ${archivos.join(', ')}`);
+    console.log(`[MEMORY] [SICC OK] Cargados ${archivos.length} día(s) de memoria: ${archivos.join(', ')}`);
     return contenido;
   } catch (err) {
-    console.warn(`[MEMORY] ⚠️ No se pudo cargar memoria: ${err.message}`);
+    console.warn(`[MEMORY] [SICC WARN] No se pudo cargar memoria: ${err.message}`);
     return '';
   }
 }
@@ -83,7 +83,7 @@ function estadoMemoria() {
     const ultimo = archivos.sort().slice(-1)[0].replace('.md', '');
     return `📅 ${archivos.length} día(s) almacenado(s) · Último: ${ultimo}`;
   } catch {
-    return '❌ Error al leer memoria';
+    return '[SICC FAIL] Error al leer memoria';
   }
 }
 

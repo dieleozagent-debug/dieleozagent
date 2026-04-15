@@ -47,7 +47,7 @@ async function ejecutarCrossRefCheck() {
     const huerfanos = files.filter(f => !content.includes(f));
     const faltantes = uniqueMatches.filter(m => !files.some(f => m.includes(f)));
 
-    let reporte = `📌 **SICC Cross-Ref Audit:** ${huerfanos.length > 0 || faltantes.length > 0 ? '⚠️' : '✅'}\n`;
+    let reporte = `📌 **SICC Cross-Ref Audit:** ${huerfanos.length > 0 || faltantes.length > 0 ? '[SICC WARN]' : '[SICC OK]'}\n`;
     if (huerfanos.length > 0) reporte += `• Huérfanos en PENDING_DTS: ${huerfanos.length}\n`;
     if (faltantes.length > 0) reporte += `• Referencias rotas en DREAMS.md: ${faltantes.length}\n`;
     if (huerfanos.length === 0 && faltantes.length === 0) reporte += `• Integridad Referencial: 100%\n`;
@@ -73,9 +73,9 @@ async function ejecutarZeroResidueCheck() {
             let reporte = `⚖️ **Zero-Residue Audit:** `;
             if (stdout.trim()) {
                 const lines = stdout.trim().split('\n').length;
-                reporte += `⚠️ Detectadas ${lines} posibles inconsistencias matemáticas (precision > 2).`;
+                reporte += `[SICC WARN] Detectadas ${lines} posibles inconsistencias matemáticas (precision > 2).`;
             } else {
-                reporte += `✅ Purity Check: OK (Redondeo N-1 validado).`;
+                reporte += `[SICC OK] Purity Check: OK (Redondeo N-1 validado).`;
             }
             resolve({ 
                 status: stdout.trim() ? 'WARN' : 'OK', 

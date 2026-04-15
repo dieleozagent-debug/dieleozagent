@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { enviarAlerta } = require('./notifications');
 
-const FINDINGS_PATH = path.join(__dirname, '../data/logs/michelin-findings.json');
+const FINDINGS_PATH = path.join(__dirname, '../data/logs/forensic-findings.json');
 
 /**
  * Encola un hallazgo forense en el búfer local.
@@ -27,7 +27,7 @@ function encolarHallazgo(titulo, detalle, criticidad = 'INFO', metadata = {}) {
     fs.writeFileSync(FINDINGS_PATH, JSON.stringify(findings, null, 2));
     console.log(`[DIGEST] 📝 Hallazgo encolado: ${titulo} (${criticidad})`);
   } catch (err) {
-    console.error('[DIGEST] ❌ Fallo al encolar hallazgo:', err.message);
+    console.error('[DIGEST] [SICC FAIL] Fallo al encolar hallazgo:', err.message);
   }
 }
 
@@ -56,7 +56,7 @@ async function enviarMorningDigest() {
     const highlights = findings.slice(-10); // Limitamos a los últimos 10 para no saturar Telegram
     
     highlights.forEach((f, i) => {
-      const emoji = f.criticidad === 'ALERTA' ? '🚨' : (f.criticidad === 'INFO' ? 'ℹ️' : '🧠');
+      const emoji = f.criticidad === 'ALERTA' ? '[SICC BLOCKER]' : (f.criticidad === 'INFO' ? 'ℹ️' : '[SICC BRAIN]');
       report += `${emoji} **${f.titulo}**\n_${f.detalle}_\n\n`;
     });
     
@@ -70,10 +70,10 @@ async function enviarMorningDigest() {
     
     // Vaciar el búfer tras el envío exitoso
     fs.writeFileSync(FINDINGS_PATH, JSON.stringify([], null, 2));
-    console.log('[DIGEST] ✅ Morning Digest enviado y búfer vaciado.');
+    console.log('[DIGEST] [SICC OK] Morning Digest enviado y búfer vaciado.');
     
   } catch (err) {
-    console.error('[DIGEST] ❌ Fallo al enviar Morning Digest:', err.message);
+    console.error('[DIGEST] [SICC FAIL] Fallo al enviar Morning Digest:', err.message);
   }
 }
 

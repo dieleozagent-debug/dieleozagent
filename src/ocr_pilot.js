@@ -25,7 +25,7 @@ async function ejecutarPilot() {
         mimeType: 'application/pdf',
         displayName: 'AT1_Contract_Pilot',
     });
-    console.log(`[PILOT-OCR] ✅ Archivo disponible en: ${uploadResult.file.uri}`);
+    console.log(`[PILOT-OCR] [SICC OK] Archivo disponible en: ${uploadResult.file.uri}`);
 
     // 2. Solicitar Transcripción Técnica
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" }); // Modelo más moderno y compatible
@@ -35,7 +35,7 @@ async function ejecutarPilot() {
         IMPORTANTE: Preserva las tablas técnica y econónimas de forma exacta usando el formato de tablas de Markdown.
         NO incluyas introducciones, ni comentarios de "aquí está la transcripción". Entrega solo el Markdown.`;
 
-    console.log(`[PILOT-OCR] 🧠 Procesando con Gemini Pro Vision...`);
+    console.log(`[PILOT-OCR] [SICC BRAIN] Procesando con Gemini Pro Vision...`);
     const result = await model.generateContent([
         {
             fileData: {
@@ -66,7 +66,7 @@ async function ejecutarPilot() {
             await insertarFragmento(`[OCR-PILOT] AT1.pdf`, chunks[i], vector);
             process.stdout.write('.');
         } catch (err) {
-            console.error(`\n[PILOT-OCR] ❌ Error en fragmento ${i}: ${err.message}`);
+            console.error(`\n[PILOT-OCR] [SICC FAIL] Error en fragmento ${i}: ${err.message}`);
         }
     }
 

@@ -10,7 +10,7 @@ const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
  */
 async function buscarEnWeb(query) {
     if (!TAVILY_API_KEY || TAVILY_API_KEY === 'tu_tavily_key_aqui') {
-        console.warn('[SEARCH] ⚠️ Tavily API Key no configurada.');
+        console.warn('[SEARCH] [SICC WARN] Tavily API Key no configurada.');
         return 'Búsqueda web no disponible.';
     }
 
@@ -39,7 +39,7 @@ async function buscarEnWeb(query) {
         };
 
     } catch (err) {
-        console.error(`[SEARCH] ❌ Error en búsqueda web: ${err.message}`);
+        console.error(`[SEARCH] [SICC FAIL] Error en búsqueda web: ${err.message}`);
         return 'Error al consultar la web.';
     }
 }

@@ -25,7 +25,7 @@ function extraerTextoLocal(filePath, startPage = 1, endPage = 10) {
 
         // 2. Si pdftotext falla (escaneado), usamos Tesseract
         if (text.length < 100) {
-            console.log(`[OCR-SOVEREIGN] ⚠️ pdftotext devolvió poco texto. Intentando Tesseract OCR (SPA)...`);
+            console.log(`[OCR-SOVEREIGN] [SICC WARN] pdftotext devolvió poco texto. Intentando Tesseract OCR (SPA)...`);
             // Convertimos páginas a imágenes intermedias y luego a OCR es pesado para el contenedor alpine, 
             // pero tesseract puede leer PDFs directamente si tiene los plugins (en alpine es tesseract-ocr).
             // Nota: tesseract directo en PDF requiere que el PDF tenga capas o usar 'pdftoppm' primero.
@@ -49,7 +49,7 @@ function extraerTextoLocal(filePath, startPage = 1, endPage = 10) {
         
         return text;
     } catch (err) {
-        console.error(`[OCR-SOVEREIGN] ❌ Error en proceso local: ${err.message}`);
+        console.error(`[OCR-SOVEREIGN] [SICC FAIL] Error en proceso local: ${err.message}`);
         return '';
     }
 }
@@ -74,7 +74,7 @@ async function run() {
         process.stdout.write('.');
     }
 
-    console.log(`\n[OCR-SOVEREIGN] ✅ Pilot local completado. RAG poblado con 10 páginas.`);
+    console.log(`\n[OCR-SOVEREIGN] [SICC OK] Pilot local completado. RAG poblado con 10 páginas.`);
     await pool.end();
 }
 

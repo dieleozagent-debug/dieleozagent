@@ -41,7 +41,7 @@ async function run() {
         console.log(`[MICHELIN-INGEST] 🚀 Iniciando Protocolo Forense v7.2.0 (Recursivo) en: ${DATA_DIR}`);
         
         if (!fs.existsSync(DATA_DIR)) {
-            console.error(`❌ Directorio no encontrado: ${DATA_DIR}`);
+            console.error(`[SICC FAIL] Directorio no encontrado: ${DATA_DIR}`);
             process.exit(1);
         }
 
@@ -117,27 +117,27 @@ async function run() {
                                             process.stdout.write('.');
                                             await sleep(1000); 
                                         } catch (e) {
-                                            console.error(`\n      ⚠️ Error en pág ${pageNum}: ${e.message}`);
+                                            console.error(`\n      [SICC WARN] Error en pág ${pageNum}: ${e.message}`);
                                         }
                                     }
                                 }
                             } catch (err) {
-                                console.error(`\n      ❌ Fallo en página ${pageNum}: ${err.message}`);
+                                console.error(`\n      [SICC FAIL] Fallo en página ${pageNum}: ${err.message}`);
                             }
                         }
                         
-                        // ✅ GUARDAR CHECKPOINT tras éxito de lote
+                        // [SICC OK] GUARDAR CHECKPOINT tras éxito de lote
                         fs.writeFileSync(checkpointFile, endPage.toString());
                         console.log(`\n   💾 Checkpoint actualizado: pág ${endPage}`);
 
                         fs.rmSync(batchDir, { recursive: true, force: true });
                         
                     } catch (err) {
-                        console.error(`\n   ⚠️ Error en lote ${startPage}-${endPage}: ${err.message}`);
+                        console.error(`\n   [SICC WARN] Error en lote ${startPage}-${endPage}: ${err.message}`);
                         if (fs.existsSync(batchDir)) fs.rmSync(batchDir, { recursive: true, force: true });
                     }
                 }
-                console.log(`\n   ✅ ${archivo} finalizado.`);
+                console.log(`\n   [SICC OK] ${archivo} finalizado.`);
                 
             } catch (err) {
                 console.error(`\n   💀 Error estructural en ${archivo}: ${err.message}`);

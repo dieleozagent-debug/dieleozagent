@@ -81,7 +81,7 @@ async function run() {
     try {
       const texto = await extraerTextoConGemini(filePath, archivo);
       if (!texto || texto.length < 50) {
-         console.log(`   ⚠️ Sin texto extraíble.`);
+         console.log(`   [SICC WARN] Sin texto extraíble.`);
          continue;
       }
 
@@ -93,13 +93,13 @@ async function run() {
         await insertarFragmento(archivo, fragmentos[i], vector);
         process.stdout.write(`\r   💾 Guardando en RAG Supabase: [${i + 1}/${fragmentos.length}]`);
       }
-      console.log(`\n   ✅ ${archivo} indexado.`);
+      console.log(`\n   [SICC OK] ${archivo} indexado.`);
       
       console.log(`\n   ⏳ Esperando 61s para cumplir tasa de Rate Limit de Gemini Free...`);
       await new Promise(r => setTimeout(r, 61000));
       
     } catch (err) {
-      console.error(`\n   ❌ Error procesando ${archivo}: ${err.message}`);
+      console.error(`\n   [SICC FAIL] Error procesando ${archivo}: ${err.message}`);
     }
   }
 

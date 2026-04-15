@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const TelegramBot = require('node-telegram-bot-api');
 const config = require('./config');
-const { inicializarBrain, procesarMensaje, procesarMensajeSwarm, limpiarHistorial, llamarOllama, EstadoGlobalErrores, extraerCodigoError } = require('./agent');
+const { inicializarBrain, procesarMensaje, procesarMensajeSwarm, limpiarHistorial, llamarOllama, EstadoGlobalErrores, extraerCodigoError, generarReporteConsistencia } = require('./agent');
 const { cmdDoctor, cmdLearn, cmdAudit } = require('../scripts/sicc-harness');
 const { estadoBrain, leerHeartbeat } = require('./brain');
 const { guardar, estadoMemoria } = require('./memory');
@@ -41,7 +41,7 @@ async function safeSendMessage(chatId, text, options = {}) {
       return await bot.sendMessage(chatId, text, { ...options, parse_mode: 'Markdown' });
     } catch (err) {
       if (err.message.includes('can\'t parse entities')) {
-        console.warn('[BOT] ⚠️ Error de Markdown, reintentando en texto plano...');
+        console.warn('[BOT] [SICC WARN] Error de Markdown, reintentando en texto plano...');
         return await bot.sendMessage(chatId, text, { ...options, parse_mode: undefined });
       }
       throw err;
@@ -59,9 +59,9 @@ async function safeSendMessage(chatId, text, options = {}) {
     const finalChunk = chunks.length > 1 ? `* [Parte ${index + 1}/${chunks.length}]*\n${chunk}` : chunk;
     try {
       await bot.sendMessage(chatId, finalChunk, { ...options, parse_mode: 'Markdown' });
-      console.log(`[BOT] ✅ Fragmento ${index + 1}/${chunks.length} enviado.`);
+      console.log(`[BOT] [SICC OK] Fragmento ${index + 1}/${chunks.length} enviado.`);
     } catch (err) {
-      console.warn(`[BOT] ⚠️ Fallo Markdown en fragmento ${index + 1}, reintentando plano...`);
+      console.warn(`[BOT] [SICC WARN] Fallo Markdown en fragmento ${index + 1}, reintentando plano...`);
       await bot.sendMessage(chatId, finalChunk, { ...options, parse_mode: undefined });
     }
     // Pequeño delay para no saturar el polling de Telegram
@@ -86,18 +86,18 @@ inicializarBrain();
         if (config.ai.openrouter.apiKey) {
             try {
                 const { llamarOpenRouter } = require('./agent'); // Asumiendo que existe o se usa vía multiplexador
-                statusOR = '✅';
-            } catch (e) { statusOR = '❌'; }
+                statusOR = '[SICC OK]';
+            } catch (e) { statusOR = '[SICC FAIL]'; }
         }
 
         if (test1 && test1.texto) {
-            console.log(`[STARTUP] ✅ Conectividad IA verificada vía ${test1.proveedor.toUpperCase()} | OpenRouter: ${statusOR}`);
+            console.log(`[STARTUP] [SICC OK] Conectividad IA verificada vía ${test1.proveedor.toUpperCase()} | OpenRouter: ${statusOR}`);
         }
     } catch (err) {
         const code = extraerCodigoError(err);
         const label = code ? `(Error ${code})` : '';
-        console.warn(`[STARTUP] ⚠️ Advertencia de conectividad IA ${label}:`, err.message);
-        if (code === 402) console.error('[STARTUP] 🚨 BLOQUEO DE CUOTA (402) DETECTADO AL INICIO.');
+        console.warn(`[STARTUP] [SICC WARN] Advertencia de conectividad IA ${label}:`, err.message);
+        if (code === 402) console.error('[STARTUP] [SICC BLOCKER] BLOQUEO DE CUOTA (402) DETECTADO AL INICIO.');
     }
 })();
 
@@ -113,9 +113,8 @@ const BOGOTA_TZ = 'America/Bogota';
 
 // 1. Vigilia Michelin (08:00 AM) - Reporte Consolidado Institucional Dinámico
 cron.schedule('00 08 * * *', async () => {
-  console.log('[CRON] 🛰️ Iniciando Vigilia Michelin Dinámica (8:00 AM)...');
+  console.log('[CRON] 🛰️ Iniciando Reporte de Consistencia Soberana (8:00 AM)...');
   try {
-    const { enviarVigilia } = require('./agent');
     const { pool } = require('./supabase');
     const { execSync } = require('child_process');
     
@@ -133,57 +132,57 @@ cron.schedule('00 08 * * *', async () => {
     } catch (e) { console.warn('[CRON] Error obteniendo conteo de fragmentos'); }
 
     const resumenAudit = await obtenerResumenForense();
-    const msgVigilia = await enviarVigilia();
+    const msgConsistencia = await generarReporteConsistencia();
     
-    const reporteCompleto = `🌅 *REPORTE MATUTINO SICC — ${new Date().toLocaleDateString()}*\n\n` +
+    const reporteCompleto = `[SICC CYCLE] *REPORTE MATUTINO SICC — ${new Date().toLocaleDateString()}*\n\n` +
       `🌤️ *Clima:* ${climaReal}\n` +
-      `🧠 *Brain Pureness:* ${brainCount} fragmentos\n\n` +
+      `[SICC BRAIN] *Brain Pureness:* ${brainCount} fragmentos\n\n` +
       `${resumenAudit.crossRefReporte}\n` +
       `${resumenAudit.zeroResidueReporte}\n\n` +
       `--- \n` +
       `🔍 *Estado de Vigilancia:* ${resumenAudit.statusGeneral === 'HEALTHY' ? '🟢 Óptimo' : '🟡 Requiere Revisión'}\n\n` +
-      `🛰️ *Dictamen de Vigilia Nocturna:*\n${msgVigilia}`;
+      `🛰️ *Dictamen de Consistencia SICC:*\n${msgConsistencia}`;
 
     await safeSendMessage(config.telegram.userId, reporteCompleto);
-    console.log('[CRON] ✅ Reporte Institucional dinámico enviado.');
+    console.log('[CRON] [SICC OK] Reporte Institucional dinámico enviado.');
   } catch (err) {
-    console.error('[CRON] ❌ Error en Reporte Matutino:', err.message);
+    console.error('[CRON] [SICC FAIL] Error en Reporte Matutino:', err.message);
   }
 }, { timezone: BOGOTA_TZ });
 
-// 2. Ciclo de Sueño SICC (Ventanas Operativas v7.2 - Hyper-Productivity)
-const ejecutarCicloNocturno = () => {
-  console.log('[CRON] 🌙 Iniciando ventana operativa (Ingesta Biblia Legal + Dreamer)...');
+// 2. Ciclo de Auditoría Forense (SICC Simulator v12.0)
+const ejecutarCicloAuditoria = () => {
+  console.log('[CRON] 🛡️ Iniciando ciclo de auditoría forense (Ingesta + Validación Soberana)...');
   const docPath = '/app/repos/LFC2/docs/00_Referencia_Normativa_Contractual_LFC/';
   const cmdIngesta = `node src/ingest_masivo.js "${docPath}" >> data/logs/ingesta_biblia.log 2>&1`;
-  const cmdDreamer = `node scripts/sicc-harness.js dream >> data/logs/dreamer.log 2>&1`;
+  const cmdSimulator = `node src/simulator.js "SICC" >> data/logs/simulator.log 2>&1`;
 
-  exec(`${cmdIngesta} && ${cmdDreamer}`, (error) => {
+  exec(`${cmdIngesta} && ${cmdSimulator}`, (error) => {
     if (error) {
-      console.error('[CRON] ❌ Error en ciclo nocturno:', error.message);
+      console.error('[CRON] [SICC FAIL] Error en ciclo de auditoría:', error.message);
     } else {
-      console.log('[CRON] ✅ Ciclo completado con éxito.');
+      console.log('[CRON] [SICC OK] Ciclo de auditoría completado.');
     }
   });
 };
 
 // A. Vigilia Nocturna (Lun-Jue): 8PM, 11PM, 2AM, 5AM
-cron.schedule('0 20,23,02,05 * * 1-4', ejecutarCicloNocturno, { timezone: BOGOTA_TZ });
+// cron.schedule('0 20,23,02,05 * * 1-4', ejecutarCicloNocturno, { timezone: BOGOTA_TZ });
 
 // B. MISIÓN INFINITA (Fin de Semana - Inicia Viernes 4PM)
-cron.schedule('0 16,20,00 * * 5', ejecutarCicloNocturno, { timezone: BOGOTA_TZ }); // Viernes Early Surge
-cron.schedule('0 */04 * * 6,0', ejecutarCicloNocturno, { timezone: BOGOTA_TZ }); // Sáb-Dom Continuo (cada 4h)
-cron.schedule('0 02,05 * * 1', ejecutarCicloNocturno, { timezone: BOGOTA_TZ });   // Cierre Lunes AM
+// cron.schedule('0 16,20,00 * * 5', ejecutarCicloNocturno, { timezone: BOGOTA_TZ }); // Viernes Early Surge
+// cron.schedule('0 */04 * * 6,0', ejecutarCicloNocturno, { timezone: BOGOTA_TZ }); // Sáb-Dom Continuo (cada 4h)
+// cron.schedule('0 02,05 * * 1', ejecutarCicloNocturno, { timezone: BOGOTA_TZ });   // Cierre Lunes AM
 
 // 3. Backup Automatizado SICC (06:00 AM) - Después de la Guardia
 cron.schedule('00 06 * * *', () => {
   console.log('[BACKUP] 📂 Iniciando respaldo soberano SICC (06:00 AM)...');
   exec(`bash scripts/sicc-backup.sh`, async (error, stdout, stderr) => {
     if (error) {
-      console.error('[BACKUP] ❌ Error en backup:', error.message);
-      await safeSendMessage(config.telegram.userId, `🚨 *FALLO DE RESPALDO SICC*\n\nError: ${error.message}`);
+      console.error('[BACKUP] [SICC FAIL] Error en backup:', error.message);
+      await safeSendMessage(config.telegram.userId, `[SICC BLOCKER] *FALLO DE RESPALDO SICC*\n\nError: ${error.message}`);
     } else {
-      console.log('[BACKUP] ✅ Respaldo completado exitosamente.');
+      console.log('[BACKUP] [SICC OK] Respaldo completado exitosamente.');
       // Omitimos mensaje diario para reducir ruido, solo logueamos. Si falla, avisará.
     }
   });
@@ -206,9 +205,9 @@ cron.schedule('0 * * * *', async () => {
     const logEntry = `[${timestamp}] ❤️ STATUS: ${resumen.statusGeneral} | IA: ${config.ai.primaryProvider} | 4xx: ${err4xxCount} | ${resumen.clima} | ${resumen.crossRefReporte.trim().replace(/\n/g, ' ')} | ${resumen.zeroResidueReporte.trim().replace(/\n/g, ' ')}\n`;
 
     fs.appendFileSync(logPath, logEntry);
-    console.log('[HEALTH] ✅ Registro forense guardado en health.log.');
+    console.log('[HEALTH] [SICC OK] Registro forense guardado en health.log.');
   } catch (err) {
-    console.error(`[HEALTH] ❌ Error en el latido horario: ${err.message}`);
+    console.error(`[HEALTH] [SICC FAIL] Error en el latido horario: ${err.message}`);
   }
 }, { timezone: BOGOTA_TZ });
 
@@ -216,9 +215,9 @@ cron.schedule('0 * * * *', async () => {
 setInterval(async () => {
   if (EstadoGlobalErrores.bloqueos.size > 0) {
     const list = Array.from(EstadoGlobalErrores.bloqueos).join(', ');
-    console.error(`[GUARD] 🚨 EVENTO CRÍTICO DETECTADO: ${list}`);
+    console.error(`[GUARD] [SICC BLOCKER] EVENTO CRÍTICO DETECTADO: ${list}`);
     await safeSendMessage(config.telegram.userId, 
-      `🚨 *SICC CRITICAL EVENT*\n\nSe ha detectado un bloqueo de infraestructura (${list}).\nEl sistema requiere atención inmediata para continuar la misión.`
+      `[SICC BLOCKER] *SICC CRITICAL EVENT*\n\nSe ha detectado un bloqueo de infraestructura (${list}).\nEl sistema requiere atención inmediata para continuar la misión.`
     );
     EstadoGlobalErrores.bloqueos.clear();
   }
@@ -245,24 +244,20 @@ bot.on('message', async (msg) => {
   // ── Comandos ──────────────────────────────────────────────────────────────
   if (texto === '/start' || texto === '/hola') {
     await safeSendMessage(chatId,
-      `👋 ¡Hola Diego! Soy *${config.agent.name}*.\n\n` +
-      `🧠 Cerebro · 💾 Memoria · 📧 Gmail · 🐙 GitHub\n\n` +
+      `👋 ¡Hola Diego! Soy *${config.agent.name}* (SICC Simulator).\n\n` +
+      `[SICC BRAIN] Cerebro · 💾 Memoria · 📧 Gmail · 🐙 GitHub\n\n` +
       `*/doctor* · */learn* · */audit [ruta]*\n` +
-      `*/karpathy [tema]* · */dream* · */swarm [pregunta]*\n` +
-      `*/limpiar* · */estado* · */cerebro* · */memoria*\n\n` +
-      `🖥️ *Comandos de Soberanía (Nuevos):*\n` +
       `*/ollama [prompt]* — Hablar directo con IA Local\n` +
       `*/cmd [comando]* — Ejecutar Shell (ej. docker ps)\n\n` +
       `*/correos* · */email para|asunto|msg*\n` +
-      `*/git repo* — Info del repo LFC2\n` +
-      `*/git commits* — Últimos commits\n` +
-      `*/git issues* — Issues abiertos\n` +
-      `*/git ls [ruta]* — Listar archivos\n` +
-      `*/git cat archivo* — Ver contenido\n\n` +
-      `🛰️ **Patrulla Forense (v9.6):**\n` +
-      `*/dream_on* — Activar Patrulla 24/7\n` +
-      `*/dream_off* — Detener Patrulla\n` +
-      `*/dream_status* — Estado del vigilante`
+      `*/git repo* · */git commits* · */git issues*\n` +
+      `*/git ls [ruta]* · */git cat archivo*\n\n` +
+      `🛰️ **Patrulla Forense (v12.0-Manual):**\n` +
+      `*/ingesta [ruta]* — Ingerir PDFs manualmente\n` +
+      `*/audit_run* — Forzar ciclo de auditoría\n` +
+      `*/patrol_on* — Activar Patrulla 24/7\n` +
+      `*/patrol_off* — Detener Patrulla\n` +
+      `*/patrol_status* — Estado del simulador`
     );
     return;
   }
@@ -282,10 +277,10 @@ bot.on('message', async (msg) => {
       const respuestaDebate = await procesarMensajeSwarm(pregunta);
       guardar(texto, respuestaDebate, 'SICC-SWARM');
       await safeSendMessage(chatId, respuestaDebate);
-      console.log(`[BOT] ✅ Swarm completado para: "${pregunta.substring(0, 30)}..."`);
+      console.log(`[BOT] [SICC OK] Swarm completado para: "${pregunta.substring(0, 30)}..."`);
     } catch (err) {
-      console.error(`[BOT] ❌ Error en Swarm: ${err.message}`);
-      await safeSendMessage(chatId, `❌ Error en el Enjambre: ${err.message}`);
+      console.error(`[BOT] [SICC FAIL] Error en Swarm: ${err.message}`);
+      await safeSendMessage(chatId, `[SICC FAIL] Error en el Enjambre: ${err.message}`);
     }
     return;
   }
@@ -310,7 +305,7 @@ bot.on('message', async (msg) => {
       guardar(texto, `Score: ${score}/100`, 'SYSTEM');
       await safeSendMessage(chatId, reporte);
     } catch (err) {
-      await safeSendMessage(chatId, `❌ Error en Doctor: ${err.message}`);
+      await safeSendMessage(chatId, `[SICC FAIL] Error en Doctor: ${err.message}`);
     }
     return;
   }
@@ -323,7 +318,7 @@ bot.on('message', async (msg) => {
       ? (fs.readFileSync(dreamsPath, 'utf8').match(/^- \[(?!DONE)/gm) || []).length : 0;
     const dts = fs.existsSync(dtsPath)
       ? (fs.readFileSync(dtsPath, 'utf8').match(/^## DT-DREAM/gm) || []).length : 0;
-    const msg = `💤 *SICC Dreamer — Estado*\n\n` +
+    const msg = `[SICC SLEEP] *SICC Dreamer — Estado*\n\n` +
       `⏳ *${dreams}* hipótesis en cola para el ciclo nocturno\n` +
       `📋 *${dts}* borradores de DT pendientes de aprobación\n\n` +
       `El Dreamer ejecuta a las *2:00 AM* con el Hard-Cap de CPU activo.`;
@@ -333,7 +328,7 @@ bot.on('message', async (msg) => {
 
   // ── Comando LEARN (Auto-mapeo recursivo) ───────────────────────────────────
   if (texto === '/learn') {
-    await safeSendMessage(chatId, '🧠 *SICC Brain: Inicia aprendizaje recursivo...*');
+    await safeSendMessage(chatId, '[SICC BRAIN] *SICC Brain: Inicia aprendizaje recursivo...*');
     await bot.sendChatAction(chatId, 'typing');
     try {
       const oldLog = console.log;
@@ -343,9 +338,9 @@ bot.on('message', async (msg) => {
       console.log = oldLog;
       const resumen = lines.slice(-5).join('\n');
       guardar(texto, resumen, 'SYSTEM');
-      await safeSendMessage(chatId, `✅ *Aprendizaje Completado*\n\n\`\`\`\n${resumen}\n\`\`\``);
+      await safeSendMessage(chatId, `[SICC OK] *Aprendizaje Completado*\n\n\`\`\`\n${resumen}\n\`\`\``);
     } catch (err) {
-      await safeSendMessage(chatId, `❌ Error en Learn: ${err.message}`);
+      await safeSendMessage(chatId, `[SICC FAIL] Error en Learn: ${err.message}`);
     }
     return;
   }
@@ -373,7 +368,7 @@ bot.on('message', async (msg) => {
         let rutaAuditar = config.paths.lfc2;
         
         if (!archivos) {
-          await safeSendMessage(chatId, `⚠️ No se encontraron archivos específicos para: \`${keyword}\`. Auditando raíz...`);
+          await safeSendMessage(chatId, `[SICC WARN] No se encontraron archivos específicos para: \`${keyword}\`. Auditando raíz...`);
         } else {
           await safeSendMessage(chatId, `📂 *Archivos localizados:*\n\`\`\`\n${archivos}\n\`\`\``);
           rutaAuditar = archivos.split('\n')[0];
@@ -388,10 +383,10 @@ bot.on('message', async (msg) => {
 
         const resumenAudit = lines.join('\n').substring(0, 3000);
         await safeSendMessage(chatId, `🔬 *Dictamen Karpathy:* \n\n\`\`\`\n${resumenAudit}\n\`\`\``);
-        await safeSendMessage(chatId, `✅ *Proceso completado.* Los hallazgos se han registrado en el cerebro.`);
+        await safeSendMessage(chatId, `[SICC OK] *Proceso completado.* Los hallazgos se han registrado en el cerebro.`);
       });
     } catch (err) {
-      await safeSendMessage(chatId, `❌ Error en Protocolo Karpathy: ${err.message}`);
+      await safeSendMessage(chatId, `[SICC FAIL] Error en Protocolo Karpathy: ${err.message}`);
     }
     return;
   }
@@ -400,7 +395,7 @@ bot.on('message', async (msg) => {
   if (texto.startsWith('/audit ')) {
     const ruta = texto.replace('/audit ', '').trim();
     if (!ruta) {
-      await safeSendMessage(chatId, '⚠️ Uso: `/audit IV_Ingenieria_basica`');
+      await safeSendMessage(chatId, '[SICC WARN] Uso: `/audit IV_Ingenieria_basica`');
       return;
     }
     await safeSendMessage(chatId, `🔬 *Iniciando Auditoría Forense en:* \`${ruta}\`...`);
@@ -415,7 +410,7 @@ bot.on('message', async (msg) => {
       guardar(texto, `Resultados de auditoría en ${ruta}`, 'SYSTEM');
       await safeSendMessage(chatId, `🔬 *Resultados de la Auditoría:* \n\n\`\`\`\n${resumenAudit}\n\`\`\``);
     } catch (err) {
-      await safeSendMessage(chatId, `❌ Error en Audit: ${err.message}`);
+      await safeSendMessage(chatId, `[SICC FAIL] Error en Audit: ${err.message}`);
     }
     return;
   }
@@ -430,7 +425,7 @@ bot.on('message', async (msg) => {
       const resultado = await llamarOllama(prompt);
       await safeSendMessage(chatId, `🖥️ *Ollama_v7.0:*\n\n${resultado}`);
     } catch (err) {
-      await safeSendMessage(chatId, `❌ Error en Ollama: ${err.message}`);
+      await safeSendMessage(chatId, `[SICC FAIL] Error en Ollama: ${err.message}`);
     }
     return;
   }
@@ -445,6 +440,43 @@ bot.on('message', async (msg) => {
       if (error) output += `\nError: ${error.message}`;
       const preview = output.substring(0, 3000);
       await safeSendMessage(chatId, `\`\`\`bash\n${preview}\n\`\`\``);
+    });
+    return;
+  }
+
+  // ── Comando INGESTA (Manual Demand) ───────────────────────────────────────
+  if (texto.startsWith('/ingesta ')) {
+    const ruta = texto.replace('/ingesta ', '').trim();
+    if (!ruta) {
+      await bot.sendMessage(chatId, '📝 Uso: `/ingesta /ruta/de/pdfs`');
+      return;
+    }
+    await safeSendMessage(chatId, `🚀 *Iniciando Ingesta bajo demanda en:* \`${ruta}\`...\nEsto puede tardar varios minutos.`);
+    await bot.sendChatAction(chatId, 'upload_document');
+    
+    exec(`node scripts/sicc-ingesta.js --path "${ruta}"`, (error, stdout, stderr) => {
+      if (error) {
+        bot.sendMessage(chatId, `❌ *Error en Ingesta:* ${error.message}`);
+      } else {
+        const out = stdout.split('\n').slice(-5).join('\n');
+        safeSendMessage(chatId, `✅ *Ingesta Finalizada*\n\n\`\`\`\n${out}\n\`\`\``);
+      }
+    });
+    return;
+  }
+
+  // ── Comando AUDIT_RUN (Auditor Manual) ─────────────────────────────────────────
+  if (texto === '/audit_run') {
+    await safeSendMessage(chatId, '🛡️ *Activando Motor de Auditoría Forense...*');
+    await bot.sendChatAction(chatId, 'typing');
+    
+    exec(`node scripts/sicc-harness.js audit --force`, (error, stdout, stderr) => {
+      if (error) {
+        bot.sendMessage(chatId, `❌ *Error en Auditor:* ${error.message}`);
+      } else {
+        const out = stdout.split('\n').slice(-5).join('\n');
+        safeSendMessage(chatId, `🛡️ *Ciclo de Auditoría Finalizado*\n\n\`\`\`\n${out}\n\`\`\``);
+      }
     });
     return;
   }
@@ -510,7 +542,7 @@ bot.on('message', async (msg) => {
 
       } else if (sub === 'cat') {
         const archivo = args.slice(1).join(' ');
-        if (!archivo) { await bot.sendMessage(chatId, '⚠️ Uso: `/git cat ruta/archivo`', { parse_mode: 'Markdown' }); return; }
+        if (!archivo) { await bot.sendMessage(chatId, '[SICC WARN] Uso: `/git cat ruta/archivo`', { parse_mode: 'Markdown' }); return; }
         const contenido = await leerArchivo(archivo);
         const preview = contenido.substring(0, 3000);
         await bot.sendMessage(chatId,
@@ -519,11 +551,11 @@ bot.on('message', async (msg) => {
         );
 
       } else {
-        await bot.sendMessage(chatId, '⚠️ Sub-comandos: `repo` · `commits` · `issues` · `ls [ruta]` · `cat archivo`', { parse_mode: 'Markdown' });
+        await bot.sendMessage(chatId, '[SICC WARN] Sub-comandos: `repo` · `commits` · `issues` · `ls [ruta]` · `cat archivo`', { parse_mode: 'Markdown' });
       }
     } catch (err) {
-      console.error(`[GITHUB] ❌ ${err.message}`);
-      await safeSendMessage(chatId, `❌ Error GitHub: ${err.message}`);
+      console.error(`[GITHUB] [SICC FAIL] ${err.message}`);
+      await safeSendMessage(chatId, `[SICC FAIL] Error GitHub: ${err.message}`);
     }
     return;
   }
@@ -537,8 +569,8 @@ bot.on('message', async (msg) => {
         `📧 *Correos no leídos — dieleozagent@gmail.com*\n\n${resumen}`
       );
     } catch (err) {
-      console.error(`[GMAIL] ❌ ${err.message}`);
-      await bot.sendMessage(chatId, `❌ Error al leer Gmail: ${err.message}`);
+      console.error(`[GMAIL] [SICC FAIL] ${err.message}`);
+      await bot.sendMessage(chatId, `[SICC FAIL] Error al leer Gmail: ${err.message}`);
     }
     return;
   }
@@ -548,7 +580,7 @@ bot.on('message', async (msg) => {
     const partes = texto.replace('/email ', '').split('|');
     if (partes.length < 3) {
       await bot.sendMessage(chatId,
-        '⚠️ Formato: `/email destinatario@correo.com|Asunto|Mensaje`',
+        '[SICC WARN] Formato: `/email destinatario@correo.com|Asunto|Mensaje`',
         { parse_mode: 'Markdown' }
       );
       return;
@@ -556,10 +588,10 @@ bot.on('message', async (msg) => {
     await bot.sendChatAction(chatId, 'typing');
     try {
       await enviarCorreo({ para: partes[0].trim(), asunto: partes[1].trim(), cuerpo: partes[2].trim() });
-      await bot.sendMessage(chatId, `✅ Correo enviado a *${partes[0].trim()}*`, { parse_mode: 'Markdown' });
+      await bot.sendMessage(chatId, `[SICC OK] Correo enviado a *${partes[0].trim()}*`, { parse_mode: 'Markdown' });
     } catch (err) {
-      console.error(`[GMAIL] ❌ ${err.message}`);
-      await bot.sendMessage(chatId, `❌ Error al enviar: ${err.message}`);
+      console.error(`[GMAIL] [SICC FAIL] ${err.message}`);
+      await bot.sendMessage(chatId, `[SICC FAIL] Error al enviar: ${err.message}`);
     }
     return;
   }
@@ -574,9 +606,9 @@ bot.on('message', async (msg) => {
     await safeSendMessage(chatId,
       `📊 *Estado de ${config.agent.name}*\n\n` +
       `• Proveedor: *${config.ai.primaryProvider}*\n` +
-      `• Gemini: ${config.ai.gemini.apiKey ? '✅' : '❌'}\n` +
-      `• Groq: ${config.ai.groq.apiKey ? '✅' : '❌'}\n` +
-      `• OpenRouter: ${config.ai.openrouter.apiKey ? '✅' : '❌'}\n\n` +
+      `• Gemini: ${config.ai.gemini.apiKey ? '[SICC OK]' : '[SICC FAIL]'}\n` +
+      `• Groq: ${config.ai.groq.apiKey ? '[SICC OK]' : '[SICC FAIL]'}\n` +
+      `• OpenRouter: ${config.ai.openrouter.apiKey ? '[SICC OK]' : '[SICC FAIL]'}\n\n` +
       `💾 ${estadoMemoria()}`
     );
     return;
@@ -584,7 +616,7 @@ bot.on('message', async (msg) => {
 
   if (texto === '/cerebro') {
     await safeSendMessage(chatId,
-      `🧠 *Archivos del cerebro:*\n\n${estadoBrain()}`
+      `[SICC BRAIN] *Archivos del cerebro:*\n\n${estadoBrain()}`
     );
     return;
   }
@@ -605,10 +637,10 @@ bot.on('message', async (msg) => {
     const { texto: respuesta, proveedor } = await procesarMensaje(texto, null);
     guardar(texto, respuesta, proveedor);
     await safeSendMessage(chatId, respuesta);
-    console.log(`[BOT] ✅ Respondido con ${proveedor}`);
+    console.log(`[BOT] [SICC OK] Respondido con ${proveedor}`);
   } catch (err) {
-    console.error(`[BOT] ❌ ${err.message}`);
-    await safeSendMessage(chatId, '⚠️ Error inesperado. Revisa los logs.');
+    console.error(`[BOT] [SICC FAIL] ${err.message}`);
+    await safeSendMessage(chatId, '[SICC WARN] Error inesperado. Revisa los logs.');
   }
 });
 
@@ -642,14 +674,14 @@ async function procesarArchivo(msg, msgTipo) {
     await safeSendMessage(chatId, respuesta);
     
   } catch (err) {
-    console.error(`[BOT] ❌ Error procesando archivo: ${err.message}`);
-    await safeSendMessage(chatId, '⚠️ Error analizando el archivo asegúrate de que sea un PDF/Imagen soportado por Gemini.');
+    console.error(`[BOT] [SICC FAIL] Error procesando archivo: ${err.message}`);
+    await safeSendMessage(chatId, '[SICC WARN] Error analizando el archivo asegúrate de que sea un PDF/Imagen soportado por Gemini.');
   }
 }
 
 bot.on('document', (msg) => procesarArchivo(msg, 'document'));
 bot.on('photo',    (msg) => procesarArchivo(msg, 'photo'));
 
-bot.on('polling_error', (err) => console.error(`[BOT] ❌ Polling: ${err.message}`));
+bot.on('polling_error', (err) => console.error(`[BOT] [SICC FAIL] Polling: ${err.message}`));
 process.on('SIGTERM', () => { bot.stopPolling(); process.exit(0); });
 process.on('SIGINT',  () => { bot.stopPolling(); process.exit(0); });

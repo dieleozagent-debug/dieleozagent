@@ -18,6 +18,8 @@ const path = require('path');
 const os   = require('os');
 const { checkYEncolar, getCpuLoad } = require('./resource-governor');
 const config = require('../src/config');
+const { buscarSimilares, obtenerEmbedding, pool } = require('../src/supabase');
+const { getMultiplexedContext } = require('./sicc-multiplexer');
 
 const AGENTE_ROOT = path.join(__dirname, '..');
 const BRAIN_ROOT  = config.paths.brain;
@@ -84,16 +86,35 @@ async function inferirConOllama(hipotesis) {
 
   const client = new OpenAI({ baseURL: `${ollamaHost}/v1`, apiKey: 'ollama' });
 
-  const { construirSystemPrompt } = require('../src/brain');
-  const brainFull = construirSystemPrompt('full');
+  // --- RAG & LTM ENHANCEMENT (v11.1) ---
+  const fragmentosContrato = await buscarSimilares(hipotesis, 5);
+  
+  // Búsqueda en Memoria Genética (LTM)
+  const vectorHipotesis = await obtenerEmbedding(hipotesis);
+  const resMemoria = await pool.query(
+    "SELECT content, similitud FROM buscar_memoria_genetica($1::vector, 0.6, 2)",
+    [`[${vectorHipotesis.join(',')}]`]
+  );
+  const leccionesMemoria = resMemoria.rows;
 
-  const systemPrompt = `Eres el AUDITOR FORENSE SICC operando en modo AUTÓNOMO (Dreamer).\n\n` + 
-    `CEREBRO DE REFERENCIA:\n${brainFull}\n\n` +
-    `Tu misión es aplicar la METODOLOGÍA PUNTO 42 para realizar una RE-INGENIERÍA DE COHERENCIA TÉCNICA.\n\n` +
-    `DEBES GENERAR DOS BLOQUES DISTINTOS PARA CADA HALLAZGO:\n\n` +
-    `1. [DJ] DICTAMEN JURÍDICO: Define la REGLA DE NEGOCIO basada en el Contrato Maestro. Es el sustento legal y la restricción (Ej: "La Cláusula X prohíbe Y"). Destino: Carpeta de Dictámenes.\n` +
-    `2. [DT] DECISIÓN TÉCNICA: Define la EJECUCIÓN TÉCNICA en la WBS. Es el ajuste de cantidades o especificaciones (Ej: "Reducir de 4 a 3 puestos en el ítem L3-Z"). Destino: WBS / Ingeniería.\n\n` +
-    `FILOSOFÍA: Deducción N-1. Si no hay Verbo Rector en el Contrato, es excedente (Grasa).`;
+  const contextBlock = fragmentosContrato.map(f => `[FUENTE: ${f.nombre_archivo} | SIM: ${f.similitud.toFixed(2)}]\n${f.contenido}`).join('\n---\n');
+  const memoryBlock = leccionesMemoria.map(l => `[LECCIÓN APRENDIDA | SIM: ${l.similitud.toFixed(2)}]\n${l.content}`).join('\n---\n');
+  const multiplexedBrain = getMultiplexedContext(hipotesis);
+
+  const systemPrompt = `AUDITORÍA TÉCNICA SICC (v12.0) — HAND-OFF ESPECIALIZADO\n` + 
+    `JERARQUÍA SUPREMA: RESTRICCIONES DURAS (R-HARD)\n\n` + 
+    `${multiplexedBrain}\n\n` +
+    `ANCLAJE CONTRACTUAL (VERDAD ABSOLUTA):\n${contextBlock}\n\n` +
+    `MEMORIA DE LARGO PLAZO (LTM):\n${memoryBlock}\n\n` +
+    `REGLA DE ORO: Si no hay Verbo Rector en el CONTRATO o en la MEMORIA que lo sustente, es G-R-A-S-A. No inventes sistemas legacy.\n\n` +
+    `REGLAS DE SALIDA (BLINDAJE ANT-IA):\n` +
+    `- PROHIBIDO el uso de emojis.\n` +
+    `- PROHIBIDO el uso de términos: "Peones", "Sueño", "Dreamer", "Michelin Certified", "Karpathy Loop", "Propuesta Soberana", "SICC BLOCKER".\n` +
+    `- PROHIBIDO inventar conceptos como "Optimización Energética" si no están en el RAG.\n` +
+    `- PROHIBIDO usar la cifra "US$ 2.5 MM" para equipamiento embarcado. Única cifra válida: $726.000.000 COP.\n` +
+    `- OBLIGATORIO: Usar el CÁNON DE CITACIÓN: [Documento] → [Capítulo] → [Sección] → [Literal] → [Texto literal].\n` +
+    `- OUTPUT: Texto plano de alta densidad técnica. Sin introducciones amigables ni despedidas.\n\n` +
+    `GENERA EXCLUSIVAMENTE:\n1. [DJ] DICTAMEN JURÍDICO (sustento legal)\n2. [DT] DECISIÓN TÉCNICA (ajuste WBS)`;
 
   const respuesta = await client.chat.completions.create({
     model: ollamaModel,
@@ -189,7 +210,7 @@ async function runDreamer() {
   }
 
   // Resumen
-  log(`[DREAMER] 🌅 Ciclo completado. ${procesadas} hipótesis procesadas. DTs generados: ${dtIds.join(', ')}`);
+  log(`[DREAMER] Ciclo completado. ${procesadas} hipótesis procesadas. DTs generados: ${dtIds.join(', ')}`);
 
   // Notificación Telegram (opcional — no bloquea si falla)
   if (procesadas > 0) {
@@ -218,11 +239,11 @@ async function notificarTelegram(count, dtIds) {
   const userId = process.env.TELEGRAM_USER_ID;
   if (!token || !userId) return;
 
-  const msg = `💤 *SICC Dreamer | Reporte de Vigilia*\n\n` +
-    `Mientras dormías, analicé ${count} hipótesis técnicas.\n\n` +
-    `📋 *Borradores generados:*\n` +
-    dtIds.map(id => `- \`${id}\``).join('\n') +
-    `\n\nRevisa \`brain/PENDING_DTS.md\` y responde \`/aprobar [ID]\` para aplicarlos.`;
+  const msg = `SICC Dreamer | Reporte de Vigilia\n\n` +
+    `Analizados ${count} hipótesis técnicas.\n\n` +
+    `Borradores generados:\n` +
+    dtIds.map(id => `- ${id}`).join('\n') +
+    `\n\nRevisa brain/PENDING_DTS.md para aplicar.`;
 
   const fetch = (await import('node-fetch')).default;
   await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {

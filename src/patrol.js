@@ -43,7 +43,7 @@ async function buclePatrulla(bot, chatId) {
   // 1. Verificar Recursos
   const recursos = evaluarRecursos();
   if (!recursos.ok) {
-    console.log(`[PATROL] 💤 Pausa por recursos: ${recursos.message}`);
+    console.log(`[PATROL] [SICC SLEEP] Pausa por recursos: ${recursos.message}`);
     // Reintentar en 5 minutos
     setTimeout(() => buclePatrulla(bot, chatId), 5 * 60 * 1000);
     return;
@@ -63,8 +63,8 @@ async function buclePatrulla(bot, chatId) {
   const target = folders[currentFolderIndex];
   console.log(`[PATROL] 🚀 Auditando carpeta [${currentFolderIndex + 1}/${folders.length}]: ${target}`);
 
-  // 3. Ejecutar Auditoría Karpathy
-  const cmd = `node scripts/karpathy_audit.js "${target}"`;
+  // 3. Ejecutar Auditoría Forense
+  const cmd = `node scripts/forensic_auditor.js "${target}"`;
   
   exec(cmd, { cwd: path.join(__dirname, '..') }, (error, stdout, stderr) => {
     // Registrar hallazgos (esto ya lo hace karpathy_audit mediante encolarHallazgo si lo configuramos, 
@@ -74,7 +74,7 @@ async function buclePatrulla(bot, chatId) {
     fs.appendFileSync(logPath, entry);
 
     if (error) {
-      console.warn(`[PATROL] ⚠️ Error auditando ${target}: ${error.message}`);
+      console.warn(`[PATROL] [SICC WARN] Error auditando ${target}: ${error.message}`);
     }
 
     currentFolderIndex++;
@@ -99,13 +99,13 @@ function startPatrol(bot, chatId) {
   
   buclePatrulla(bot, chatId);
   guardarEstado();
-  return `🚀 **Modo Patrulla Activado.** Iniciando desde carpeta #${currentFolderIndex + 1}. El sistema se auto-regulará por recursos.`;
+  return `🚀 **Modo Patrulla Forense Activado.** Iniciando desde carpeta #${currentFolderIndex + 1}. Escaneo determinístico N-1 en curso.`;
 }
 
 function stopPatrol() {
   patrolActive = false;
   guardarEstado();
-  return '🛑 **Patrulla Detenida.** El sistema ha entrado en reposo.';
+  return '🛑 **Patrulla Forense Detenida.** El sistema ha entrado en reposo soberano.';
 }
 
 function getPatrolStatus() {
@@ -114,7 +114,7 @@ function getPatrolStatus() {
     active: patrolActive,
     folderIndex: currentFolderIndex,
     cpu: Math.round(recursos.load * 100),
-    msg: recursos.message
+    msg: `[SICC GUARD] ${recursos.message}`
   };
 }
 

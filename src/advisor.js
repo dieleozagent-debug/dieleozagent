@@ -9,10 +9,10 @@ const path = require('path');
  * Su misión es rutar la consulta al especialista adecuado y proponer mejoras al Brain.
  */
 async function rutarEstrategiaAdvisor(pregunta, contextoDNA) {
-  console.log('[ADVISOR] 🧠 Analizando estrategia de ruteo Michelin...');
+  console.log('[ADVISOR] [SICC BRAIN] Analizando estrategia de ruteo soberano...');
   
-  const systemPrompt = `Eres el ORQUESTADOR SICC v9.5.0. 
-Tu misión es decidir qué especialistas del enjambre activar y qué archivos del cerebro (.md) son vitales.
+  const systemPrompt = `Eres el ORQUESTADOR SOBREANO SICC v12.0. 
+Tu misión es decidir qué especialistas del Auditor Forense activar y qué archivos del cerebro (.md) son vitales.
 
 ADN ACTUAL: ${contextoDNA.substring(0, 500)}...
 
@@ -37,7 +37,7 @@ RESPONDE ÚNICAMENTE CON ESTE JSON:
       
       decision = JSON.parse(cleanJson);
     } catch (e) {
-      console.warn('[ADVISOR] ⚠️ No se pudo parsear JSON. Buscando heurística...');
+      console.warn('[ADVISOR] [SICC WARN] No se pudo parsear JSON. Buscando heurística...');
       decision = { 
         especialista: res.texto.toUpperCase().includes('LEGAL') ? 'LEGAL' : 'MIXTO',
         archivos_vitales: [],
@@ -46,18 +46,18 @@ RESPONDE ÚNICAMENTE CON ESTE JSON:
       };
     }
     
-    console.log(`[ADVISOR] ✅ Decisión: ${decision.especialista} (${decision.razonamiento})`);
+    console.log(`[ADVISOR] [SICC OK] Decisión: ${decision.especialista} (${decision.razonamiento})`);
     
-    // Registrar propuesta de aprendizaje
-    const evolutionPath = path.join(__dirname, '../brain/GENETIC_EVOLUTION.md');
+    // Registrar propuesta de aprendizaje soberano
+    const evolutionPath = path.join(__dirname, '../brain/EVOLUCION_SOBERANA.md');
     const sugerencia = decision.propuesta_aprendizaje || 'Sin sugerencia específica.';
-    const entrada = `\n### 🧬 PROPUESTA DE EVOLUCIÓN (${new Date().toISOString()})\n- **Consulta:** ${pregunta}\n- **Sugerencia:** ${sugerencia}\n- **Ruteo:** ${decision.especialista}\n`;
+    const entrada = `\n### 🧬 PROPUESTA DE EVOLUCIÓN SOBERANA (${new Date().toISOString()})\n- **Consulta:** ${pregunta}\n- **Sugerencia:** ${sugerencia}\n- **Ruteo:** ${decision.especialista}\n`;
     
     fs.appendFileSync(evolutionPath, entrada);
     
     return decision;
   } catch (err) {
-    console.error('[ADVISOR] ❌ Error en ruteo:', err.message);
+    console.error('[ADVISOR] [SICC FAIL] Error en ruteo:', err.message);
     return { especialista: 'MIXTO', archivos_vitales: [], razonamiento: 'Fallo de infraestructura' };
   }
 }

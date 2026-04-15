@@ -33,7 +33,7 @@ const pool = new Pool(dbConfig);
  */
 async function obtenerEmbedding(texto) {
     try {
-        const port = (process.env.NODE_ENV === 'production') ? '11434' : '11435';
+        const port = '11434';
         const host = `http://localhost:${port}`;
         const response = await axios.post(`${host}/api/embeddings`, {
             model: "nomic-embed-text",
@@ -41,21 +41,21 @@ async function obtenerEmbedding(texto) {
         });
     const vector = response.data.embedding;
     if (vector.length !== 768) {
-        console.warn(`[SUPABASE] ⚠️ Ollama devolvió ${vector.length} dimensiones, se esperaba 768.`);
+        console.warn(`[SUPABASE] [SICC WARN] Ollama devolvió ${vector.length} dimensiones, se esperaba 768.`);
     }
     return vector;
   } catch (localErr) {
-    console.warn(`[SUPABASE] ⚠️ Ollama Local falló, intentando Cloud Gemini...`);
+    console.warn(`[SUPABASE] [SICC WARN] Ollama Local falló, intentando Cloud Gemini...`);
     try {
       const model = genAI.getGenerativeModel({ model: "embedding-001" });
       const result = await model.embedContent(texto);
       const vector = result.embedding.values;
       if (vector.length !== 768) {
-          console.warn(`[SUPABASE] ⚠️ Gemini devolvió ${vector.length} dimensiones, se esperaba 768.`);
+          console.warn(`[SUPABASE] [SICC WARN] Gemini devolvió ${vector.length} dimensiones, se esperaba 768.`);
       }
       return vector;
     } catch (e) {
-      console.error(`[SUPABASE] ❌ Error final en Embeddings: ${e.message}`);
+      console.error(`[SUPABASE] [SICC FAIL] Error final en Embeddings: ${e.message}`);
     }
   }
 

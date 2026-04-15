@@ -1,59 +1,67 @@
-// scripts/zero_residue_audit.js — Auditoría de Redondeo SICC v8.7
+// scripts/zero_residue_audit.js — Auditoría de Pureza SICC v12.0
 'use strict';
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
-const TARGET_DIR = '/home/administrador/docker/LFC2';
+const LFC2_DIR = '/home/administrador/docker/LFC2';
+const BRAIN_DIR = '/home/administrador/docker/agente/brain';
+
+const BLACKLIST = [
+    { term: /2\.5\s*MM\s*USD|USD\s*2\.5\s*MM|2\.5\s*millones\s*de\s*dólares/i, reason: 'CAPEX Hallucination (Must be $726M COP)' },
+    { term: /peones|pionero|sueño|dreamer|michelin certified|karpathy loop/i, reason: 'Prohibited IA Terminology' },
+    { term: /microondas|catenaria|gateway lógico|itcs|alstom/i, reason: 'Excluded Technologies' },
+    { term: /tecnoparte 2001/i, reason: 'Non-existent Regulation' }
+];
 
 async function runZeroResidueAudit() {
-    console.log('[ZERO-RESIDUE] 🕵️ Iniciando auditoría de impurezas decimales...');
+    console.log('[ZERO-RESIDUE] 🕵️ Iniciando Auditoría Forense de Residuo Cero (SICC v12.0)...');
     
-    // Buscamos en archivos MD, HTML y JSON que suelen contener cifras
-    // Usamos shell find para mayor velocidad y alcance
-    const { execSync } = require('child_process');
-    const cmd = `find ${TARGET_DIR} -type f -regex ".*\\.\\(md\\|html\\|json\\|txt\\)" ! -path "*/old/*" ! -path "*/.git/*"`;
-    
-    try {
-        const files = execSync(cmd).toString().trim().split('\n');
-        let issuesFound = [];
+    const searchDirs = [LFC2_DIR, path.join(BRAIN_DIR, 'PENDING_DTS')];
+    let findings = [];
 
-        for (const file of files) {
-            if (!file) continue;
-            const content = fs.readFileSync(file, 'utf8');
-            
-            // Regex para buscar números con 3 o más decimales (presunta grasa matemática)
-            // Excluimos versiones (v1.0.0) y fechas
-            const decimalMatches = content.match(/\d+\.\d{3,}/g);
-            
-            if (decimalMatches) {
-                // Filtrar probables falsos positivos (como coordenadas GNSS que SÍ requieren precisión)
-                const realIssues = decimalMatches.filter(num => {
-                    const val = parseFloat(num);
-                    // Si el archivo habla de presupuesto o financiero, 3+ decimales es ERROR
-                    if (file.toLowerCase().includes('wbs') || file.toLowerCase().includes('presupuesto')) return true;
-                    // Generalmente, para CAPEX, no queremos micro-centavos erráticos
-                    return val > 0 && num.split('.')[1].length > 4; // Más de 4 decimales es sospechoso de error de redondeo
-                });
+    for (const dir of searchDirs) {
+        if (!fs.existsSync(dir)) continue;
+        const cmd = `find ${dir} -type f -regex ".*\\.\\(md\\|html\\|json\\|txt\\)" ! -path "*/old/*" ! -path "*/.git/*"`;
+        
+        try {
+            const files = execSync(cmd).toString().trim().split('\n');
+            for (const file of files) {
+                if (!file) continue;
+                const content = fs.readFileSync(file, 'utf8');
+                
+                // 1. Check Blacklist Terms
+                for (const item of BLACKLIST) {
+                    if (item.term.test(content)) {
+                        findings.push({
+                            file: path.relative('/home/administrador/docker', file),
+                            issue: item.reason,
+                            evidence: content.match(item.term)[0]
+                        });
+                    }
+                }
 
-                if (realIssues.length > 0) {
-                    issuesFound.push({
-                        file: path.relative(TARGET_DIR, file),
-                        samples: realIssues.slice(0, 3)
+                // 2. Check Decimal Residue (Rounding issues > 4 decimals)
+                const decimalMatches = content.match(/\d+\.\d{5,}/g);
+                if (decimalMatches && !file.includes('coords') && !file.includes('gnss')) {
+                    findings.push({
+                        file: path.relative('/home/administrador/docker', file),
+                        issue: 'Decimal Residue (Rounding Error)',
+                        evidence: decimalMatches[0]
                     });
                 }
             }
+        } catch (err) {
+            console.error(`[ZERO-RESIDUE] ❌ Error en directorio ${dir}:`, err.message);
         }
+    }
 
-        if (issuesFound.length > 0) {
-            console.log(`[ZERO-RESIDUE] ⚠️ Detectadas ${issuesFound.length} impurezas de redondeo.`);
-            return issuesFound;
-        } else {
-            console.log('[ZERO-RESIDUE] ✅ Repositorio limpio de residuos decimales.');
-            return [];
-        }
-    } catch (err) {
-        console.error('[ZERO-RESIDUE] ❌ Error durante la auditoría:', err.message);
+    if (findings.length > 0) {
+        console.log(`[ZERO-RESIDUE] ⚠️ Detectadas ${findings.length} impurezas forenses.`);
+        return findings;
+    } else {
+        console.log('[ZERO-RESIDUE] ✅ Sistema blindado. Residuo Cero detectado.');
         return [];
     }
 }

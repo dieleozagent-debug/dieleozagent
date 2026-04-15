@@ -21,7 +21,7 @@ async function enviarCorreo({ para, asunto, cuerpo }) {
     text: cuerpo,
   });
 
-  console.log(`[GMAIL] ✅ Correo enviado a ${para}`);
+  console.log(`[GMAIL] [SICC OK] Correo enviado a ${para}`);
 }
 
 // ── Leer correos no leídos ────────────────────────────────────────────────────
@@ -65,7 +65,7 @@ async function leerNoLeidos(maxCorreos = 5) {
     await client.logout();
   }
 
-  console.log(`[GMAIL] ✅ Leídos ${correos.length} correos no leídos`);
+  console.log(`[GMAIL] [SICC OK] Leídos ${correos.length} correos no leídos`);
   return correos;
 }
 

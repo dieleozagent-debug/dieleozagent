@@ -44,7 +44,7 @@ async function extraerTexto(filePath) {
     
     return fullText;
   } catch (err) {
-    console.warn(`[INGEST] ⚠️ Error extrayendo ${path.basename(filePath)} con pdfjs-dist: ${err.message}`);
+    console.warn(`[INGEST] [SICC WARN] Error extrayendo ${path.basename(filePath)} con pdfjs-dist: ${err.message}`);
     console.error(err);
     return '';
   }
@@ -89,10 +89,10 @@ async function run() {
         // Progress bar en consola
         process.stdout.write(`\r   💾 Guardando en DB: [${i + 1}/${fragmentos.length}]`);
       } catch (err) {
-        console.error(`\n   ❌ Error en fragmento ${i+1}: ${err.message}`);
+        console.error(`\n   [SICC FAIL] Error en fragmento ${i+1}: ${err.message}`);
       }
     }
-    console.log(`\n   ✅ ${archivo} completado.`);
+    console.log(`\n   [SICC OK] ${archivo} completado.`);
   }
 
   console.log('\n[INGEST] 🎉 Ingesta finalizada correctamente.');

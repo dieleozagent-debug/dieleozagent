@@ -8,21 +8,13 @@ const config = require('./config');
 const BRAIN_DIR = config.paths.brain;
 
 const BRAIN_FILES = [
-  { file: 'SOUL.md',            label: 'ALMA Y PERSONALIDAD',           required: true  },
-  { file: 'IDENTITY.md',        label: 'IDENTIDAD SOBERANA',            required: true  },
-  { file: 'SYNOPSIS.md',        label: 'SINOPSIS DEL CEREBRO',          required: true  },
-  { file: 'MEMORIA_GENETICA.md', label: 'MEMORIA GENÉTICA (LECCIONES)',  required: true  },
-  { file: 'INFERENCIA_RADICAL_N_MENOS_1.md', label: 'LÓGICA N-1 (DEDUCTIVA)', required: true },
-  { file: 'P42_METODOLOGIA.md', label: 'METODOLOGÍA PUNTO 42',          required: false },
-  { file: 'AGENTS.md',          label: 'MANUAL OPERATIVO AGENTES',      required: false },
-  { file: 'UX_DESIGN_SYSTEM.md', label: 'UX/UI DESIGN SYSTEM',          required: false },
-  { file: 'LFC_ROLE.md',        label: 'ROL CONTRACTUAL LFC',           required: false },
-  { file: 'DBCD_CRITERIA.md',   label: 'CRITERIOS DISEÑO & CAPEX',      required: false },
-  { file: 'DREAMS.md',          label: 'SUEÑOS Y TAREAS NOCTURNAS',     required: false },
-  { file: 'ROADMAP.md',         label: 'HOJA DE RUTA SICC',             required: false },
+  { file: 'AGENTS.md',          label: 'RESTRICCIONES DURAS — INSTRUCTIVO MAESTRO V5.0', required: true  },
+  { file: 'IDENTITY.md',        label: 'IDENTIDAD Y LEYES FIJAS SICC',  required: true  },
+  { file: 'SICC_METHODOLOGY.md', label: 'METODOLOGÍA DE AUDITORÍA N-1',  required: true  },
+  { file: 'SYNOPSIS.md',        label: 'SINOPSIS DEL SISTEMA',          required: true  },
+  { file: 'DREAMS.md',          label: 'SUEÑOS (HIPÓTESIS PENDIENTES)', required: false },
+  { file: 'ROADMAP.md',         label: 'HOJA DE RUTA ESTRATÉGICA',      required: false },
   { file: 'SICC_OPERATIONS.md', label: 'DASHBOARD DE OPERACIONES',      required: false },
-  { file: 'PENDIENTES_COLABORACION.md', label: 'PENDIENTES (ACCOUNTABILITY)', required: false },
-  { file: 'USER.md',            label: 'CONTEXTO DEL USUARIO (DIEGO)',  required: false },
 ];
 
 function leerArchivo(filename) {
@@ -33,7 +25,7 @@ function leerArchivo(filename) {
     }
     return null;
   } catch (err) {
-    console.warn(`[BRAIN] ⚠️ No se pudo leer ${filename}: ${err.message}`);
+    console.warn(`[BRAIN] [SICC WARN] No se pudo leer ${filename}: ${err.message}`);
     return null;
   }
 }
@@ -62,7 +54,7 @@ function estadoBrain() {
   let res = '';
   for (const { file, label } of BRAIN_FILES) {
     const presente = fs.existsSync(path.join(BRAIN_DIR, file));
-    res += `${presente ? '✅' : '❌'} ${label} (${file})\n`;
+    res += `${presente ? '[SICC OK]' : '[SICC FAIL]'} ${label} (${file})\n`;
   }
   return res;
 }
@@ -85,14 +77,13 @@ function leerHeartbeat() {
 }
 
 function destilarCerebro() {
-  const soul = leerArchivo('SOUL.md') || '';
   const identity = leerArchivo('IDENTITY.md') || '';
   
   // Extraemos solo las primeras líneas de misión y los axiomas clave
-  const missionSoul = soul.split('\n').slice(0, 10).join('\n');
-  const missionIdentity = identity.split('\n').slice(0, 10).join('\n');
+  const lines = identity.split('\n');
+  const mission = lines.slice(0, 15).join('\n');
   
-  return `## ADN DESTILADO (Michelin v9.2)\n${missionIdentity}\n\n${missionSoul}\n\nREGLA SOBERANA: Priorizar Jerarquía 1.2(d) y Ahorro de CAPEX (N-1).`;
+  return `## ADN SICC v11.0 (CONSOLIDADO)\n${mission}\n\nREGLA SOBERANA: Priorizar Jerarquía 1.2(d) y Ahorro de CAPEX (N-1).`;
 }
 
 module.exports = { construirSystemPrompt, estadoBrain, leerHeartbeat, destilarCerebro };

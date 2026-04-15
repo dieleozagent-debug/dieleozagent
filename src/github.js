@@ -83,7 +83,7 @@ function formatearCommits(commits) {
 }
 
 function formatearIssues(issues) {
-  if (!issues.length) return '✅ Sin issues abiertos';
+  if (!issues.length) return '[SICC OK] Sin issues abiertos';
   return issues.map(i =>
     `#${i.num} *${i.titulo}*\n👤 ${i.autor} · 📅 ${i.fecha}`
   ).join('\n\n');

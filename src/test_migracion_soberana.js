@@ -35,24 +35,24 @@ async function migrarYProbar() {
             END;
             $$;
         `);
-        console.log("✅ Tabla y Función de Búsqueda recreadas exitosamente con soporte para vector(768).");
+        console.log("[SICC OK] Tabla y Función de Búsqueda recreadas exitosamente con soporte para vector(768).");
 
         console.log("2. Generando embedding local para '1 hoja' de prueba (Ollama)...");
         const textoUnaHoja = "ESTA ES UNA HOJA DE PRUEBA. La autonomía forense exige soberanía técnica. Este es el inicio del SICC v7.0.";
         const vector = await obtenerEmbedding(textoUnaHoja);
-        console.log(`✅ Embedding generado. Tamaño real: ${vector.length} dimensiones.`);
+        console.log(`[SICC OK] Embedding generado. Tamaño real: ${vector.length} dimensiones.`);
 
         console.log("3. Inyectando la hoja experimental en el Cerebro Supabase...");
         await insertarFragmento("[TEST] Hoja_Unica.pdf", textoUnaHoja, vector);
         
         console.log("4. Verificación final de inserción en la tabla...");
         const res = await pool.query("SELECT COUNT(*) as cuenta FROM contrato_documentos");
-        console.log(`✅ INGESTA CONFIRMADA: El cerebro tiene ahora ${res.rows[0].cuenta} fragmento(s).`);
+        console.log(`[SICC OK] INGESTA CONFIRMADA: El cerebro tiene ahora ${res.rows[0].cuenta} fragmento(s).`);
 
         console.log("\n🏆 SOBERANÍA ALCANZADA. Puedes lanzar el ingest_masivo esta noche con total tranquilidad.");
         pool.end();
     } catch (err) {
-        console.error("❌ Error en la prueba:", err.message);
+        console.error("[SICC FAIL] Error en la prueba:", err.message);
         pool.end();
     }
 }

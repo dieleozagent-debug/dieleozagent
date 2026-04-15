@@ -9,10 +9,10 @@ const os = require('os');
 const fs = require('fs');
 const path = require('path');
 const config = require('../src/config');
-const DREAMS_FILE = path.join(config.paths.brain, 'DREAMS.md');
+const AUDIT_QUEUE = path.join(config.paths.brain, 'AUDIT_QUEUE.md');
 
-// Umbrales SICC v9.6.2 (Protección de Host de 4 núcleos)
-const CPU_ALERT_THRESHOLD = 0.80;    // 80% → El Dreamer debe entrar en pausa (Modo Siesta)
+// Umbrales SICC v12.0 (Protección de Host de 4 núcleos)
+const CPU_ALERT_THRESHOLD = 0.80;    // 80% → El Auditor debe encolar (Modo Diferido)
 const CPU_CRITICAL_THRESHOLD = 0.95; // 95% → Bloqueo total (Inferencia rechazada)
 
 function isWeekend() {
@@ -66,7 +66,7 @@ function evaluarRecursos() {
       ok: false,
       level: 'WARN',
       load,
-      message: `⚠️ CPU al ${Math.round(load * 100)}%. Operación encolada en el Dreamer para ejecución nocturna.`,
+      message: `⚠️ CPU al ${Math.round(load * 100)}%. Operación encolada para ejecución diferida por el Auditor.`,
     };
   }
 
@@ -79,26 +79,26 @@ function evaluarRecursos() {
 }
 
 /**
- * Encola una hipótesis en brain/DREAMS.md para que el Dreamer la procese.
+ * Encola una hipótesis en brain/AUDIT_QUEUE.md para que sea procesada en diferido.
  * @param {string} prompt - El prompt que no pudo procesarse por falta de recursos.
- * @param {string} origen - Quién disparó la solicitud (ej: 'swarm', 'karpathy', 'usuario')
+ * @param {string} origen - Quién disparó la solicitud (ej: 'sonda', 'forensic', 'usuario')
  */
-function encolarEnDreamer(prompt, origen = 'usuario') {
+function encolarHipotesisForense(prompt, origen = 'usuario') {
   const timestamp = new Date().toISOString();
-  const prioridad = origen === 'swarm' ? 'HIGH' : 'NORMAL';
+  const prioridad = origen === 'sonda' ? 'HIGH' : 'NORMAL';
   const entrada = `\n- [${prioridad}] [${timestamp}] [origen:${origen}] ${prompt.substring(0, 200)}\n`;
 
-  // Asegurar que DREAMS.md existe
-  if (!fs.existsSync(DREAMS_FILE)) {
-    fs.writeFileSync(DREAMS_FILE,
-      '# 💤 SICC DREAMS — Cola de Hipótesis Forenses\n\n' +
-      '> Operaciones encoladas para ejecución autónoma por el SICC Dreamer.\n\n' +
+  // Asegurar que AUDIT_QUEUE.md existe
+  if (!fs.existsSync(AUDIT_QUEUE)) {
+    fs.writeFileSync(AUDIT_QUEUE,
+      '# 🔬 SICC AUDIT QUEUE — Cola de Hipótesis Forenses\n\n' +
+      '> Operaciones encoladas para ejecución diferida por el Motor de Auditoría SICC.\n\n' +
       '## Pendientes\n'
     );
   }
 
-  fs.appendFileSync(DREAMS_FILE, entrada);
-  console.log(`[GOVERNOR] 💤 Operación encolada en DREAMS.md: "${prompt.substring(0, 50)}..."`);
+  fs.appendFileSync(AUDIT_QUEUE, entrada);
+  console.log(`[GOVERNOR] 🔬 Operación encolada en AUDIT_QUEUE.md: "${prompt.substring(0, 50)}..."`);
 }
 
 /**
@@ -113,10 +113,10 @@ function checkYEncolar(prompt, origen = 'usuario') {
   console.log(`[GOVERNOR] 📊 Carga CPU: ${Math.round(estado.load * 100)}% → ${estado.level}`);
 
   if (!estado.ok) {
-    encolarEnDreamer(prompt, origen);
+    encolarHipotesisForense(prompt, origen);
   }
 
   return { ...estado };
 }
 
-module.exports = { evaluarRecursos, encolarEnDreamer, checkYEncolar, getCpuLoad };
+module.exports = { evaluarRecursos, encolarHipotesisForense, checkYEncolar, getCpuLoad };
