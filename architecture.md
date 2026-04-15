@@ -1,82 +1,58 @@
-# 🏛️ Arquitectura Soberana — OpenGravity SICC v9.5.5 "Advisor Strategy"
+# 🏛️ Arquitectura Soberana — OpenGravity SICC v12.0 "Paz Estructural"
+
 ## 🌌 Visión General
 
-La arquitectura de **OpenGravity** está diseñada para la **Sovereignty Technological Total** y la **Auditoría Forense Sistémica**. Opera bajo la metodología de validación contractual Punto 42, asegurando que cada ítem de ingeniería tenga un respaldo literal en el Contrato Maestro.
+La arquitectura de **OpenGravity** v12.0 evoluciona hacia un modelo de **Nodo Único Soberano**, eliminando dependencias de scripts de supervisión externos (legacy sentinels) en favor de una lógica de resiliencia interna nativa.
 
 ---
 
-## 🏛️ Estructura de Triple Repositorio (3-Repo Sovereign System)
+## 🏗️ Pilares del Diseño (v12.0)
 
-| Repositorio | Rol | Tecnología |
-| :--- | :--- | :--- |
-| **Agente** | Motor de ejecución, Auditor forense, Bot Telegram | Node.js, Docker |
-| **Brain** | SSOT: Metodología Punto 42, RED, DBCD, Identidad | Markdown, JSON |
-## 🏗️ Pilares del Diseño (v9.4)
-
--   **Modularidad de Repositorios (3-Repo Sync):** Separación física de Lógica (Agente), Conocimiento (Brain) y Entregables (LFC2).
--   **Escudo Fiscal Cuádruple:** Prioridad absoluta de gasto $0.00: `Ollama (Local)` -> `Gemini Free` -> `Groq Free` -> `OpenRouter Free`.
--   **Muro de Fuego Fiscal (v9.3):** Prohibición de escalación automática a Sonnet. Requiere firma manual de Diego en `SICC_OPERATIONS.md`.
--   **Morning Digest & Búfer Michelin (v9.4):** 
-    - Supresión de notificaciones rutinarias durante el procesamiento masivo.
-    - Acumulación de hallazgos en `data/logs/michelin-findings.json`.
--   **Orquestación Advisor & Evolución Genética (v9.5):**
-    - **Capa Advisor:** Ruteador inteligente (Cloud Free/Local) que selecciona especialistas.
-    - **Aprendizaje Genético:** El sistema documenta propuestas de mejora en `brain/GENETIC_EVOLUTION.md`.
-    - **Soberanía Híbrida:** Prioridad en modelos Cloud Free de alto contexto (1M) con fallback local obligatorio.
--   **Modo Factoría Serial (v8.8.1):** 
-    - Orquestación serial de Peones locales (`qwen2.5:1.5b`) para minería forense de bajo impacto.
-    - Sistema de **Enfriamiento de CPU (>85%)** para resiliencia del host.
--   **Tablero de Operaciones (Dashboard):** 
-    - Centralización en `brain/SICC_OPERATIONS.md` para auditoría humana rápida.
-    - Notificaciones Push vía Telegram para `BLOCKERS` y `DTs`.
+-   **Soberanía de Construcción (Build-Purity):** Prohibición de inyectar scripts de persistencia en imágenes de Docker. El sistema se construye de forma estéril.
+-   **Resiliencia Interna (Internal Backoff):** Gestión nativa de errores `429 Too Many Requests` mediante backoff exponencial dentro del motor de Node.js.
+-   **Orquestación Consolidada:** Eliminación de archivos compose duplicados y servicios sidecar redundantes.
 
 ---
 
-## 🔄 Protocolos Operativos (The Loops)
+## 🛡️ Capacidades de Soberanía v12.0 (Implemented)
 
-### 1. Karpathy Loop v8.2 (Forensic Review)
-Validación de 5 fases con **Saneamiento de Nomenclatura**. Detecta términos legacy en la WBS y entregables, procediendo a su purga para evitar "Lock-in" tecnológico. Divide el diseño en Mandatos Legales y Criterios Ajustables.
+### 1. Ingesta Masiva Resiliente
+El motor `ingest_masivo.js` ahora gestiona su propia cuota de API.
+- **Backoff Exponencial:** Ante errores 429, el sistema espera tiempos incrementales (15s, 30s, 60s...) antes de reintentar.
+- **Concurrencia Balanceada:** Ajustada a `CONCURRENCY = 2` para garantizar flujo constante sin bloqueos.
 
-### 2. Motor de Dictámenes & Sync Masterchef
-- **Batch Masterchef:** Purga y servido transversal mediante `node scripts/lfc-cli.js [purify|serve]`.
-- **Portal Soberano:** Sincronización automática con `https://lfc-2.vercel.app/` tras cada purificación de ADN.
-
-### 3. SICC Dreamer (Autonomía de Saneamiento)
-- **Ciclo Cron:** Ventana de **8:00 PM - 7:00 AM (COL)**.
-- **Misión N-1:** El Dreamer está facultado para redactar DTs de supresión masiva basadas en los hallazgos del reporte RED.
+### 2. SICC Sentinel (Legacy - DEPRECATED)
+El antiguo `sicc-sentinel.js` y sus bucles de shell externos han sido erradicados para evitar la auto-regeneración alucinatoria y el spam de logs.
 
 ---
 
-## 🛡️ Capacidades de Soberanía v8.4 (Implemented)
-
-### 1. SICC Sweep & Resiliency Orchestrator
-Script `sicc-sweep.js` y lógica de `agent.js` para ejecutar auditorías recursivas y garantizar la continuidad del servicio ante fallos de proveedores externos.
-- **Ruta de Logs de Monitoreo:** `/home/administrador/docker/agente/data/logs/flow-resilience.json` (Purga mensual recomendada).
-
-### 2. Flujo Asimétrico (Ejecutor + Asesor)
-Uso de modelos rápidos (Peones) para el bulto del trabajo y escalado a modelos de alta inteligencia (Asesores) solo para decantación y bloqueos críticos. Generación automática de **Blockers** para razonamiento conjunto Diego-Agente.
-
-### 3. SICC Sentinel (Auto-Saneamiento v1.0)
-El `sicc-sentinel.js` actúa como un "wrapper" inteligente sobre el motor de ingesta masiva.
-- **Detección:** Captura errores 429, 500 y de sistema (PDFinfo/PDFTOPPM).
-- **Inferencia:** Consulta al Multiplexador Free (OpenRouter/Groq/Google) para obtener diagnósticos de "Costo $0".
-- **Reparación:** Capacidad de aplicar cambios de configuración y re-intentar la ingesta automáticamente.
-
----
-
-## 🌙 Arquitectura de Guardia Nocturna (The Night Shift)
+## 🌙 Arquitectura de Guardia Nocturna v12.0
 
 ```mermaid
 graph TD
-    A[Cron/Bucle Infinito] --> B{Centinela Sentinel}
-    B -->|Logs OK| C[Ingesta Masiva Biblia Legal]
-    B -->|Fallo| D[Diagnóstico AI Costo 0]
-    D -->|Fix Sugerido| E[Aplicar Parche & Retry]
-    C --> F[Rafaga de Sueño 10 min]
-    F --> G[Decantación Técnica DTs]
-    G --> H[Vigilia Morning Digest 08:30]
-    H --> A
+    A[Orquestador Docker] --> B[Agente Soberano v12]
+    B -->|429 Error| C[Internal Exponential Backoff]
+    C -->|Wait & Retry| B
+    B -->|Ingesta OK| D[Brain / Vector DB]
+    D --> E[Auditoría Forense Biblia Legal]
+    E --> F[Vigilia Morning Digest]
 ```
 
 ---
-v9.9 Michelin "Night Shift Edition" — 14/04/2026
+
+## 🧠 Lecciones Aprendidas (SICC-LL-2026-003)
+
+### 1. El Riesgo de la Persistencia en Imágenes
+**Problema:** El spam de logs "SENTINEL" era inmortal porque el script estaba copiado dentro de la imagen de Docker en el `Dockerfile`. Cada reinicio o reconstrucción recreaba el virus.
+**Lección:** Las imágenes de Docker deben ser cajas negras estériles. La lógica de persistencia debe estar en la orquestación (Compose) o en el código, nunca "baked-in" sin control.
+
+### 2. La Hidra Multi-Nodo
+**Problema:** La persistencia residía en múltiples servidores (`local1`, `local2`, `local3`) con el mismo token de Telegram. Limpiar un nodo no detenía el spam de los otros.
+**Lección:** En infraestructuras de cluster, la seguridad y la purga de procesos deben ser transversales (`pkill` y deshabilitar servicios en todos los nodos simultáneamente).
+
+### 3. El Bucle de la Desesperación vs Backoff
+**Problema:** Usar bucles de shell `while true` para reiniciar procesos que fallan por cuota (429) garantiza un DoS self-inflicted.
+**Lección:** Los reintentos deben ser inteligentes y asíncronos en la capa de aplicación, no ciegos en la capa de sistema operativo.
+
+---
+v12.0 "Paz Soberana" — 15/04/2026
