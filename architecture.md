@@ -58,3 +58,6 @@ De esta forma, la base de datos de Especialidades es un sistema orgánico y evol
 
 ---
 v12.2 \Paz Estructural\ — 16/04/2026 (Karpathy Loop Activo + SAPI NotebookLM)
+
+### 3. Modo Sue?o Autogestionado (/dream)
+La interacci?n del enjambre ha sido restaurada a trav?s de un comando expl?cito `/dream` en Telegram. Esto evita que el LLM alucine en la conversaci?n normal. El mensaje interceptado detona un script en batch que somete la Especialidad al Bucle Karpathy de manera as?ncrona, notificando a Telegram al finalizar.
