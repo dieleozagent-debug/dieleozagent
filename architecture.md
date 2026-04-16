@@ -3,105 +3,58 @@
 > **Fecha:** 16-Abr-2026 | **Estado:** Zero-Residue Certificado
 
 ## 🌌 Visión General
-
-**OpenGravity** opera como un **Nodo Único Soberano**: un solo contenedor Docker con
-lógica de resiliencia interna, sin scripts externos de supervisión, sin crons parásitos,
-sin multi-nodo.
+**OpenGravity** opera como un **Nodo Único Soberano**: un solo contenedor Docker con lógica de resiliencia interna. Su modo operativo principal se basa en el **Ecosistema de Aprendizaje Karpathy**, apoyado por conectores SAPI (Service APIs) totalmente separados del flujo lógico de toma de decisiones.
 
 ---
 
 ## 🏗️ Pilares del Diseño (v12.2)
-
-- **Soberanía de Construcción:** Imágenes Docker estériles — ningún script de persistencia baked-in.
-- **Resiliencia Interna:** Backoff exponencial nativo en Node.js (15s → 30s → 60s…) ante errores 429.
-- **Orquestación Limpia:** Un solo docker-compose.yaml, un solo servicio gente.
-- **Patrulla Pasiva:** El agente audita LFC2 pero **no auto-lanza** procesos pesados sin orden explícita.
-- **Enjambre DESACTIVADO:** El modo swarm multi-agente fue fuente de alucinaciones — eliminado.
+1. **Separación de SAPI (Conectores):** Los métodos de llamada a herramientas externas (Supabase, MCP NotebookLM, Ollama) están aislados. Se incrustan en el flujo de decisión solo cuando el agente lo demanda.
+2. **Ciclo de Aprendizaje Karpathy:** El agente no solo responde pedidos; cuando comete un error (alucinación) detectado por Validación, ajusta permanentemente sus reglas internas en \rain/SPECIALTIES/\.
+3. **Soberanía de Construcción & Resiliencia Interna:** Construcción de imágenes estériles, orquestación limpia y backoff exponencial (15s → 30s) frente a errores 429.
 
 ---
 
-## 🗂️ Stack Real (lo que corre hoy)
+## 🔄 El Motor Karpathy: Enjambre y SAPI (Service APIs)
 
-| Capa | Tecnología |
-|---|---|
-| Runtime | Node.js 20-slim (Docker) |
-| Interfaz | Telegram Bot (
-ode-telegram-bot-api) |
-| IA Primaria | Gemini API (Google) |
-| IA Fallback | Groq → OpenRouter → Ollama (local) |
-| RAG / Vector DB | Supabase (pgvector) — 22k fragmentos |
-| Orquestación | Docker Compose — red docker_sicc_net |
-| Knowledge Base | /home/administrador/docker/LFC2 (volumen montado) |
-
----
-
-## 📁 Estructura del Proyecto
-
-\\\
-agente/
-├── src/
-│ ├── index.js # Entrypoint bot Telegram (comandos slash)
-│ ├── agent.js # Motor principal — llamado con --vigilia
-│ ├── brain.js # Construcción del system prompt + SSOT
-│ ├── patrol.js # Patrulla pasiva forense sobre LFC2
-│ ├── ingest_masivo.js # Ingesta resiliente con backoff exponencial
-│ ├── advisor.js # Router de estrategia (sin swarm)
-│ ├── supabase.js # RAG — búsqueda vectorial
-│ └── config.js # Variables de entorno y rutas
-├── brain/ # Cerebro del agente (SSOT local)
-│ ├── IDENTITY.md # ADN v6 + mandatos soberanos
-│ ├── SOUL.md # Ética y brújula operacional
-│ ├── R-HARD.md # 7 restricciones duras innegociables
-│ ├── SICC_OPERATIONS.md# Tablero de gobernanza
-│ ├── ROADMAP.md # Roadmap de expansión futura
-│ ├── SPECIALTIES/ # Mini-Cerberos por especialidad
-│ └── skills/ # Contexto modular cargable
-├── scripts/
-│ ├── forensic_auditor.js # Ejecutor de auditoría por carpeta
-│ ├── sicc-multiplexer.js # Router multi-proveedor IA
-│ ├── resource-governor.js # Guard de CPU/RAM antes de tareas pesadas
-│ └── sicc-harness.js # Wrappers /doctor /learn /audit
-├── data/
-│ ├── logs/ # patrol.log, sicc-traces.json
-│ └── patrol-state.json # Cursor de patrulla (carpeta actual)
-├── Dockerfile # node:20-slim, estéril
-├── docker-compose.yaml # UN solo servicio: agente --vigilia
-├── roadmap.md # ⚡ SSOT de estado — leer al iniciar sesión
-└── README.md # Manual de uso
-\\\
-
----
-
-## 🔄 Flujo de Ejecución (Modo Vigilia)
+El ciclo vital del agente ya no permite que el Enjambre (Swarm) suba directamente borradores. Operamos con una **Cámara de Validación de Doble Ciego** donde NotebookLM se usa estrictamente como validación final (Última Opción) para refinar los Cerberos de Especialidad.
 
 \\\mermaid
 graph TD
- A[Docker Compose] -->|node src/agent.js --vigilia| B[Agent Soberano v12.2]
- B --> C{Mensaje Telegram?}
- C -->|Sí| D[Procesar con RAG + Gemini]
- C -->|No| E[Patrulla Pasiva]
- D --> F[Supabase pgvector]
- F -->|contexto| G[Gemini API]
- G -->|429 error| H[Backoff Exponencial]
- H -->|retry| G
- G -->|respuesta| I[Telegram safeSendMessage]
- E --> J[forensic_auditor.js por carpeta]
- J -->|log| K[data/logs/patrol.log]
- J -->|siguiente carpeta| E
+ A[Problema Inicial / Nuevo Reto] --> B(Enjambre: Auditor + Estratega)
+ B -->|Genera Borrador / Hipótesis| C[Validación de Verdad Interna]
+ 
+ subgraph SAPIs Separadas
+ S1[SAPI: Supabase / LFC2]
+ S2[SAPI: NotebookLM MCP]
+ end
+
+ C -->|Consulta| S1
+ S1 -->|Rechazo Contractual| E[Ajuste de Error - Karpathy]
+ S1 -->|Aprobado Interno| D[Validación de Verdad Externa / Última Opción]
+ 
+ D -->|Consulta| S2
+ S2 -->|Alucinación Tecnológica| E
+ 
+ E -->|Actualiza Reglas| H[brain/SPECIALTIES/*.md]
+ H -->|Re-evalúa| B
+ 
+ S2 -->|Aprobado Global| G[Certificación y Commit a LFC2]
 \\\
 
+### 1. El Rol de las SAPIs
+Las interfaces de conexión ahora existen por separado. El motor Karpathy evalúa y decide a qué SAPI llamar:
+- **SAPI Interna (Supabase):** Verifica que la sugerencia del enjambre no viole las reglas técnicas del contrato.
+- **SAPI Externa (NotebookLM MCP):** Actúa como oráculo final. Si el enjambre propone un estándar tecnológico, este SAPI verifica la viabilidad real en la industria actual (ej.GSM-R vs LTE-R) accediendo a la libreta maestro.
+
+### 2. Actualización Autónoma de Especialidades (Karpathy Loop)
+Cuando la Cámara de Validación rechaza una Decisión Técnica (DT) por alucinación o discordancia de la realidad, el Agente realiza introspección. Toma la lección y actualiza mecánicamente la categoría correspondiente en su memoria local:
+- \COMMUNICATIONS.md\
+- \CONTROL_CENTER.md\
+- \POWER.md\
+- \SIGNALIZATION.md\
+- \ENCE.md\, \INTEGRATION.md\
+
+De esta forma, la base de datos de Especialidades es un sistema orgánico y evolutivo; los errores del enjambre enriquecen la soberanía técnica del Cerebro para que no se cometan en el siguiente ciclo.
+
 ---
-
-## 🧠 Lecciones Aprendidas Críticas (no repetir)
-
-| # | Problema | Lección |
-|---|---|---|
-| LL-001 | Script SENTINEL baked en Docker image → inmortal | Imágenes estériles siempre |
-| LL-002 | Hidra multi-nodo (local1/2/3) mismo token Telegram | Purga transversal en todos los nodos |
-| LL-003 | while true ante errores 429 → DoS self-inflicted | Backoff exponencial en capa de app |
-| LL-004 | Cron oculto en /etc/cron.d/ sobrevivió limpieza | Auditar /etc/cron.* y /etc/systemd/ |
-| LL-005 | Swarm multi-agente → alucinaciones y colapso densidad | Enjambre DESACTIVADO permanentemente |
-
----
-
-v12.2 \Paz Estructural\ — 16/04/2026 (Arquitectura Zero-Residue + Anti-Alucinación)
+v12.2 \Paz Estructural\ — 16/04/2026 (Karpathy Loop Activo + SAPI NotebookLM)
