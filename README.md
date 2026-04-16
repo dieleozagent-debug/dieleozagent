@@ -36,14 +36,23 @@ docker compose logs -f --tail=30
 
 ---
 
-## 💬 Comandos Telegram Activos
+## 💬 Comandos Telegram
 
 | Comando | Función |
 |---|---|
-| /dream [tema] | Modo Sueño (Swarm Pilot v12.3 con Throttling) |
-| /doctor | Health report del sistema SICC (Score: 100/100) |
-| /learn | Mapear recursivamente LFC2 y actualizar rutas |
-| /cerebro | Verificar integridad de IDENTITY.md, SOUL.md, R-HARD.md |
+| /dream [tema] | **Karpathy Auto-Dream**: Genera hipótesis técnicas, las valida en doble ciego y decanta lecciones en el Brain. |
+| /doctor | **Health Report**: Diagnóstico de pureza técnica, CPU y telemetría de errores 4xx. |
+| /learn | **Auto-Aprendizaje**: Mapeo recursivo de LFC2 y reflexión sobre el SSOT. |
+| /cerebro | **Integridad**: Verifica ADN SICC (IDENTITY, SOUL, R-HARD). |
+
+---
+
+## 🐝 El Enjambre y la Decantación (v12.3)
+
+SICC opera mediante un **Enjambre de IA** orquestado por la **Cámara de Doble Ciego**:
+1. **Generación:** El enjambre propone una hipótesis técnica.
+2. **Validación:** Se cruza contra **Supabase** (Contrato Interno) y **NotebookLM** (Verdad Externa).
+3. **Decantación de Karpathy:** El conocimiento se filtra en 5 fases hasta convertirse en una **DT Certificada** o una **Lección Aprendida** en `brain/SPECIALTIES/`.
 
 ---
 

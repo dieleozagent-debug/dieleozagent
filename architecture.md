@@ -43,11 +43,29 @@ Toda decisión técnica debe respetar:
    - **Umbral Crítico (95%):** Bloqueo total de inferencia local para proteger el host.
    - **Throttling:** Pausas de 2s entre inferencias para estabilidad térmica.
 
+## 🐝 El Enjambre SICC (Swarm Intelligence)
+
+El enjambre no es una simple lista de proveedores, sino un sistema de **validación cruzada** diseñado para eliminar el "ruido" técnico y las alucinaciones. Opera mediante la orquestación de múltiples agentes especializados:
+
+1.  **Peones Ollama (Soberanía Local):** Ejecutan la minería de datos pesada y la deducción primaria sobre el host Ubuntu.
+2.  **Auditores Forenses (Cloud):** Gemini y Groq actúan como auditores de segundo nivel, verificando la lógica legal y contractual sin acceso directo a los archivos sensibles del host.
+3.  **Juez Soberano:** Un modelo de alta capacidad (ej. Gemini 1.5 Pro) que toma las versiones de los peones y auditores, las compara y emite un veredicto final.
+
 ---
 
-## 🧠 Flujo de Datos (Cámara Doble Ciego)
+## 🌪️ Decantación de Karpathy (El Proceso de 5 Fases)
 
-1. **Ingesta:** El agente lee `LFC2/` (Read-Only).
-2. **Deducción:** Se generan hipótesis contrastadas con la `Biblia-Legal`.
-3. **Validación (SAPI):** El MCP (NotebookLM) valida la hipótesis contra fuentes externas.
-4. **Consolidación:** Si hay match 100%, se emite una **DT** en `brain/SPECIALTIES/`.
+Para garantizar que ninguna alucinación técnica toque el SSOT (Single Source of Truth), toda hipótesis técnica debe atravesar un proceso de **decantación en 5 fases**:
+
+1.  **Fase 1: Sueño (Hipótesis):** El agente genera una propuesta técnica basada en la necesidad operativa (ej. "Modificar el bus vital a 110VDC").
+2.  **Fase 2: Validación Interna (Supabase RAG):** La hipótesis se enfrenta contra la "Biblia Legal". Si el contrato dice algo distinto, se genera una señal de rechazo.
+3.  **Fase 3: Validación Externa (NotebookLM MCP):** El MCP consulta fuentes externas (AREMA, FRA, noticias técnicas) para asegurar que la propuesta cumple con estándares globales de ingeniería.
+4.  **Fase 4: Juicio Soberano (Deducción N-1):** El Juez analiza las validaciones (Interna vs. Externa). Si hay contradicción, aplica el principio **N-1 (Grasa Zero)**: se elimina el elemento complejo y se prioriza la seguridad contractual.
+5.  **Fase 5: Integración y Memoria (Karpathy Lesson):** Si la propuesta falló, el error se "decanta" en una lección aprendida que se inyecta permanentemente en los archivos de `brain/SPECIALTIES/`, asegurando que el enjambre nunca repita el mismo error de diseño.
+
+---
+
+## 🛠️ Validación y Telemetría
+
+- **SICC Traces:** Cada ciclo de decantación se registra en `data/logs/sicc-traces.json` con un hash de integridad.
+- **EstadoGlobalErrores:** Monitorea en tiempo real la salud de los proveedores (4xx) para garantizar que el enjambre nunca quede "ciego" por falta de cuota.

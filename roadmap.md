@@ -33,3 +33,8 @@
 
 ### 2. Búsqueda Web Soberana 
 - Alternativa por si el MCP falla en alguna búsqueda muy reciente.
+
+### 3. Fase v12.4: "Pureza Automática" (Decantación 5x)
+- **Bucle de Autocrítica Recursiva:** El sistema se auto-auditará 5 veces antes de emitir cualquier DT.
+- **Genetic Memory:** Priorización de lecciones aprendidas en el RAG para evitar recurrencia de alucinaciones.
+- **SICC Sentinel v2:** Auto-saneamiento de la base de datos vectorial ante inconsistencias matemáticas.
