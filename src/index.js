@@ -233,13 +233,17 @@ bot.onText(/^\/dream(?:\s+(.+))?/, async (msg, match) => {
   
   bot.sendMessage(chatId, `?? **Modo Sue?o Iniciado**\nEl enjambre est? analizando: *${target}*\nUsando: C?mara Doble Ciego (Supabase + NotebookLM)\nObserva los logs del contenedor para detalles...`, { parse_mode: 'Markdown' });
   
-  // Importamos y corremos el script en background
-  const { exec } = require('child_process');
-  exec(`node /home/administrador/docker/agente/scripts/swarm-pilot.js "${target}"`, { maxBuffer: 1024 * 1024 * 10 }, (error, stdout, stderr) => {
-    if (error) {
-      bot.sendMessage(chatId, `? **Pesadilla (Error Interno):**\n${error.message}`);
-      return;
-    }
+  // Importamos y corremos el script en background usando rutas dinámicas
+   const { exec } = require('child_process');
+   const scriptPath = path.join(__dirname, '../scripts/swarm-pilot.js');
+   console.log(`[SICC] Disparando Swarm Pilot: node "${scriptPath}" "${target}"`);
+   
+   exec(`node "${scriptPath}" "${target}"`, { maxBuffer: 1024 * 1024 * 10 }, (error, stdout, stderr) => {
+     if (error) {
+       console.error(`[SICC ERROR] Swarm Pilot falló: ${error.message}`);
+       bot.sendMessage(chatId, `? **Pesadilla (Error Interno):**\n${error.message}`);
+       return;
+     }
     const logStr = stdout.toString();
     const veredictoMatch = logStr.match(/VEREDICTO FINAL AL DESPERTAR:[\\s\\S]*/);
     let resumen = "El sue?o concluy?.";

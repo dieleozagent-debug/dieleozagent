@@ -81,8 +81,8 @@ async function inferirConOllama(hipotesis) {
 
   // Importamos dinámicamente para no cargar el config completo en modo cron
   const OpenAI = require('openai');
-  const ollamaHost = process.env.OLLAMA_HOST || 'http://ollama:11434';
-  const ollamaModel = process.env.OLLAMA_MODEL || 'gemma4-light:latest';
+  const ollamaHost = process.env.OLLAMA_HOST || 'http://opengravity-ollama:11434';
+  const ollamaModel = process.env.OLLAMA_MODEL || 'gemma2:2b';
 
   const client = new OpenAI({ baseURL: `${ollamaHost}/v1`, apiKey: 'ollama' });
 
