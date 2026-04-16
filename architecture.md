@@ -1,4 +1,4 @@
-# 🏛️ Arquitectura SICC v12.2 — "Paz Estructural"
+# 🏛️ Arquitectura SICC v12.3 — "Eficiencia Operacional"
 
 SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agente soberano diseñada para la auditoría técnica y jurídica del proyecto LFC2.
 
@@ -27,8 +27,21 @@ El sistema opera en un servidor Ubuntu dedicado, combinando contenedores Docker 
 
 ### 3. Rutas de Acceso (Conectividad)
 
-- **Desde el Host (Ubuntu):** Acceso vía `localhost:11434`. (Ollama configurado con `OLLAMA_HOST=0.0.0.0` para visibilidad total).
-- **Desde el Agente (Docker):** Comunicación vía el alias `opengravity-ollama` (mapeado a la IP de la puerta de enlace `172.20.0.1`) permitiendo acceso directo a la aceleración por hardware del servidor desde la red aislada `docker_sicc_net`.
+- **Desde el Host (Ubuntu):** Acceso vía `localhost:11434`. (Ollama configurado con `OLLAMA_HOST=0.0.0.0`).
+- **Desde el Agente (Docker):** Comunicación vía el alias `opengravity-ollama` (mapeado a la IP `172.20.0.1`) permitiendo acceso directo a la aceleración por hardware desde la red `docker_sicc_net`.
+
+---
+
+## 🛡️ Gobernanza R-HARD (Recursos)
+
+Toda decisión técnica debe respetar:
+1. **CAPEX Inamovible:** Limites financieros del contrato ($726M COP).
+2. **Normativa Técnica:** FRA 49 CFR Part 236 / AREMA.
+3. **Soberanía:** Datos 100% locales (Ollama Nativo).
+4. **Gobernanza de Recursos (CPU):**
+   - **Umbral de Alerta (80%):** Las auditorías se encolan en `AUDIT_QUEUE.md`.
+   - **Umbral Crítico (95%):** Bloqueo total de inferencia local para proteger el host.
+   - **Throttling:** Pausas de 2s entre inferencias para estabilidad térmica.
 
 ---
 
@@ -36,14 +49,5 @@ El sistema opera en un servidor Ubuntu dedicado, combinando contenedores Docker 
 
 1. **Ingesta:** El agente lee `LFC2/` (Read-Only).
 2. **Deducción:** Se generan hipótesis contrastadas con la `Biblia-Legal`.
-3. **Validación (SAPI):** El MCP (NotebookLM) valida la hipótesis contra fuentes externas no estructuradas.
-4. **Consolidación:** Si hay match 100%, se emite una **Decisión Técnica (DT)** en `brain/SPECIALTIES/`.
-
----
-
-## 🛡️ Gobernanza R-HARD
-
-Toda decisión técnica debe respetar:
-1. **CAPEX Inamovible:** Limites financieros del contrato.
-2. **Normativa Técnica:** FRA 49 CFR Part 236 / AREMA.
-3. **Soberanía:** Datos 100% locales, sin fuga de propiedad intelectual a nubes públicas (salvo Gemini como fallback).
+3. **Validación (SAPI):** El MCP (NotebookLM) valida la hipótesis contra fuentes externas.
+4. **Consolidación:** Si hay match 100%, se emite una **DT** en `brain/SPECIALTIES/`.

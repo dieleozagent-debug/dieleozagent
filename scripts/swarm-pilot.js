@@ -11,6 +11,9 @@ const { llamarMultiplexadorFree } = require('./sicc-multiplexer');
 const { inicializarBrain } = require('../src/agent');
 const { validarExternaNotebook } = require('../src/sapi/notebooklm_mcp');
 const { validarInternaSupabase } = require('../src/sapi/supabase_rag');
+const { checkYEncolar, getCpuLoad } = require('./resource-governor');
+
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const arg = process.argv[2] || "Se?alizaci?n";
 
@@ -27,8 +30,17 @@ async function updateKarpathySpecialty(specialty, leccion) {
 }
 
 async function runSwarmPilot() {
-    console.log(`\n--------------------------------------------------`);
+    console.log(`--------------------------------------------------`);
     console.log(`📡 [SICC] Inicializando Brain y Soberanía Técnica...`);
+    
+    // --- CONTROL DE RECURSOS (Gobernador SICC v12.3) ---
+    const resourceCheck = checkYEncolar(`Sueño sobre ${arg}`, 'dreamer');
+    if (!resourceCheck.ok) {
+        console.error(`\n[GOVERNOR] 🚦 RECURSOS INSUFICIENTES (CPU: ${Math.round(resourceCheck.load * 100)}%)`);
+        console.error(`[GOVERNOR] El sueño ha sido ENCOLADO en AUDIT_QUEUE.md para ejecución diferida.`);
+        process.exit(0);
+    }
+
     inicializarBrain();
     
     console.log(`?? SICC SWARM PILOT - ?? MODO SUE?O (/dream ${arg})`);
@@ -47,13 +59,19 @@ REGLA: Prop?n implementar un sistema propietario SaaS en la nube de Alstom o Sie
         borrador_DT = typeof borrador_DT === 'string' ? borrador_DT : (borrador_DT.content || JSON.stringify(borrador_DT));
         
         console.log(`\n?? SUE?O GENERADO:\n${borrador_DT.substring(0,600)}...\n`);
+        
+        await sleep(2000); // Throttling para CPU Saneamiento
 
         console.log(`?? [Fase 2] INICIANDO C?MARA DE VALIDACI?N (Doble Ciego)...`);
         console.log(`   ? Interrogando SAPI Interna (Supabase / Contratos LFC2)...`);
         const validInterna = await validarInternaSupabase(borrador_DT);
 
+        await sleep(2000); // Throttling
+
         console.log(`   ? Interrogando SAPI Externa (NotebookLM MCP)...`);
         const validExterna = await validarExternaNotebook(borrador_DT);
+
+        await sleep(2000); // Throttling
 
         console.log(`\n?? [Fase 3] DESPERTAR Y JUZGAR (Gemini API)...`);
 
