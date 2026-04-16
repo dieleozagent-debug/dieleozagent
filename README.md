@@ -2,7 +2,7 @@
 
 > **⚡ INICIO RÁPIDO:** Lee roadmap.md primero para saber el estado exacto del proyecto.
 
-**OpenGravity** es un bot de Telegram + motor RAG para auditoría forense del
+**OpenGravity SICC** es un bot de Telegram + motor RAG para auditoría forense del
 **Contrato APP No. 001/2025** (Línea Ferroviaria de Carga — LFC, Colombia).
 
 ---
@@ -22,6 +22,7 @@ docker compose restart
 ```
 
 **Red Docker:** `docker_sicc_net`
+**Bridge Host:** `172.20.0.1` (Ollama Gateway)
 **Volumen LFC2:** montado en `/home/administrador/docker/LFC2`
 
 ---
@@ -31,7 +32,7 @@ docker compose restart
 1. **Gemini** (Google) — primario
 2. **Groq** — fallback gratuito
 3. **OpenRouter** — fallback secondary
-4. **Ollama** (local) — fallback offline (Nativo en Host)
+4. **Ollama** (local) — fallback offline (Nativo en Host via 0.0.0.0)
 
 ---
 
@@ -40,7 +41,7 @@ docker compose restart
 | Comando | Función |
 |---|---|
 | /dream [ruta] | Karpathy Dreamer (Cámara Doble Ciego) |
-| /doctor | Health report del sistema SICC |
+| /doctor | Health report del sistema SICC (Score: 100/100) |
 | /learn | Mapear recursivamente LFC2 y actualizar rutas |
 | /audit [ruta] | Auditoría forense manual sobre una carpeta específica |
 | /ingesta | Iniciar motor de ingesta con backoff exponencial |
@@ -48,9 +49,9 @@ docker compose restart
 | /limpiar | Reset cognitivo de la sesión |
 
 ## 🚀 Estado Actual: v12.2 "Paz Estructural"
-- **Estado:** 🟢 Operativo (Certificado).
+- **Estado:** 🟢 Operativo (**100/100 Certificado**).
 - **Cerebro:** `SOUL.md` (Ética) y `IDENTITY.md` sincronizados y restaurados.
-- **Infraestructura:** Ollama Nativo (Host) con puente DNS desde Docker.
+- **Infraestructura:** Ollama Nativo (Host) con puente DNS (Bridge IP 172.20.0.1).
 - **Misión:** Patrulla Forense continua sobre LFC2.
 
 ---
@@ -68,7 +69,7 @@ docker compose restart
 ## ⚠️ Reglas Operativas (NO ignorar)
 
 1. **Gobernanza R-HARD:** CAPEX máximo $726M COP, FRA 49 CFR Part 236.
-2. **Ollama en Host:** Por diseño (GPU), el agente lo contacta vía `opengravity-ollama`.
+2. **Ollama en Host:** Escuchando en `0.0.0.0` para acceso desde Docker via `172.20.0.1`.
 3. **LFC2 es read-only:** El agente no modifica ingeniería directamente.
 
 ---
