@@ -36,7 +36,7 @@ ode src/agent.js --vigilia\ |
 
 ## 🎯 PRÓXIMOS PASOS (en orden de prioridad)
 
-### 1. Integración de Validación SAPI y Bucle Karpathy (ACTIVO)
+### 1. Integracion de Validacion SAPI y Bucle Karpathy (COMPLETADO)
 - **Construcción de SAPIs aisladas** (\
 otebooklm_mcp.js\, \supabase_rag.js\).
 - **Inyección en enjambre** para cámara de doble ciego.
