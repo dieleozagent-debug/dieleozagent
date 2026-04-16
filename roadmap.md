@@ -22,16 +22,17 @@
 |---|---|
 | Contenedor | 🟢 UP — Agente con Blindaje v12.5 (Iterativo) |
 | RAG/Brain | 🟢 Activo — pgvector habilitado y conexión certificada |
-| Enjambre | 🟢 Activo — Bucle de Karpathy (3 Ciclos de Refinamiento) |
+| Visión OCR | 🟢 Activa — Tesseract + Poppler instalados (v5.3.0) |
+| Ingesta | 🟠 EN PROCESO — Operación Michelin ejecutándose en 2do plano |
 | **Health Score** | 🟢 **100/100 Certificado (Post-Armor)** |
 
 ---
 
 ## 🎯 PRÓXIMOS PASOS (Fase v12.6)
 
-### 1. Ingesta Forense Masiva (Operación Michelin)
-- Ejecutar `node scripts/sicc-ingesta.js` sobre todo el repositorio LFC2 para poblar la base de datos vectorial.
-- Validar densidad de señal en `postgres_sicc`.
+### 1. Validación de Señal Contractual
+- Verificar la densidad de fragmentos en `postgres_sicc` tras finalizar la ingesta.
+- Realizar pruebas de "Doble Ciego" para confirmar que el enjambre cita correctamente los nuevos fragmentos.
 
 ### 2. Estabilización del Oráculo Externo
 - Resolver dependencia de `playwright` en el contenedor para habilitar búsqueda web completa en NotebookLM MCP.
