@@ -33,9 +33,10 @@ El sistema opera en un servidor Ubuntu dedicado, combinando contenedores Docker 
 
 ### 🗄️ Gestión de Datos (Ingesta y Consulta)
 
-- **Proceso de Ingesta (Michelin):** Se ejecuta localmente en el host Ubuntu mediante `scripts/sicc-ingesta.js`. Procesa PDFs recursivamente usando Tesseract OCR y genera embeddings de 768 dimensiones vía Ollama.
-- **Ubicación de los Datos:** Tabla `contrato_documentos` con extensión `pgvector` activa.
-- **Flujo de Consulta:** El enjambre consulta esta tabla en la **Fase 2 (Validación Interna)** para asegurar que cada DT esté respaldada por fragmentos literales del contrato.
+- **Proceso de Ingesta (Michelin):** Se ejecuta localmente en el host Ubuntu mediante `scripts/sicc-ingesta.js`. 
+- **Capa de Visión:** Utiliza Tesseract OCR v5.3 y Poppler-utils para digitalización forense de PDFs.
+- **Ubicación de los Datos:** Tabla `contrato_documentos` en `postgres_sicc` con extensión `pgvector`.
+- **Flujo de Consulta:** El enjambre consulta esta tabla en la **Fase 2 (Validación Interna)**.
 
 ---
 
