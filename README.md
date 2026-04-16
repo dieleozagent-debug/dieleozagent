@@ -1,80 +1,90 @@
-# 🤖 OpenGravity Agent — Ecosistema Soberano v12.2 "Paz Estructural"
+# 🤖 OpenGravity SICC — Agente Soberano v12.2
 
-> **Stack:** Node.js · **Batch Factoría Serial v8.8** · **Qwen 2.5 1.5B (Host)** · Docker · **RED Protocol Engine**
+> **⚡ INICIO RÁPIDO:** Lee oadmap.md primero para saber el estado exacto del proyecto.
 
-OpenGravity es un **Agente de IA Autónomo y Auditor Transversal** diseñado para operar con soberanía tecnológica total. Utiliza una arquitectura modular de 3 repositorios independientes para separar la lógica de ejecución del conocimiento y los entregables de ingeniería.
-
----
-
-## 🏛️ Arquitectura Soberana — OpenGravity SICC v12.2 "Paz Estructural"
-
-El proyecto está dividido en tres unidades git independientes sincronizadas proactivamente:
-
-1.  **[Agente](https://github.com/dieleozagent-debug/dieleozagent)**: (Este repo) Motor core de Node.js, interfaz de Telegram y conectores de IA.
-2.  **[Brain](https://github.com/dieleozagent-debug/brain)**: El repositorio SSOT. Contiene el alma (`SOUL.md`), criterios de ingeniería (`DBCD_CRITERIA.md`) y el log de experimentos (`RESEARCH_LOG.md`).
-3.  **[LFC2](https://github.com/dieleozagent-debug/LFC2)**: Repositorio de entregables finales, planos y Decisiones Técnicas (DTs).
+**OpenGravity** es un bot de Telegram + motor RAG para auditoría forense del
+**Contrato APP No. 001/2025** (Línea Ferroviaria de Carga — LFC, Colombia).
 
 ---
 
-## 📁 Estructura del Repositorio Agente
+## 🚀 Cómo arrancar / verificar
 
-```
-agente/
-├── .agents/workflows/        # 🌀 Protocolos Operativos (Karpathy Loop, SIT, Síntesis)
-├── brain/                    # 🧠 CEREBRO (Repositorio montado como volumen Docker)
-├── src/                      # Código fuente del motor
-├── ollama-data/              # 🏠 Almacén de Modelos Locales (gemma4-light:latest)
-├── docs/                     # 📄 Documentación técnica (Arquitectura, DT Manager)
-├── Contrato pdf/             # 📚 Fuente RAG para auditoría forense
-├── Dockerfile                # Imagen Node.js 20-Alpine
-├── docker-compose.yml        # Orquestación de volúmenes y red
-└── README.md                 # Este manual maestro
-```
+\\\ash
+# Ver estado del contenedor
+cd /home/administrador/docker/agente
+docker compose ps
 
----
+# Ver logs en vivo
+docker compose logs -f --tail=30
 
--   **Protocolo de Gobernanza v9.9 (Night Shift):** 
-    - **Muro de Fuego de Sonnet:** Escalación automática prohibida. Alertas Rojas inmediatas ante bloqueo de CAPEX.
-    - **Búfer Michelin:** Los hallazgos forenses no críticos se encolan en `data/logs/michelin-findings.json`.
-    - **Digest Consolidado:** Notificación única en Telegram con la síntesis de hallazgos para revisión ejecutiva.
-    - **Trazabilidad Michelin:** Registro obligatorio de trazas para auditar el uso del ADN del cerebro.
--   **Sequential Swarm**: Debate multi-agente forense optimizado (Auditor vs Director).
--   **SICC Factory Mode**: Minería serial con enfriamiento
-### 3. SICC Dreamer (Autonomía de Saneamiento)
-- **Ciclo Night Shift:** Ráfagas técnicas de **10 minutos por hora**.
-- **Orquestador:** Gestionado por `scripts/night-shift.sh` y `scripts/sicc-sentinel.js`.
-- **Misión N-1:** El Dreamer está facultado para redactar DTs de supresión masiva basadas en los hallazgos del reporte RED y la Biblia Legal.
+# Reiniciar si es necesario
+docker compose restart
+\\\
+
+**Comando activo:** \
+ode src/agent.js --vigilia\
+**Red Docker:** \docker_sicc_net\
+**Volumen LFC2:** montado en \/home/administrador/docker/LFC2\
 
 ---
 
-## 🛡️ Capacidades de Soberanía v12.2 (Zero-Residue)
+## 📡 Proveedores IA (en orden de prioridad)
 
-### 1. Ingesta Manual Soberana
-El sistema ha erradicado los lanzadores automáticos ("Algo") y la persistencia agresiva. La ingesta es ahora un acto de voluntad humana:
-- **Telegram Command:** `/ingesta` (Lanza el motor resiliente v12.1).
-- **Control Forense:** El proceso se detiene o entra en backoff exponencial ante 429, nunca se reinicia sin mando.
-
-### 2. Patrulla Pasiva (Passive Patrol)
-El agente monitorea el backlog y los archivos pendientes, pero tiene prohibido el auto-lanzamiento de tareas pesadas. El sistema permanece ocioso y silencioso hasta recibir una orden explícita.
-- **Registro de Silencio:** `data/logs/patrol.log`.
-
----
-v12.2 "Zero Absolute" — 15/04/2026
-Operativos (Slash Commands Telegram)
-
--   `/ollama [prompt]`: **[Soberano]** Ejecuta Inferencia Directa con el servidor local.
--   `/cmd [comando]`: **[Soberano]** Interfaz de consola remota para ejecución shell pura.
--   `/audit [ruta]`: **[Soberano]** Inicia Karpathy Loop v8.4 y genera reporte RED.
--   `/swarm [pregunta]`: Debate forense multi-agente en modo secuencial.
--   `/karpathy-loop`: Auditoría forense automatizada en el repositorio `LFC2`.
--   `/simulacion-sit`: Simula el impacto de cambios técnicos antes de ejecutarlos.
--   `/sintesis-memoria`: Graba las lecciones de la sesión en `brain/DBCD_CRITERIA.md`.
--   `/cerebro`: Verifica la integridad funcional de la identidad del agente.
--   `/ingesta`: **[Manual]** Inicia el motor de ingesta masiva de la Biblia Legal con resiliencia v12.1.
+1. **Gemini** (Google) — primario
+2. **Groq** — fallback gratuito
+3. **OpenRouter** — fallback secondary
+4. **Ollama** (local) — fallback offline
 
 ---
 
-## 📜 Licencia y Soberanía
-Este proyecto es 100% auditable y prioriza modelos Open-Weights. **OpenGravity** no es solo una herramienta, es el guardián de la coherencia técnica del proyecto LFC.
+## 💬 Comandos Telegram Activos
 
-**SICC — Excelencia técnica desde la raíz.**
+| Comando | Función |
+|---|---|
+| /doctor | Health report del sistema SICC |
+| /learn | Mapear recursivamente LFC2 y actualizar rutas |
+| /audit [ruta] | Auditoría forense manual sobre una carpeta específica |
+| /ingesta | Iniciar motor de ingesta con backoff exponencial |
+| /cerebro | Verificar integridad de IDENTITY.md, SOUL.md, R-HARD.md |
+| /limpiar | Reset cognitivo de la sesión |
+
+> ⚠️ **Comandos ELIMINADOS (eran del enjambre/legacy):**
+> /swarm, /dream, /git ls, /git cat, /git commits, /estado, /simulacion-sit
+
+---
+
+## 🗂️ Repositorios del Ecosistema
+
+| Repo | Ruta | Propósito |
+|---|---|---|
+| **agente** | /home/administrador/docker/agente | Motor bot + lógica |
+| **LFC2** | /home/administrador/docker/LFC2 | Documentos ingeniería (read-only para el agente) |
+| **notebook-mcp** | /home/administrador/docker/notebook-mcp | MCP de notebooks |
+
+---
+
+## ⚠️ Reglas Operativas (NO ignorar)
+
+1. **DTs y DJs generados por el agente = BASURA** — productos del enjambre desactivado, no commitear
+2. **El enjambre (swarm) está DESACTIVADO** — era fuente de alucinaciones
+3. **No hay Sentinel, no hay cron externo** — todo vive en src/agent.js
+4. **Gobernanza R-HARD:** CAPEX máximo \ COP, FRA 49 CFR Part 236, hitos contractuales inamovibles
+5. **LFC2 es read-only** — el agente puede leerlo y auditarlo, no modificarlo con contenido técnico
+
+---
+
+## 🧠 Cerebro (brain/)
+
+\\\
+brain/
+├── IDENTITY.md       ← ADN del agente v6. Mandatos soberanos.
+├── SOUL.md           ← Ética operacional. Eficiencia + silencio.
+├── R-HARD.md         ← 7 restricciones duras del contrato.
+├── SICC_OPERATIONS.md← Tablero de gobernanza y auditoría.
+├── SPECIALTIES/      ← Mini-Cerberos por especialidad técnica.
+└── skills/           ← Contexto modular cargable dinámicamente.
+\\\
+
+---
+
+v12.2 " Paz Estructural\ — 16/04/2026
