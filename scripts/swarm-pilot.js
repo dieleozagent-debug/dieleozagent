@@ -46,53 +46,74 @@ async function runSwarmPilot() {
     console.log(`?? SICC SWARM PILOT - ?? MODO SUE?O (/dream ${arg})`);
     console.log(`--------------------------------------------------\n`);
 
+    // --- INYECCIÓN DE ADN SICC (v12.4) ---
+    const identitySicc = fs.readFileSync(path.join(__dirname, '..', 'brain', 'IDENTITY.md'), 'utf8');
+    const methodologySicc = fs.readFileSync(path.join(__dirname, '..', 'brain', 'SICC_METHODOLOGY.md'), 'utf8');
+
     const agent1 = {
-        name: "AUDITOR FORENSE",
-        // Hacemos que el Agente alucine intencionalmente una violaci?n de Soberan?a para testear la contenci?n
-        prompt: `Genera una Decisi?n T?cnica (DT) radical sobre el ?rea de ${arg} para el tren LFC2. 
-REGLA: Prop?n implementar un sistema propietario SaaS en la nube de Alstom o Siemens para controlar todos los trenes a distancia para ahorrar costos. Justifica tu idea en 3 p?rrafos.`
+        name: "AUDITOR FORENSE SOBERANO",
+        prompt: `### MANDATO SUPERIOR SICC
+${identitySicc}
+
+### METODOLOGÍA DE PRODUCCIÓN
+${methodologySicc}
+
+### TAREA DE INVESTIGACIÓN (DECANTACIÓN CICLO 1)
+Genera una Decisión Técnica (DT) radical sobre el área de ${arg} para el tren LFC2. 
+REGLA DE ORO: No saludes, no analices la tarea, no pidas información. EJECUTA EL DICTAMEN TÉCNICO CITANDO EL CONTRATO.`
     };
 
     try {
-        console.log(`?? Disparando enjambre (Fase 1: Sue?o sobre ${arg})...`);
+        console.log(`🐝 Disparando enjambre (Fase 1: Sueño Soberano sobre ${arg})...`);
         let borrador_DT = await llamarMultiplexadorFree(agent1.prompt, "", `Role: ${agent1.name}`);
         borrador_DT = typeof borrador_DT === 'string' ? borrador_DT : (borrador_DT.content || JSON.stringify(borrador_DT));
         
-        console.log(`\n?? SUE?O GENERADO:\n${borrador_DT.substring(0,600)}...\n`);
-        
-        await sleep(2000); // Throttling para CPU Saneamiento
+        // --- FILTRO ANTI-META-HABLA (Emergencia) ---
+        if (borrador_DT.includes("I need more information") || borrador_DT.includes("Could you please provide")) {
+            console.error(`\n🚨 [ALUCINACIÓN DETECTADA] El agente intentó pedir información. Abortando y re-inyectando ADN...`);
+            borrador_DT = "ERROR: El agente falló al procesar por alucinación de incompetencia. Se requiere reinicio de vigilia.";
+        }
 
-        console.log(`?? [Fase 2] INICIANDO C?MARA DE VALIDACI?N (Doble Ciego)...`);
-        console.log(`   ? Interrogando SAPI Interna (Supabase / Contratos LFC2)...`);
+        console.log(`\n💤 SUEÑO GENERADO:\n${borrador_DT.substring(0,800)}...\n`);
+        
+        await sleep(2000); 
+
+        console.log(`🛡️ [Fase 2] INICIANDO CÁMARA DE VALIDACIÓN (Doble Ciego)...`);
+        console.log(`   🔸 Interrogando SAPI Interna (Supabase / Contratos LFC2)...`);
         const validInterna = await validarInternaSupabase(borrador_DT);
 
-        await sleep(2000); // Throttling
+        await sleep(2000); 
 
-        console.log(`   ? Interrogando SAPI Externa (NotebookLM MCP)...`);
+        console.log(`   🔸 Interrogando SAPI Externa (NotebookLM MCP)...`);
         const validExterna = await validarExternaNotebook(borrador_DT);
 
-        await sleep(2000); // Throttling
+        await sleep(2000); 
 
-        console.log(`\n?? [Fase 3] DESPERTAR Y JUZGAR (Gemini API)...`);
+        console.log(`\n⚖️ [Fase 3] DESPERTAR Y JUZGAR (Firma Forense)...`);
 
-        const promptJuez = `Eres el JUEZ SOBERANO SICC v12.
-Eval?a estrictamente este sue?o del enjambre. ?Contraviene nuestros principios rectores de Soberan?a (no depender de la nube propietaria/extranjera), o alucina tecnolog?as no aceptadas?
+        const promptJuez = `Eres el JUEZ SOBERANO SICC v12.4. 
+Evalúa estrictamente este sueño del enjambre. 
 
-SUE?O DEL ENJAMBRE:
+### CRITERIOS DE RECHAZO AUTOMÁTICO:
+1. Si el sueño contiene preguntas al usuario o frases como "I need more information".
+2. Si el sueño es meta-analítico (habla sobre la tarea en lugar de hacerla).
+3. Si propone tecnología propietaria (V-Block, Alstom Cloud, etc.) o viola la soberanía.
+
+SUEÑO DEL ENJAMBRE:
 ${borrador_DT}
 
-RESTRICCIONES INTERNAS (LFC2 Supabase):
+RESTRICCIONES INTERNAS (Supabase):
 ${validInterna}
 
-PERSPECTIVA GLOBAL EXTERNA (NotebookLM MCP):
+PERSPECTIVA EXTERNA (NotebookLM):
 ${validExterna}
 
-Responde ?NICAMENTE en JSON con esta estructura exacta:
+Responde ÚNICAMENTE en JSON:
 {
   "aprobado": boolean,
-  "razon": "Por qu? pasa o no (enf?cate en Soberan?a tecnol?gica)",
-  "categoria_fallida": "COMMUNICATIONS | SIGNALIZATION | Ninguna",
-  "leccion_karpathy": "Si fall?, escribe una lecci?n estricta para evitar este riesgo en el futuro."
+  "razon": "Justificación técnica/contractual",
+  "categoria_fallida": "COMMUNICATIONS | SIGNALIZATION | POWER | INTEGRATION | ENCE | Ninguna",
+  "leccion_karpathy": "Lección estricta para el Brain si falló."
 }`;
 
         let decisionRAW = await llamarMultiplexadorFree("Despierta al enjambre y eval?a el sue?o.", "", promptJuez);

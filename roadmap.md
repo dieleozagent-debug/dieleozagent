@@ -12,6 +12,7 @@
 - [x] Backoff exponencial ante 429 API
 - [x] Brain saneado: IDENTITY.md v6, SOUL.md, R-HARD.md
 - [x] SAPI Modularizado y arquitectura validación (Enjambre Doble Ciego)
+- [x] **Refuerzo de Blindaje v12.4: Filtro Anti-Meta-Habla e Inyección de ADN (Completado)**
 
 ---
 
@@ -19,10 +20,10 @@
 
 | Item | Estado |
 |---|---|
-| Contenedor | 🟢 UP — Agente con Puente a Host Ollama (172.20.0.1) |
+| Contenedor | 🟢 UP — Agente con Blindaje v12.4 Activo |
 | Gobernanza | 🟢 Activa — CPU Capped at 80% (Modo Diferido) |
 | RAG/Brain | 🟢 Activo (Supabase + SOUL.md restaurado) |
-| **Health Score** | 🟢 **100/100 Certificado** |
+| **Health Score** | 🟢 **100/100 Certificado (Post-Armor)** |
 
 ---
 
