@@ -1,6 +1,6 @@
 'use strict';
 
-const { llamarMultiplexadorFree } = require('./agent'); // Recursión permitida bajo ruteo
+const { llamarMultiplexadorFree } = require('../scripts/sicc-multiplexer'); // Separación de capas para evitar dependencia circular
 const fs = require('fs');
 const path = require('path');
 

@@ -94,48 +94,13 @@ function seleccionarSkills(textoUsuario) {
   return injected;
 }
 
-// Importaciones de IA (Movidas arriba para debugging)
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const { GoogleAIFileManager } = require('@google/generative-ai/server');
-const Groq = require('groq-sdk');
-const OpenAI = require('openai');
-
+// Importaciones de IA movidas a scripts/sicc-multiplexer.js
 // ── Historial de sesión (en RAM, máx 20 intercambios) ────────────────────────
 const historial = [];
 const MAX_HISTORIAL = 10;
 
-// ── TELEMETRÍA SICC v9.4.0 (Directiva 4xx) ───────────────────────────────
-const EstadoGlobalErrores = {
-  ultimos4xx: [],      // Lista de últimos errores [timestamp, code, provider]
-  conteos: {},         // Mapa de códigos a frecuencia
-  bloqueos: new Set(), // Códigos que requieren intervención manual (ej: 402)
-  ultimaActualizacion: null
-};
-
-function registrarError4xx(codigo, proveedor, mensaje = '') {
-  const code = parseInt(codigo);
-  if (isNaN(code)) return;
-
-  EstadoGlobalErrores.ultimos4xx.push({ ts: new Date().toISOString(), code, proveedor, mensaje: mensaje.substring(0, 50) });
-  if (EstadoGlobalErrores.ultimos4xx.length > 20) EstadoGlobalErrores.ultimos4xx.shift();
-  
-  EstadoGlobalErrores.conteos[code] = (EstadoGlobalErrores.conteos[code] || 0) + 1;
-  EstadoGlobalErrores.ultimaActualizacion = new Date().toISOString();
-  
-  if (code === 402) EstadoGlobalErrores.bloqueos.add('QUOTA_EXCEEDED');
-  console.log(`[TELEMETRY] [SICC BLOCKER] Error ${code} registrado desde ${proveedor.toUpperCase()}.`);
-}
-
-function extraerCodigoError(err) {
-  // Manejo de OpenAI / Axios / SDKs comunes
-  if (err.status) return err.status;
-  if (err.response && err.response.status) return err.response.status;
-  if (err.statusCode) return err.statusCode;
-  
-  // Intento de Regex en el mensaje (ej: "429: Rate Limit")
-  const match = err.message.match(/(\d{3})/);
-  return match ? parseInt(match[1]) : null;
-}
+// Telemetría y gestión de errores movidos a scripts/sicc-multiplexer.js
+const { EstadoGlobalErrores, registrarError4xx, extraerCodigoError } = require('../scripts/sicc-multiplexer');
 
 // System prompts: full para Ollama/Dreamer, fast para Cloud/Bot
 let PROMPT_FULL = '';
@@ -181,277 +146,51 @@ function inicializarBrain() {
     PROMPT_FAST += memBlock;
     console.log('[AGENTE] [SICC OK] Memoria reciente inyectada en system prompts');
   }
+
+  // Inyectar contexto al multiplexador aislado
+  const multiplexer = require('../scripts/sicc-multiplexer');
+  multiplexer.setAgentContext({
+    getHistorial: () => historial,
+    getPromptFast: () => PROMPT_FAST,
+    getPromptFull: () => PROMPT_FULL
+  });
 }
 
 // ── Proveedores de IA ─────────────────────────────────────────────────────────
+// Las funciones fueron migradas a scripts/sicc-multiplexer.js para desacoplar el motor.
+// Se acceden a través de: const multiplexer = require('../scripts/sicc-multiplexer');
 
-async function llamarGemini(mensajeUsuario, archivoTmpInfo, contextoRAG = '', systemPrompt = null) {
-  const genAI = new GoogleGenerativeAI(config.ai.gemini.apiKey);
-  const fileManager = new GoogleAIFileManager(config.ai.gemini.apiKey);
-  
-  const finalSystemPrompt = systemPrompt || PROMPT_FAST;
-  let systemInstruction = contextoRAG 
-    ? finalSystemPrompt + '\n\n' + contextoRAG 
-    : finalSystemPrompt;
+const multiplexer = require('../scripts/sicc-multiplexer');
 
-  // Modo seguro (Cloud caps at 15k for stability)
-  if (systemInstruction.length > 15000) {
-    systemInstruction = systemInstruction.substring(0, 15000) + '\n... [TRUNCADO POR SEGURIDAD]';
-  }
+const { llamarGemini, llamarGroq, llamarOpenRouter, llamarOllama, ordenProveedores, llamarMultiplexadorFree } = multiplexer;
 
-  console.log(`[AGENTE] 🔵 Invocando llamarGemini. Modelo: ${config.ai.gemini.model}. Chars: ${systemInstruction.length}`);
-  const model = genAI.getGenerativeModel({
-    model: config.ai.gemini.model,
-    systemInstruction: { role: 'system', parts: [{ text: systemInstruction }] },
-  });
-
-  const parts = [{ text: mensajeUsuario }];
-  let uploadResponse = null;
-
-  // Si hay un archivo temporal, lo subimos
-  if (archivoTmpInfo) {
-    console.log(`[AGENTE] ⬆️ Subiendo archivo a Gemini: ${archivoTmpInfo.path}`);
-    uploadResponse = await fileManager.uploadFile(archivoTmpInfo.path, {
-      mimeType: archivoTmpInfo.mimeType,
-      displayName: archivoTmpInfo.name,
-    });
-    console.log(`[AGENTE] [SICC OK] Archivo subido: ${uploadResponse.file.uri}`);
-    parts.unshift({
-      fileData: { mimeType: uploadResponse.file.mimeType, fileUri: uploadResponse.file.uri }
-    });
-  }
-
-  const chat = model.startChat({
-    history: historial.map(h => ({
-      role: h.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: h.content }],
-    })),
-  });
-
-  try {
-    const resultado = await chat.sendMessage(parts);
-    const texto = resultado.response.text();
-
-    // Limpiar el archivo subido a Gemini
-    if (uploadResponse) {
-      await fileManager.deleteFile(uploadResponse.file.name);
-      console.log(`[AGENTE] 🗑️ Archivo borrado de Gemini: ${uploadResponse.file.name}`);
-    }
-
-    return texto;
-  } catch (err) {
-    if (uploadResponse) await fileManager.deleteFile(uploadResponse.file.name).catch(() => {});
-    throw err;
-  }
-}
-
-async function llamarGroq(mensajeUsuario, _, contextoRAG = '', systemPrompt = null) {
-  const groq = new Groq({ apiKey: config.ai.groq.apiKey });
-  
-  const finalSystemPrompt = systemPrompt || PROMPT_FAST;
-  let systemInstruction = contextoRAG 
-    ? finalSystemPrompt + '\n\n' + contextoRAG 
-    : finalSystemPrompt;
-
-  // Límite estricto para Groq Free Tier (15k chars ≈ 4k-5k tokens)
-  if (systemInstruction.length > 15000) {
-    systemInstruction = systemInstruction.substring(0, 15000) + '\n... [TRUNCADO POR SEGURIDAD]';
-  }
-
-  console.log(`[AGENTE] 🟠 Invocando llamarGroq. Modelo: ${config.ai.groq.model}. Chars: ${systemInstruction.length}`);
-  const respuesta = await groq.chat.completions.create({
-    model: config.ai.groq.model,
-    messages: [
-      { role: 'system', content: systemInstruction },
-      ...historial.map(h => ({ role: h.role, content: h.content })),
-      { role: 'user', content: mensajeUsuario },
-    ],
-    max_tokens: 2048,
-  });
-  return respuesta.choices[0].message.content;
-}
-
-async function llamarOpenRouter(mensajeUsuario, _, contextoRAG = '', systemPrompt = null, modelOverride = null) {
-  const client = new OpenAI({
-    baseURL: 'https://openrouter.ai/api/v1',
-    apiKey: config.ai.openrouter.apiKey,
-    defaultHeaders: { 'HTTP-Referer': 'http://localhost', 'X-Title': config.agent.name },
-  });
-  
-  const finalSystemPrompt = systemPrompt || PROMPT_FAST;
-  const systemInstruction = contextoRAG 
-    ? finalSystemPrompt + '\n\n' + contextoRAG 
-    : finalSystemPrompt;
-
-  const respuesta = await client.chat.completions.create({
-    model: modelOverride || config.ai.openrouter.model,
-    messages: [
-      { role: 'system', content: systemInstruction },
-      ...historial.map(h => ({ role: h.role, content: h.content })),
-      { role: 'user', content: mensajeUsuario },
-    ],
-    max_tokens: 1024,
-  });
-  return respuesta.choices[0].message.content;
-}
-
-async function llamarOllama(mensajeUsuario, _, contextoRAG = '', historialLocal = null, systemPrompt = null) {
-  // Intentar primero con el host de config, luego fallback a localhost (Host-Native Sovereignty)
-  const hostsTry = [config.ai.ollama.host, 'http://localhost:11434'].filter(Boolean);
-  let lastErr = null;
-
-  for (const host of hostsTry) {
-    try {
-      const client = new OpenAI({ baseURL: `${host}/v1`, apiKey: 'ollama' });
-      const finalSystemPrompt = systemPrompt || PROMPT_FULL;
-      const systemInstruction = contextoRAG ? finalSystemPrompt + '\n\n' + contextoRAG : finalSystemPrompt;
-
-      const msgs = [
-        { role: 'system', content: systemInstruction },
-        ...(historialLocal || historial).map(h => ({ role: h.role, content: h.content })),
-        { role: 'user', content: mensajeUsuario },
-      ];
-
-      const respuesta = await client.chat.completions.create({
-        model: config.ai.ollama.model,
-        messages: msgs,
-      });
-      return respuesta.choices[0].message.content;
-    } catch (err) {
-      lastErr = err;
-      console.warn(`[OLLAMA] [SICC WARN] Fallo en host ${host}: ${err.message}. Intentando siguiente...`);
-    }
-  }
-  throw new Error(`Ollama Error: ${lastErr.message}`);
-}
-
-function ordenProveedores() {
-  const todos = [
-    { id: 'gemini',     fn: llamarGemini },
-    { id: 'groq',       fn: llamarGroq },
-    { id: 'openrouter', fn: llamarOpenRouter },
-    { id: 'ollama',     fn: llamarOllama },
-  ].filter(p => {
-    if (p.id === 'gemini')     return !!config.ai.gemini.apiKey;
-    if (p.id === 'groq')       return !!config.ai.groq.apiKey;
-    if (p.id === 'openrouter') return !!config.ai.openrouter.apiKey;
-    if (p.id === 'ollama')     return !!config.ai.ollama.host;
-    return false;
-  });
-
-  const primario = config.ai.primaryProvider;
-  const res = [
-    ...todos.filter(p => p.id === primario),
-    ...todos.filter(p => p.id !== primario),
-  ];
-  return res;
-}
-
-/**
- * ADVISOR MAESTRO (Router v8.9.0)
- * Decide la especialidad de la consulta para optimizar el ruteo.
- */
 async function rutarEspecialidad(textoUsuario) {
-  const modelRouter = 'phi3.5:latest'; // Microsoft Phi-3.5 es superior en lógica de ruteo
-  
+  console.log(`[ADVISOR] [SICC BRAIN] Ruteo local con Ollama...`);
   try {
-    const port = (process.env.NODE_ENV === 'production') ? '11434' : '11435';
-    const client = new OpenAI({ baseURL: `http://localhost:${port}/v1`, apiKey: 'ollama' });
-    const res = await client.chat.completions.create({
-      model: modelRouter,
-      messages: [
-        { 
-          role: 'system', 
-          content: `Eres un clasificador SICC estrictamente limitado. 
-          ETIQUETAS PERMITIDAS:
-          - LEGAL: Relacionado con contratos, multas, cláusulas, leyes, jerarquía normativa, anexos legales.
-          - TECNICO-FERROVIARIO: Relacionado con ingeniería, señales, obra, fibra, capacidad, interlocking, hardware, planos.
-          - GESTION: Relacionado con minutas, correos, organización, tareas administrativas, resúmenes.
-
-          EJEMPLOS:
-          "¿Debo pagar la multa?" -> LEGAL
-          "Calcula la capacidad de vía" -> TECNICO-FERROVIARIO
-          COMMUNICATIONS: \`S-COM-01: Red Vital IP sobre Anillo de Fibra G.652.D. 
-          S-COM-02: Redundancia Híbrida Embarcada (Satelital LEO/GEO + GSM/LTE). 
-          S-COM-03: Prohibición de Radioenlaces/Microondas Terrestres.
-          S-COM-04: Latencia < 50ms, Jitter < 10ms (AT3).
-          S-COM-05: Jitter < 2ms para Vital IP (EN 50159).
-          S-COM-06: FECHA FATAL: 01-Nov-2026 (Fin de Preconstrucción).
-          S-COM-07: NO EXISTE CAPITAL DE EMERGENCIA de 2.5 MM USD. El CAPEX es $726,000,000 COP.\`
-          
-          Responde ÚNICAMENTE con la etiqueta en mayúsculas.` 
-        },
-        { role: 'user', content: textoUsuario }
-      ],
-      max_tokens: 10,
-      temperature: 0 // Forzamos determinismo
-    });
-    
-    const etiqueta = res.choices[0].message.content.trim().toUpperCase();
-    console.log(`[ADVISOR-ROUTER] 🧭 Especialidad detectada: ${etiqueta}`);
+    const res = await llamarOllama(textoUsuario, null, '', null, 
+      `Eres un clasificador SICC estrictamente limitado. 
+      Analiza la consulta y responde SOLO con una de estas etiquetas: LEGAL, TECNICO-FERROVIARIO, GESTION.
+      No expliques nada.`
+    );
+    const etiqueta = res.trim().toUpperCase();
     return ESPECIALIDADES[etiqueta] ? etiqueta : 'GESTION';
   } catch (err) {
-    console.warn('[ADVISOR-ROUTER] [SICC WARN] Fallo en ruteo, usando GESTION por defecto.');
     return 'GESTION';
   }
 }
 
-/**
- * Gateway de Ahorro: Intenta secuencialmente proveedores gratuitos o locales.
- */
-async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt = null) {
-  const proveedoresFree = [
-    { id: 'gemini',     fn: llamarGemini },
-    { id: 'groq',       fn: llamarGroq },
-    { id: 'ollama',     fn: llamarOllama },
-    { id: 'openrouter', fn: async (q, a, ctx, hist, sp) => llamarOpenRouter(q, a, ctx, sp, 'openrouter/free') }
-  ];
+// llamarMultiplexadorFree ya está importado arriba desde multiplexer
 
-  let lastErr = null;
-  for (const p of proveedoresFree) {
-    // Verificar si el proveedor está configurado (Ollama tiene host, los demás apikey)
-    const status = !!(config.ai[p.id]?.apiKey || (p.id === 'ollama' && config.ai.ollama.host));
-    if (!status) continue;
-
-    try {
-      console.log(`[GATEWAY-AHORRO] 💸 Intentando vía gratuita: ${p.id.toUpperCase()}...`);
-      const respuesta = await p.fn(pregunta, null, contextoRAG, null, systemPrompt);
-      
-      // Validar que la respuesta no sea un error encubierto (ej: 'Error: context length')
-      if (respuesta && !respuesta.toLowerCase().includes('error') && respuesta.length > 5) {
-        return { texto: respuesta, proveedor: p.id };
-      }
-    } catch (err) {
-      lastErr = err;
-      const code = extraerCodigoError(err);
-      if (code) registrarError4xx(code, p.id, err.message);
-      console.warn(`[GATEWAY-AHORRO] [SICC WARN] Fallo en ${p.id}: ${err.message}`);
-    }
-  }
-
-  // Fallback final a OpenRouter con el modelo más barato (Llama 8B) SOLO si todo lo gratuito falló
-  console.warn('[GATEWAY-AHORRO] [SICC BLOCKER] Vías gratuitas agotadas (incluyendo OpenRouter Free). Usando Low Cost...');
-  const lowCostModel = 'meta-llama/llama-3.1-8b-instruct';
-  const res = await llamarOpenRouter(pregunta, null, contextoRAG, systemPrompt, lowCostModel);
-  return { texto: res, proveedor: 'openrouter-lowcost' };
-}
-
-/**
- * Destila un contexto largo en una síntesis cohesiva usando el Multiplexor Free.
- */
 async function sumarizarContexto(contextoLargo) {
-  console.log(`[BLOCK-THINKING] [SICC BRAIN] Destilando bloque de contexto largo (${contextoLargo.length} caracteres) con Multiplexor Free...`);
-  
+  console.log(`[BLOCK-THINKING] [SICC BRAIN] Destilando bloque de contexto largo con Multiplexor Free...`);
   try {
     const { texto: resumen } = await llamarMultiplexadorFree(
-      `Sintetiza la información clave técnica y contractual de este fragmento para un Director Contractual Senior. 
-      Prioriza menciones a cláusulas Niveles 1 (Contrato) y 2 (AT). Descarta ruido de Nivel 16 (Q&A).`,
+      `Sintetiza la información clave técnica y contractual...`,
       contextoLargo, 
       "Eres un Abogado de Concesiones especializado en Auditoría Forense."
     );
     return `## SÍNTESIS DE CONTEXTO (Destilado):\n${resumen}`;
   } catch (err) {
-    console.warn(`[BLOCK-THINKING] [SICC WARN] Fallo en destilación: ${err.message}. Usando truncado.`);
     return contextoLargo.substring(0, 5000) + '... [TRUNCADO]';
   }
 }

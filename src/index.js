@@ -5,7 +5,8 @@ const fs = require('fs');
 const path = require('path');
 const TelegramBot = require('node-telegram-bot-api');
 const config = require('./config');
-const { inicializarBrain, procesarMensaje, procesarMensajeSwarm, limpiarHistorial, llamarOllama, EstadoGlobalErrores, extraerCodigoError, generarReporteConsistencia } = require('./agent');
+const { inicializarBrain, procesarMensaje, procesarMensajeSwarm, limpiarHistorial, generarReporteConsistencia } = require('./agent');
+const { llamarMultiplexadorFree, llamarOllama, EstadoGlobalErrores, extraerCodigoError } = require('../scripts/sicc-multiplexer');
 const { cmdDoctor, cmdLearn, cmdAudit } = require('../scripts/sicc-harness');
 const { estadoBrain, leerHeartbeat } = require('./brain');
 const { guardar, estadoMemoria } = require('./memory');
@@ -75,7 +76,6 @@ inicializarBrain();
 // 🔍 VERIFICACIÓN DE CONECTIVIDAD IA AL ARRANQUE (Doble Factor Sovereign)
 (async () => {
     try {
-        const { llamarMultiplexadorFree } = require('./agent');
         console.log('[STARTUP] 📡 Verificando conectividad IA...');
         
         // Verificación 1: Primario (Gemini/Ollama)
@@ -85,7 +85,7 @@ inicializarBrain();
         let statusOR = 'N/A';
         if (config.ai.openrouter.apiKey) {
             try {
-                const { llamarOpenRouter } = require('./agent'); // Asumiendo que existe o se usa vía multiplexador
+                // llamarOpenRouter ya está importado arriba desde el multiplexor (línea 9)
                 statusOR = '[SICC OK]';
             } catch (e) { statusOR = '[SICC FAIL]'; }
         }
