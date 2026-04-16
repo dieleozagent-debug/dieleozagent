@@ -9,6 +9,7 @@ services:
       - .:/home/administrador/docker/agente
       - /home/administrador/docker/LFC2:/home/administrador/docker/LFC2
       - /var/run/docker.sock:/var/run/docker.sock
+    init: true
     working_dir: /home/administrador/docker/agente
     env_file:
       - .env

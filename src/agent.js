@@ -316,7 +316,7 @@ async function procesarMensajeSwarm(textoUsuario) {
 async function ejecutarSondaForense(tema, contexto) {
   console.log(`[SONDA] 🛰️ Iniciando Sonda Forense (Modo Serial Batch) para: ${tema}`);
   
-  const ANALISTA_MODEL = 'gemma4-light:latest'; 
+  const ANALISTA_MODEL = 'gemma2:2b'; 
   const TIMEOUT_MS = 90000; // 90 segundos de Hard-Cap por Analista
   
   const ANALISTAS = [

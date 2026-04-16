@@ -123,17 +123,21 @@ Responde ÚNICAMENTE en JSON:
         if (!jsonMatch) throw new Error("Juez fall? al emitir JSON v?lido");
         
         const decision = JSON.parse(jsonMatch[0]);
-        console.log(`\n?? VEREDICTO FINAL AL DESPERTAR:`);
-        console.log(`   Aprobado: ${decision.aprobado ? '? S?' : '? NO'}`);
-        console.log(`   Raz?n: ${decision.razon}`);
+        console.log(`\n⚖️ VEREDICTO FINAL AL DESPERTAR:`);
+        console.log(`   Aprobado: ${decision.aprobado ? '[OK] SÍ' : '[BLOCK] NO'}`);
+        console.log(`   Razón: ${decision.razon || 'No especificada'}`);
 
-        if (!decision.aprobado && decision.leccion_karpathy) {
-            console.log(`\n?? [Fase 4] PESADILLA DETECTADA -> BUCLE DE APRENDIZAJE KARPATHY`);
-            const targetSp = decision.categoria_fallida !== "Ninguna" ? decision.categoria_fallida : "SIGNALIZATION";
-            await updateKarpathySpecialty(targetSp, decision.leccion_karpathy);
-            console.log(`?? ALUCINACI?N SOBERANA CONTENIDA. El conocimiento ha sido integrado al cerebro.`);
+        if (decision.aprobado) {
+            console.log(`\n✅ SUEÑO APROBADO Y CERTIFICADO PARA EL DISEÑO LFC2.`);
         } else {
-            console.log(`\n? SUE?O APROBADO Y CERTIFICADO PARA EL DISE?O LFC2.`);
+            console.log(`\n❌ [Fase 4] PESADILLA DETECTADA -> BUCLE DE APRENDIZAJE KARPATHY`);
+            const targetSp = (decision.categoria_fallida && decision.categoria_fallida !== "Ninguna") 
+                ? decision.categoria_fallida 
+                : (arg.toUpperCase().includes('SEÑAL') ? 'SIGNALIZATION' : 'SIGNALIZATION');
+            
+            const leccion = decision.leccion_karpathy || decision.razon || "Alucinación de proceso detectada.";
+            await updateKarpathySpecialty(targetSp, leccion);
+            console.log(`🛡️ ALUCINACIÓN SOBERANA CONTENIDA. El conocimiento ha sido integrado al cerebro en ${targetSp}.md`);
         }
 
         console.log(`\n--------------------------------------------------`);
