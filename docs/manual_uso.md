@@ -1,6 +1,6 @@
-# 📖 Manual de Uso OpenGravity SICC v6.4
+# 📖 Manual de Uso OpenGravity SICC v12.2 "Paz Estructural"
 
-Bienvenido al ecosistema **OpenGravity**. Este agente es tu **Auditor Forense, Administrador Contractual y Diseñador UX** operando bajo soberanía tecnológica total.
+Bienvenido al ecosistema **OpenGravity**. Este agente es tu **Auditor Forense, Administrador Contractual y Centinela de Datos** operando bajo soberanía tecnológica total en modo **Nodo Único Soberano**.
 
 ---
 
@@ -15,14 +15,9 @@ El bot es tu interfaz principal para la supervisión y toma de decisiones. Solo 
 | `/doctor` | **SICC Health Report** | Verificar pureza técnica y adherencia al DBCD. |
 | `/learn` | **Auto-Aprendizaje** | Mapear recursivamente el repositorio LFC2 y actualizar rutas. |
 | `/audit [ruta]` | **Karpathy Loop** | Ejecutar auditoría forense manual sobre una carpeta específica. |
-| `/swarm [pregunta]` | **Debate Forense** | Disparar debate entre Auditor y Estratega (SICC v6.4). |
-| `/dream` | **Vigilia del Auditor** | Ver hipótesis en cola y borradores de DT generados por la noche. |
-| `/git ls [ruta]` | **Explorador LFC2** | Listar archivos del repositorio de ingeniería desde el celular. |
-| `/git cat [archivo]` | **Lector de Código** | Leer el contenido de un entregable o DT específica. |
-| `/git commits` | **Trazabilidad** | Ver los últimos 5 cambios realizados en el ecosistema. |
+| `/ingesta` | **Ingesta Biblia** | Inicia el motor resiliente v12.1 (Páginas 2000+) de la Biblia Legal. |
+| `/cerebro` | **Integridad SSOT** | Verificar el estado de los archivos de identidad y el Brain. |
 | `/limpiar` | **Reset Cognitivo** | Limpiar el historial de la sesión para cambiar de tema. |
-| `/estado` | **Status de IA** | Ver qué proveedor (Ollama/Groq/Gemini) está activo. |
-| `/cerebro` | **Integridad SSOT** | Verificar el estado de los 11 archivos de identidad. |
 
 ### 📎 Auditoría de Documentos (RAG)
 Puedes enviar archivos directamente al bot:
@@ -31,19 +26,27 @@ Puedes enviar archivos directamente al bot:
 
 ---
 
-## 🛠️ Herramientas de Servidor (Linux-Native)
+## 📊 Gestión de Ingesta Masiva (Biblia Legal)
 
-Para ejecución técnica profunda en el host (`/home/administrador/`), utiliza los wrappers unificados:
+La arquitectura v12.2 ha erradicado los "Sentinel" automáticos por ser fuente de spam. La ingesta es ahora un proceso manual y resiliente:
 
-### Comandos de Ejecución (`lfc.sh`):
-Desde la carpeta `LFC2/`:
-*   `./lfc.sh sync`: Sincroniza el WBS Presupuestal con las bases de datos.
-*   `./lfc.sh cook`: Regenera entregables (HTML/Word) en la Carpeta X.
-*   `./lfc.sh serve`: Despliega el servidor local para previsualización.
+1. **Lanzamiento Manual**: Usa `/ingesta` desde Telegram o ejecuta `node scripts/ingest_masivo.js`.
+2. **Resiliencia v12.1**: El motor gestiona errores 429 (Too Many Requests) aplicando un **Backoff Exponencial** (esperas de 15s, 30s, 60s...).
+3. **Monitoreo**: Puedes seguir el progreso con `tail -f data/logs/ingesta_v12.log`.
+4. **Patrulla Pasiva**: El agente te notificará en el bot si detecta nuevos PDFs en `/Contrato pdf/`, pero NO los procesará sin tu orden.
 
-### Gestión del Dreamer:
-*   `./run-sicc.sh --dry-run`: Probar el ciclo de auditoría autónoma sin aplicar cambios.
-*   `tail -f /tmp/sicc-dreamer.log`: Ver el progreso de las auditorías nocturnas.
+---
+
+## 🛡️ Protocolo de Purga "Zero-Residue"
+
+Si detectas reinicios automáticos o logs sospechosos de tipo "SENTINEL", ejecuta este comando nuclear en el host:
+
+```bash
+# Purga manual definitiva (Solo si falla el docker-compose)
+sudo rm -f /etc/cron.d/sicc-persistence
+sudo rm -f /usr/local/bin/sicc-persistence-loop.sh
+pkill -9 -f night-shift.sh
+```
 
 ---
 
@@ -57,8 +60,8 @@ Desde la carpeta `LFC2/`:
 
 ## 🏗️ Navegación Documental
 
-- **Arquitectura**: Para detalles del motor, consulta la [Arquitectura Soberana v6.4](file:///home/administrador/docker/agente/architecture.md).
-- **Gestión de DTs**: Para el flujo de aprobación de Decisiones Técnicas, consulta el [Manual de DT Manager](file:///home/administrador/docker/agente/docs/DT_MANAGER.md).
+- **Arquitectura**: Para detalles del motor, consulta la [Arquitectura Soberana v12.2](file:///home/administrador/docker/agente/architecture.md).
+- **Roadmap**: Consulta los hitos actuales en [Roadmap SICC](file:///home/administrador/docker/agente/roadmap.md).
 
-**SICC — Excelencia técnica y soberanía desde la raíz.**
-ema, consulta la [Arquitectura Soberana v6.4](file:///home/administrador/docker/agente/architecture.md).
+---
+v12.2 "Paz Estructural" — 15/04/2026 (Certificado Zero-Residue)

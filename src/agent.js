@@ -13,6 +13,8 @@ const { getMultiplexedContext } = require('../scripts/sicc-multiplexer');
 const fs = require('fs');
 const path = require('path');
 const { checkYEncolar, evaluarRecursos } = require('../scripts/resource-governor');
+const { startPatrol } = require('./patrol');
+
 
 // Skills Registry — carga modular de contexto especializado
 const SKILLS_DIR = require('path').join(__dirname, '../brain/skills');

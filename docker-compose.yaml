@@ -7,9 +7,13 @@ services:
     restart: always
     volumes:
       - .:/home/administrador/docker/agente
+      - /home/administrador/docker/LFC2:/home/administrador/docker/LFC2
     working_dir: /home/administrador/docker/agente
+    env_file:
+      - .env
     command: node src/agent.js --vigilia
 
 networks:
   default:
-    name: lfc2-network
+    external: true
+    name: docker_sicc_net
