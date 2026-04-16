@@ -33,9 +33,7 @@ const pool = new Pool(dbConfig);
  */
 async function obtenerEmbedding(texto) {
     try {
-        const port = '11434';
-        const hostName = isDocker ? 'ollama' : '127.0.0.1';
-        const host = `http://${hostName}:${port}`;
+        const host = config.ai.ollama.host;
         
         console.log(`[SUPABASE] 🤖 Obteniendo embedding vía ${host} (Modelo: nomic-embed-text:latest)...`);
         const response = await axios.post(`${host}/api/embeddings`, {

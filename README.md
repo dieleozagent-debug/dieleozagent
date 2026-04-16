@@ -54,6 +54,11 @@ SICC opera mediante un **Enjambre de IA** orquestado por la **Cámara de Doble C
 2. **Validación:** Se cruza contra **Supabase** (Contrato Interno) y **NotebookLM** (Verdad Externa).
 3. **Decantación de Karpathy:** El conocimiento se filtra en 5 fases hasta convertirse en una **DT Certificada** o una **Lección Aprendida** en `brain/SPECIALTIES/`.
 
+### 🗄️ Gestión de Datos Soberana
+- **Ingesta:** `node scripts/sicc-ingesta.js --path /ruta/pdfs` (OCR Michelin + pgvector).
+- **Almacenamiento:** Tabla `contrato_documentos` en DB `postgres_sicc` (Supabase Local).
+- **Consulta:** Automática durante el comando `/dream` (Fase 2).
+
 ---
 
 ## 🧠 Cerebro (brain/)

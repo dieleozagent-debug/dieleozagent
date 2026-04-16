@@ -20,22 +20,21 @@
 
 | Item | Estado |
 |---|---|
-| Contenedor | 🟢 UP — Agente con Blindaje v12.4 Activo |
-| Gobernanza | 🟢 Activa — CPU Capped at 80% (Modo Diferido) |
-| RAG/Brain | 🟢 Activo (Supabase + SOUL.md restaurado) |
+| Contenedor | 🟢 UP — Agente con Blindaje v12.5 (Iterativo) |
+| RAG/Brain | 🟢 Activo — pgvector habilitado y conexión certificada |
+| Enjambre | 🟢 Activo — Bucle de Karpathy (3 Ciclos de Refinamiento) |
 | **Health Score** | 🟢 **100/100 Certificado (Post-Armor)** |
 
 ---
 
-## 🎯 PRÓXIMOS PASOS
+## 🎯 PRÓXIMOS PASOS (Fase v12.6)
 
-### 1. Certificación Forense de Especialidades
-- Ejecutar `/dream SEÑALIZACIÓN` para validar el nuevo throttling de CPU.
+### 1. Ingesta Forense Masiva (Operación Michelin)
+- Ejecutar `node scripts/sicc-ingesta.js` sobre todo el repositorio LFC2 para poblar la base de datos vectorial.
+- Validar densidad de señal en `postgres_sicc`.
 
-### 2. Búsqueda Web Soberana 
-- Alternativa por si el MCP falla en alguna búsqueda muy reciente.
+### 2. Estabilización del Oráculo Externo
+- Resolver dependencia de `playwright` en el contenedor para habilitar búsqueda web completa en NotebookLM MCP.
 
-### 3. Fase v12.4: "Pureza Automática" (Decantación 5x)
-- **Bucle de Autocrítica Recursiva:** El sistema se auto-auditará 5 veces antes de emitir cualquier DT.
-- **Genetic Memory:** Priorización de lecciones aprendidas en el RAG para evitar recurrencia de alucinaciones.
-- **SICC Sentinel v2:** Auto-saneamiento de la base de datos vectorial ante inconsistencias matemáticas.
+### 3. SICC Sentinel v2: Auto-Saneamiento
+- Implementar monitor de integridad que detecte y purgue fragmentos vectoriales con baja similitud semántica o contradicciones contractuales directas.

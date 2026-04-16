@@ -228,29 +228,39 @@ setInterval(async () => {
 // --- GOBERNANZA KARPATHY DREAMER ---
 bot.onText(/^\/dream(?:\s+(.+))?/, async (msg, match) => {
   const chatId = msg.chat.id;
-  if (msg.chat.id.toString() !== "1567740382") return;
+  const userId = String(msg.from.id);
+  
+  if (userId !== config.telegram.userId && userId !== "1567740382") {
+    console.warn(`[BOT] 🛡️ Intento de /dream no autorizado de: ${userId}`);
+    return;
+  }
+
   const target = match[1] || "LFC2 General";
   
-  bot.sendMessage(chatId, `?? **Modo Sue?o Iniciado**\nEl enjambre est? analizando: *${target}*\nUsando: C?mara Doble Ciego (Supabase + NotebookLM)\nObserva los logs del contenedor para detalles...`, { parse_mode: 'Markdown' });
+  await safeSendMessage(chatId, `🌪️ **Modo Sueño Iniciado**\n\nEl enjambre está analizando: *${target}*\nMetodología: **Cámara de Doble Ciego** (Supabase + NotebookLM)\n\n_Decantando conocimiento forense... (Est. 5-10 min)_`);
   
-  // Importamos y corremos el script en background usando rutas dinámicas
-   const { exec } = require('child_process');
-   const scriptPath = path.join(__dirname, '../scripts/swarm-pilot.js');
-   console.log(`[SICC] Disparando Swarm Pilot: node "${scriptPath}" "${target}"`);
-   
-   exec(`node "${scriptPath}" "${target}"`, { maxBuffer: 1024 * 1024 * 10 }, (error, stdout, stderr) => {
-     if (error) {
-       console.error(`[SICC ERROR] Swarm Pilot falló: ${error.message}`);
-       bot.sendMessage(chatId, `? **Pesadilla (Error Interno):**\n${error.message}`);
-       return;
-     }
-    const logStr = stdout.toString();
-    const veredictoMatch = logStr.match(/VEREDICTO FINAL AL DESPERTAR:[\\s\\S]*/);
-    let resumen = "El sue?o concluy?.";
-    if (veredictoMatch) {
-       resumen = veredictoMatch[0].substring(0, 1500) + '...';
+  const { exec } = require('child_process');
+  const scriptPath = path.join(__dirname, '../scripts/swarm-pilot.js');
+  console.log(`[SICC] 🌪️ Disparando Swarm Pilot: node "${scriptPath}" "${target}"`);
+  
+  exec(`node "${scriptPath}" "${target}"`, { maxBuffer: 1024 * 1024 * 10 }, async (error, stdout, stderr) => {
+    if (error) {
+      console.error(`[SICC ERROR] Swarm Pilot falló: ${error.message}`);
+      await safeSendMessage(chatId, `❌ **Pesadilla (Error Interno):**\n${error.message}`);
+      return;
     }
-    bot.sendMessage(chatId, `? **Sue?o Finalizado (${target})**\n\n${resumen}`);
+
+    const logStr = stdout.toString();
+    // Regex mejorado para capturar el veredicto con emojis y saltos de línea
+    const veredictoMatch = logStr.match(/⚖️ VEREDICTO FINAL AL DESPERTAR:[\s\S]*/);
+    
+    let resumen = "El proceso de decantación concluyó, pero el veredicto no pudo ser parseado.";
+    if (veredictoMatch) {
+      resumen = veredictoMatch[0].substring(0, 3000); // Telegram soporta hasta 4096, safeSendMessage maneja el resto
+    }
+
+    await safeSendMessage(chatId, `✨ **Sueño Finalizado (${target})**\n\n${resumen}`);
+    console.log(`[SICC] [SICC OK] Sueño sobre ${target} completado y reportado.`);
   });
 });
 

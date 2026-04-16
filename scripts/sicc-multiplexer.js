@@ -62,7 +62,7 @@ function registrarTrazaSICC(pregunta, proveedor, contextoFinal = '') {
       pregunta: pregunta.substring(0, 500),
       proveedor,
       brain_active: true,
-      context_length: contextoFinal.length
+      context_length: (contextoFinal || '').length
     };
     
     let current = [];

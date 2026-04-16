@@ -50,55 +50,51 @@ async function runSwarmPilot() {
     const identitySicc = fs.readFileSync(path.join(__dirname, '..', 'brain', 'IDENTITY.md'), 'utf8');
     const methodologySicc = fs.readFileSync(path.join(__dirname, '..', 'brain', 'SICC_METHODOLOGY.md'), 'utf8');
 
-    const agent1 = {
-        name: "AUDITOR FORENSE SOBERANO",
-        prompt: `### MANDATO SUPERIOR SICC
-${identitySicc}
+    let ciclosRealizados = 0;
+    const MAX_CICLOS = 3;
+    let aprobado = false;
+    let ultimaLeccion = "";
 
-### METODOLOGÍA DE PRODUCCIÓN
-${methodologySicc}
-
-### TAREA DE INVESTIGACIÓN (DECANTACIÓN CICLO 1)
-Genera una Decisión Técnica (DT) radical sobre el área de ${arg} para el tren LFC2. 
-REGLA DE ORO: No saludes, no analices la tarea, no pidas información. EJECUTA EL DICTAMEN TÉCNICO CITANDO EL CONTRATO.`
-    };
-
-    try {
-        console.log(`🐝 Disparando enjambre (Fase 1: Sueño Soberano sobre ${arg})...`);
-        let borrador_DT = await llamarMultiplexadorFree(agent1.prompt, "", `Role: ${agent1.name}`);
-        borrador_DT = typeof borrador_DT === 'string' ? borrador_DT : (borrador_DT.content || JSON.stringify(borrador_DT));
+    while (ciclosRealizados < MAX_CICLOS && !aprobado) {
+        ciclosRealizados++;
+        console.log(`\n🔄 [CICLO DE DECANTACIÓN ${ciclosRealizados}/${MAX_CICLOS}]`);
         
-        // --- FILTRO ANTI-META-HABLA (Emergencia) ---
-        if (borrador_DT.includes("I need more information") || borrador_DT.includes("Could you please provide")) {
-            console.error(`\n🚨 [ALUCINACIÓN DETECTADA] El agente intentó pedir información. Abortando y re-inyectando ADN...`);
-            borrador_DT = "ERROR: El agente falló al procesar por alucinación de incompetencia. Se requiere reinicio de vigilia.";
-        }
+        const promptFase1 = ciclosRealizados === 1 
+            ? `### TAREA DE INVESTIGACIÓN (DECANTACIÓN INICIAL)\nGenera una Decisión Técnica (DT) radical sobre el área de ${arg} para el tren LFC2. REGLA DE ORO: No saludes, no analices la tarea, no pidas información. EJECUTA EL DICTAMEN TÉCNICO CITANDO EL CONTRATO.`
+            : `### REFINAMIENTO POR FALLO PREVIO (PURA DE GRASA)\nTu propuesta anterior fue RECHAZADA por el Juez. \nMOTIVO DEL RECHAZO: ${ultimaLeccion}\n\nTAREA: Genera una NUEVA versión de la DT para ${arg} que sea 100% contractual, sin lenguaje de IA y que resuelva el fallo anterior.`;
 
-        console.log(`\n💤 SUEÑO GENERADO:\n${borrador_DT.substring(0,800)}...\n`);
-        
-        await sleep(2000); 
+        const agent1 = {
+            name: "AUDITOR FORENSE SOBERANO",
+            prompt: `### MANDATO SUPERIOR SICC\n${identitySicc}\n\n### METODOLOGÍA DE PRODUCCIÓN\n${methodologySicc}\n\n${promptFase1}`
+        };
 
-        console.log(`🛡️ [Fase 2] INICIANDO CÁMARA DE VALIDACIÓN (Doble Ciego)...`);
-        console.log(`   🔸 Interrogando SAPI Interna (Supabase / Contratos LFC2)...`);
-        const validInterna = await validarInternaSupabase(borrador_DT);
+        try {
+            console.log(`🐝 Disparando enjambre (Fase 1: Sueño Soberano)...`);
+            let borrador_DT = await llamarMultiplexadorFree(agent1.prompt, "", `Role: ${agent1.name}`);
+            borrador_DT = typeof borrador_DT === 'string' ? borrador_DT : (borrador_DT.content || JSON.stringify(borrador_DT));
+            
+            // --- FILTRO ANTI-META-HABLA (Emergencia) ---
+            if (borrador_DT.includes("I need more information") || borrador_DT.includes("Could you please provide")) {
+                console.error(`🚨 [ALUCINACIÓN DETECTADA] Abortando ciclo por intento de meta-habla.`);
+                ultimaLeccion = "El agente intentó pedir información al usuario en lugar de dictaminar soberanamente.";
+                continue;
+            }
 
-        await sleep(2000); 
+            console.log(`💤 SUEÑO GENERADO (Resumen): ${borrador_DT.substring(0,200)}...`);
+            
+            await sleep(2000); 
 
-        console.log(`   🔸 Interrogando SAPI Externa (NotebookLM MCP)...`);
-        const validExterna = await validarExternaNotebook(borrador_DT);
+            console.log(`🛡️ [Fase 2] CÁMARA DE VALIDACIÓN (Doble Ciego)...`);
+            console.log(`   🔸 Interrogando Supabase RAG...`);
+            const validInterna = await validarInternaSupabase(borrador_DT);
+            
+            console.log(`   🔸 Interrogando NotebookLM MCP...`);
+            const validExterna = await validarExternaNotebook(borrador_DT);
 
-        await sleep(2000); 
+            console.log(`⚖️ [Fase 3] DESPERTAR Y JUZGAR (Firma Forense)...`);
 
-        console.log(`\n⚖️ [Fase 3] DESPERTAR Y JUZGAR (Firma Forense)...`);
-
-        const promptJuez = `Eres el JUEZ SOBERANO SICC v12.4. 
+            const promptJuez = `Eres el JUEZ SOBERANO SICC v12.4. 
 Evalúa estrictamente este sueño del enjambre. 
-
-### CRITERIOS DE RECHAZO AUTOMÁTICO:
-1. Si el sueño contiene preguntas al usuario o frases como "I need more information".
-2. Si el sueño es meta-analítico (habla sobre la tarea en lugar de hacerla).
-3. Si propone tecnología propietaria (V-Block, Alstom Cloud, etc.) o viola la soberanía.
-
 SUEÑO DEL ENJAMBRE:
 ${borrador_DT}
 
@@ -116,36 +112,43 @@ Responde ÚNICAMENTE en JSON:
   "leccion_karpathy": "Lección estricta para el Brain si falló."
 }`;
 
-        let decisionRAW = await llamarMultiplexadorFree("Despierta al enjambre y eval?a el sue?o.", "", promptJuez);
-        decisionRAW = typeof decisionRAW === 'string' ? decisionRAW : (decisionRAW.content || JSON.stringify(decisionRAW));
-        
-        const jsonMatch = decisionRAW.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) throw new Error("Juez fall? al emitir JSON v?lido");
-        
-        const decision = JSON.parse(jsonMatch[0]);
-        console.log(`\n⚖️ VEREDICTO FINAL AL DESPERTAR:`);
-        console.log(`   Aprobado: ${decision.aprobado ? '[OK] SÍ' : '[BLOCK] NO'}`);
-        console.log(`   Razón: ${decision.razon || 'No especificada'}`);
-
-        if (decision.aprobado) {
-            console.log(`\n✅ SUEÑO APROBADO Y CERTIFICADO PARA EL DISEÑO LFC2.`);
-        } else {
-            console.log(`\n❌ [Fase 4] PESADILLA DETECTADA -> BUCLE DE APRENDIZAJE KARPATHY`);
-            const targetSp = (decision.categoria_fallida && decision.categoria_fallida !== "Ninguna") 
-                ? decision.categoria_fallida 
-                : (arg.toUpperCase().includes('SEÑAL') ? 'SIGNALIZATION' : 'SIGNALIZATION');
+            let decisionRAW = await llamarMultiplexadorFree("Despierta al enjambre y evalúa el sueño.", "", promptJuez);
+            decisionRAW = typeof decisionRAW === 'string' ? decisionRAW : (decisionRAW.content || JSON.stringify(decisionRAW));
             
-            const leccion = decision.leccion_karpathy || decision.razon || "Alucinación de proceso detectada.";
-            await updateKarpathySpecialty(targetSp, leccion);
-            console.log(`🛡️ ALUCINACIÓN SOBERANA CONTENIDA. El conocimiento ha sido integrado al cerebro en ${targetSp}.md`);
-        }
+            const jsonMatch = decisionRAW.match(/\{[\s\S]*\}/);
+            if (!jsonMatch) throw new Error("Juez falló al emitir JSON válido");
+            
+            const decision = JSON.parse(jsonMatch[0]);
+            console.log(`⚖️ VEREDICTO: ${decision.aprobado ? '✅ APROBADO' : '❌ RECHAZADO'}`);
+            console.log(`   Razón: ${decision.razon || 'No especificada'}`);
 
-        console.log(`\n--------------------------------------------------`);
-        console.log(`?? FIN DEL SUE?O - GOBERNANZA ACTIVA`);
+            if (decision.aprobado) {
+                aprobado = true;
+                console.log(`\n✅ SUEÑO CERTIFICADO TRAS ${ciclosRealizados} CICLOS.`);
+                console.log(`\n--- DT FINAL ---\n${borrador_DT}\n----------------`);
+            } else {
+                ultimaLeccion = decision.leccion_karpathy || decision.razon || "Alucinación de proceso detectada.";
+                const targetSp = (decision.categoria_fallida && decision.categoria_fallida !== "Ninguna") 
+                    ? decision.categoria_fallida 
+                    : (arg.toUpperCase().includes('SEÑAL') ? 'SIGNALIZATION' : 'SIGNALIZATION');
+                
+                await updateKarpathySpecialty(targetSp, ultimaLeccion);
+                console.log(`🛡️ ALUCINACIÓN DETECTADA. Re-inyectando lección y reiniciando decantación...`);
+                await sleep(3000);
+            }
 
-    } catch (error) {
-        console.error("? Error en el pilot:", error.message);
+        } catch (error) {
+            console.error("⚠️ Error en ciclo:", error.message);
+            ultimaLeccion = error.message;
     }
+    if (!aprobado) {
+        console.log(`\n🛑 [SICC BLOCKER] El enjambre no logró decantar una DT pura tras ${MAX_CICLOS} ciclos.`);
+        console.log(`Gobernanza activa: El tema ha sido bloqueado por impureza persistente.`);
+    }
+    }
+
+    console.log(`\n--------------------------------------------------`);
+    console.log(`⚖️ FIN DEL SUEÑO - GOBERNANZA ACTIVA`);
 }
 
 runSwarmPilot();

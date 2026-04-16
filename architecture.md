@@ -29,6 +29,13 @@ El sistema opera en un servidor Ubuntu dedicado, combinando contenedores Docker 
 
 - **Desde el Host (Ubuntu):** Acceso vía `localhost:11434`. (Ollama configurado con `OLLAMA_HOST=0.0.0.0`).
 - **Desde el Agente (Docker):** Comunicación vía el alias `opengravity-ollama` (mapeado a la IP `172.20.0.1`) permitiendo acceso directo a la aceleración por hardware desde la red `docker_sicc_net`.
+- **Base de Datos Forense:** Local Supabase (`postgres_sicc`) alojada en el contenedor `sicc-postgres`.
+
+### 🗄️ Gestión de Datos (Ingesta y Consulta)
+
+- **Proceso de Ingesta (Michelin):** Se ejecuta localmente en el host Ubuntu mediante `scripts/sicc-ingesta.js`. Procesa PDFs recursivamente usando Tesseract OCR y genera embeddings de 768 dimensiones vía Ollama.
+- **Ubicación de los Datos:** Tabla `contrato_documentos` con extensión `pgvector` activa.
+- **Flujo de Consulta:** El enjambre consulta esta tabla en la **Fase 2 (Validación Interna)** para asegurar que cada DT esté respaldada por fragmentos literales del contrato.
 
 ---
 
