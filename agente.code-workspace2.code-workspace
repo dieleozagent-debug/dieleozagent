@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../LFC2"
+		},
+		{
+			"path": "../notebook-mcp"
+		}
+	],
+	"settings": {}
+}

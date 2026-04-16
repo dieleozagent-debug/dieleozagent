@@ -7,7 +7,8 @@
 const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
-const { llamarMultiplexadorFree, registrarBloqueoSICC } = require('../src/agent');
+const { registrarBloqueoSICC } = require('../src/agent');
+const { llamarMultiplexadorFree } = require('./sicc-multiplexer');
 const { enviarAlerta } = require('../src/notifications');
 
 const INGESTOR_PATH = path.join(__dirname, '../src/ingest_masivo.js');

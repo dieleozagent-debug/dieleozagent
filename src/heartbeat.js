@@ -34,7 +34,10 @@ async function ejecutarCrossRefCheck() {
     const dtsDir = path.join(config.paths.brain, 'PENDING_DTS');
     
     if (!fs.existsSync(dreamsPath) || !fs.existsSync(dtsDir)) {
-        return { status: 'WARN', msg: 'Directorios de cerebro no localizados para Cross-Ref.' };
+        return { 
+            status: 'WARN', 
+            reporte: '📌 **SICC Cross-Ref Audit:** Directorios de cerebro no localizados para Cross-Ref.' 
+        };
     }
 
     const content = fs.readFileSync(dreamsPath, 'utf8');

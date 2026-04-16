@@ -15,10 +15,14 @@ Contrato APP No. 001/2025 (LFC — Línea Ferroviaria de Carga, Colombia).
 
 - [x] Ingesta soberana Biblia Legal → Supabase (22k fragmentos, 100%)
 - [x] Eliminación total de la Hidra SENTINEL
-- [x] Arquitectura Nodo Único Soberano v12.2
+- [x] Arquitectura Nodo Único Soberano v12.2 (Saneado)
+- [x] Restauración de SOUL.md y Ética Operacional
+- [x] Institucionalización de Ollama en Compose (Persistente)
 - [x] Backoff exponencial ante 429 API
 - [x] Brain saneado: IDENTITY.md v6, SOUL.md, R-HARD.md
 - [x] Gobernanza R-HARD activa
+- [x] Restauración de SOUL.md y Ética Operacional
+- [x] Puente a Ollama Nativo (Host) y persistencia asegurada (v12.2)
 - [x] SAPI Modularizado y arquitectura validación (Enjambre Doble Ciego)
 
 ---
@@ -27,10 +31,9 @@ Contrato APP No. 001/2025 (LFC — Línea Ferroviaria de Carga, Colombia).
 
 | Item | Estado |
 |---|---|
-| Contenedor | 🟢 UP — \
-ode src/agent.js --vigilia\ |
-| MCP Notebook | 🟢 UP — Listo para validaciones externas |
-| RAG/Brain | 🟢 Activo (Supabase pgvector) |
+| Contenedor | 🟢 UP — Agente con Puente a Host Ollama |
+| MCP Notebook | 🟢 UP — Validaciones externas activas |
+| RAG/Brain | 🟢 Activo (Supabase + SOUL.md restaurado) |
 
 ---
 

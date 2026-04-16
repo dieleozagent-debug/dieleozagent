@@ -9,7 +9,7 @@
 
 ## 🏗️ Pilares del Diseño (v12.2)
 1. **Separación de SAPI (Conectores):** Los métodos de llamada a herramientas externas (Supabase, MCP NotebookLM, Ollama) están aislados. Se incrustan en el flujo de decisión solo cuando el agente lo demanda.
-2. **Ciclo de Aprendizaje Karpathy:** El agente no solo responde pedidos; cuando comete un error (alucinación) detectado por Validación, ajusta permanentemente sus reglas internas en \rain/SPECIALTIES/\.
+2. **Ciclo de Aprendizaje Karpathy:** El agente no solo responde pedidos; cuando comete un error (alucinación) detectado por Validación, ajusta permanentemente sus reglas internas en \ rain/SPECIALTIES/\.
 3. **Soberanía de Construcción & Resiliencia Interna:** Construcción de imágenes estériles, orquestación limpia y backoff exponencial (15s → 30s) frente a errores 429.
 
 ---
@@ -59,5 +59,35 @@ De esta forma, la base de datos de Especialidades es un sistema orgánico y evol
 ---
 v12.2 \Paz Estructural\ — 16/04/2026 (Karpathy Loop Activo + SAPI NotebookLM)
 
-### 3. Modo Sue?o Autogestionado (/dream)
-La interacci?n del enjambre ha sido restaurada a trav?s de un comando expl?cito `/dream` en Telegram. Esto evita que el LLM alucine en la conversaci?n normal. El mensaje interceptado detona un script en batch que somete la Especialidad al Bucle Karpathy de manera as?ncrona, notificando a Telegram al finalizar.
+### 3. Modo Sueño Autogestionado (/dream)
+La interacción del enjambre ha sido restaurada a través de un comando explícito `/dream` en Telegram. Esto evita que el LLM alucine en la conversación normal. El mensaje interceptado detona un script en batch que somete la Especialidad al Bucle Karpathy de manera asíncrona, notificando a Telegram al finalizar.
+
+---
+
+> [!NOTE]
+> **Nota de Memoria Forense (DB):** La Base de Datos soberana vive en el contenedor `sicc-postgres`. Es un PostgreSQL con `pgvector` que contiene la tabla `contrato_documentos` (~22.6k fragmentos). Cualquier auditoría futura debe buscar la verdad contractual AQUÍ antes que en cualquier LLM.
+
+---
+
+## 📡 Infraestructura de Inteligencia & Networking (SICC-NET)
+
+El sistema opera sobre una red aislada de Docker donde los servicios se comunican mediante nombres de host soberanos:
+
+### 1. Nodos de Cómputo (Contenedores)
+| Servicio | Host Interno | Puerto | Rol |
+| :--- | :--- | :--- | :--- |
+| **Agente Core** | `dieleozagent-debug-dieleozagent-1` | 3000 | Orquestación y Telegram |
+| **Base de Datos** | `sicc-postgres` | 5432 | Supabase / LTM (Vector DB) |
+| **Ollama Swarm** | `opengravity-ollama` | 11434 | Inferencia Local (Nativa en Host para GPU) |
+| **NotebookLM MCP** | `notebooklm-mcp-v12` | n/a | SAPI de Verdad Externa |
+
+### 2. Modelos de Inteligencia Local (Ollama)
+| Modelo | Función | Dimensiones |
+| :--- | :--- | :--- |
+| `nomic-embed-text` | Generación de vectores para RAG | 768 |
+| `gemma4-light:latest` | Razonamiento soberano (Default Swarm) | n/a |
+| `llama3.3` | Fallback de alta densidad (Cloud-like) | n/a |
+
+### 3. Rutas de Acceso (Conectividad)
+- **Desde el Host (Ubuntu):** Acceso vía `localhost:11434`.
+- **Desde el Agente (Docker):** Comunicación vía el alias `opengravity-ollama` (mapeado al `host-gateway` para aprovechar la aceleración por hardware nativa del servidor).

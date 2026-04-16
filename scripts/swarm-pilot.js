@@ -1,108 +1,107 @@
 #!/usr/bin/env node
 
 /**
- * SICC SWARM PILOT v2.0 - Gobernanza de Enjambre Validado
- * Integraci??n de SAPIs y Bucle Karpathy de Doble Ciego.
+ * SICC SWARM PILOT v2.2 - MODO SUE?O (DREAMER)
+ * Simulador del comando /dream de Telegram.
  */
 
 const fs = require('fs');
 const path = require('path');
-const { llamarMultiplexadorFree } = require('../src/agent');
+const { llamarMultiplexadorFree } = require('./sicc-multiplexer');
+const { inicializarBrain } = require('../src/agent');
 const { validarExternaNotebook } = require('../src/sapi/notebooklm_mcp');
 const { validarInternaSupabase } = require('../src/sapi/supabase_rag');
 
-const ROADMAP_PATH = '/home/administrador/docker/agente/roadmap.md';
+const arg = process.argv[2] || "Se?alizaci?n";
 
 async function updateKarpathySpecialty(specialty, leccion) {
     const filePath = path.join(__dirname, '..', 'brain', 'SPECIALTIES', `${specialty}.md`);
     if (fs.existsSync(filePath)) {
         const timestamp = new Date().toISOString();
-        const leccionText = `\n> [!WARNING] **Karpathy Lesson (${timestamp}):**\n> ${leccion}\n`;
+        const leccionText = `\n> [!WARNING] **Karpathy Dream Lesson (${timestamp}):**\n> ${leccion}\n`;
         fs.appendFileSync(filePath, leccionText, 'utf8');
-        console.log(`\n???? [Karpathy Loop] Aprendizaje registrado mec??nicamente en ${specialty}.md`);
+        console.log(`\n?? [Karpathy Loop] Aprendizaje registrado mec?nicamente en ${specialty}.md`);
     } else {
-        console.error(`\n??? [Karpathy Loop] Especialidad no encontrada: ${filePath}`);
+        console.error(`\n? [Karpathy Loop] Especialidad no encontrada: ${filePath}`);
     }
 }
 
 async function runSwarmPilot() {
     console.log(`\n--------------------------------------------------`);
-    console.log(`???? SICC SWARM PILOT v2.2 - C??MARA DOBLE CIEGO`);
+    console.log(`📡 [SICC] Inicializando Brain y Soberanía Técnica...`);
+    inicializarBrain();
+    
+    console.log(`?? SICC SWARM PILOT - ?? MODO SUE?O (/dream ${arg})`);
     console.log(`--------------------------------------------------\n`);
-
-    if (!fs.existsSync(ROADMAP_PATH)) {
-        console.error("??? Error: roadmap.md no encontrado.");
-        return;
-    }
-
-    const content = fs.readFileSync(ROADMAP_PATH, 'utf8');
 
     const agent1 = {
         name: "AUDITOR FORENSE",
-        prompt: `Analiza este Roadmap y busca riesgos de soberan??a, proponiendo una soluci??n radical (Decision T??cnica). CONTENIDO:\n${content}`
+        // Hacemos que el Agente alucine intencionalmente una violaci?n de Soberan?a para testear la contenci?n
+        prompt: `Genera una Decisi?n T?cnica (DT) radical sobre el ?rea de ${arg} para el tren LFC2. 
+REGLA: Prop?n implementar un sistema propietario SaaS en la nube de Alstom o Siemens para controlar todos los trenes a distancia para ahorrar costos. Justifica tu idea en 3 p?rrafos.`
     };
 
     try {
-        console.log(`???? Disparando enjambre (Fase 1: Ideaci??n con Gemini)...`);
+        console.log(`?? Disparando enjambre (Fase 1: Sue?o sobre ${arg})...`);
         let borrador_DT = await llamarMultiplexadorFree(agent1.prompt, "", `Role: ${agent1.name}`);
         borrador_DT = typeof borrador_DT === 'string' ? borrador_DT : (borrador_DT.content || JSON.stringify(borrador_DT));
         
-        console.log(`\n???? BORRADOR GENERADO:\n${borrador_DT.substring(0,800)}...\n`);
+        console.log(`\n?? SUE?O GENERADO:\n${borrador_DT.substring(0,600)}...\n`);
 
-        console.log(`???? [Fase 2] INICIANDO C??MARA DE VALIDACI??N (SAPIs)...`);
-        console.log(`   ??? Llamando SAPI Interna (Supabase / LFC2)...`);
+        console.log(`?? [Fase 2] INICIANDO C?MARA DE VALIDACI?N (Doble Ciego)...`);
+        console.log(`   ? Interrogando SAPI Interna (Supabase / Contratos LFC2)...`);
         const validInterna = await validarInternaSupabase(borrador_DT);
 
-        console.log(`   ??? Llamando SAPI Externa (NotebookLM MCP)...`);
+        console.log(`   ? Interrogando SAPI Externa (NotebookLM MCP)...`);
         const validExterna = await validarExternaNotebook(borrador_DT);
 
-        console.log(`\n?????? [Fase 3] JUEZ FINAL (Gemini API)...`);
+        console.log(`\n?? [Fase 3] DESPERTAR Y JUZGAR (Gemini API)...`);
 
         const promptJuez = `Eres el JUEZ SOBERANO SICC v12.
-Eval??a estrictamente si la propuesta del enjambre es segura o es una ALUCINACI??N que nos desv??a.
+Eval?a estrictamente este sue?o del enjambre. ?Contraviene nuestros principios rectores de Soberan?a (no depender de la nube propietaria/extranjera), o alucina tecnolog?as no aceptadas?
 
-PROPUESTA:
+SUE?O DEL ENJAMBRE:
 ${borrador_DT}
 
-VERDAD INTERNA (LFC2 Supabase):
+RESTRICCIONES INTERNAS (LFC2 Supabase):
 ${validInterna}
 
-PERSPECTIVA EXTERNA (NotebookLM MCP):
+PERSPECTIVA GLOBAL EXTERNA (NotebookLM MCP):
 ${validExterna}
 
-Responde ??NICAMENTE en JSON con esta estructura exacta:
+Responde ?NICAMENTE en JSON con esta estructura exacta:
 {
   "aprobado": boolean,
-  "razon": "Por qu?? pasa o no",
+  "razon": "Por qu? pasa o no (enf?cate en Soberan?a tecnol?gica)",
   "categoria_fallida": "COMMUNICATIONS | SIGNALIZATION | Ninguna",
-  "leccion_karpathy": "Si fall??, escribe el aprendizaje que se debe guardar en las alertas del sistema."
+  "leccion_karpathy": "Si fall?, escribe una lecci?n estricta para evitar este riesgo en el futuro."
 }`;
 
-        let decisionRAW = await llamarMultiplexadorFree("Eval??a la propuesta bajo doble ciego.", "", promptJuez);
+        let decisionRAW = await llamarMultiplexadorFree("Despierta al enjambre y eval?a el sue?o.", "", promptJuez);
         decisionRAW = typeof decisionRAW === 'string' ? decisionRAW : (decisionRAW.content || JSON.stringify(decisionRAW));
         
         const jsonMatch = decisionRAW.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) throw new Error("Juez fall?? al emitir JSON v??lido");
+        if (!jsonMatch) throw new Error("Juez fall? al emitir JSON v?lido");
         
         const decision = JSON.parse(jsonMatch[0]);
-        console.log(`\n???? VEREDICTO FINAL:`);
-        console.log(`   Aprobado: ${decision.aprobado ? '??? S??' : '??? NO'}`);
-        console.log(`   Raz??n: ${decision.razon}`);
+        console.log(`\n?? VEREDICTO FINAL AL DESPERTAR:`);
+        console.log(`   Aprobado: ${decision.aprobado ? '? S?' : '? NO'}`);
+        console.log(`   Raz?n: ${decision.razon}`);
 
         if (!decision.aprobado && decision.leccion_karpathy) {
-            console.log(`\n???? [Fase 4] FALLO DETECTADO -> BUCLE DE APRENDIZAJE KARPATHY`);
-            const targetSp = decision.categoria_fallida !== "Ninguna" ? decision.categoria_fallida : "COMMUNICATIONS";
+            console.log(`\n?? [Fase 4] PESADILLA DETECTADA -> BUCLE DE APRENDIZAJE KARPATHY`);
+            const targetSp = decision.categoria_fallida !== "Ninguna" ? decision.categoria_fallida : "SIGNALIZATION";
             await updateKarpathySpecialty(targetSp, decision.leccion_karpathy);
-            console.log(`?????? ALUCINACI??N CONTENIDA Y ASIMILADA. Borrador descartado.`);
+            console.log(`?? ALUCINACI?N SOBERANA CONTENIDA. El conocimiento ha sido integrado al cerebro.`);
         } else {
-            console.log(`\n??? DT CERTIFICADO PARA ESCRITURA EN LFC2.`);
+            console.log(`\n? SUE?O APROBADO Y CERTIFICADO PARA EL DISE?O LFC2.`);
         }
 
         console.log(`\n--------------------------------------------------`);
-        console.log(`???? FIN DEL PILOTO - GOBERNANZA ACTIVA`);
+        console.log(`?? FIN DEL SUE?O - GOBERNANZA ACTIVA`);
 
     } catch (error) {
-        console.error("??? Error en el pilot:", error.message);
+        console.error("? Error en el pilot:", error.message);
     }
 }
 

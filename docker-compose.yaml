@@ -12,7 +12,9 @@ services:
     working_dir: /home/administrador/docker/agente
     env_file:
       - .env
-    command: bash -c "apt-get update && apt-get install -y docker.io && npm install @modelcontextprotocol/sdk && node src/agent.js --vigilia"
+    command: bash -c "apt-get update && apt-get install -y docker.io && npm install @modelcontextprotocol/sdk && node src/index.js"
+    extra_hosts:
+      - "opengravity-ollama:host-gateway"
 
 networks:
   default:

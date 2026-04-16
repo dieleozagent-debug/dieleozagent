@@ -12,16 +12,16 @@ const fs = require('fs');
 const isDocker = fs.existsSync('/.dockerenv');
 
 const dbConfig = {
-    host: process.env.DB_HOST || 'supabase_db_sicc-local',
+    host: process.env.DB_HOST || 'postgres',
     port: parseInt(process.env.DB_PORT) || 5432,
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || 'postgres',
     database: process.env.DB_NAME || 'postgres'
 };
 
-// 🛰️ AJUSTE DE PRIORIDAD SOBERANA (v8.9.6)
-if (!isDocker && (dbConfig.host === 'supabase_db_sicc-local' || dbConfig.port === 5432)) {
-    dbConfig.host = 'localhost';
+// 🛰️ AJUSTE DE PRIORIDAD SOBERANA (v8.9.8)
+if (!isDocker && (dbConfig.host === 'postgres' || dbConfig.port === 5432)) {
+    dbConfig.host = '127.0.0.1';
     dbConfig.port = 54322; // Puerto expuesto en el host
 }
 
@@ -34,20 +34,24 @@ const pool = new Pool(dbConfig);
 async function obtenerEmbedding(texto) {
     try {
         const port = '11434';
-        const host = `http://localhost:${port}`;
+        const hostName = isDocker ? 'ollama' : '127.0.0.1';
+        const host = `http://${hostName}:${port}`;
+        
+        console.log(`[SUPABASE] 🤖 Obteniendo embedding vía ${host} (Modelo: nomic-embed-text:latest)...`);
         const response = await axios.post(`${host}/api/embeddings`, {
-            model: "nomic-embed-text",
+            model: "nomic-embed-text:latest",
             prompt: texto
-        });
-    const vector = response.data.embedding;
+        }, { timeout: 15000 });
+        
+        const vector = response.data.embedding;
     if (vector.length !== 768) {
         console.warn(`[SUPABASE] [SICC WARN] Ollama devolvió ${vector.length} dimensiones, se esperaba 768.`);
     }
     return vector;
   } catch (localErr) {
-    console.warn(`[SUPABASE] [SICC WARN] Ollama Local falló, intentando Cloud Gemini...`);
+    console.warn(`[SUPABASE] ⚠️ Ollama Local falló (${localErr.message}). Intentando Cloud Gemini...`);
     try {
-      const model = genAI.getGenerativeModel({ model: "embedding-001" });
+      const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
       const result = await model.embedContent(texto);
       const vector = result.embedding.values;
       if (vector.length !== 768) {

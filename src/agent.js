@@ -9,7 +9,8 @@ const { buscarEnWeb } = require('./search');
 const { enviarAlerta } = require('./notifications');
 const { encolarHallazgo } = require('./digest');
 const { rutarEstrategiaAdvisor } = require('./advisor');
-const { getMultiplexedContext } = require('../scripts/sicc-multiplexer');
+const multiplexer = require('../scripts/sicc-multiplexer');
+const { getMultiplexedContext, EstadoGlobalErrores, registrarError4xx, extraerCodigoError, llamarGemini, llamarGroq, llamarOpenRouter, llamarOllama, ordenProveedores, llamarMultiplexadorFree } = multiplexer;
 const fs = require('fs');
 const path = require('path');
 const { checkYEncolar, evaluarRecursos } = require('../scripts/resource-governor');
@@ -99,8 +100,7 @@ function seleccionarSkills(textoUsuario) {
 const historial = [];
 const MAX_HISTORIAL = 10;
 
-// Telemetría y gestión de errores movidos a scripts/sicc-multiplexer.js
-const { EstadoGlobalErrores, registrarError4xx, extraerCodigoError } = require('../scripts/sicc-multiplexer');
+// Telemetría y gestión de errores movidos a scripts/sicc-multiplexer.js (ver imports al inicio)
 
 // System prompts: full para Ollama/Dreamer, fast para Cloud/Bot
 let PROMPT_FULL = '';
@@ -156,13 +156,7 @@ function inicializarBrain() {
   });
 }
 
-// ── Proveedores de IA ─────────────────────────────────────────────────────────
-// Las funciones fueron migradas a scripts/sicc-multiplexer.js para desacoplar el motor.
-// Se acceden a través de: const multiplexer = require('../scripts/sicc-multiplexer');
-
-const multiplexer = require('../scripts/sicc-multiplexer');
-
-const { llamarGemini, llamarGroq, llamarOpenRouter, llamarOllama, ordenProveedores, llamarMultiplexadorFree } = multiplexer;
+// Proveedores de IA ya importados al inicio desde el multiplexor
 
 async function rutarEspecialidad(textoUsuario) {
   console.log(`[ADVISOR] [SICC BRAIN] Ruteo local con Ollama...`);
