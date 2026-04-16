@@ -14,7 +14,7 @@ services:
       - .env
     command: bash -c "apt-get update && apt-get install -y docker.io && npm install @modelcontextprotocol/sdk && node src/index.js"
     extra_hosts:
-      - "opengravity-ollama:host-gateway"
+      - "opengravity-ollama:172.20.0.1"
 
 networks:
   default:
