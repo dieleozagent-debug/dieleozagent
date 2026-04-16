@@ -224,6 +224,32 @@ setInterval(async () => {
 }, 30 * 60 * 1000); // Revisión cada 30 min alineada con Heartbeat
 
 // ── Mensajes de Telegram ──────────────────────────────────────────────────────
+
+// --- GOBERNANZA KARPATHY DREAMER ---
+bot.onText(/^\/dream(?:\s+(.+))?/, async (msg, match) => {
+  const chatId = msg.chat.id;
+  if (!verificarAcceso(msg)) return;
+  const target = match[1] || "LFC2 General";
+  
+  bot.sendMessage(chatId, `?? **Modo Sue?o Iniciado**\nEl enjambre est? analizando: *${target}*\nUsando: C?mara Doble Ciego (Supabase + NotebookLM)\nObserva los logs del contenedor para detalles...`, { parse_mode: 'Markdown' });
+  
+  // Importamos y corremos el script en background
+  const { exec } = require('child_process');
+  exec(`node /home/administrador/docker/agente/scripts/swarm-pilot.js "${target}"`, (error, stdout, stderr) => {
+    if (error) {
+      bot.sendMessage(chatId, `? **Pesadilla (Error Interno):**\n${error.message}`);
+      return;
+    }
+    const logStr = stdout.toString();
+    const veredictoMatch = logStr.match(/?? VEREDICTO FINAL AL DESPERTAR:[\s\S]*/);
+    let resumen = "El sue?o concluy?.";
+    if (veredictoMatch) {
+       resumen = veredictoMatch[0].substring(0, 1500) + '...';
+    }
+    bot.sendMessage(chatId, `? **Sue?o Finalizado (${target})**\n\n${resumen}`);
+  });
+});
+
 bot.on('message', async (msg) => {
   const chatId = msg.chat.id;
   const userId = String(msg.from.id);

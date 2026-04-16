@@ -1,6 +1,7 @@
 # 🤖 OpenGravity SICC — Agente Soberano v12.2
 
-> **⚡ INICIO RÁPIDO:** Lee oadmap.md primero para saber el estado exacto del proyecto.
+> **⚡ INICIO RÁPIDO:** Lee 
+oadmap.md primero para saber el estado exacto del proyecto.
 
 **OpenGravity** es un bot de Telegram + motor RAG para auditoría forense del
 **Contrato APP No. 001/2025** (Línea Ferroviaria de Carga — LFC, Colombia).
@@ -41,6 +42,7 @@ ode src/agent.js --vigilia\
 
 | Comando | Función |
 |---|---|
+| /dream [ruta] | Karpathy Dreamer (C?mara Doble Ciego) |
 | /doctor | Health report del sistema SICC |
 | /learn | Mapear recursivamente LFC2 y actualizar rutas |
 | /audit [ruta] | Auditoría forense manual sobre una carpeta específica |
@@ -49,7 +51,7 @@ ode src/agent.js --vigilia\
 | /limpiar | Reset cognitivo de la sesión |
 
 > ⚠️ **Comandos ELIMINADOS (eran del enjambre/legacy):**
-> /swarm, /dream, /git ls, /git cat, /git commits, /estado, /simulacion-sit
+> /swarm, /git ls, /git cat, /git commits, /estado, /simulacion-sit
 
 ---
 
