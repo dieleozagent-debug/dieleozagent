@@ -15,6 +15,7 @@ const fs = require('fs');
 const path = require('path');
 const { checkYEncolar, evaluarRecursos } = require('../scripts/resource-governor');
 const { startPatrol } = require('./patrol');
+const { validarExternaNotebook } = require('./sapi/notebooklm_mcp');
 
 
 // Skills Registry — carga modular de contexto especializado
@@ -238,20 +239,26 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo, forcedSystemPrompt 
      }
   }
 
-  // ── FASE 3: ORACLE-CHECK (Web Search) ───────────────────────────────────
+  // ── FASE 3: ORACLE-CHECK (Web Search + NotebookLM) ──────────────────────
   let contextoWeb = '';
+  let contextoOracle = '';
   const esConsultaTecnica = /norma|estándar|arema|fra|uic|regulación|manual|noticia/i.test(textoUsuario);
+  
   if (config.ai.tavily.apiKey && esConsultaTecnica) {
     try {
       contextoWeb = await buscarEnWeb(textoUsuario);
+      // Si es técnico, cruzamos con el Oráculo de NotebookLM
+      console.log('[ORACLE] 🔮 Consultando Verdad Externa en NotebookLM...');
+      const oracleRes = await validarExternaNotebook(textoUsuario);
+      contextoOracle = `## ORÁCULO TÉCNICO (NotebookLM MCP):\n${oracleRes}\n\n`;
     } catch (err) {
-      console.log(`[SEARCH] [SICC WARN] Fallo silencioso en búsqueda web.`);
+      console.log(`[ORACLE] [SICC WARN] Fallo en fase de Oráculo: ${err.message}`);
     }
   }
 
   // Obtener Skills antes de construir el contexto final
   const skillsContext = seleccionarSkills(textoUsuario);
-  let contextoFinal = (contextoGenetico || '') + (contextoRAG || '') + (contextoWeb || '') + (skillsContext || '');
+  let contextoFinal = (contextoGenetico || '') + (contextoRAG || '') + (contextoWeb || '') + (contextoOracle || '') + (skillsContext || '');
   
   // Construir Prompt Final (Contexto + Especialidad) — v9.1.1
   const currentPromptBase = PROMPT_FAST; // Usamos la versión fast por defecto para nube/ahorro

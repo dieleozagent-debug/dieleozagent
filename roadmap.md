@@ -41,6 +41,7 @@
 ### 3. Certificación de Flujo RAG y Auto-tuning
 - [x] Validar que el multiplexor inyecte fragmentos reales en una consulta de Telegram.
 - [x] **Prueba de Vacunación:** Inyectar una lección errónea falsa, ejecutar una consulta y verificar que el Agente la rechace citando la Memoria Genética. (Certificado 17-abr-2026).
+- [x] **Integración de Oráculo:** Conexión vía MCP hacia NotebookLM para validación de normas FRA/AREMA [OK].
 - [x] Verificar la latencia de recuperación vectorial (Meta: < 3s). (Logrado: 1.2s).
 - [x] Certificar el Fallback a Gemini Cloud si Ollama se detiene.
 

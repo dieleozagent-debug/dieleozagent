@@ -15,7 +15,7 @@ El sistema opera en un servidor Ubuntu dedicado, combinando contenedores Docker 
 | **Agente Core** | `dieleozagent-debug-dieleozagent-1` | 3000 | Orquestación y Telegram |
 | **Base de Datos** | `sicc-postgres` | 5432 | Supabase / LTM (Vector DB) |
 | **Ollama Swarm** | **Nativo en Host** (Ubuntu) | 11434 | Inferencia Local (GPU Nativa) |
-| **NotebookLM MCP** | `notebooklm-mcp-v12` | n/a | SAPI de Verdad Externa |
+| **NotebookLM MCP** | `notebooklm-mcp-v12` | n/a (STDIO Bridge) | **Oracle de Verdad Externa.** Aislado en Docker para persistencia de sesión Chrome y evitar contaminación de dependencias (Playwright/Chrome) en el Core. |
 
 ### 2. Modelos de Inteligencia Local (Ollama)
 
@@ -85,7 +85,11 @@ El sistema opera mediante un ciclo de refinamiento iterativo de 5 fases, donde l
     - El Multiplexor consulta `sicc_genetic_memory` buscando errores pasados similares a la consulta actual.
     - Se inyectan las **Lecciones Aprendidas** como restricciones duras en el prompt inicial para evitar reincidencias.
 2.  **Fase 2: RAG-Match (Soberanía Interna):** Cruce obligatorio contra la Biblia Legal en `postgres_sicc`. Se extraen los 3 fragmentos contractuales más relevantes.
-3.  **Fase 3: Oracle-Check (Verdad Externa):** Validación vía NotebookLM para asegurar cumplimiento con normativas globales (FRA/AREMA).
+3.  **Fase 3: Oracle-Check (Verdad Externa - NotebookLM MCP):** 
+    - **Por qué:** Validación contra normas internacionales (FRA, AREMA, IEEE) no contenidas en el contrato.
+    - **Cuándo:** Se activa ante consultas técnicas complejas o mención de estándares regulatorios.
+    - **Qué pasa:** El archivo `src/sapi/notebooklm_mcp.js` ejecuta un puente vía `docker exec` hacia el contenedor `notebooklm-mcp-v12`, consultando una libreta de ingeniería pre-cargada.
+    - **Resultado:** Proporciona un "Segundo Voto" técnico para evitar alucinaciones operativas.
 4.  **Fase 4: Juicio R-HARD (Deducción N-1):** El Juez audita el output contra límites de CAPEX ($726M) y plazos contractuales. Aplica la técnica de "Grasa Zero" (elimina lo innecesario).
 5.  **Fase 5: Decantación e Ingesta (Auto-tuning):** 
     - Si hay fallo en las fases anteriores, se genera una **Lección Aprendida**.
