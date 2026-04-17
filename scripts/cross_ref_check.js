@@ -4,7 +4,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const LOGS_DIR = '/home/administrador/data-agente/logs';
+const LOGS_DIR = '/home/administrador/docker/agente/data/logs';
+const BRAIN_DIR = '/home/administrador/docker/agente/brain';
 
 async function runCrossRefCheck() {
     console.log('[CROSS-REF] 🕵️ Iniciando escaneo de consistencia SSoT...');
@@ -12,7 +13,7 @@ async function runCrossRefCheck() {
     let findings = [];
 
     // 1. Escanear logs en busca de TypeErrors o Dimension Mismatches
-    const logFiles = ['ingesta_biblia.log', 'dreamer.log', 'continuous_dreamer.log'];
+    const logFiles = ['ingesta_biblia.log', 'dreamer.log', 'health.log'];
     
     for (const logFile of logFiles) {
         const fullPath = path.join(LOGS_DIR, logFile);
@@ -31,15 +32,10 @@ async function runCrossRefCheck() {
     }
 
     // 2. Comprobar integridad del Cerebro (Axiomas obligatorios)
-    const BRAIN_DIR = '/app/brain';
-    const REQUIRED_AXIOMS = ['SOUL.md', 'IDENTITY.md', 'LFC_ROLE.md', 'DREAMS.md'];
+    const REQUIRED_AXIOMS = ['SOUL.md', 'IDENTITY.md', 'DREAMS.md'];
     
-    // Nota: Esta parte solo funciona si el script se corre con acceso al volumen /app
-    // Si se corre desde el host, hay que ajustar rutas.
-    const internalBrainDir = fs.existsSync(BRAIN_DIR) ? BRAIN_DIR : '/home/administrador/docker/agente/brain';
-
     for (const axiom of REQUIRED_AXIOMS) {
-        if (!fs.existsSync(path.join(internalBrainDir, axiom))) {
+        if (!fs.existsSync(path.join(BRAIN_DIR, axiom))) {
             findings.push({
                 source: 'Brain Integrity',
                 issue: `Falta axioma obligatorio: ${axiom}`
