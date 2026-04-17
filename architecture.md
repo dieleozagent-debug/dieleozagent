@@ -55,15 +55,34 @@ El sistema opera en un servidor Ubuntu dedicado, combinando contenedores Docker 
 
 El sistema opera mediante un ciclo de refinamiento iterativo de 5 fases, donde la **Memoria Genética** actúa como el sistema inmune:
 
-### 4. Detalle de Flujos y Componentes Forenses (SICC v12.7)
+### 4. El Viaje del Dato: Ciclo Completo de `/dream` (SICC v12.8)
 
-| Fase | Componente / Ruta | Función (Qué hace) | Racional (Por qué) | Salida (Output) |
-|:---|:---|:---|:---|:---|
-| **1. Vacunación** | `src/supabase.js` | Consulta `sicc_genetic_memory` por similitud. | Bloquea errores recurrentes y alucinaciones. | Vacunas (Prompt Constraints). |
-| **2. RAG Match** | `src/sapi/supabase_rag.js` | Extrae fragmentos de la "Biblia Legal". | Ancla cada palabra al contrato LFC2. | Contexto Contractual literal. |
-| **3. Oracle Check**| `src/sapi/notebooklm_mcp.js` | Conexión SAPI (Puerto 3001 interno) al Oráculo MCP. | Valida contra normas FRA/AREMA/UIC sin latencia `exec`. | Feedback de Verdad Externa. |
-| **4. Juicio** | `scripts/swarm-pilot.js` | Juez AI evalúa Fases 1, 2 y 3. | Filtro final de "Grasa Zero" y CAPEX. | JSON (aprobado: true/false). |
-| **5. Auto-tuning** | `brain/SPECIALTIES/*.md` | Registra el fallo como una lección. | Actualiza el "ADN" para el siguiente ciclo. | Lección Karpathy (ADN Update). |
+Cuando un ingeniero ejecuta el comando `/dream [especialidad]` en Telegram, se desata el siguiente ciclo forense autónomo:
+
+1. **Fase 1: Vacunación (El Sistema Inmune)**
+   - **Componente:** `src/supabase.js`
+   - **Acción:** El Agente consulta la LTM (`sicc_genetic_memory`) para revisar si ya cometió errores en esa especialidad en el pasado.
+   - **Salida:** Vacunas (Prompt Constraints) que bloquean alucinaciones conocidas.
+
+2. **Fase 2: RAG Match (El Anclaje Legal)**
+   - **Componente:** `src/sapi/supabase_rag.js`
+   - **Acción:** Extrae fragmentos literales del contrato LFC2 y genera un *Borrador de Decisión Técnica (DT)* usando el Escudo Fiscal (LLM dinámico: Gemini -> Groq -> Ollama).
+   - **Salida:** Contexto Contractual y Borrador Inicial.
+
+3. **Fase 3: Oracle Check (La Verdad Externa)**
+   - **Componente:** `src/sapi/notebooklm_mcp.js`
+   - **Acción:** El Agente se conecta por red SAPI (Puerto 3001) al Oráculo de NotebookLM y le pregunta si el borrador cumple con normativas internacionales (FRA/AREMA/UIC).
+   - **Salida:** Feedback y correcciones inmediatas (< 1s de latencia).
+
+4. **Fase 4: Juicio (Swarm Pilot)**
+   - **Componente:** `scripts/swarm-pilot.js`
+   - **Acción:** El "Juez AI" cruza el Borrador con el Feedback del Oráculo. Si todo es puro y sin grasa financiera (CAPEX), emite un `⚖️ VEREDICTO FINAL AL DESPERTAR:` con la etiqueta **APROBADO** o **RECHAZADO**.
+   - **Salida:** JSON de Decisión y emisión del reporte al bot de Telegram.
+
+5. **Fase 5: Auto-tuning (Karpathy Update)**
+   - **Componente:** `brain/SPECIALTIES/*.md`
+   - **Acción:** Si la DT fue rechazada, el Juez inyecta el motivo del fallo como una nueva lección en el ADN genético, garantizando que el enjambre sea más inteligente en el próximo `/dream`.
+   - **Salida:** Lección Karpathy (ADN Update).
 
 ---
 
