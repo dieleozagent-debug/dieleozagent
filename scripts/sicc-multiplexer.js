@@ -322,8 +322,8 @@ async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt 
     }
   }
 
-  console.warn('[GATEWAY-AHORRO] [SICC BLOCKER] Vías gratuitas agotadas (incluyendo OpenRouter Free). Usando Low Cost...');
-  const lowCostModel = 'meta-llama/llama-3.1-8b-instruct';
+  console.warn('[GATEWAY-AHORRO] [SICC BLOCKER] Vías gratuitas agotadas (incluyendo OpenRouter Free). Usando Contingencia SICC (Strictly Free)...');
+  const lowCostModel = 'meta-llama/llama-3.1-8b-instruct:free';
   const res = await llamarOpenRouter(pregunta, null, contextoRAG, systemPrompt, lowCostModel);
   registrarTrazaSICC(pregunta, 'openrouter-lowcost', contextoRAG);
   return { texto: res, proveedor: 'openrouter-lowcost' };
