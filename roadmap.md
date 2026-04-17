@@ -56,6 +56,7 @@
 - [ ] **Prueba de estrés `/dream`** sobre Energía, Señalización y Centro de Control con Oracle activo y proveedores frescos (mañana cuando se reseteen cuotas)
 - [ ] **Interrogación iterativa Oracle:** Juez debe emitir ≥2 preguntas de seguimiento al Oracle por ciclo para mayor profundidad normativa
 - [ ] **Renovación sesión Google:** Validar recuperación cuando expire la sesión (~3-6 meses). Ver procedimiento en `notebook-mcp/architectureMCP.md`
+- [ ] **`docs/manual_uso.md`:** Actualizar de v12.2 a v12.9 — agregar cascada LLM completa, Fase 5 dream, comandos faltantes (/swarm, /cmd), procedimiento re-auth Oracle
 
 ### Media Prioridad
 - [ ] **Mapeo dinámico de especialidades:** `brain/SPECIALTIES/*.md` → `notebook_id` específico en NotebookLM por dominio técnico
