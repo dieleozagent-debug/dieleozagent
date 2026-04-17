@@ -33,10 +33,13 @@ async function ejecutarCrossRefCheck() {
     const dreamsPath = path.join(config.paths.brain, 'DREAMS.md');
     const dtsDir = path.join(config.paths.brain, 'PENDING_DTS');
     
-    if (!fs.existsSync(dreamsPath) || !fs.existsSync(dtsDir)) {
+    // Si no existe PENDING_DTS, lo creamos para evitar el bloqueo del Centinela
+    if (!fs.existsSync(dtsDir)) fs.mkdirSync(dtsDir, { recursive: true });
+
+    if (!fs.existsSync(dreamsPath)) {
         return { 
             status: 'WARN', 
-            reporte: '📌 **SICC Cross-Ref Audit:** Directorios de cerebro no localizados para Cross-Ref.' 
+            reporte: '📌 **SICC Cross-Ref Audit:** Archivo DREAMS.md no localizado (Saneamiento pendiente).' 
         };
     }
 
