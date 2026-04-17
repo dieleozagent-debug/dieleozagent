@@ -1,4 +1,4 @@
-# 🏛️ Arquitectura SICC v12.3 — "Eficiencia Operacional"
+# 🏛️ Arquitectura SICC v12.7 — "Institucionalización Forense"
 
 SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agente soberano diseñada para la auditoría técnica y jurídica del proyecto LFC2.
 
@@ -21,7 +21,7 @@ El sistema opera en un servidor Ubuntu dedicado, combinando contenedores Docker 
 
 | Modelo | Función | Dimensiones |
 | :--- | :--- | :--- |
-| `sicc-gemma4:q5` | Auditoría Forense y Razonamiento Deductivo | n/a |
+| `gemma4-light:latest` | Auditoría Forense y Razonamiento Deductivo | n/a |
 | `nomic-embed-text`| Embeddings Vectoriales (LTM) | 768 |
 | `phi3.5:latest` | Análisis rápido de sintaxis | n/a |
 
@@ -73,16 +73,13 @@ Toda decisión técnica debe respetar:
 
 ## 🌪️ El Bucle de Decantación (Karpathy Loop)
 
-El proceso de "Sueño" no es lineal, es un ciclo de refinamiento iterativo gestionado por el multiplexor:
+El proceso de **Decantación SICC** no es lineal, es un ciclo de refinamiento iterativo gestionado por el multiplexor:
 
-1.  **Ingesta de Comando:** `/dream [especialidad]` -> `sicc-multiplexer.js`.
-2.  **Fase 1: Generación de Hipótesis (Drafting):** El enjambre produce una DT inicial.
-3.  **Fase 2: RAG-Match (Soberanía Interna):** Cruce obligatorio contra `postgres_sicc` (Contrato APP).
-4.  **Fase 3: Oracle-Check (Verdad Externa):** Validación vía NotebookLM (Normativa FRA/RETIÉ).
-5.  **Fase 4: Juicio R-HARD:** Auditoría contra límites de CAPEX, plazos y exclusiones técnicas.
-6.  **Fase 5: Decantación Iterativa:** 
-    - Si el Juez aprueba -> **DT Certificada**.
-    - Si el Juez rechaza -> **Lección Aprendida** -> Re-inyección en Fase 1 y reinicio del ciclo (Max 3 veces).
+1.  **Fase 1: Hipótesis (Drafting):** El enjambre produce una propuesta inicial basada en la necesidad operativa (ej: "Modificar bus vital").
+2.  **Fase 2: RAG-Match (Soberanía Interna):** Cruce obligatorio contra `postgres_sicc` (Biblia Legal).
+3.  **Fase 3: Oracle-Check (Verdad Externa):** Validación vía NotebookLM (Normativa FRA/AREMA).
+4.  **Fase 4: Juicio R-HARD:** Auditoría deductiva (N-1) contra límites de CAPEX, plazos y exclusiones técnicas.
+5.  **Fase 5: Decantación e Integración:** Si hay fallo, se genera una **Lección Aprendida** que se inyecta en el ciclo (Max 3 veces) y se guarda en `SPECIALTIES/`.
 
 ## 🐝 El Enjambre SICC (Swarm Intelligence)
 
@@ -95,15 +92,6 @@ El enjambre no es una simple lista de proveedores, sino un sistema de **validaci
 
 ---
 
-## 🌪️ Decantación de Karpathy (El Proceso de 5 Fases)
-
-Para garantizar que ninguna alucinación técnica toque el SSOT (Single Source of Truth), toda hipótesis técnica debe atravesar un proceso de **decantación en 5 fases**:
-
-1.  **Fase 1: Sueño (Hipótesis):** El agente genera una propuesta técnica basada en la necesidad operativa (ej. "Modificar el bus vital a 110VDC").
-2.  **Fase 2: Validación Interna (Supabase RAG):** La hipótesis se enfrenta contra la "Biblia Legal". Si el contrato dice algo distinto, se genera una señal de rechazo.
-3.  **Fase 3: Validación Externa (NotebookLM MCP):** El MCP consulta fuentes externas (AREMA, FRA, noticias técnicas) para asegurar que la propuesta cumple con estándares globales de ingeniería.
-4.  **Fase 4: Juicio Soberano (Deducción N-1):** El Juez analiza las validaciones (Interna vs. Externa). Si hay contradicción, aplica el principio **N-1 (Grasa Zero)**: se elimina el elemento complejo y se prioriza la seguridad contractual.
-5.  **Fase 5: Integración y Memoria (Karpathy Lesson):** Si la propuesta falló, el error se "decanta" en una lección aprendida que se inyecta permanentemente en los archivos de `brain/SPECIALTIES/`, asegurando que el enjambre nunca repita el mismo error de diseño.
 
 ---
 
