@@ -56,6 +56,19 @@ Toda decisión técnica debe respetar:
    - **Umbral Crítico (95%):** Bloqueo total de inferencia local para proteger el host.
    - **Throttling:** Pausas de 2s entre inferencias para estabilidad térmica.
 
+## 🌪️ El Bucle de Decantación (Karpathy Loop)
+
+El proceso de "Sueño" no es lineal, es un ciclo de refinamiento iterativo gestionado por el multiplexor:
+
+1.  **Ingesta de Comando:** `/dream [especialidad]` -> `sicc-multiplexer.js`.
+2.  **Fase 1: Generación de Hipótesis (Drafting):** El enjambre produce una DT inicial.
+3.  **Fase 2: RAG-Match (Soberanía Interna):** Cruce obligatorio contra `postgres_sicc` (Contrato APP).
+4.  **Fase 3: Oracle-Check (Verdad Externa):** Validación vía NotebookLM (Normativa FRA/RETIÉ).
+5.  **Fase 4: Juicio R-HARD:** Auditoría contra límites de CAPEX, plazos y exclusiones técnicas.
+6.  **Fase 5: Decantación Iterativa:** 
+    - Si el Juez aprueba -> **DT Certificada**.
+    - Si el Juez rechaza -> **Lección Aprendida** -> Re-inyección en Fase 1 y reinicio del ciclo (Max 3 veces).
+
 ## 🐝 El Enjambre SICC (Swarm Intelligence)
 
 El enjambre no es una simple lista de proveedores, sino un sistema de **validación cruzada** diseñado para eliminar el "ruido" técnico y las alucinaciones. Opera mediante la orquestación de múltiples agentes especializados:
