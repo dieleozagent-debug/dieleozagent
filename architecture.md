@@ -43,6 +43,20 @@ El sistema opera en un servidor Ubuntu dedicado, combinando contenedores Docker 
     - **Vectores:** 768 dimensiones generadas por `nomic-embed-text` vía Ollama.
 - **Flujo de Consulta:** El enjambre consulta esta tabla en la **Fase 2 (Validación Interna)** mediante funciones de similitud de coseno.
 
+### 🏛️ Jerarquía de Rutas Soberanas (SSoP)
+
+Para evitar la desorientación de los agentes (blindness), el sistema impone una estructura de rutas absolutas sincronizadas entre el Host y el Contenedor:
+
+| Directorio | Ruta en Contenedor | Función |
+| :--- | :--- | :--- |
+| **Raíz Agente** | `/home/administrador/docker/agente` | Repositorio de código y lógica. |
+| **Cerebro (Brain)**| `/home/administrador/docker/agente/brain` | SSOT Contractual (MDs, R-HARD, Specialties). |
+| **LFC2 (Docs)** | `/home/administrador/docker/LFC2` | Repositorio de documentación técnica externa. |
+| **Biblia Legal** | `/home/administrador/docker/agente/Contrato pdf` | Fuente primaria de PDFs para la ingesta Michelin. |
+| **Logs** | `/home/administrador/docker/agente/data/logs` | Telemetría, Heartbeats y Traces JSON. |
+
+**Regla de Oro:** Todo script DEBE usar `config.paths` de `src/config.js`. Está terminantemente prohibido el uso de rutas relativas fuera de `src/`.
+
 ---
 
 ## 🛡️ Gobernanza R-HARD (Recursos)

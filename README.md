@@ -1,4 +1,4 @@
-# 🤖 OpenGravity SICC — Agente Soberano v12.3
+# 🤖 OpenGravity SICC — Agente Soberano v12.7
 
 > **⚡ INICIO RÁPIDO:** Lee roadmap.md primero para saber el estado exacto del proyecto.
 
@@ -7,11 +7,23 @@
 
 ---
 
-## 🚀 Estado Actual: v12.3 "Eficiencia Operacional"
-- **Estado:** 🟢 Operativo (**100/100 Certificado**).
+## 🚀 Estado Actual: v12.7 "Institucionalización Forense"
+- **Estado:** 🟢 Operativo (**Soberanía de Rutas Certificada**).
 - **CPU:** Gobernanza R-HARD activa (Umbral 80%, Throttling 2s).
-- **Cerebro:** `SOUL.md` (Ética) y `IDENTITY.md` sincronizados y restaurados.
-- **Infraestructura:** Ollama Nativo (Host) con puente DNS (Bridge IP 172.20.0.1).
+- **Ingesta:** 🟠 Michelin v7.2 Activa (Biblia Legal inyectándose).
+- **Memoria:** LTM Supabase Vectorial integrada con pgvector.
+
+---
+
+## 🗺️ Mapa de Rutas Soberanas (SSoP)
+
+| Recurso | Ruta Absoluta (Docker) |
+| :--- | :--- |
+| **Raíz Código** | `/home/administrador/docker/agente` |
+| **Cerebro (SSOT)**| `/home/administrador/docker/agente/brain` |
+| **Contrato (PDFs)**| `/home/administrador/docker/agente/Contrato pdf` |
+| **Base Legal** | `/home/administrador/docker/LFC2` |
+| **Logs / Traces** | `/home/administrador/docker/agente/data/logs` |
 
 ---
 

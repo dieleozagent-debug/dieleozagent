@@ -28,15 +28,20 @@
 
 ---
 
-## 🎯 PRÓXIMOS PASOS (Fase v12.7: Saneamiento de Rutas)
+## 🎯 PRÓXIMOS PASOS (Fase v12.8: Certificación Soberana)
 
-### 1. Sincronización de Directorios de Cerebro
-- **Bloqueador:** El Centinela no localiza `/brain`.
-- **Tarea:** Unificar rutas en scripts de Cross-Ref y Sentinel.
+### 1. Validación de Densidad (Check-out)
+- Verificar que el contador de fragmentos en `postgres_sicc` supere los 1000.
+- Realizar pruebas de estrés de citación técnica con `/dream`.
 
-### 2. Purga de Impurezas (Zero-Residue)
-- Investigar las 44 impurezas detectadas en el reporte matutino.
-- Sincronizar la lógica de consistencia con los nuevos fragmentos de la Biblia Legal.
+### 2. Saneamiento de Impurezas (Zero-Residue)
+- Investigar y redondear las 10 inconsistencias matemáticas detectadas en `LFC2`.
+- Purgar términos prohibidos inyectados por error en sesiones anteriores.
 
-### 3. Estabilización de Ingesta
-- Monitorizar el avance de la Operación Michelin v7.2.
+---
+
+## ✅ HITOS COMPLETADOS
+
+- [x] **v12.7: Saneamiento de Rutas (SSoP)** -> Unificación de visión forense y recuperación del Centinela.
+- [x] **v12.6: Institucionalización Michelin** -> Visión OCR instalada y motor de ingesta masiva activo.
+- [x] **v12.2: Paz Estructural** -> Eliminación de dependencias circulares y centralización en el Multiplexor.
