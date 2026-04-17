@@ -210,34 +210,40 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo, forcedSystemPrompt 
     console.warn(`[AGENT] [SICC WARN] CPU ALTA (${Math.round(recursos.load * 100)}%). Priorizando proveedor cloud.`);
   }
 
-  // RAG: Buscar contexto pertinente en el contrato (Supabase) si habla de temas relevantes
-  // Para no saturar con BBDD en cada mensaje corto tipo "Hola", aplicamos un filtro básico
+  // ── FASE 1: VACUNACIÓN (Memoria Genética / Auto-tuning) ──────────────────
+  let contextoGenetico = '';
+  try {
+    const lecciones = await require('./supabase').buscarLecciones(textoUsuario, 2);
+    if (lecciones && lecciones.length > 0) {
+      contextoGenetico = '## SISTEMA INMUNE SICC (Lecciones Aprendidas):\n';
+      lecciones.forEach(l => contextoGenetico += `- ${l.content}\n`);
+      console.log(`[GENETIC-MEMORY] 🧬 Inyectadas ${lecciones.length} vacunas genéticas para esta consulta.`);
+    }
+  } catch (e) {
+    console.warn('[GENETIC-MEMORY] [SICC WARN] Error en fase de vacunación:', e.message);
+  }
+
+  // ── FASE 2: RAG-MATCH (Biblia Legal) ────────────────────────────────────
   let contextoRAG = '';
   if (textoUsuario.length > 10 || /contrato|anexo|apéndice|at|obligación|multa/i.test(textoUsuario)) {
      try {
-       const docs = await buscarSimilares(textoUsuario, 3); // 3 chunks más parecidos
+       const docs = await buscarSimilares(textoUsuario, 3);
        if (docs && docs.length > 0) {
-         contextoRAG = '## CONTEXTO DE CONTRATO (Supabase Vector DB):\nEl siguiente texto ha sido extraido dinámicamente del contrato oficial en base a la pregunta del usuario. Úsalo para responder de forma informada:\n\n';
-         docs.forEach((doc, i) => {
-           contextoRAG += `--- Fragmento ${i+1} [Archivo: ${doc.nombre_archivo}] ---\n${doc.contenido}\n\n`;
-         });
-         console.log(`[RAG] 🔍 Recuperados ${docs.length} fragmentos de Supabase para esta consulta.`);
+         contextoRAG = '## CONTEXTO DE CONTRATO (Supabase Vector DB):\n' +
+           docs.map((doc, i) => `--- Fragmento ${i+1} [Archivo: ${doc.nombre_archivo}] ---\n${doc.contenido}`).join('\n\n') + '\n\n';
+         console.log(`[RAG] 🔍 Recuperados ${docs.length} fragmentos de Supabase.`);
        }
      } catch (err) {
        console.log(`[RAG] [SICC WARN] Error recuperando contexto: ${err.message}`);
      }
   }
 
-  // Búsqueda Web: Solo si es técnico y Supabase no fue suficiente o hay keywords de normas
+  // ── FASE 3: ORACLE-CHECK (Web Search) ───────────────────────────────────
   let contextoWeb = '';
   const esConsultaTecnica = /norma|estándar|arema|fra|uic|regulación|manual|noticia/i.test(textoUsuario);
-  
   if (config.ai.tavily.apiKey && esConsultaTecnica) {
     try {
       contextoWeb = await buscarEnWeb(textoUsuario);
-      if (contextoWeb) {
-        console.log(`[SEARCH] [SICC OK] Investigación web inyectada para: "${textoUsuario}"`);
-      }
     } catch (err) {
       console.log(`[SEARCH] [SICC WARN] Fallo silencioso en búsqueda web.`);
     }
@@ -245,7 +251,7 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo, forcedSystemPrompt 
 
   // Obtener Skills antes de construir el contexto final
   const skillsContext = seleccionarSkills(textoUsuario);
-  let contextoFinal = (contextoRAG || '') + (contextoWeb || '') + (skillsContext || '');
+  let contextoFinal = (contextoGenetico || '') + (contextoRAG || '') + (contextoWeb || '') + (skillsContext || '');
   
   // Construir Prompt Final (Contexto + Especialidad) — v9.1.1
   const currentPromptBase = PROMPT_FAST; // Usamos la versión fast por defecto para nube/ahorro

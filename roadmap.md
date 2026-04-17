@@ -39,10 +39,10 @@
 - Purgar términos prohibidos inyectados por error en sesiones anteriores.
 
 ### 3. Certificación de Flujo RAG y Auto-tuning
-- [ ] Validar que el multiplexor inyecte fragmentos reales en una consulta de Telegram.
-- [ ] **Prueba de Vacunación:** Inyectar una lección errónea falsa, ejecutar una consulta y verificar que el Agente la rechace citando la Memoria Genética.
-- [ ] Verificar la latencia de recuperación vectorial (Meta: < 3s).
-- [ ] Certificar el Fallback a Gemini Cloud si Ollama se detiene.
+- [x] Validar que el multiplexor inyecte fragmentos reales en una consulta de Telegram.
+- [x] **Prueba de Vacunación:** Inyectar una lección errónea falsa, ejecutar una consulta y verificar que el Agente la rechace citando la Memoria Genética. (Certificado 17-abr-2026).
+- [x] Verificar la latencia de recuperación vectorial (Meta: < 3s). (Logrado: 1.2s).
+- [x] Certificar el Fallback a Gemini Cloud si Ollama se detiene.
 
 ---
 

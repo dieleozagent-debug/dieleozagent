@@ -76,4 +76,20 @@ async function buscarSimilares(preguntaTexto, limite = 3) {
     return result.rows;
 }
 
-module.exports = { obtenerEmbedding, insertarFragmento, buscarSimilares, pool };
+async function buscarLecciones(preguntaTexto, limite = 2) {
+    try {
+        const vectorQuery = await obtenerEmbedding(preguntaTexto);
+        // Usamos una función similar para la tabla de lecciones genéticas
+        const query = `SELECT content, metadata, 1 - (embedding <=> $1::vector) as similitud 
+                       FROM sicc_genetic_memory 
+                       WHERE 1 - (embedding <=> $1::vector) > 0.7
+                       ORDER BY similitud DESC LIMIT $2`;
+        const result = await pool.query(query, [`[${vectorQuery.join(',')}]`, limite]);
+        return result.rows;
+    } catch (e) {
+        console.warn('[SUPABASE] [SICC WARN] Error buscando lecciones genéticas:', e.message);
+        return [];
+    }
+}
+
+module.exports = { obtenerEmbedding, insertarFragmento, buscarSimilares, buscarLecciones, pool };
