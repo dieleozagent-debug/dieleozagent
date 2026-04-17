@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * SICC SWARM PILOT v2.2 - MODO SUE?O (DREAMER)
+ * SICC SWARM PILOT v2.2 - MODO SUEÑO (DREAMER)
  * Simulador del comando /dream de Telegram.
  */
 
@@ -16,7 +16,7 @@ const { checkYEncolar, getCpuLoad } = require('./resource-governor');
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-const arg = process.argv[2] || "Se?alizaci?n";
+const arg = process.argv[2] || "Señalización";
 
 async function updateKarpathySpecialty(specialty, leccion) {
     const filePath = path.join(__dirname, '..', 'brain', 'SPECIALTIES', `${specialty}.md`);
@@ -24,9 +24,9 @@ async function updateKarpathySpecialty(specialty, leccion) {
         const timestamp = new Date().toISOString();
         const leccionText = `\n> [!WARNING] **Karpathy Dream Lesson (${timestamp}):**\n> ${leccion}\n`;
         fs.appendFileSync(filePath, leccionText, 'utf8');
-        console.log(`\n?? [Karpathy Loop] Aprendizaje registrado mec?nicamente en ${specialty}.md`);
+        console.log(`\n⚖️ [Karpathy Loop] Aprendizaje registrado mecánicamente en ${specialty}.md`);
     } else {
-        console.error(`\n? [Karpathy Loop] Especialidad no encontrada: ${filePath}`);
+        console.error(`\n❌ [Karpathy Loop] Especialidad no encontrada: ${filePath}`);
     }
 }
 
@@ -44,10 +44,9 @@ async function runSwarmPilot() {
 
     inicializarBrain();
     
-    console.log(`?? SICC SWARM PILOT - ?? MODO SUE?O (/dream ${arg})`);
+    console.log(`🌪️ SICC SWARM PILOT - 💤 MODO SUEÑO (/dream ${arg})`);
     console.log(`--------------------------------------------------\n`);
 
-    // --- INYECCIÓN DE ADN SICC (v12.4) ---
     const identitySicc = fs.readFileSync(path.join(__dirname, '..', 'brain', 'IDENTITY.md'), 'utf8');
     const methodologySicc = fs.readFileSync(path.join(__dirname, '..', 'brain', 'SICC_METHODOLOGY.md'), 'utf8');
 
@@ -60,7 +59,6 @@ async function runSwarmPilot() {
         ciclosRealizados++;
         console.log(`\n🔄 [CICLO DE DECANTACIÓN ${ciclosRealizados}/${MAX_CICLOS}]`);
         
-        // ── FASE 1: VACUNACIÓN (SICC Immune System) ──────────────────────────
         console.log(`🧬 [Fase 1] Consultando Memoria Genética (Auto-tuning)...`);
         const lecciones = await buscarLecciones(arg, 3);
         let contextoGenetico = "";
@@ -81,10 +79,9 @@ async function runSwarmPilot() {
 
         try {
             console.log(`🐝 Disparando enjambre (Fase 1: Sueño Soberano)...`);
-            let borrador_DT = await llamarMultiplexadorFree(agent1.prompt, "", `Role: ${agent1.name}`);
-            borrador_DT = typeof borrador_DT === 'string' ? borrador_DT : (borrador_DT.content || JSON.stringify(borrador_DT));
+            let responseObj = await llamarMultiplexadorFree(agent1.prompt, "", `Role: ${agent1.name}`);
+            let borrador_DT = typeof responseObj === 'string' ? responseObj : (responseObj.texto || responseObj.content || JSON.stringify(responseObj));
             
-            // --- FILTRO ANTI-META-HABLA (Emergencia) ---
             if (borrador_DT.includes("I need more information") || borrador_DT.includes("Could you please provide")) {
                 console.error(`🚨 [ALUCINACIÓN DETECTADA] Abortando ciclo por intento de meta-habla.`);
                 ultimaLeccion = "El agente intentó pedir información al usuario en lugar de dictaminar soberanamente.";
@@ -128,8 +125,8 @@ Responde ÚNICAMENTE en JSON:
   "leccion_karpathy": "Lección estricta para el Brain si falló (DEBE incluir correcciones del Oráculo si las hubo)."
 }`;
 
-            let decisionRAW = await llamarMultiplexadorFree("Despierta al enjambre y evalúa el sueño.", "", promptJuez);
-            decisionRAW = typeof decisionRAW === 'string' ? decisionRAW : (decisionRAW.content || JSON.stringify(decisionRAW));
+            let responseJuez = await llamarMultiplexadorFree("Despierta al enjambre y evalúa el sueño.", "", promptJuez);
+            let decisionRAW = typeof responseJuez === 'string' ? responseJuez : (responseJuez.texto || responseJuez.content || JSON.stringify(responseJuez));
             
             const jsonMatch = decisionRAW.match(/\{[\s\S]*\}/);
             if (!jsonMatch) throw new Error("Juez falló al emitir JSON válido");
@@ -157,7 +154,7 @@ Responde ÚNICAMENTE en JSON:
             console.error("⚠️ Error en ciclo:", error.message);
             ultimaLeccion = error.message;
         }
-    } // fin while
+    }
 
     if (!aprobado) {
         console.log(`\n🛑 [SICC BLOCKER] El enjambre no logró decantar una DT pura tras ${MAX_CICLOS} ciclos.`);
@@ -166,7 +163,7 @@ Responde ÚNICAMENTE en JSON:
 
     console.log(`\n--------------------------------------------------`);
     console.log(`⚖️ VEREDICTO FINAL AL DESPERTAR:`);
-    console.log(aprobado ? `✅ SUEÑO CERTIFICADO\n\n${borrador_DT}` : `❌ SUEÑO RECHAZADO\nBloqueado por impureza persistente. Última lección: ${ultimaLeccion}`);
+    console.log(aprobado ? `✅ SUEÑO CERTIFICADO` : `❌ SUEÑO RECHAZADO\nBloqueado por impureza persistente. Última lección: ${ultimaLeccion}`);
     console.log(`--------------------------------------------------`);
 }
 

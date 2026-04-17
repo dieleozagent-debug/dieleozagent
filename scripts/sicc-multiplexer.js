@@ -221,6 +221,7 @@ async function llamarOpenRouter(mensajeUsuario, _, contextoRAG = '', systemPromp
     ? finalSystemPrompt + '\n\n' + contextoRAG 
     : finalSystemPrompt;
 
+  console.log(`[AGENTE] 🟣 Invocando llamarOpenRouter. Modelo: ${modelOverride || config.ai.openrouter.model}. Chars: ${systemInstruction.length}`);
   const respuesta = await client.chat.completions.create({
     model: modelOverride || config.ai.openrouter.model,
     messages: [
@@ -332,7 +333,6 @@ function ordenProveedores() {
 }
 
 // Prefijo de idioma inyectado en TODOS los system prompts del multiplexer.
-// Garantiza respuestas en español independientemente del modelo (Ollama, OpenRouter, etc.)
 const IDIOMA_SICC = '\n\nREGLA ABSOLUTA DE IDIOMA: Debes pensar, razonar y responder SIEMPRE en español. Nunca respondas en inglés. Si el contexto está en inglés, traduce tu respuesta al español.\n\n';
 
 function inyectarIdioma(sp) {
@@ -343,11 +343,13 @@ function inyectarIdioma(sp) {
 async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt = null) {
   const sp = inyectarIdioma(systemPrompt);
 
+  // --- ARQUITECTURA DE RESILIENCIA v2.0 ---
+  // Reordenamos: OpenRouter es prioritario sobre Ollama para evitar que los timeouts bloqueen el enjambre.
   const proveedoresFree = [
-    { id: 'gemini',     fn: llamarGemini },
-    { id: 'groq',       fn: llamarGroq },
-    { id: 'ollama',     fn: llamarOllama },
-    { id: 'openrouter', fn: async (q, a, ctx, hist, s) => llamarOpenRouter(q, a, ctx, s, 'openrouter/free') }
+    { id: 'gemini',     fn: async (q, a, ctx, h, s) => llamarGemini(q, a, ctx, s) },
+    { id: 'groq',       fn: async (q, a, ctx, h, s) => llamarGroq(q, a, ctx, s) },
+    { id: 'openrouter', fn: async (q, a, ctx, h, s) => llamarOpenRouter(q, a, ctx, s, 'openrouter/free') },
+    { id: 'ollama',     fn: llamarOllama }
   ];
 
   let lastErr = null;
@@ -357,6 +359,7 @@ async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt 
 
     try {
       console.log(`[GATEWAY-AHORRO] 💸 Intentando vía gratuita: ${p.id.toUpperCase()}...`);
+      // Todos los proveedores ahora reciben consistentemente (pregunta, null, contextoRAG, null, systemPrompt)
       const respuesta = await p.fn(pregunta, null, contextoRAG, null, sp);
       if (respuesta && respuesta.length > 20) {
         registrarTrazaSICC(pregunta, p.id, contextoRAG);
@@ -370,8 +373,7 @@ async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt 
     }
   }
 
-  // Nivel 2: OpenRouter free routing (selecciona automáticamente el mejor modelo libre disponible)
-  // Historial confirmado: Nemotron 3 Super, Trinity Large, gpt-oss-120b — todos sin costo.
+  // Nivel 2: OpenRouter free routing
   if (config.ai.openrouter.apiKey) {
     try {
       console.log('[GATEWAY-AHORRO] 🔄 Nivel 2: OpenRouter auto-free routing...');
@@ -387,8 +389,8 @@ async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt 
 
   // Nivel 3: modelos de pago en OpenRouter como último recurso absoluto
   const paidFallbacks = [
-    'google/gemini-2.0-flash-001',       // ~$0.10/1M tokens
-    'meta-llama/llama-3.3-70b-instruct', // ~$0.12/1M tokens, sin cuota diaria
+    'google/gemini-2.0-flash-001',
+    'meta-llama/llama-3.3-70b-instruct',
   ];
   if (config.ai.openrouter.apiKey) {
     for (const model of paidFallbacks) {
@@ -408,7 +410,6 @@ async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt 
   throw new Error('[SICC BLOCKER] Todos los proveedores agotados. Reintenta en 1h.');
 }
 
-// Exportar para uso en dreamer.js y agent.js
 module.exports = { 
   detectSpecialty, 
   getMultiplexedContext,
@@ -425,7 +426,6 @@ module.exports = {
   extraerCodigoError
 };
 
-// Soporte para ejecución CLI (Testing)
 if (require.main === module) {
   const testInput = process.argv.slice(2).join(' ');
   if (!testInput) {
