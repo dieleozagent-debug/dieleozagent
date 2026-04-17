@@ -233,12 +233,46 @@ async function llamarOpenRouter(mensajeUsuario, _, contextoRAG = '', systemPromp
   return respuesta.choices[0].message.content;
 }
 
+/**
+ * Construye un prompt segmentado en 4 secciones para Ollama.
+ * Los modelos locales procesan mejor contexto estructurado que un bloque largo.
+ * Total ~2500 chars vs los 15K del prompt completo.
+ */
+function construirPromptOllama(systemPrompt, contextoRAG) {
+  const rhard = leerBrainOllama('R-HARD.md', 600);
+  const identity = leerBrainOllama('IDENTITY.md', 400);
+
+  const tareaRaw = systemPrompt || agentContext.getPromptFast();
+  // Extraer solo la parte de la tarea (después de las instrucciones de rol)
+  const tareaSnippet = tareaRaw.length > 800
+    ? tareaRaw.substring(tareaRaw.length - 800)  // cola del prompt = la tarea concreta
+    : tareaRaw;
+
+  const ctxSnippet = contextoRAG ? contextoRAG.substring(0, 900) : '';
+
+  return [
+    `[SECCIÓN 1/4] IDENTIDAD SICC\n${identity}`,
+    `[SECCIÓN 2/4] RESTRICCIONES R-HARD (INMUTABLES)\n${rhard}`,
+    `[SECCIÓN 3/4] TAREA ACTUAL\n${tareaSnippet}`,
+    ctxSnippet ? `[SECCIÓN 4/4] CONTEXTO CONTRACTUAL LFC2\n${ctxSnippet}` : '',
+    `\nREGLA ABSOLUTA: Responde SIEMPRE en español. Nunca en inglés.`,
+  ].filter(Boolean).join('\n\n---\n\n');
+}
+
+function leerBrainOllama(filename, maxChars) {
+  try {
+    const filepath = path.join(config.paths.brain, filename);
+    if (!fs.existsSync(filepath)) return `[${filename} no disponible]`;
+    const content = fs.readFileSync(filepath, 'utf8').trim();
+    return content.length > maxChars ? content.substring(0, maxChars) + '...' : content;
+  } catch { return `[${filename} no disponible]`; }
+}
+
 async function llamarOllama(mensajeUsuario, _, contextoRAG = '', historialLocal = null, systemPrompt = null) {
-  // Intentar primero con el host de config, luego fallback inteligente (Host vs Docker)
   const isDocker = fs.existsSync('/.dockerenv');
   const internalHost = 'http://opengravity-ollama:11434';
   const externalHost = 'http://127.0.0.1:11434';
-  
+
   const hostsTry = [
     config.ai.ollama.host,
     isDocker ? internalHost : externalHost,
@@ -249,10 +283,8 @@ async function llamarOllama(mensajeUsuario, _, contextoRAG = '', historialLocal 
   for (const host of hostsTry) {
     try {
       const client = new OpenAI({ baseURL: `${host}/v1`, apiKey: 'ollama' });
-      // Ollama es lento con prompts largos — truncar a 3K para no colgar
-      const rawPrompt = systemPrompt || agentContext.getPromptFull();
-      const finalSystemPrompt = rawPrompt.length > 3000 ? rawPrompt.substring(0, 3000) + '\n[...prompt truncado para Ollama...]' : rawPrompt;
-      const systemInstruction = contextoRAG ? finalSystemPrompt + '\n\n' + contextoRAG.substring(0, 1000) : finalSystemPrompt;
+      // Prompt segmentado en 4 secciones — mejor que truncar un bloque largo
+      const systemInstruction = construirPromptOllama(systemPrompt, contextoRAG);
 
       const msgs = [
         { role: 'system', content: systemInstruction },
