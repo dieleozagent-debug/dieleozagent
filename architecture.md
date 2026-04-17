@@ -37,13 +37,15 @@ El sistema opera en un servidor Ubuntu dedicado, combinando contenedores Docker 
     - **Detección Resiliente:** Búsqueda recursiva insensible a mayúsculas (detecta `.pdf` y `.PDF`).
     - **Capa de Visión Forense:** Integración de `pdftoppm` (renderizado 300dpi) y `Tesseract OCR` (español) para extraer texto de PDFs complejos e imágenes.
     - **Checkpoints:** Sistema de persistencia por archivo (`.checkpoint`) que permite reanudar ingestas interrumpidas sin duplicar datos.
-- **Infraestructura Vectorial:**
-    - **Base de Datos:** Postgres 17 con extensión `pgvector` habilitada manualmente.
-    - **Almacenamiento:** Tabla `contrato_documentos` en la DB `postgres_sicc`.
-    - **Vectores:** 768 dimensiones generadas por `nomic-embed-text` vía Ollama.
-- **Flujo de Consulta (RAG-Match):** El enjambre consulta automáticamente la tabla `contrato_documentos` en la **Fase 2**. 
-    - **Gatillos:** Mensajes > 10 caracteres o mención de palabras clave (`contrato, anexo, multa, obligación, apéndice, AT`).
-    - **Algoritmo:** Búsqueda por similitud de coseno (Top 3 fragmentos) inyectados directamente en el System Prompt.
+- **Infraestructura Vectorial (Long Term Memory - LTM):**
+    - **Base de Datos:** Postgres 17 (Supabase Local) con extensión `pgvector`.
+    - **Almacenamiento:** Tabla `contrato_documentos` (Vectores de 768 dim).
+    - **Motor de Embeddings (Soberanía Dual):**
+        1. **Primario:** Ollama Local (`nomic-embed-text`) para 100% de soberanía.
+        2. **Contingencia:** Google Gemini (`text-embedding-004`) en caso de fallo del host local.
+    - **Flujo de Consulta (RAG-Match):** El enjambre consulta automáticamente la tabla en la **Fase 2**. 
+        - **Gatillos:** Mensajes > 10 caracteres o mención de palabras clave (`contrato, anexo, multa, obligación, apéndice, AT`).
+        - **Algoritmo:** Búsqueda por similitud de coseno (Top 3 fragmentos) inyectados directamente en el System Prompt.
 
 ### 🏛️ Jerarquía de Rutas Soberanas (SSoP)
 

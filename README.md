@@ -66,11 +66,11 @@ SICC opera mediante un **Enjambre de IA** orquestado por la **Cámara de Doble C
 2. **Validación:** Se cruza contra **Supabase** (Contrato Interno) y **NotebookLM** (Verdad Externa).
 3. **Decantación de Karpathy:** El conocimiento se filtra en 5 fases hasta convertirse en una **DT Certificada** o una **Lección Aprendida** en `brain/SPECIALTIES/`.
 
-### 🗄️ Gestión de Datos Soberana
-- **Ingesta (Michelin v7.2):** `node scripts/sicc-ingesta.js` (OCR Tesseract + pgvector).
-- **Almacenamiento:** Tabla `contrato_documentos` en DB `postgres_sicc` (Supabase Local).
-- **Inteligencia:** Embeddings de 768 dimensiones con soporte para reanudación vía checkpoints.
-- **Consulta:** Automática durante el comando `/dream` (Fase 2).
+### 🗄️ Gestión de Datos (Memoria LTM)
+- **Base de Datos (Supabase Local):** Postgres 17 con `pgvector` para almacenamiento de la Biblia Legal.
+- **Ingesta (Michelin v7.2):** `node scripts/sicc-ingesta.js`. Procesa PDFs y genera embeddings de 768 dimensiones.
+- **Memoria de Largo Plazo (LTM):** Cada interacción con el Agente que mencione temas contractuales activa una búsqueda por similitud de coseno para inyectar fragmentos literales del contrato en el prompt.
+- **Resiliencia:** Si Ollama (local) falla al generar embeddings, el sistema escala automáticamente a Gemini Cloud para mantener la visión.
 
 ---
 
