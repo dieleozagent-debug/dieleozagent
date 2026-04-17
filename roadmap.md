@@ -43,5 +43,6 @@
 ## ✅ HITOS COMPLETADOS
 
 - [x] **v12.7: Saneamiento de Rutas (SSoP)** -> Unificación de visión forense y recuperación del Centinela.
+- [x] **v12.7: Purga Lingüística R-HARD-05** -> Eliminación de términos legacy (peones, sueños) en todo el cerebro operativo.
 - [x] **v12.6: Institucionalización Michelin** -> Visión OCR instalada y motor de ingesta masiva activo.
 - [x] **v12.2: Paz Estructural** -> Eliminación de dependencias circulares y centralización en el Multiplexor.
