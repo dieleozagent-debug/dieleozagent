@@ -16,34 +16,30 @@
 
 ---
 
-## 🔄 ESTADO HOY (16-Abr-2026)
+## 🔄 ESTADO HOY (17-Abr-2026)
 
-| Item | Estado |
-|---|---|
-| Contenedor | 🟢 UP — Agente con Blindaje v12.5 (Iterativo) |
-| RAG/Brain | 🟢 Activo — pgvector habilitado y conexión certificada |
-| Visión OCR | 🟢 Activa — Tesseract + Poppler instalados (v5.3.0) |
-| Ingesta | 🟢 ACTIVA — Operación Michelin poblando postgres_sicc |
-| **Health Score** | 🟢 **100/100 Certificado (Post-Armor)** |
+| Item | Estado | Logro Forense |
+|---|---|---|
+| **Sistema Inmune** | 🟢 **ACTIVO** | Fase 1 (Vacunación) integrada en `agent.js` y `swarm-pilot.js`. |
+| **Oráculo MCP** | 🟢 **CERTIFICADO** | Conexión via 3001 (Inspector) y STDIO (Docker Bridge). |
+| **Juez Soberano**| 🟢 **HARDENED** | El feedback del Oráculo se inyecta obligatoriamente en el ADN (Auto-tuning). |
+| **Arquitectura** | 🟢 **SSOT** | v12.7 Documentada con flujo de 5 fases (Pureza N-1). |
 
 ---
 
 ## 🎯 PRÓXIMOS PASOS (Fase v12.8: Certificación Soberana)
 
-### 1. Validación de Densidad (Check-out)
-- Verificar que el contador de fragmentos en `postgres_sicc` supere los 1000.
-- Realizar pruebas de estrés de citación técnica con `/dream`.
+### 1. Migración a SAPI de Red (Puerto 3001)
+- [ ] Transicionar `notebooklm_mcp.js` de `StdioClientTransport` a `SseClientTransport` para mayor estabilidad.
+- [ ] Verificar persistencia de cookies de Google tras reinicio de contenedor.
 
-### 2. Saneamiento de Impurezas (Zero-Residue)
-- Investigar y redondear las 10 inconsistencias matemáticas detectadas en `LFC2`.
-- Purgar términos prohibidos inyectados por error en sesiones anteriores.
+### 2. Validación de Densidad (Check-out)
+- [x] Verificar que la Memoria Genética bloquee alucinaciones conocidas (Certificado).
+- [ ] Realizar pruebas de estrés de citación técnica con `/dream` sobre temas de Energía y Comunicaciones.
 
-### 3. Certificación de Flujo RAG y Auto-tuning
-- [x] Validar que el multiplexor inyecte fragmentos reales en una consulta de Telegram.
-- [x] **Prueba de Vacunación:** Inyectar una lección errónea falsa, ejecutar una consulta y verificar que el Agente la rechace citando la Memoria Genética. (Certificado 17-abr-2026).
-- [x] **Integración de Oráculo:** Conexión vía MCP hacia NotebookLM para validación de normas FRA/AREMA [OK].
-- [x] Verificar la latencia de recuperación vectorial (Meta: < 3s). (Logrado: 1.2s).
-- [x] Certificar el Fallback a Gemini Cloud si Ollama se detiene.
+### 3. Saneamiento de Impurezas (Zero-Residue)
+- [ ] Investigar y redondear las 10 inconsistencias matemáticas detectadas en `LFC2`.
+- [ ] Purgar términos prohibidos inyectados por error en sesiones anteriores.
 
 ---
 

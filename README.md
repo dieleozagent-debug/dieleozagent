@@ -71,7 +71,7 @@ SICC opera mediante un **Enjambre de IA** orquestado por la **Cámara de Doble C
 - **Ingesta (Michelin v7.2):** `node scripts/sicc-ingesta.js`. Procesa PDFs y genera embeddings [OPERATIVO].
 - **Auto-tuning (Memoria Genética):** `node scripts/sicc-seed-memory.js`. Sistema Inmune de 53 lecciones inyectadas [CERTIFICADO].
 - **Memoria de Largo Plazo (LTM):** Recuperación vectorial de la Biblia Legal integrada en el flujo soberano [ACTIVO].
-- **Oráculo Externo (NotebookLM MCP):** Puente vía `src/sapi/notebooklm_mcp.js` hacia el contenedor `notebooklm-mcp-v12` para validación de normas internacionales (FRA/AREMA) [INTEGRADO].
+- **Oráculo Externo (NotebookLM MCP):** Puente hacia el contenedor `notebooklm-mcp-v12` para validación de normas (FRA/AREMA). Soporta **Inspección Visual (Puerto 3001)** vía MCP Inspector [CERTIFICADO].
 - **Resiliencia:** Si Ollama (local) falla al generar embeddings, el sistema escala automáticamente a Gemini Cloud para mantener la visión.
 
 ---

@@ -11,6 +11,7 @@ const { llamarMultiplexadorFree } = require('./sicc-multiplexer');
 const { inicializarBrain } = require('../src/agent');
 const { validarExternaNotebook } = require('../src/sapi/notebooklm_mcp');
 const { validarInternaSupabase } = require('../src/sapi/supabase_rag');
+const { buscarLecciones } = require('../src/supabase');
 const { checkYEncolar, getCpuLoad } = require('./resource-governor');
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -59,9 +60,19 @@ async function runSwarmPilot() {
         ciclosRealizados++;
         console.log(`\n🔄 [CICLO DE DECANTACIÓN ${ciclosRealizados}/${MAX_CICLOS}]`);
         
+        // ── FASE 1: VACUNACIÓN (SICC Immune System) ──────────────────────────
+        console.log(`🧬 [Fase 1] Consultando Memoria Genética (Auto-tuning)...`);
+        const lecciones = await buscarLecciones(arg, 3);
+        let contextoGenetico = "";
+        if (lecciones.length > 0) {
+            console.log(`✅ [SICC OK] Inyectando ${lecciones.length} vacunas preventivas.`);
+            contextoGenetico = `### LECCIONES APRENDIDAS (SISTEMA INMUNE):\n` + 
+                lecciones.map(l => `- ${l.content}`).join('\n') + '\n\n';
+        }
+
         const promptFase1 = ciclosRealizados === 1 
-            ? `### TAREA DE INVESTIGACIÓN (DECANTACIÓN INICIAL)\nGenera una Decisión Técnica (DT) radical sobre el área de ${arg} para el tren LFC2. REGLA DE ORO: No saludes, no analices la tarea, no pidas información. EJECUTA EL DICTAMEN TÉCNICO CITANDO EL CONTRATO.`
-            : `### REFINAMIENTO POR FALLO PREVIO (PURA DE GRASA)\nTu propuesta anterior fue RECHAZADA por el Juez. \nMOTIVO DEL RECHAZO: ${ultimaLeccion}\n\nTAREA: Genera una NUEVA versión de la DT para ${arg} que sea 100% contractual, sin lenguaje de IA y que resuelva el fallo anterior.`;
+            ? `### TAREA DE INVESTIGACIÓN (DECANTACIÓN INICIAL)\n${contextoGenetico}Genera una Decisión Técnica (DT) radical sobre el área de ${arg} para el tren LFC2...`
+            : `### REFINAMIENTO POR FALLO PREVIO (PURA DE GRASA)\n${contextoGenetico}Tu propuesta anterior fue RECHAZADA por el Juez...`;
 
         const agent1 = {
             name: "AUDITOR FORENSE SOBERANO",
@@ -104,12 +115,17 @@ ${validInterna}
 PERSPECTIVA EXTERNA (NotebookLM):
 ${validExterna}
 
+TAREA: 
+1. Si hay contradicción con los Estándares de Oro, R-HARD o el Oráculo Externo, responde iniciando con "BLOCKER: [Motivo]".
+2. IMPORTANTE: Si el Oráculo Externo (NotebookLM) proporciona feedback correctivo, inclúyelo OBLIGATORIAMENTE en la "leccion_karpathy" para que el enjambre se autocorrija en el siguiente ciclo.
+3. Si no hay fallos y el Oráculo valida la propuesta, genera la Decisión Técnica Certificada (N-1).
+
 Responde ÚNICAMENTE en JSON:
 {
   "aprobado": boolean,
   "razon": "Justificación técnica/contractual",
   "categoria_fallida": "COMMUNICATIONS | SIGNALIZATION | POWER | INTEGRATION | ENCE | Ninguna",
-  "leccion_karpathy": "Lección estricta para el Brain si falló."
+  "leccion_karpathy": "Lección estricta para el Brain si falló (DEBE incluir correcciones del Oráculo si las hubo)."
 }`;
 
             let decisionRAW = await llamarMultiplexadorFree("Despierta al enjambre y evalúa el sueño.", "", promptJuez);
