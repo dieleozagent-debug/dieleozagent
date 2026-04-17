@@ -23,7 +23,7 @@
 | Contenedor | 🟢 UP — Agente con Blindaje v12.5 (Iterativo) |
 | RAG/Brain | 🟢 Activo — pgvector habilitado y conexión certificada |
 | Visión OCR | 🟢 Activa — Tesseract + Poppler instalados (v5.3.0) |
-| Ingesta | 🟠 EN PROCESO — Operación Michelin ejecutándose en 2do plano |
+| Ingesta | 🟢 ACTIVA — Operación Michelin poblando postgres_sicc |
 | **Health Score** | 🟢 **100/100 Certificado (Post-Armor)** |
 
 ---

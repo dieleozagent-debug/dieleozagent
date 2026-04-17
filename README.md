@@ -55,8 +55,9 @@ SICC opera mediante un **Enjambre de IA** orquestado por la **Cámara de Doble C
 3. **Decantación de Karpathy:** El conocimiento se filtra en 5 fases hasta convertirse en una **DT Certificada** o una **Lección Aprendida** en `brain/SPECIALTIES/`.
 
 ### 🗄️ Gestión de Datos Soberana
-- **Ingesta:** `node scripts/sicc-ingesta.js --path /ruta/pdfs` (OCR Michelin + pgvector).
+- **Ingesta (Michelin v7.2):** `node scripts/sicc-ingesta.js` (OCR Tesseract + pgvector).
 - **Almacenamiento:** Tabla `contrato_documentos` en DB `postgres_sicc` (Supabase Local).
+- **Inteligencia:** Embeddings de 768 dimensiones con soporte para reanudación vía checkpoints.
 - **Consulta:** Automática durante el comando `/dream` (Fase 2).
 
 ---

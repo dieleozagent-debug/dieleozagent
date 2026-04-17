@@ -22,7 +22,7 @@ function getAllPdfs(dir, files = []) {
         const fullPath = path.join(dir, file);
         if (fs.statSync(fullPath).isDirectory()) {
             getAllPdfs(fullPath, files);
-        } else if (file.toLowerCase().endsWith('.pdf')) {
+        } else if (file.match(/\.pdf$/i)) {
             files.push(fullPath);
         }
     }
