@@ -141,9 +141,18 @@ Responde ÚNICAMENTE en JSON:
                 console.log(`\n--- DT FINAL ---\n${borrador_DT}\n----------------`);
             } else {
                 ultimaLeccion = decision.leccion_karpathy || decision.razon || "Alucinación de proceso detectada.";
-                const targetSp = (decision.categoria_fallida && decision.categoria_fallida !== "Ninguna") 
-                    ? decision.categoria_fallida 
-                    : (arg.toUpperCase().includes('SEÑAL') ? 'SIGNALIZATION' : 'SIGNALIZATION');
+                const VALID_SPECIALTIES = ['COMMUNICATIONS', 'SIGNALIZATION', 'POWER', 'INTEGRATION', 'ENCE', 'CONTROL_CENTER'];
+                const SPECIALTY_MAP = {
+                    'comunicaci': 'COMMUNICATIONS', 'telecom': 'COMMUNICATIONS', 'señaliz': 'SIGNALIZATION',
+                    'señal': 'SIGNALIZATION', 'power': 'POWER', 'potencia': 'POWER', 'integr': 'INTEGRATION',
+                    'ence': 'ENCE', 'control': 'CONTROL_CENTER', 'centro': 'CONTROL_CENTER',
+                };
+                const rawCat = (decision.categoria_fallida || '').trim().toUpperCase();
+                let targetSp = VALID_SPECIALTIES.includes(rawCat) ? rawCat : null;
+                if (!targetSp) {
+                    const lower = (decision.categoria_fallida || '').toLowerCase();
+                    targetSp = Object.entries(SPECIALTY_MAP).find(([k]) => lower.includes(k))?.[1] || 'COMMUNICATIONS';
+                }
                 
                 await updateKarpathySpecialty(targetSp, ultimaLeccion);
                 console.log(`🛡️ ALUCINACIÓN DETECTADA. Re-inyectando lección y reiniciando decantación...`);
