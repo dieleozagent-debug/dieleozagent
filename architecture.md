@@ -79,13 +79,18 @@ Toda decisión técnica debe respetar:
 
 ## 🌪️ El Bucle de Decantación (Karpathy Loop)
 
-El proceso de **Decantación SICC** no es lineal, es un ciclo de refinamiento iterativo gestionado por el multiplexor:
+El sistema opera mediante un ciclo de refinamiento iterativo de 5 fases, donde la **Memoria Genética** actúa como el sistema inmune del Agente:
 
-1.  **Fase 1: Hipótesis (Drafting):** El enjambre produce una propuesta inicial basada en la necesidad operativa (ej: "Modificar bus vital").
-2.  **Fase 2: RAG-Match (Soberanía Interna):** Cruce obligatorio contra `postgres_sicc` (Biblia Legal).
-3.  **Fase 3: Oracle-Check (Verdad Externa):** Validación vía NotebookLM (Normativa FRA/AREMA).
-4.  **Fase 4: Juicio R-HARD:** Auditoría deductiva (N-1) contra límites de CAPEX, plazos y exclusiones técnicas.
-5.  **Fase 5: Decantación e Integración:** Si hay fallo, se genera una **Lección Aprendida** que se inyecta en el ciclo (Max 3 veces) y se guarda en `SPECIALTIES/`.
+1.  **Fase 1: Hipótesis (Drafting) + Vacunación:** 
+    - El Multiplexor consulta `sicc_genetic_memory` buscando errores pasados similares a la consulta actual.
+    - Se inyectan las **Lecciones Aprendidas** como restricciones duras en el prompt inicial para evitar reincidencias.
+2.  **Fase 2: RAG-Match (Soberanía Interna):** Cruce obligatorio contra la Biblia Legal en `postgres_sicc`. Se extraen los 3 fragmentos contractuales más relevantes.
+3.  **Fase 3: Oracle-Check (Verdad Externa):** Validación vía NotebookLM para asegurar cumplimiento con normativas globales (FRA/AREMA).
+4.  **Fase 4: Juicio R-HARD (Deducción N-1):** El Juez audita el output contra límites de CAPEX ($726M) y plazos contractuales. Aplica la técnica de "Grasa Zero" (elimina lo innecesario).
+5.  **Fase 5: Decantación e Ingesta (Auto-tuning):** 
+    - Si hay fallo en las fases anteriores, se genera una **Lección Aprendida**.
+    - La lección se vectoriza en `sicc_genetic_memory` y se guarda físicamente en `brain/SPECIALTIES/`.
+    - El ciclo se reinicia (Max 3 veces) con el nuevo conocimiento inyectado.
 
 ## 🐝 El Enjambre SICC (Swarm Intelligence)
 
@@ -95,9 +100,6 @@ El enjambre no es una simple lista de proveedores, sino un sistema de **validaci
 2.  **Auditores Forenses (Cloud):** Gemini y Groq actúan como auditores de segundo nivel, verificando la lógica legal y contractual sin acceso directo a los archivos sensibles del host.
 3.  **Juez Soberano:** Un modelo de alta capacidad (ej. Gemini 1.5 Pro) que toma las versiones de los peones y auditores, las compara y emite un veredicto final.
 4.  **Escalada de Razonamiento (Thinking Fallback):** En caso de bloqueo técnico o ambigüedad extrema, el sistema escala automáticamente a un modelo de razonamiento profundo (`gemini-2.0-flash-thinking`) para intentar una resolución lógica antes de activar el Muro de Fuego.
-
----
-
 
 ---
 
