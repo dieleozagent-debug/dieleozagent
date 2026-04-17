@@ -37,7 +37,13 @@
 - [x] Verificar que la Memoria Genética bloquee alucinaciones conocidas (Certificado).
 - [ ] Realizar pruebas de estrés de citación técnica con `/dream` sobre temas de Energía y Comunicaciones.
 
-### 3. Saneamiento de Impurezas (Zero-Residue)
+### 3. Optimización del Oráculo (MCP v12.8)
+- [ ] **Prueba de Latencia SSE:** Validar si el transporte por puerto 3001 reduce el tiempo de respuesta vs `docker exec`.
+- [ ] **Test de Interrogación Iterativa:** Obligar al Juez a realizar al menos 2 preguntas de seguimiento al Oráculo para profundizar en la base legal.
+- [ ] **Sincronización de Sesiones:** Probar la recuperación automática de la sesión de Google tras un reinicio del host Ubuntu.
+- [ ] **Mapeo Dinámico de Especialidades:** Vincular cada archivo de `brain/SPECIALTIES/` con un `notebook_id` específico de NotebookLM.
+
+### 4. Saneamiento de Impurezas (Zero-Residue)
 - [ ] Investigar y redondear las 10 inconsistencias matemáticas detectadas en `LFC2`.
 - [ ] Purgar términos prohibidos inyectados por error en sesiones anteriores.
 
