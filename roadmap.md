@@ -38,8 +38,9 @@
 - Investigar y redondear las 10 inconsistencias matemáticas detectadas en `LFC2`.
 - Purgar términos prohibidos inyectados por error en sesiones anteriores.
 
-### 3. Certificación de Flujo RAG (Supabase ↔️ Agente)
+### 3. Certificación de Flujo RAG y Auto-tuning
 - [ ] Validar que el multiplexor inyecte fragmentos reales en una consulta de Telegram.
+- [ ] **Prueba de Vacunación:** Inyectar una lección errónea falsa, ejecutar una consulta y verificar que el Agente la rechace citando la Memoria Genética.
 - [ ] Verificar la latencia de recuperación vectorial (Meta: < 3s).
 - [ ] Certificar el Fallback a Gemini Cloud si Ollama se detiene.
 

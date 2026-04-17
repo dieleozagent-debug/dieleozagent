@@ -39,7 +39,9 @@ El sistema opera en un servidor Ubuntu dedicado, combinando contenedores Docker 
     - **Checkpoints:** Sistema de persistencia por archivo (`.checkpoint`) que permite reanudar ingestas interrumpidas sin duplicar datos.
 - **Infraestructura Vectorial (Long Term Memory - LTM):**
     - **Base de Datos:** Postgres 17 (Supabase Local) con extensión `pgvector`.
-    - **Almacenamiento:** Tabla `contrato_documentos` (Vectores de 768 dim).
+    - **Almacenamiento:** 
+        1. `contrato_documentos`: Biblia Legal (Contexto).
+        2. `sicc_genetic_memory`: Lecciones Aprendidas (Auto-tuning/Sistema Inmune).
     - **Motor de Embeddings (Soberanía Dual):**
         1. **Primario:** Ollama Local (`nomic-embed-text`) para 100% de soberanía.
         2. **Contingencia:** Google Gemini (`text-embedding-004`) en caso de fallo del host local.

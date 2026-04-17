@@ -68,7 +68,8 @@ SICC opera mediante un **Enjambre de IA** orquestado por la **Cámara de Doble C
 
 ### 🗄️ Gestión de Datos (Memoria LTM)
 - **Base de Datos (Supabase Local):** Postgres 17 con `pgvector` para almacenamiento de la Biblia Legal.
-- **Ingesta (Michelin v7.2):** `node scripts/sicc-ingesta.js`. Procesa PDFs y genera embeddings de 768 dimensiones.
+- **Ingesta (Michelin v7.2):** `node scripts/sicc-ingesta.js`. Procesa PDFs y genera embeddings.
+- **Auto-tuning (Memoria Genética):** `node scripts/sicc-seed-memory.js`. Inyecta "vacunas" contra errores recurrentes y alucinaciones técnicas.
 - **Memoria de Largo Plazo (LTM):** Cada interacción con el Agente que mencione temas contractuales activa una búsqueda por similitud de coseno para inyectar fragmentos literales del contrato en el prompt.
 - **Resiliencia:** Si Ollama (local) falla al generar embeddings, el sistema escala automáticamente a Gemini Cloud para mantener la visión.
 
