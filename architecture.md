@@ -45,17 +45,18 @@ El sistema opera en un servidor Ubuntu dedicado, combinando contenedores Docker 
 
 ### 🏛️ Jerarquía de Rutas Soberanas (SSoP)
 
-Para evitar la desorientación de los agentes (blindness), el sistema impone una estructura de rutas absolutas sincronizadas entre el Host y el Contenedor:
+Para garantizar la resiliencia y evitar la "ceguera" agéntica (blindness), el sistema impone una estructura de rutas absolutas sincronizadas. El uso de rutas relativas fuera del núcleo `src/` está prohibido para asegurar que los crons y contenedores siempre localicen la "Verdad".
 
-| Directorio | Ruta en Contenedor | Función |
+| Directorio | Ruta en Contenedor | Racional Forense (El "Por Qué") |
 | :--- | :--- | :--- |
-| **Raíz Agente** | `/home/administrador/docker/agente` | Repositorio de código y lógica. |
-| **Cerebro (Brain)**| `/home/administrador/docker/agente/brain` | SSOT Contractual (MDs, R-HARD, Specialties). |
-| **LFC2 (Docs)** | `/home/administrador/docker/LFC2` | Repositorio de documentación técnica externa. |
-| **Biblia Legal** | `/home/administrador/docker/agente/Contrato pdf` | Fuente primaria de PDFs para la ingesta Michelin. |
-| **Logs** | `/home/administrador/docker/agente/data/logs` | Telemetría, Heartbeats y Traces JSON. |
+| **Raíz Agente** | `/home/administrador/docker/agente` | Nodo de ejecución central. Garantiza que los binarios y dependencias (node_modules) sean consistentes. |
+| **Cerebro (Brain)**| `/home/administrador/docker/agente/brain` | **SSOT Contractual.** Aquí reside el R-HARD. Es la fuente de la Fase 4 (Juicio) para evitar alucinaciones. |
+| **LFC2 (Docs)** | `/home/administrador/docker/LFC2` | Repositorio de ingeniería externa. Se usa para auditorías de consistencia (Cross-Ref) contra planos y técnicos. |
+| **Biblia Legal** | `/home/administrador/docker/agente/Contrato pdf` | Fuente primaria OCR. Es la entrada de la Michelin para la Fase 2 (RAG). Debe estar aislada del código. |
+| **Logs / Traces** | `/home/administrador/docker/agente/data/logs` | Telemetría. Permite la reconstrucción forense de cada decisión en caso de fallo técnico o legal. |
 
-**Regla de Oro:** Todo script DEBE usar `config.paths` de `src/config.js`. Está terminantemente prohibido el uso de rutas relativas fuera de `src/`.
+**Regla de Oro de Direccionamiento:**
+Todos los servicios deben heredar sus rutas de `src/config.js`. Si un script necesita acceder al cerebro, debe usar `config.paths.brain` para asegurar que, si el sistema se despliega en otro nodo, solo sea necesario cambiar una variable de entorno (`BRAIN_ROOT`) para que todo el enjambre recupere la vista.
 
 ---
 
