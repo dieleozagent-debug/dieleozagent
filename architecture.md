@@ -111,3 +111,26 @@ Para garantizar que ninguna alucinación técnica toque el SSOT (Single Source o
 
 - **SICC Traces:** Cada ciclo de decantación se registra en `data/logs/sicc-traces.json` con un hash de integridad.
 - **EstadoGlobalErrores:** Monitorea en tiempo real la salud de los proveedores (4xx) para garantizar que el enjambre nunca quede "ciego" por falta de cuota.
+
+---
+
+## 🧩 El Cerebro Multiplexado (sicc-multiplexer.js)
+
+El Multiplexor es el centro de despacho lógico del Agente. Su función es garantizar que cada consulta sea procesada por el modelo más eficiente y con el contexto técnico correcto.
+
+### 1. Flujo de Ruteo Especializado
+1.  **Detección de Especialidad:** Analiza palabras clave (ej: "fibra", "SIL-4", "UPS") para identificar la especialidad (**SIGNALIZATION, POWER, COMMUNICATIONS**, etc.).
+2.  **Inyección de Mini-Cerbero:** Carga el archivo correspondiente de `brain/SPECIALTIES/`. Este archivo contiene reglas específicas que el Agente debe obedecer.
+3.  **Jerarquía de Proveedores (Handoff):**
+    - **Nivel 1 (Flash):** Intenta Gemini 2.0 o Groq para velocidad.
+    - **Nivel 2 (Local):** Si no hay internet o falla la cuota, conmuta a **Ollama (Host)**.
+    - **Nivel 3 (Razonamiento):** Ante ambigüedad, activa la **Escalada de Razonamiento** (`flash-thinking`).
+    - **Nivel 4 (Bloqueo):** Si todo falla, activa el **Muro de Fuego** y solicita firma manual.
+
+### 2. Iteraciones y Aprendizaje (Karpathy Loop)
+- **Número de Iteraciones:** Máximo **3 ciclos** de re-intento por consulta compleja.
+- **Validación Local (Ollama):** Los "Peones" locales revisan el output del modelo Cloud buscando alucinaciones de CAPEX o normativa.
+- **Mecanismo de Aprendizaje:** 
+    - Si una respuesta falla la validación, el error se captura y se genera una **"Lección Aprendida"**.
+    - Esta lección se inyecta en el prompt de la siguiente iteración y se guarda en `brain/SPECIALTIES/`.
+    - **Resultado:** El sistema nunca comete el mismo error de diseño dos veces.
