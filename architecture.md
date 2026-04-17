@@ -61,7 +61,7 @@ El sistema opera mediante un ciclo de refinamiento iterativo de 5 fases, donde l
 |:---|:---|:---|:---|:---|
 | **1. Vacunación** | `src/supabase.js` | Consulta `sicc_genetic_memory` por similitud. | Bloquea errores recurrentes y alucinaciones. | Vacunas (Prompt Constraints). |
 | **2. RAG Match** | `src/sapi/supabase_rag.js` | Extrae fragmentos de la "Biblia Legal". | Ancla cada palabra al contrato LFC2. | Contexto Contractual literal. |
-| **3. Oracle Check**| `src/sapi/notebooklm_mcp.js` | Puente `docker exec` al contenedor MCP. | Valida contra normas FRA/AREMA/UIC. | Feedback de Verdad Externa. |
+| **3. Oracle Check**| `src/sapi/notebooklm_mcp.js` | Puente al contenedor MCP. (Ver [architectureMCP.md](file:///home/administrador/docker/notebook-mcp/architectureMCP.md)). | Valida contra normas FRA/AREMA/UIC. | Feedback de Verdad Externa. |
 | **4. Juicio** | `scripts/swarm-pilot.js` | Juez AI evalúa Fases 1, 2 y 3. | Filtro final de "Grasa Zero" y CAPEX. | JSON (aprobado: true/false). |
 | **5. Auto-tuning** | `brain/SPECIALTIES/*.md` | Registra el fallo como una lección. | Actualiza el "ADN" para el siguiente ciclo. | Lección Karpathy (ADN Update). |
 
