@@ -7,8 +7,8 @@
 
 ---
 
-## 🚀 Estado Actual: v12.7 "Institucionalización Forense"
-- **Estado:** 🟢 Operativo (**Soberanía de Rutas Certificada**).
+## 🚀 Estado Actual: v12.8 "Oráculo en Red"
+- **Estado:** 🟢 Operativo (**Conexión SAPI al Oráculo en Pto 3001**).
 - **CPU:** Gobernanza R-HARD activa (Umbral 80%, Throttling 2s).
 - **Ingesta:** 🟠 Michelin v7.2 Activa (Biblia Legal inyectándose).
 - **Memoria:** LTM Supabase Vectorial integrada con pgvector.

@@ -30,15 +30,15 @@
 ## 🎯 PRÓXIMOS PASOS (Fase v12.8: Certificación Soberana)
 
 ### 1. Migración a SAPI de Red (Puerto 3001)
-- [ ] Transicionar `notebooklm_mcp.js` de `StdioClientTransport` a `SseClientTransport` para mayor estabilidad.
-- [ ] Verificar persistencia de cookies de Google tras reinicio de contenedor.
+- [x] Transicionar `notebooklm_mcp.js` de `StdioClientTransport` a `SseClientTransport` para mayor estabilidad.
+- [x] Verificar persistencia de cookies de Google tras reinicio de contenedor.
 
 ### 2. Validación de Densidad (Check-out)
 - [x] Verificar que la Memoria Genética bloquee alucinaciones conocidas (Certificado).
 - [ ] Realizar pruebas de estrés de citación técnica con `/dream` sobre temas de Energía y Comunicaciones.
 
 ### 3. Optimización del Oráculo (MCP v12.8)
-- [ ] **Prueba de Latencia SSE:** Validar si el transporte por puerto 3001 reduce el tiempo de respuesta vs `docker exec`.
+- [x] **Prueba de Latencia SSE:** Validar si el transporte por puerto 3001 reduce el tiempo de respuesta vs `docker exec`.
 - [ ] **Test de Interrogación Iterativa:** Obligar al Juez a realizar al menos 2 preguntas de seguimiento al Oráculo para profundizar en la base legal.
 - [ ] **Sincronización de Sesiones:** Probar la recuperación automática de la sesión de Google tras un reinicio del host Ubuntu.
 - [ ] **Mapeo Dinámico de Especialidades:** Vincular cada archivo de `brain/SPECIALTIES/` con un `notebook_id` específico de NotebookLM.
