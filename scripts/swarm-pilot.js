@@ -156,15 +156,18 @@ Responde ÚNICAMENTE en JSON:
         } catch (error) {
             console.error("⚠️ Error en ciclo:", error.message);
             ultimaLeccion = error.message;
-    }
+        }
+    } // fin while
+
     if (!aprobado) {
         console.log(`\n🛑 [SICC BLOCKER] El enjambre no logró decantar una DT pura tras ${MAX_CICLOS} ciclos.`);
         console.log(`Gobernanza activa: El tema ha sido bloqueado por impureza persistente.`);
     }
-    }
 
     console.log(`\n--------------------------------------------------`);
-    console.log(`⚖️ FIN DEL SUEÑO - GOBERNANZA ACTIVA`);
+    console.log(`⚖️ VEREDICTO FINAL AL DESPERTAR:`);
+    console.log(aprobado ? `✅ SUEÑO CERTIFICADO\n\n${borrador_DT}` : `❌ SUEÑO RECHAZADO\nBloqueado por impureza persistente. Última lección: ${ultimaLeccion}`);
+    console.log(`--------------------------------------------------`);
 }
 
 runSwarmPilot();

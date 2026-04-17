@@ -1,17 +1,18 @@
-# 🤖 OpenGravity SICC — Agente Soberano v12.7
+# 🤖 OpenGravity SICC — Agente Soberano v12.9
 
-> **⚡ INICIO RÁPIDO:** Lee roadmap.md primero para saber el estado exacto del proyecto.
+> **⚡ INICIO RÁPIDO:** Lee `roadmap.md` para el estado exacto del proyecto.
 
 **OpenGravity SICC** es un bot de Telegram + motor RAG para auditoría forense del
-**Contrato APP No. 001/2025** (Línea Ferroviaria de Carga — LFC, Colombia).
+**Contrato APP No. 001/2025** (Línea Ferroviaria de Carga — LFC2, Colombia).
 
 ---
 
-## 🚀 Estado Actual: v12.8 "Oráculo en Red"
-- **Estado:** 🟢 Operativo (**Conexión SAPI al Oráculo en Pto 3001**).
+## 🚀 Estado Actual: v12.9 "Oráculo Certificado"
+
+- **Estado:** 🟢 Operativo — Ciclo `/dream` end-to-end validado con Oracle respondiendo datos reales del contrato.
+- **Oracle:** 🟢 `notebooklm-mcp-v12` — 108 fuentes "Contrato Ardanuy LFC" activas.
 - **CPU:** Gobernanza R-HARD activa (Umbral 80%, Throttling 2s).
-- **Ingesta:** 🟠 Michelin v7.2 Activa (Biblia Legal inyectándose).
-- **Memoria:** LTM Supabase Vectorial integrada con pgvector.
+- **Memoria:** LTM Supabase Vectorial integrada con pgvector + Ollama embeddings.
 
 ---
 
@@ -24,27 +25,31 @@
 | **Contrato (PDFs)**| `/home/administrador/docker/agente/Contrato pdf` |
 | **Base Legal** | `/home/administrador/docker/LFC2` |
 | **Logs / Traces** | `/home/administrador/docker/agente/data/logs` |
+| **Oracle MCP** | `/home/administrador/docker/notebook-mcp` |
 
 ---
 
 ## 🚀 Cómo arrancar / verificar
 
 ```bash
-# Ver estado del contenedor
 cd /home/administrador/docker/agente
 docker compose ps
 
-# Ver logs en vivo
+# Logs en vivo
 docker compose logs -f --tail=30
+
+# Verificar Oracle
+curl http://localhost:3001/health
 ```
 
 ---
 
-## 📡 Proveedores IA (en orden de prioridad)
+## 📡 Proveedores IA (orden de prioridad)
 
 1. **Gemini** (Google) — primario
-2. **Groq** — fallback gratuito
-3. **Ollama** (local) — fallback offline (Nativo en Host via 0.0.0.0)
+2. **Groq** — fallback gratuito (70B)
+3. **OpenRouter** — híbrido cloud
+4. **Ollama** (local) — fallback offline, nativo en host via 0.0.0.0:11434
 
 ---
 
@@ -52,37 +57,62 @@ docker compose logs -f --tail=30
 
 | Comando | Función |
 |---|---|
-| /dream [tema] | **Karpathy Auto-Dream**: Genera hipótesis técnicas, las valida en doble ciego y decanta lecciones en el Brain. |
-| /doctor | **Health Report**: Diagnóstico de pureza técnica, CPU y telemetría de errores 4xx. |
-| /learn | **Auto-Aprendizaje**: Mapeo recursivo de LFC2 y reflexión sobre el SSOT. |
-| /cerebro | **Integridad**: Verifica ADN SICC (IDENTITY, SOUL, R-HARD). |
+| `/dream [tema]` | **Karpathy Auto-Dream**: Ciclo 5 fases — Vacunación → RAG → Oracle → Juicio → Auto-tuning |
+| `/swarm [pregunta]` | **Enjambre Secuencial**: Auditor + Estratega SICC (~10 min) |
+| `/doctor` | **Health Report**: Diagnóstico de pureza técnica, CPU, telemetría 4xx |
+| `/learn` | **Auto-Aprendizaje**: Mapeo recursivo LFC2 y reflexión sobre SSOT |
+| `/cerebro` | **Integridad ADN**: Verifica IDENTITY, SOUL, R-HARD |
+| `/ingesta [ruta]` | **Pipeline OCR**: Ingesta masiva de PDFs al vector DB |
+| `/cmd [comando]` | **Shell**: Ejecuta comandos en el contenedor |
 
 ---
 
-## 🐝 El Enjambre y la Decantación (v12.3)
+## 🌪️ El Ciclo `/dream` — 5 Fases de Decantación (v12.9)
 
-SICC opera mediante un **Enjambre de IA** orquestado por la **Cámara de Doble Ciego**:
-1. **Generación:** El enjambre propone una hipótesis técnica.
-2. **Validación:** Se cruza contra **Supabase** (Contrato Interno) y **NotebookLM** (Verdad Externa).
-3. **Decantación de Karpathy:** El conocimiento se filtra en 5 fases hasta convertirse en una **DT Certificada** o una **Lección Aprendida** en `brain/SPECIALTIES/`.
+```
+/dream [tema]
+    │
+    ├─ Fase 1: VACUNACIÓN
+    │   └─ Consulta sicc_genetic_memory → inyecta vacunas anti-alucinación
+    │
+    ├─ Fase 2: RAG MATCH
+    │   └─ buscarSimilares() en contrato_documentos → Borrador DT
+    │
+    ├─ Fase 3: ORACLE CHECK
+    │   └─ validarExternaNotebook() → notebooklm-mcp-v12:3001/sse
+    │       └─ Patchright + Google Chrome → NotebookLM (108 fuentes LFC2)
+    │
+    ├─ Fase 4: JUICIO (Swarm Pilot)
+    │   └─ Juez AI cruza Borrador + Feedback Oracle → VEREDICTO
+    │
+    └─ Fase 5: AUTO-TUNING
+        └─ Si RECHAZADO → lección en brain/SPECIALTIES/*.md
+```
 
-### 🗄️ Gestión de Datos (Memoria LTM)
-- **Base de Datos (Supabase Local):** Postgres 17 con `pgvector` [OPERATIVO].
-- **Ingesta (Michelin v7.2):** `node scripts/sicc-ingesta.js`. Procesa PDFs y genera embeddings [OPERATIVO].
-- **Auto-tuning (Memoria Genética):** `node scripts/sicc-seed-memory.js`. Sistema Inmune de 53 lecciones inyectadas [CERTIFICADO].
-- **Memoria de Largo Plazo (LTM):** Recuperación vectorial de la Biblia Legal integrada en el flujo soberano [ACTIVO].
-- **Oráculo Externo (NotebookLM MCP):** Puente hacia el contenedor `notebooklm-mcp-v12` para validación de normas (FRA/AREMA). Soporta **Inspección Visual (Puerto 3001)** vía MCP Inspector [CERTIFICADO].
-- **Resiliencia:** Si Ollama (local) falla al generar embeddings, el sistema escala automáticamente a Gemini Cloud para mantener la visión.
+**Hard-cap:** 3 ciclos máx, 11 min por `/dream` (timeout exec).
+
+---
+
+## 🗄️ Infraestructura
+
+| Servicio | Contenedor | Puerto | Estado |
+|---|---|---|---|
+| Agente Core | `dieleozagent-debug-dieleozagent-1` | 3000 | 🟢 |
+| Oracle NotebookLM | `notebooklm-mcp-v12` | 3001 (SSE) | 🟢 |
+| Postgres + pgvector | `sicc-postgres` | 5432 | 🟢 |
+| Ollama (embeddings) | Nativo en host | 11434 | 🟢 |
 
 ---
 
 ## 🧠 Cerebro (brain/)
 
-```bash
+```
 brain/
-├── IDENTITY.md       ← ADN del agente v6. Mandatos soberanos.
-├── SOUL.md           ← Ética operacional. Eficiencia + silencio.
-├── R-HARD.md         ← 7 restricciones duras del contrato y hardware.
-├── AUDIT_QUEUE.md    ← Cola de auditoría diferida por carga de CPU.
-└── SPECIALTIES/      ← Mini-Cerberos por especialidad técnica.
+├── IDENTITY.md       ← ADN del agente v6
+├── SOUL.md           ← Ética operacional
+├── R-HARD.md         ← 7 restricciones duras (CAPEX $726MM, fechas 2025-2026)
+├── SICC_METHODOLOGY.md ← Protocolo N-1 deductivo
+├── SPECIALTIES/      ← 6 mini-expertos (Señalización, Comms, Energía...)
+├── dictamenes/       ← Decisiones Técnicas aprobadas (inmutables)
+└── sources/          ← Base legal (49 CFR, AREMA, Manual Vial 2024)
 ```

@@ -293,12 +293,23 @@ function ordenProveedores() {
   return res;
 }
 
+// Prefijo de idioma inyectado en TODOS los system prompts del multiplexer.
+// Garantiza respuestas en español independientemente del modelo (Ollama, OpenRouter, etc.)
+const IDIOMA_SICC = '\n\nREGLA ABSOLUTA DE IDIOMA: Debes pensar, razonar y responder SIEMPRE en español. Nunca respondas en inglés. Si el contexto está en inglés, traduce tu respuesta al español.\n\n';
+
+function inyectarIdioma(sp) {
+  if (!sp) return IDIOMA_SICC;
+  return sp + IDIOMA_SICC;
+}
+
 async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt = null) {
+  const sp = inyectarIdioma(systemPrompt);
+
   const proveedoresFree = [
     { id: 'gemini',     fn: llamarGemini },
     { id: 'groq',       fn: llamarGroq },
     { id: 'ollama',     fn: llamarOllama },
-    { id: 'openrouter', fn: async (q, a, ctx, hist, sp) => llamarOpenRouter(q, a, ctx, sp, 'openrouter/free') }
+    { id: 'openrouter', fn: async (q, a, ctx, hist, s) => llamarOpenRouter(q, a, ctx, s, 'openrouter/free') }
   ];
 
   let lastErr = null;
@@ -308,8 +319,7 @@ async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt 
 
     try {
       console.log(`[GATEWAY-AHORRO] 💸 Intentando vía gratuita: ${p.id.toUpperCase()}...`);
-      const respuesta = await p.fn(pregunta, null, contextoRAG, null, systemPrompt);
-      
+      const respuesta = await p.fn(pregunta, null, contextoRAG, null, sp);
       if (respuesta && !respuesta.toLowerCase().includes('error') && respuesta.length > 5) {
         registrarTrazaSICC(pregunta, p.id, contextoRAG);
         return { texto: respuesta, proveedor: p.id };
@@ -322,22 +332,42 @@ async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt 
     }
   }
 
-  console.warn('[GATEWAY-AHORRO] 🧠 Activando Razonamiento de Emergencia (Thinking Model)...');
-  try {
-    const resThinking = await llamarOpenRouter(pregunta, null, contextoRAG, systemPrompt, 'google/gemini-2.0-flash-thinking-exp:free');
-    if (resThinking && resThinking.length > 20) {
-      registrarTrazaSICC(pregunta, 'openrouter-thinking', contextoRAG);
-      return { texto: resThinking, proveedor: 'openrouter-thinking' };
+  // Nivel 2: OpenRouter free routing (selecciona automáticamente el mejor modelo libre disponible)
+  // Historial confirmado: Nemotron 3 Super, Trinity Large, gpt-oss-120b — todos sin costo.
+  if (config.ai.openrouter.apiKey) {
+    try {
+      console.log('[GATEWAY-AHORRO] 🔄 Nivel 2: OpenRouter auto-free routing...');
+      const res = await llamarOpenRouter(pregunta, null, contextoRAG, sp, 'openrouter/free');
+      if (res && res.length > 20) {
+        registrarTrazaSICC(pregunta, 'openrouter/free', contextoRAG);
+        return { texto: res, proveedor: 'openrouter/free' };
+      }
+    } catch (e) {
+      console.warn(`[GATEWAY-AHORRO] [SICC WARN] Fallo openrouter/free: ${e.message}`);
     }
-  } catch (e) {
-    console.warn('[GATEWAY-AHORRO] [SICC WARN] Fallo en modelo de Razonamiento:', e.message);
   }
 
-  console.warn('[GATEWAY-AHORRO] [SICC BLOCKER] Vías gratuitas agotadas. Usando Contingencia SICC (Strictly Free)...');
-  const lowCostModel = 'meta-llama/llama-3.1-8b-instruct:free';
-  const res = await llamarOpenRouter(pregunta, null, contextoRAG, systemPrompt, lowCostModel);
-  registrarTrazaSICC(pregunta, 'openrouter-lowcost', contextoRAG);
-  return { texto: res, proveedor: 'openrouter-lowcost' };
+  // Nivel 3: modelos de pago en OpenRouter como último recurso absoluto
+  const paidFallbacks = [
+    'google/gemini-2.0-flash-001',       // ~$0.10/1M tokens
+    'meta-llama/llama-3.3-70b-instruct', // ~$0.12/1M tokens, sin cuota diaria
+  ];
+  if (config.ai.openrouter.apiKey) {
+    for (const model of paidFallbacks) {
+      try {
+        console.log(`[GATEWAY-AHORRO] 💳 Nivel 3 (pagado): ${model}...`);
+        const res = await llamarOpenRouter(pregunta, null, contextoRAG, sp, model);
+        if (res && res.length > 20) {
+          registrarTrazaSICC(pregunta, `openrouter-paid:${model}`, contextoRAG);
+          return { texto: res, proveedor: `openrouter-paid:${model}` };
+        }
+      } catch (e) {
+        console.warn(`[GATEWAY-AHORRO] [SICC WARN] Fallo ${model}: ${e.message}`);
+      }
+    }
+  }
+
+  throw new Error('[SICC BLOCKER] Todos los proveedores agotados. Reintenta en 1h.');
 }
 
 // Exportar para uso en dreamer.js y agent.js

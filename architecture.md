@@ -1,128 +1,161 @@
-# 🏛️ Arquitectura SICC v12.7 — "Institucionalización Forense"
+# 🏛️ Arquitectura SICC v12.9 — "Oráculo Certificado"
 
-SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agente soberano diseñada para la auditoría técnica y jurídica del proyecto LFC2.
+SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agente soberano para auditoría técnica y jurídica del proyecto LFC2 (Línea Ferroviaria de Carga 2, Colombia).
 
 ---
 
 ## 🛰️ Topología de Red (Nodo Único Soberano)
 
-El sistema opera en un servidor Ubuntu dedicado, combinando contenedores Docker aislados con servicios nativos para máximo rendimiento de IA.
+El sistema opera en un servidor Ubuntu dedicado con 4 servicios Docker + 1 proceso nativo.
 
 ### 1. Mapa de Servicios
 
 | Servicio | Contenedor / Proceso | Puerto | Función |
 | :--- | :--- | :--- | :--- |
-| **Agente Core** | `dieleozagent-debug-dieleozagent-1` | 3000 | Orquestación y Telegram |
-| **Base de Datos** | `sicc-postgres` | 5432 | Supabase / LTM (Vector DB) |
-| **Ollama Swarm** | **Nativo en Host** (Ubuntu) | 11434 | Inferencia Local (GPU Nativa) |
-| **NotebookLM MCP** | `notebooklm-mcp-v12` | n/a (STDIO Bridge) | **Oracle de Verdad Externa.** Aislado en Docker para persistencia de sesión Chrome y evitar contaminación de dependencias en el Core. |
+| **Agente Core** | `dieleozagent-debug-dieleozagent-1` | — | Bot Telegram + orquestación de sueños |
+| **Oracle NotebookLM** | `notebooklm-mcp-v12` | 3001 (SSE) | Verdad Externa — 108 fuentes "Contrato Ardanuy LFC" |
+| **Base de Datos** | `sicc-postgres` | 5432 | pgvector — LTM contractual + memoria genética |
+| **Ollama (Embeddings)** | **Nativo en Host** | 11434 | `nomic-embed-text` 768 dims, soberanía total |
 
-### 2. Modelos de Inteligencia Local (Ollama)
+### 2. Modelos de Inteligencia (Ollama local)
 
-| Modelo | Función | Dimensiones |
-| :--- | :--- | :--- |
-| `gemma4-light:latest` | Auditoría Forense y Razonamiento Deductivo | n/a |
-| `nomic-embed-text`| Embeddings Vectoriales (LTM) | 768 |
-| `phi3.5:latest` | Análisis rápido de sintaxis | n/a |
+| Modelo | Función |
+| :--- | :--- |
+| `gemma4-light:latest` | Auditoría Forense — fallback offline |
+| `nomic-embed-text` | Embeddings vectoriales (LTM) |
+| `phi3.5:latest` | Análisis rápido de sintaxis |
 
-### 3. Rutas de Acceso (Conectividad)
+### 3. Conectividad
 
-- **Desde el Host (Ubuntu):** Acceso vía `localhost:11434`. (Ollama configurado con `OLLAMA_HOST=0.0.0.0`).
-- **Desde el Agente (Docker):** Comunicación vía el alias `opengravity-ollama` (mapeado a la IP `172.20.0.1`).
-- **Base de Datos Forense:** Local Supabase (`postgres_sicc`) alojada en el contenedor `sicc-postgres`.
-
----
-
-## 🗄️ Gestión de Datos (Ingesta y Consulta)
-
-### 1. Proceso de Ingesta (Michelin v7.2)
-- **Detección Resiliente:** Búsqueda recursiva insensible a mayúsculas.
-- **Capa de Visión Forense:** Integración de `pdftoppm` (300dpi) y `Tesseract OCR` para PDFs complejos.
-- **Checkpoints:** Sistema de persistencia por archivo para reanudar ingestas.
-
-### 2. Infraestructura Vectorial (Long Term Memory - LTM)
-- **Base de Datos:** Postgres 17 (Supabase Local) con extensión `pgvector`.
-- **Almacenamiento:** 
-    1. `contrato_documentos`: Biblia Legal (Contexto Contractual).
-    2. `sicc_genetic_memory`: Lecciones Aprendidas (Auto-tuning / Sistema Inmune).
-- **Motor de Embeddings (Soberanía Dual):**
-    1. **Primario:** Ollama Local (`nomic-embed-text`) para 100% de soberanía.
-    2. **Contingencia:** Google Gemini (`text-embedding-004`).
+- **Host → Ollama:** `localhost:11434` (`OLLAMA_HOST=0.0.0.0`)
+- **Agente → Ollama:** alias `opengravity-ollama` → `172.20.0.1`
+- **Agente → Oracle:** `http://notebooklm-mcp-v12:3001/sse` (red `docker_sicc_net`)
+- **Agente → Postgres:** `sicc-postgres:5432`
 
 ---
 
-## 🌪️ El Bucle de Decantación (Karpathy Loop)
+## 🌪️ El Bucle de Decantación (Karpathy Loop) — v12.9
 
-El sistema opera mediante un ciclo de refinamiento iterativo de 5 fases, donde la **Memoria Genética** actúa como el sistema inmune:
+### Ciclo completo de `/dream [especialidad]`
 
-### 4. El Viaje del Dato: Ciclo Completo de `/dream` (SICC v12.8)
+```
+Telegram: /dream telecomunicaciones
+         │
+         ▼
+[index.js] exec(swarm-pilot.js, timeout:660s)
+         │
+         ▼ FASE 1 — VACUNACIÓN
+[supabase.js] buscarLecciones(tema, 3)
+  └─ sicc_genetic_memory → vacunas anti-alucinación inyectadas al prompt
+         │
+         ▼ FASE 2 — RAG MATCH
+[sapi/supabase_rag.js] buscarSimilares(borrador, 5)
+  └─ contrato_documentos → fragmentos literales del contrato LFC2
+  └─ llamarMultiplexadorFree() → Borrador DT
+         │
+         ▼ FASE 3 — ORACLE CHECK
+[sapi/notebooklm_mcp.js] validarExternaNotebook(borrador)
+  └─ SSE → notebooklm-mcp-v12:3001
+  └─ Google Chrome (Patchright) → NotebookLM (108 fuentes)
+  └─ Timeout: 3 min (BROWSER_TIMEOUT=120s en Oracle)
+         │
+         ▼ FASE 4 — JUICIO
+[swarm-pilot.js] llamarMultiplexadorFree(prompt_juez)
+  └─ JSON: { aprobado, razon, categoria_fallida, leccion_karpathy }
+         │
+    ┌────┴────┐
+APROBADO    RECHAZADO
+    │            │
+    ▼            ▼ FASE 5 — AUTO-TUNING
+DT Final   brain/SPECIALTIES/{categoria}.md ← lección Karpathy
+    │
+    ▼
+Telegram: ⚖️ VEREDICTO FINAL AL DESPERTAR
+```
 
-El comando `/dream` no crea de la nada; toma una "semilla" (ej. *telecomunicaciones*), la inyecta con restricciones genéticas para evitar que la IA repita errores pasados, y somete el borrador resultante a una **Cámara de Doble Ciego**. El Brain no aprueba nada por sí solo: cruza el borrador contra el contrato (Supabase) y contra las normas internacionales (Oráculo). Solo si el "Juez AI" determina que hay 100% de coherencia, se aprueba la decisión.
+**Hard-caps:** MAX_CICLOS=3, exec timeout=11min, Oracle timeout=3min/consulta.
 
-Cuando un ingeniero ejecuta el comando `/dream [especialidad]` en Telegram, se desata el siguiente ciclo forense autónomo:
+---
 
-1. **Fase 1: Vacunación (El Sistema Inmune)**
-   - **Componente:** `src/supabase.js`
-   - **Acción:** El Agente consulta la LTM (`sicc_genetic_memory`) para revisar si ya cometió errores en esa especialidad en el pasado.
-   - **Salida:** Vacunas (Prompt Constraints) que bloquean alucinaciones conocidas.
+## 📡 Multiplexador de Proveedores IA — Cascada v12.9
 
-2. **Fase 2: RAG Match (El Anclaje Legal)**
-   - **Componente:** `src/sapi/supabase_rag.js`
-   - **Acción:** Extrae fragmentos literales del contrato LFC2 y genera un *Borrador de Decisión Técnica (DT)* usando el Escudo Fiscal (LLM dinámico: Gemini -> Groq -> Ollama).
-   - **Salida:** Contexto Contractual y Borrador Inicial.
+Orden de escalación en `llamarMultiplexadorFree()`:
 
-3. **Fase 3: Oracle Check (La Verdad Externa)**
-   - **Componente:** `src/sapi/notebooklm_mcp.js`
-   - **Acción:** El Agente se conecta por red SAPI (Puerto 3001) al Oráculo de NotebookLM y le pregunta si el borrador cumple con normativas internacionales (FRA/AREMA/UIC).
-   - **Salida:** Feedback y correcciones inmediatas (< 1s de latencia).
+| Nivel | Proveedor | Modelo | Cuota / Costo |
+|---|---|---|---|
+| 1 | Gemini | `gemini-2.0-flash` | Free tier (límite diario ~1500 req) |
+| 1 | Groq | `llama-3.3-70b-versatile` | Free tier (100K tokens/día) |
+| 1 | Ollama | `gemma4-light` local | Sin límite — responde en español por prompt |
+| 2 | OpenRouter | `openrouter/free` | Auto-selección: Nemotron 70B, Trinity Large, gpt-oss-120b… |
+| 3 | OpenRouter | `gemini-2.0-flash-001` | ~$0.10/1M tokens — último recurso pagado |
+| 3 | OpenRouter | `llama-3.3-70b-instruct` | ~$0.12/1M tokens — sin cuota diaria |
 
-4. **Fase 4: Juicio (Swarm Pilot)**
-   - **Componente:** `scripts/swarm-pilot.js`
-   - **Acción:** El "Juez AI" cruza el Borrador con el Feedback del Oráculo. Si todo es puro y sin grasa financiera (CAPEX), emite un `⚖️ VEREDICTO FINAL AL DESPERTAR:` con la etiqueta **APROBADO** o **RECHAZADO**.
-   - **Salida:** JSON de Decisión y emisión del reporte al bot de Telegram.
+**Idioma garantizado:** Todos los llamados incluyen `REGLA ABSOLUTA DE IDIOMA: responde siempre en español` en el system prompt — incluyendo Ollama y OpenRouter.
 
-5. **Fase 5: Auto-tuning (Karpathy Update)**
-   - **Componente:** `brain/SPECIALTIES/*.md`
-   - **Acción:** Si la DT fue rechazada, el Juez inyecta el motivo del fallo como una nueva lección en el ADN genético, garantizando que el enjambre sea más inteligente en el próximo `/dream`.
-   - **Salida:** Lección Karpathy (ADN Update).
+---
+
+## 🗄️ Infraestructura Vectorial (LTM)
+
+### Colecciones Postgres/pgvector
+
+| Colección | Función | Estado |
+|---|---|---|
+| `contrato_documentos` | Biblia Legal — Contrato LFC2 + normas | 🟢 Activo |
+| `sicc_genetic_memory` | 53 lecciones aprendidas — Sistema Inmune | 🟢 Activo |
+
+### Motor de Embeddings (Soberanía Dual)
+1. **Primario:** `nomic-embed-text` vía Ollama local (768 dims, 100% soberano)
+2. **Contingencia:** `text-embedding-004` vía Gemini Cloud
+
+### Ingesta (Michelin v7.2)
+- OCR con `pdftoppm` (300dpi) + Tesseract
+- Checkpoints por archivo — resume-capable
+- `node scripts/sicc-ingesta.js --path [ruta]`
 
 ---
 
 ## 🏛️ Jerarquía de Rutas Soberanas (SSoP)
 
-Para evitar la "ceguera" agéntica, el sistema impone rutas absolutas sincronizadas herederadas de `src/config.js`.
-
-| Directorio | Ruta en Contenedor | Racional Forense |
+| Directorio | Ruta en Contenedor | Función |
 | :--- | :--- | :--- |
-| **Raíz Agente** | `/home/administrador/docker/agente` | Nodo de ejecución central. |
-| **Cerebro (Brain)**| `/home/administrador/docker/agente/brain` | **SSOT Contractual (R-HARD).** |
-| **LFC2 (Docs)** | `/home/administrador/docker/LFC2` | Repositorio de ingeniería externa. |
-| **Biblia Legal** | `/home/administrador/docker/agente/Contrato pdf` | Fuente primaria OCR. |
-| **Logs / Traces** | `/home/administrador/docker/agente/data/logs` | Telemetría forense (Traces). |
+| **Raíz Agente** | `/home/administrador/docker/agente` | Código + Brain |
+| **Cerebro (SSOT)** | `/home/administrador/docker/agente/brain` | R-HARD, IDENTITY, SPECIALTIES |
+| **Oracle** | `/home/administrador/docker/notebook-mcp` | NotebookLM MCP server |
+| **LFC2 (Docs)** | `/home/administrador/docker/LFC2` | Ingeniería externa |
+| **Biblia Legal** | `/home/administrador/docker/agente/Contrato pdf` | PDFs contractuales |
+| **Logs / Traces** | `/home/administrador/docker/agente/data/logs` | Telemetría forense |
 
 ---
 
-## 🛡️ Gobernanza R-HARD (Recursos y Reglas)
+## 🛡️ Gobernanza R-HARD
 
-1. **CAPEX Blindado:** Límite de **$726.000.000 COP** (WBS 6.1.100).
-2. **Normativa:** FRA 49 CFR Part 236 / AREMA / Manual Vial 2024.
-3. **Muro de Fuego de CPU:**
-   - **80% Load:** Encolamiento en `AUDIT_QUEUE.md`.
-   - **95% Load:** Bloqueo de inferencia local.
+1. **CAPEX Blindado:** $726.000.000 COP máx (WBS 6.1.100)
+2. **Normativa:** FRA 49 CFR Part 236 / AREMA / Manual Vial 2024
+3. **CPU:** 80% → encolar en `AUDIT_QUEUE.md` / 95% → bloquear inferencia local
+4. **Idioma:** Español obligatorio en toda salida del enjambre
+5. **Verdad:** Oracle prevalece sobre intuición de la IA generativa
+
+---
+
+## 🛠️ Diagnóstico Rápido
+
+```bash
+# Estado de contenedores
+docker ps --format "table {{.Names}}\t{{.Status}}"
+
+# Oracle health
+curl http://localhost:3001/health
+
+# Test Oracle desde agente
+docker exec dieleozagent-debug-dieleozagent-1 node -e "
+  const {validarExternaNotebook}=require('./src/sapi/notebooklm_mcp');
+  validarExternaNotebook('hola').then(r=>console.log(r?.substring(0,200)));
+"
+
+# Logs agente en vivo
+docker compose logs -f --tail=30
+```
 
 ---
 
-## 🛠️ Validación y Telemetría
-
-- **SICC Traces:** Registro en `data/logs/sicc-traces.json` con hash de integridad.
-- **EstadoGlobalErrores:** Monitoreo en tiempo real de fallos 4xx en proveedores.
-
-#### 🔍 Protocolo de Inspección por Puerto (Diagnóstico Forense)
-En caso de fallo en la Fase 3, se debe activar el **MCP Inspector** para validación humana:
-- **Comando:** `npx @modelcontextprotocol/inspector docker exec -i notebooklm-mcp-v12 npx tsx src/index.ts`
-- **Puerto:** `3000` / `3001` (Web UI).
-- **Racional:** Permite verificar si la sesión de Google en el contenedor sigue activa y si el Oráculo responde a las herramientas (`ask_question`) antes de delegar la autonomía al Agente.
-
----
-*Certificado por: OpenGravity Forensic Auditor*
-*Estado: Institucionalizado v12.7*
+*Certificado: OpenGravity Forensic Auditor — v12.9 "Oráculo Certificado" — 2026-04-17*
