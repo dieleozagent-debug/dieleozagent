@@ -22,15 +22,16 @@ El bot es tu interfaz principal para la supervisión y toma de decisiones. Solo 
 
 ---
 
-## 🌌 Gobernanza \Karpathy Dreamer\ (Nuevo Bucle)
+## 🌌 Gobernanza `Karpathy Dreamer` (El Bucle de la Verdad)
 
-En la v12.2, el **Enjambre (Swarm)** ha sido dotado de un sistema de prevención de riesgo y aprendizaje mecánico:
+El comando `/dream` no es una simple consulta a una IA. Es un **simulador de auditoría forense** que somete ideas a una "Cámara de Doble Ciego" para garantizar que no haya alucinaciones ni gastos innecesarios (CAPEX).
 
-1. **Ideación Libre**: Al ejecutar \/dream [Area]\, el Enjambre usa Multiplexación para generar una solución radical basándose en LFC2.
-2. **Cámara Doble Ciego (SAPI)**: Antes de validar la idea, el enjambre consulta a:
- - *Verdad Interna*: \Supabase RAG\ (Busca en PDFs, Anexos y Normas LFC2).
- - *Perspectiva Global*: \NotebookLM MCP\ (Consulta la libreta de Gemini para viabilidad de la industria).
-3. **El Juez y el Aprendizaje**: Si Gemini detecta que la idea viola la soberanía ferroviaria (ej. usar nubes propietarias extranjeras), rechaza el documento y guarda la regla (Karpathy Lesson) directamente en \rain/SPECIALTIES/\.
+### ¿Cómo funciona cuando escribes `/dream [especialidad]`?
+
+1. **La Semilla y la Vacuna (Ideación):** Le das al Agente un tema (ej. *telecomunicaciones*). Antes de pensar, el Agente revisa su Memoria Genética (Supabase) para ver si alguna vez cometió un error técnico en el pasado sobre ese tema. Si es así, se "vacuna" para no repetirlo y genera un Borrador de Decisión Técnica (DT).
+2. **Validación Interna (Supabase RAG):** El Agente busca en el contrato LFC2 exactamente qué se exige sobre el tema para asegurar que el borrador es legal y contractualmente vinculante.
+3. **Validación Externa (Oráculo SAPI v12.8):** El Agente se conecta a la red interna (Puerto 3001) para consultarle al Oráculo de NotebookLM: *"¿Esto cumple con la norma internacional FRA/AREMA?"*.
+4. **El Juez y la Lección:** Un "Juez AI" cruza tu borrador contra el contrato y la norma. Si hay la más mínima contradicción técnica o un aumento injustificado de presupuesto, la DT es **RECHAZADA**. El Juez extrae la lección del fallo y la inyecta mecánicamente en la Memoria Genética (los archivos `SPECIALTIES/*.md`) para que el enjambre aprenda. Si es perfecta, es **CERTIFICADA**.
 
 ---
 

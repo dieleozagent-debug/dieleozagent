@@ -57,6 +57,8 @@ El sistema opera mediante un ciclo de refinamiento iterativo de 5 fases, donde l
 
 ### 4. El Viaje del Dato: Ciclo Completo de `/dream` (SICC v12.8)
 
+El comando `/dream` no crea de la nada; toma una "semilla" (ej. *telecomunicaciones*), la inyecta con restricciones genéticas para evitar que la IA repita errores pasados, y somete el borrador resultante a una **Cámara de Doble Ciego**. El Brain no aprueba nada por sí solo: cruza el borrador contra el contrato (Supabase) y contra las normas internacionales (Oráculo). Solo si el "Juez AI" determina que hay 100% de coherencia, se aprueba la decisión.
+
 Cuando un ingeniero ejecuta el comando `/dream [especialidad]` en Telegram, se desata el siguiente ciclo forense autónomo:
 
 1. **Fase 1: Vacunación (El Sistema Inmune)**
