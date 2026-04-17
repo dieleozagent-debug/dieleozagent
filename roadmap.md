@@ -28,14 +28,15 @@
 
 ---
 
-## 🎯 PRÓXIMOS PASOS (Fase v12.6)
+## 🎯 PRÓXIMOS PASOS (Fase v12.7: Saneamiento de Rutas)
 
-### 1. Validación de Señal Contractual
-- Verificar la densidad de fragmentos en `postgres_sicc` tras finalizar la ingesta.
-- Realizar pruebas de "Doble Ciego" para confirmar que el enjambre cita correctamente los nuevos fragmentos.
+### 1. Sincronización de Directorios de Cerebro
+- **Bloqueador:** El Centinela no localiza `/brain`.
+- **Tarea:** Unificar rutas en scripts de Cross-Ref y Sentinel.
 
-### 2. Estabilización del Oráculo Externo
-- Resolver dependencia de `playwright` en el contenedor para habilitar búsqueda web completa en NotebookLM MCP.
+### 2. Purga de Impurezas (Zero-Residue)
+- Investigar las 44 impurezas detectadas en el reporte matutino.
+- Sincronizar la lógica de consistencia con los nuevos fragmentos de la Biblia Legal.
 
-### 3. SICC Sentinel v2: Auto-Saneamiento
-- Implementar monitor de integridad que detecte y purgue fragmentos vectoriales con baja similitud semántica o contradicciones contractuales directas.
+### 3. Estabilización de Ingesta
+- Monitorizar el avance de la Operación Michelin v7.2.
