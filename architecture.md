@@ -41,7 +41,9 @@ El sistema opera en un servidor Ubuntu dedicado, combinando contenedores Docker 
     - **Base de Datos:** Postgres 17 con extensión `pgvector` habilitada manualmente.
     - **Almacenamiento:** Tabla `contrato_documentos` en la DB `postgres_sicc`.
     - **Vectores:** 768 dimensiones generadas por `nomic-embed-text` vía Ollama.
-- **Flujo de Consulta:** El enjambre consulta esta tabla en la **Fase 2 (Validación Interna)** mediante funciones de similitud de coseno.
+- **Flujo de Consulta (RAG-Match):** El enjambre consulta automáticamente la tabla `contrato_documentos` en la **Fase 2**. 
+    - **Gatillos:** Mensajes > 10 caracteres o mención de palabras clave (`contrato, anexo, multa, obligación, apéndice, AT`).
+    - **Algoritmo:** Búsqueda por similitud de coseno (Top 3 fragmentos) inyectados directamente en el System Prompt.
 
 ### 🏛️ Jerarquía de Rutas Soberanas (SSoP)
 
