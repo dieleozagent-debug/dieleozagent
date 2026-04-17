@@ -322,7 +322,18 @@ async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt 
     }
   }
 
-  console.warn('[GATEWAY-AHORRO] [SICC BLOCKER] Vías gratuitas agotadas (incluyendo OpenRouter Free). Usando Contingencia SICC (Strictly Free)...');
+  console.warn('[GATEWAY-AHORRO] 🧠 Activando Razonamiento de Emergencia (Thinking Model)...');
+  try {
+    const resThinking = await llamarOpenRouter(pregunta, null, contextoRAG, systemPrompt, 'google/gemini-2.0-flash-thinking-exp:free');
+    if (resThinking && resThinking.length > 20) {
+      registrarTrazaSICC(pregunta, 'openrouter-thinking', contextoRAG);
+      return { texto: resThinking, proveedor: 'openrouter-thinking' };
+    }
+  } catch (e) {
+    console.warn('[GATEWAY-AHORRO] [SICC WARN] Fallo en modelo de Razonamiento:', e.message);
+  }
+
+  console.warn('[GATEWAY-AHORRO] [SICC BLOCKER] Vías gratuitas agotadas. Usando Contingencia SICC (Strictly Free)...');
   const lowCostModel = 'meta-llama/llama-3.1-8b-instruct:free';
   const res = await llamarOpenRouter(pregunta, null, contextoRAG, systemPrompt, lowCostModel);
   registrarTrazaSICC(pregunta, 'openrouter-lowcost', contextoRAG);

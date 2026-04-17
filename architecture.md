@@ -91,6 +91,7 @@ El enjambre no es una simple lista de proveedores, sino un sistema de **validaci
 1.  **Peones Ollama (Soberanía Local):** Ejecutan la minería de datos pesada y la deducción primaria sobre el host Ubuntu.
 2.  **Auditores Forenses (Cloud):** Gemini y Groq actúan como auditores de segundo nivel, verificando la lógica legal y contractual sin acceso directo a los archivos sensibles del host.
 3.  **Juez Soberano:** Un modelo de alta capacidad (ej. Gemini 1.5 Pro) que toma las versiones de los peones y auditores, las compara y emite un veredicto final.
+4.  **Escalada de Razonamiento (Thinking Fallback):** En caso de bloqueo técnico o ambigüedad extrema, el sistema escala automáticamente a un modelo de razonamiento profundo (`gemini-2.0-flash-thinking`) para intentar una resolución lógica antes de activar el Muro de Fuego.
 
 ---
 
