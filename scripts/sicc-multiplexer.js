@@ -249,8 +249,10 @@ async function llamarOllama(mensajeUsuario, _, contextoRAG = '', historialLocal 
   for (const host of hostsTry) {
     try {
       const client = new OpenAI({ baseURL: `${host}/v1`, apiKey: 'ollama' });
-      const finalSystemPrompt = systemPrompt || agentContext.getPromptFull();
-      const systemInstruction = contextoRAG ? finalSystemPrompt + '\n\n' + contextoRAG : finalSystemPrompt;
+      // Ollama es lento con prompts largos — truncar a 3K para no colgar
+      const rawPrompt = systemPrompt || agentContext.getPromptFull();
+      const finalSystemPrompt = rawPrompt.length > 3000 ? rawPrompt.substring(0, 3000) + '\n[...prompt truncado para Ollama...]' : rawPrompt;
+      const systemInstruction = contextoRAG ? finalSystemPrompt + '\n\n' + contextoRAG.substring(0, 1000) : finalSystemPrompt;
 
       const msgs = [
         { role: 'system', content: systemInstruction },
@@ -258,10 +260,14 @@ async function llamarOllama(mensajeUsuario, _, contextoRAG = '', historialLocal 
         { role: 'user', content: mensajeUsuario },
       ];
 
-      const respuesta = await client.chat.completions.create({
-        model: config.ai.ollama.model,
-        messages: msgs,
-      });
+      // Timeout de 45s — Ollama con prompts largos puede colgar indefinidamente
+      const timeoutPromise = new Promise((_, rej) =>
+        setTimeout(() => rej(new Error('Ollama timeout 45s')), 45000)
+      );
+      const respuesta = await Promise.race([
+        client.chat.completions.create({ model: config.ai.ollama.model, messages: msgs }),
+        timeoutPromise
+      ]);
       return respuesta.choices[0].message.content;
     } catch (err) {
       lastErr = err;
@@ -320,7 +326,7 @@ async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt 
     try {
       console.log(`[GATEWAY-AHORRO] 💸 Intentando vía gratuita: ${p.id.toUpperCase()}...`);
       const respuesta = await p.fn(pregunta, null, contextoRAG, null, sp);
-      if (respuesta && !respuesta.toLowerCase().includes('error') && respuesta.length > 5) {
+      if (respuesta && respuesta.length > 20) {
         registrarTrazaSICC(pregunta, p.id, contextoRAG);
         return { texto: respuesta, proveedor: p.id };
       }
