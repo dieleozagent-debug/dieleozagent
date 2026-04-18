@@ -76,7 +76,8 @@ brain/dictamenes/          brain/SPECIALTIES/{categoria}.md ← lección
 brain/DREAMS/              brain/DREAMS/DREAM-*-RECHAZADO.md
   DREAM-*-CERTIFICADO.md
 sicc_genetic_memory        [siguiente ciclo con lección inyectada]
-  (vector embedding)
+  DT_CERTIFICADA (vector)
+  VEREDICTO_JUEZ (vector)
     │
     ▼
 Telegram: ⚖️ VEREDICTO FINAL AL DESPERTAR
@@ -94,45 +95,14 @@ Telegram: ⚖️ VEREDICTO FINAL AL DESPERTAR
 | `brain/DREAMS/` | `swarm-pilot.js` | Siempre — aprobado **y** rechazado |
 | `brain/PENDING_DTS/` | `swarm-pilot.js` | Al **rechazar** tras 3 ciclos — borrador impuro para revisión humana |
 | `brain/SPECIALTIES/*.md` | `swarm-pilot.js` | Al **rechazar** — lección Karpathy append |
-| `sicc_genetic_memory` | `supabase.js` | Al **aprobar** — vector embedding del DT |
+| `sicc_genetic_memory` | `supabase.js` | Al **completar** cada ciclo — veredicto + DT si aprobada |
 | `brain/AUDIT_QUEUE.md` | `resource-governor.js` | CPU >80% — sueños encolados |
 
 ### Naming de archivos
 - **Dictamen aprobado:** `DT-{PREFIX}-{AÑO}-{SEQ}_{Descripcion}_APROBADO.md`
-  - Prefix por área: señaliz→CTSC, telecom→COMS, energi→ENRG, integr→INTG, control→CTRL
+  - Prefix por área: señaliz→CTSC, telecom→COMS, energi→ENRG, integr→INTG, control→CTRL, ence→ENCE
 - **Sueño (log):** `DREAM-{AREA}-{ISO_TIMESTAMP}.md`
 - **Pending:** `PENDING-{AREA}-{FECHA}.md`
-
----
-
-## 📦 Pipeline DT → LFC2 → Vercel
-
-Las DTs certificadas en `brain/dictamenes/` son **borradores soberanos** — para publicarse en el sitio Vercel deben promoverse manualmente al repositorio documental LFC2.
-
-```
-brain/dictamenes/                    LFC2/II_Apendices_Tecnicos/
-DT-CTSC-2026-060_*_APROBADO.md  →  Decisiones_Tecnicas/DT-CTSC-2026-060.md
-                                         │
-                              node scripts/lfc-cli.js cook
-                                         │ (pandoc MD → HTML/Word)
-                              node scripts/lfc-cli.js serve
-                                         │
-                              git push origin main (LFC2 repo)
-                                         │
-                                    Vercel auto-deploy
-                                    lfc-2.vercel.app
-```
-
-| Script | Rol |
-|---|---|
-| `forensic_auditor.js` | Escanea LFC2, usa `brain/dictamenes/` como referencia de pureza |
-| `simulator.js` | Lee dictámenes como "gold standards" para validar propuestas |
-| `gitlocal.js` | Hace commit/push sobre `LFC2_ROOT` |
-| `sicc-harness.js` | Audita git LFC2, genera dictámenes contractuales en `II_A_Analisis_Contractual/` |
-
-**Variable clave:** `LFC2_ROOT=/home/administrador/docker/LFC2` (`.env`)
-
-**Pendiente:** comando `promote` automático — copia DT aprobada de `brain/dictamenes/` a `LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/` y hace commit.
 
 ---
 
@@ -140,12 +110,55 @@ DT-CTSC-2026-060_*_APROBADO.md  →  Decisiones_Tecnicas/DT-CTSC-2026-060.md
 
 | Tabla Postgres | Función |
 |---|---|
-| `contrato_documentos` | Biblia Legal — Contrato LFC2 + normas técnicas |
-| `sicc_genetic_memory` | Lecciones Karpathy + DTs certificadas + veredictos Juez |
+| `contrato_documentos` | Biblia Legal — Contrato LFC2 + normas técnicas (OCR chunking 800c/100c) |
+| `sicc_genetic_memory` | 59 lecciones manuales + entradas automáticas DT_CERTIFICADA / VEREDICTO_JUEZ |
 
-**Estado actual (2026-04-18):** 59 entradas manuales (`metadata.type`). Las entradas automáticas (`metadata.tipo = DT_CERTIFICADA | VEREDICTO_JUEZ`) se generan en el próximo `/dream` completo.
+**Estado 2026-04-18:** Primera `DT_CERTIFICADA` real (dream ENCE) + `VEREDICTO_JUEZ` en DB. El pipeline de aprendizaje automático está activo.
 
 **Embeddings:** `nomic-embed-text` (Ollama, 768 dims) → fallback `text-embedding-004` (Gemini)
+
+---
+
+## 📦 Pipeline DT → LFC2 → Vercel
+
+Las DTs certificadas en `brain/dictamenes/` se **promueven manualmente** al repo documental:
+
+```
+brain/dictamenes/DT-*.md
+        │ (copia manual / promote automático PENDIENTE)
+        ▼
+LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/
+        │ node scripts/lfc-cli.js cook && serve
+        ▼
+X_ENTREGABLES_CONSOLIDADOS/8_DOCUMENTOS_SERVIDOS/HTML/
+        │ git push LFC2 origin main
+        ▼
+lfc-2.vercel.app (Vercel auto-deploy)
+```
+
+| Script agente | Qué hace con LFC2 |
+|---|---|
+| `forensic_auditor.js` | Escanea LFC2, usa `brain/dictamenes/` como referencia de pureza |
+| `simulator.js` | Lee dictámenes como "gold standards" para validar propuestas |
+| `sicc-harness.js` | Audita git LFC2, genera dictámenes contractuales en `II_A_Analisis_Contractual/` |
+
+**Variable clave:** `LFC2_ROOT=/home/administrador/docker/LFC2` (`.env`)
+
+---
+
+## ⚠️ Deuda Técnica Identificada (2026-04-18)
+
+### Dead code en `agent.js`
+| Elemento | Problema |
+|---|---|
+| `rutarEstrategiaAdvisor` | Importado, nunca llamado |
+| `encolarHallazgo` | Importado, nunca llamado |
+| `PROMPT_FULL` | Construido pero nunca llega al LLM (solo `PROMPT_FAST` se usa) |
+| `rutarEspecialidad()` + `ESPECIALIDADES` | Calculan `finalPrompt` que `systemPromptSoberano` sobreescribe |
+
+### Archivos muertos (pendiente eliminación)
+- **`src/`**: `cachear_contrato`, `extract_to_md`, `gitlocal`, `ingestar_contrato`, `ingestar_gemini`, `ocr_pilot`, `ocr_sovereign`, `test_migracion_soberana`
+- **`scripts/`**: `sicc-dreamer`, `sicc-seed-memory`, `lfc-doctor`, `scorecard-v2`, `sicc-rag-match`, `sicc-sentinel`, `sicc-sweep`, `sit-simulator`, `next_dream`, 7 archivos `test_*`, 4 one-offs (`fix_encoding`, `fix_telecom_html`, `normalize_paths`, `sync_links`)
 
 ---
 
@@ -168,14 +181,12 @@ docker ps --format "table {{.Names}}\t{{.Status}}"
 # Oracle health
 curl http://localhost:3001/health
 
-# Test Oracle directo
-docker exec dieleozagent-debug-dieleozagent-1 node -e "
-  const {validarExternaNotebook}=require('./src/sapi/notebooklm_mcp');
-  validarExternaNotebook('test').then(r=>console.log(r?.substring(0,200)));
-"
-
 # DTs certificadas
 ls brain/dictamenes/
+
+# Estado learning pipeline
+docker exec sicc-postgres psql -U sicc_app -d postgres_sicc \
+  -c "SELECT COUNT(*), COALESCE(metadata->>'tipo','sin_tipo') FROM sicc_genetic_memory GROUP BY 2;"
 
 # Sueños recientes
 ls brain/DREAMS/ | tail -5
@@ -186,4 +197,4 @@ ls brain/PENDING_DTS/
 
 ---
 
-*Actualizado: 2026-04-18 | OpenGravity SICC v12.9 "Oráculo Certificado + Pipeline LFC2"*
+*Actualizado: 2026-04-18 | OpenGravity SICC v12.9*
