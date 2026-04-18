@@ -128,15 +128,20 @@ Responde ÚNICAMENTE en JSON:
             let responseJuez = await llamarMultiplexadorFree("Despierta al enjambre y evalúa el sueño.", "", promptJuez);
             let decisionRAW = typeof responseJuez === 'string' ? responseJuez : (responseJuez.texto || responseJuez.content || JSON.stringify(responseJuez));
             
-            const jsonMatch = decisionRAW.match(/\{[\s\S]*\}/);
-            if (!jsonMatch) throw new Error("Juez falló al emitir JSON válido");
+            // Extraer JSON de respuesta directa o de code fence ```json {...} ```
+            const fenceMatch = decisionRAW.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
+            const jsonMatch = fenceMatch ? [fenceMatch[1]] : decisionRAW.match(/\{[\s\S]*\}/);
+            if (!jsonMatch) {
+                console.error(`⚠️ [JUEZ] Sin JSON. Respuesta raw (200c): ${decisionRAW.substring(0, 200)}`);
+                ultimaLeccion = "El Juez no emitió JSON — modelo respondió en lenguaje natural.";
+                continue;
+            }
 
             let decision;
             try {
                 decision = JSON.parse(jsonMatch[0]);
             } catch (parseErr) {
-                // JSON malformado (caracteres escapados inválidos de Ollama) — tratar como rechazo
-                console.error(`⚠️ [JUEZ] JSON inválido: ${parseErr.message}. Tratando como rechazo.`);
+                console.error(`⚠️ [JUEZ] JSON inválido: ${parseErr.message}. Raw (200c): ${jsonMatch[0].substring(0, 200)}`);
                 ultimaLeccion = `El Juez emitió JSON malformado: ${parseErr.message}`;
                 continue;
             }
