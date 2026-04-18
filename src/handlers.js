@@ -76,7 +76,7 @@ async function handleMessage(msg, bot, send) {
   if (!texto) { await bot.sendMessage(chatId, '📎 Solo proceso texto.'); return; }
 
   // /start /hola
-  if (texto === '/start' || texto === '/hola') {
+  if (texto === '/start' || /^\/?(hola|hello|hi|buenas?|buenos?\s*d[ií]as?|buenas?\s*tardes?|buenas?\s*noches?)$/i.test(texto)) {
     await send(chatId,
       `👋 ¡Hola Diego! Soy *${config.agent.name}* (SICC v12.9).\n\n` +
       `*/dream [tema]* · */swarm [pregunta]* · */doctor* · */learn*\n` +
