@@ -348,6 +348,32 @@ async function handleMessage(msg, bot, send) {
     } catch (_) {}
   }
 
+  // ── Respuesta directa sobre temas para /dream y pendientes de trabajo ───────
+  // Captura: "qué temas puedo proponer", "qué tenemos pendiente", "qué falta", etc.
+  if (/temas?.*(proponer|dream|soñar)|pendiente.*(trabajo|hacer|falta)|qu[eé] falta|qu[eé] tenemos|roadmap|agenda|backlog|prioridades/i.test(textLower)) {
+    try {
+      const roadmap    = fs.readFileSync(path.join(BRAIN_DIR, 'ROADMAP.md'), 'utf8');
+      const specDir    = path.join(BRAIN_DIR, 'SPECIALTIES');
+      const areas      = fs.existsSync(specDir) ? fs.readdirSync(specDir).filter(f => f.endsWith('.md')).map(f => f.replace('.md', '')) : [];
+
+      // Extraer sección PENDIENTE del ROADMAP
+      const pendienteMatch = roadmap.match(/## 🔴 PENDIENTE[\s\S]*?(?=\n## |$)/);
+      const pendienteMed   = roadmap.match(/## 🟡 PENDIENTE[\s\S]*?(?=\n## |$)/);
+      const pendienteTexto = pendienteMatch ? pendienteMatch[0].split('\n').slice(1, 8).join('\n') : '';
+      const pendienteMedTexto = pendienteMed ? pendienteMed[0].split('\n').slice(1, 6).join('\n') : '';
+
+      await send(chatId,
+        `🗺️ *Agenda SICC — Qué trabajar*\n\n` +
+        `*Áreas disponibles para /dream:*\n` +
+        areas.map(a => `• \`/dream ${a.toLowerCase()}\``).join('\n') + `\n\n` +
+        `*Alta prioridad (🔴):*\n\`\`\`\n${pendienteTexto.trim()}\n\`\`\`\n\n` +
+        `*Media prioridad (🟡):*\n\`\`\`\n${pendienteMedTexto.trim()}\n\`\`\`\n\n` +
+        `Ver roadmap completo: \`brain/ROADMAP.md\``
+      );
+      return;
+    } catch (_) {}
+  }
+
   // ── Respuesta directa sobre ubicación de DTs ──────────────────────────────
   if (/d[oó]nde|encuentro|dictamen|dt[- ]?aprobad|dt certificad|sueño cert/i.test(textLower)) {
     try {

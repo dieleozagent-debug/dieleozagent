@@ -22,18 +22,23 @@
 | exec timeout 30 min | ✅ |
 | Retry Telegram en ECONNRESET | ✅ |
 | Arquitectura DT → LFC2 → Vercel documentada | ✅ |
-| Handler bot para preguntas "¿dónde están las DTs?" | ✅ |
-| Handler bot para preguntas sobre soul/identidad/aprendizaje | ✅ |
+| Handler bot: "¿dónde están las DTs?" | ✅ |
+| Handler bot: soul/identidad/aprendizaje | ✅ |
+| Handler bot: sueños/dreams/pendientes (lenguaje natural) | ✅ |
+| Handler bot: temas para /dream + roadmap pendiente | ✅ |
+| Handler bot: saludos naturales (hola/buenas/hi sin barra) | ✅ |
 | Primera `DT_CERTIFICADA` + `VEREDICTO_JUEZ` real en `sicc_genetic_memory` (dream ENCE 2026-04-18) | ✅ |
-| Audit completo de archivos muertos y dead code en agent.js | ✅ |
+| Refactor `src/index.js` 790→142 líneas (handlers.js + utils/send.js) | ✅ |
+| Dead code eliminado en `agent.js` (rutarEspecialidad, ESPECIALIDADES, encolarHallazgo, rutarEstrategiaAdvisor, sumarizarContexto) | ✅ |
+| Trazas FASE-0..5 en `procesarMensaje()` para audit de flujo | ✅ |
+| Cabeceras `@agent-prompt` en index.js, handlers.js, utils/send.js, agent.js | ✅ |
+| 26 archivos muertos eliminados (scripts/ + src/) | ✅ |
 
 ---
 
 ## 🔄 EN PROGRESO AHORA
 
-| Ítem | Estado |
-|---|---|
-| Refactor `src/index.js` (790 líneas → ~150) — extraer handlers + utils | 🔄 En curso |
+_(ninguno — refactor completado)_
 
 ---
 
@@ -41,11 +46,10 @@
 
 | Ítem | Descripción |
 |---|---|
-| **Limpieza de archivos muertos** | Eliminar 8 `src/` + 15+ `scripts/` sin referencias activas (ver sección DEUDA TÉCNICA) |
-| **Limpiar dead code en `agent.js`** | Eliminar `rutarEstrategiaAdvisor`, `encolarHallazgo`, `PROMPT_FULL`, `rutarEspecialidad()`, `ESPECIALIDADES` — nunca se ejecutan |
-| **`promote` DT→LFC2** | Comando que copia DT de `brain/dictamenes/` → `LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/` + git commit automático |
-| **Validar `/dream telecomunicaciones`** | Con todos los fixes activos — Oracle, parser Juez, persistencia |
-| **Re-ingesta con chunking nuevo** | Fragmentos pre-fix son oversized — re-ingestar con max 800c + overlap 100c |
+| **`promote` DT→LFC2** | Comando `/promote` que copia DT de `brain/dictamenes/` → `LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/` + git commit automático. Usa `src/gitlocal.js`. |
+| **Validar `/dream telecomunicaciones`** | Primer dream post-refactor — validar Oracle, parser Juez, persistencia con código nuevo. |
+| **Re-ingesta con chunking nuevo** | Fragmentos pre-fix son oversized — re-ingestar `contrato_documentos` con max 800c + overlap 100c. |
+| **`ejecutarSondaForense` roto en simulator.js** | Usaba `new OpenAI()` no importado — parcialmente corregido con `llamarMultiplexadorFree`, pero simulator.js necesita prueba real. |
 
 ## 🟡 PENDIENTE — Media prioridad
 
@@ -53,20 +57,10 @@
 |---|---|
 | Rate limit Gemini/Groq | Rotación automática de API keys cuando se agota daily quota |
 | `SICC_OPERATIONS.md` auto-actualización | Tras cada sueño — fecha, área, veredicto |
-| Test `/cerebro` | Valida que SOUL + R-HARD aparecen activos en prompt |
+| Wire `scripts/sicc-rag-match.js` → `/audit` | Valida que párrafos de LFC2 tienen ancla en Supabase |
+| `src/ingestar_gemini.js` como OCR premium | Activar como fallback de tesseract para PDFs escaneados |
 
 ---
-
-## 🔧 DEUDA TÉCNICA — Dead code en `agent.js` (pendiente limpieza)
-
-```
-rutarEstrategiaAdvisor  — importado, nunca llamado
-encolarHallazgo         — importado, nunca llamado
-PROMPT_FULL             — construido, exportado, nunca llega al LLM
-rutarEspecialidad()     — calcula especialidadPrompt que finalPrompt ignora
-ESPECIALIDADES dict     — sobreescrito por getMultiplexedContext()
-finalPrompt             — construido pero systemPromptSoberano lo ignora
-```
 
 ## 🗂️ Archivos rescatados (funcionalidad pendiente de activar)
 
@@ -79,7 +73,6 @@ finalPrompt             — construido pero systemPromptSoberano lo ignora
 ## 🗑️ Eliminados (2026-04-18)
 
 26 archivos eliminados: variantes antiguas de OCR/ingesta, scripts one-off, tests, duplicados.
-Quedan **29 archivos JS activos** (src/ + scripts/) con referencias verificadas.
 
 ---
 
@@ -87,7 +80,7 @@ Quedan **29 archivos JS activos** (src/ + scripts/) con referencias verificadas.
 
 ```
 brain/dictamenes/DT-*.md
-        │ (copia manual hoy / promote automático pendiente)
+        │ (copia manual hoy / /promote automático PENDIENTE)
         ▼
 LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/
         │ node scripts/lfc-cli.js cook && serve
@@ -97,6 +90,21 @@ LFC2/X_ENTREGABLES_CONSOLIDADOS/8_DOCUMENTOS_SERVIDOS/HTML/
         ▼
 lfc-2.vercel.app (auto-deploy)
 ```
+
+---
+
+## 🤖 Handlers directos activos (sin costo de LLM)
+
+| Trigger | Responde con |
+|---|---|
+| `hola` / `buenas` / `hi` | Menú de comandos |
+| `como aprende tu soul` / `quien eres` | SOUL.md + pipeline de aprendizaje |
+| `dónde están las DTs` / `dictamen` | Listado de `brain/dictamenes/` + `brain/DREAMS/` |
+| `sueños pendientes` / `dreams` | Estado `brain/DREAMS/` + `brain/PENDING_DTS/` |
+| `qué temas puedo proponer` / `pendiente de trabajo` | Áreas /dream + ROADMAP pendientes |
+| `/cerebro` | Estado archivos brain/ |
+| `/estado` | Proveedores IA activos |
+| `/doctor` | Health score |
 
 ---
 
