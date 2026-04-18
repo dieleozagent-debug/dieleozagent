@@ -244,23 +244,26 @@ bot.onText(/^\/dream(?:\s+(.+))?/, async (msg, match) => {
   console.log(`[SICC] 🌪️ Disparando Swarm Pilot: node "${scriptPath}" "${target}"`);
   
   exec(`node "${scriptPath}" "${target}"`, { maxBuffer: 1024 * 1024 * 10, timeout: 900000 }, async (error, stdout, stderr) => {
-    if (error) {
-      console.error(`[SICC ERROR] Swarm Pilot falló: ${error.message}`);
-      await safeSendMessage(chatId, `❌ **Pesadilla (Error Interno):**\n${error.message}`);
-      return;
-    }
+    try {
+      if (error) {
+        console.error(`[SICC ERROR] Swarm Pilot falló: ${error.message}`);
+        await safeSendMessage(chatId, `❌ **Pesadilla (Error Interno):**\n${error.message}`);
+        return;
+      }
 
-    const logStr = stdout.toString();
-    // Regex mejorado para capturar el veredicto con emojis y saltos de línea
-    const veredictoMatch = logStr.match(/⚖️ VEREDICTO FINAL AL DESPERTAR:[\s\S]*/);
-    
-    let resumen = "El proceso de decantación concluyó, pero el veredicto no pudo ser parseado.";
-    if (veredictoMatch) {
-      resumen = veredictoMatch[0].substring(0, 3000); // Telegram soporta hasta 4096, safeSendMessage maneja el resto
-    }
+      const logStr = stdout.toString();
+      const veredictoMatch = logStr.match(/⚖️ VEREDICTO FINAL AL DESPERTAR:[\s\S]*/);
 
-    await safeSendMessage(chatId, `✨ **Sueño Finalizado (${target})**\n\n${resumen}`);
-    console.log(`[SICC] [SICC OK] Sueño sobre ${target} completado y reportado.`);
+      let resumen = "El proceso de decantación concluyó, pero el veredicto no pudo ser parseado.";
+      if (veredictoMatch) {
+        resumen = veredictoMatch[0].substring(0, 3000);
+      }
+
+      await safeSendMessage(chatId, `✨ **Sueño Finalizado (${target})**\n\n${resumen}`);
+      console.log(`[SICC] [SICC OK] Sueño sobre ${target} completado y reportado.`);
+    } catch (sendErr) {
+      console.error(`[SICC ERROR] Fallo al enviar resultado del sueño: ${sendErr.message}`);
+    }
   });
 });
 
