@@ -329,6 +329,48 @@ async function handleMessage(msg, bot, send) {
   // ── Respuestas directas sobre identidad / soul / learning ─────────────────
   const textLower = texto.toLowerCase();
 
+  // ── Guía de navegación / onboarding ("me pierdo", "cómo me ayudas") ─────────
+  // Captura: "me pierdo", "cómo me ayudas", "cómo trabajamos", "por dónde empiezo",
+  //          "cómo mejoro lfc", "qué hago", "cómo uso esto", "ayúdame a"
+  if (/me pierdo|c[oó]mo.*(ayud|trabaj|us[ao]|mejor|empez)|por d[oó]nde|qu[eé] hago|ayúdame|mejorar.*lfc|lfc.*mejor/i.test(textLower)) {
+    try {
+      const specDir = path.join(BRAIN_DIR, 'SPECIALTIES');
+      const areas   = fs.existsSync(specDir) ? fs.readdirSync(specDir).filter(f => f.endsWith('.md')).map(f => f.replace('.md','').toLowerCase()) : [];
+      const dts     = fs.existsSync(path.join(BRAIN_DIR,'dictamenes')) ? fs.readdirSync(path.join(BRAIN_DIR,'dictamenes')).filter(f=>f.endsWith('.md')).length : 0;
+
+      await send(chatId,
+        `🧭 *Cómo trabajamos juntos — Guía rápida SICC*\n\n` +
+
+        `*Para generar una Decisión Técnica nueva:*\n` +
+        `\`/dream [área]\` → ciclo completo (5-10 min)\n` +
+        areas.map(a => `  • \`/dream ${a}\``).join('\n') + `\n\n` +
+
+        `*Para analizar una pregunta puntual del contrato:*\n` +
+        `\`/swarm ¿cuál es la obligación de CAPEX en AT1 sección 5.1?\`\n\n` +
+
+        `*Para ver qué tenemos aprobado (${dts} DTs):*\n` +
+        `Pregúntame: _"qué DTs tenemos aprobadas"_ o _"dónde están los dictámenes"_\n\n` +
+
+        `*Para ver qué falló y por qué:*\n` +
+        `Pregúntame: _"qué pasó con señalización"_ o _"historial de comunicaciones"_\n\n` +
+
+        `*Para promover una DT aprobada a LFC2/Vercel:*\n` +
+        `\`\`\`\ncp brain/dictamenes/<DT>.md \\\n  /home/administrador/docker/LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/\n\`\`\`\n` +
+        `Luego: \`cd /home/administrador/docker/LFC2 && git add . && git commit -m "DT" && git push\`\n\n` +
+
+        `*Para correr un análisis forense de archivos LFC2:*\n` +
+        `\`/audit IV_Ingenieria_basica\`\n\n` +
+
+        `*Estado del sistema:*\n` +
+        `\`/doctor\` — health score | \`/estado\` — proveedores IA | \`/cerebro\` — brain activo\n\n` +
+
+        `_El flujo principal: /dream → Juez aprueba → promote → Vercel._\n` +
+        `_Si el Juez rechaza, la lección queda en SPECIALTIES/ para el próximo ciclo._`
+      );
+      return;
+    } catch (_) {}
+  }
+
   // ── Estado de aprendizaje del enjambre (lecciones Karpathy ya activas?) ───
   // Captura: "ya entiende?", "el enjambre ya sabe?", "necesitas algo?",
   //          "qué significa enjambre debe entender", "las lecciones ya se aplican?"
