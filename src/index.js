@@ -243,11 +243,14 @@ bot.onText(/^\/dream(?:\s+(.+))?/, async (msg, match) => {
   const scriptPath = path.join(__dirname, '../scripts/swarm-pilot.js');
   console.log(`[SICC] 🌪️ Disparando Swarm Pilot: node "${scriptPath}" "${target}"`);
   
-  exec(`node "${scriptPath}" "${target}"`, { maxBuffer: 1024 * 1024 * 10, timeout: 900000 }, async (error, stdout, stderr) => {
+  exec(`node "${scriptPath}" "${target}"`, { maxBuffer: 1024 * 1024 * 10, timeout: 1800000 }, async (error, stdout, stderr) => {
     try {
       if (error) {
         console.error(`[SICC ERROR] Swarm Pilot falló: ${error.message}`);
-        await safeSendMessage(chatId, `❌ **Pesadilla (Error Interno):**\n${error.message}`);
+        // Reintentar envío en caso de ECONNRESET transitorio
+        for (let t = 0; t < 3; t++) {
+          try { await safeSendMessage(chatId, `❌ **Pesadilla (Error Interno):**\n${error.message}`); break; } catch (_) { await new Promise(r => setTimeout(r, 3000)); }
+        }
         return;
       }
 
@@ -259,7 +262,9 @@ bot.onText(/^\/dream(?:\s+(.+))?/, async (msg, match) => {
         resumen = veredictoMatch[0].substring(0, 3000);
       }
 
-      await safeSendMessage(chatId, `✨ **Sueño Finalizado (${target})**\n\n${resumen}`);
+      for (let t = 0; t < 3; t++) {
+        try { await safeSendMessage(chatId, `✨ **Sueño Finalizado (${target})**\n\n${resumen}`); break; } catch (_) { await new Promise(r => setTimeout(r, 3000)); }
+      }
       console.log(`[SICC] [SICC OK] Sueño sobre ${target} completado y reportado.`);
     } catch (sendErr) {
       console.error(`[SICC ERROR] Fallo al enviar resultado del sueño: ${sendErr.message}`);
