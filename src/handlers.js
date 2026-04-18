@@ -364,6 +364,36 @@ async function handleMessage(msg, bot, send) {
     } catch (_) {}
   }
 
+  // ── Respuesta directa sobre sueños / DREAMS / PENDING ────────────────────
+  // Captura: "qué sueños tienes pendientes", "dreams pendientes", "qué soñaste", etc.
+  if (/sue[ñn]|dream|pending|pendiente|borrador|karpathy.*(pendiente|queue)|ciclo.*(pendiente|sueño)/i.test(textLower) &&
+      !/\/dream/.test(texto)) {
+    try {
+      const dreamsDir  = path.join(BRAIN_DIR, 'DREAMS');
+      const pendingDir = path.join(BRAIN_DIR, 'PENDING_DTS');
+      const specDir    = path.join(BRAIN_DIR, 'SPECIALTIES');
+      const dreams  = fs.existsSync(dreamsDir)  ? fs.readdirSync(dreamsDir).filter(f => f.endsWith('.md')).sort().reverse()  : [];
+      const pending = fs.existsSync(pendingDir) ? fs.readdirSync(pendingDir).filter(f => f.endsWith('.md')).sort().reverse() : [];
+      const specs   = fs.existsSync(specDir)    ? fs.readdirSync(specDir).filter(f => f.endsWith('.md'))                     : [];
+
+      const aprobados = dreams.filter(f => f.includes('CERTIFICADO'));
+      const rechazados = dreams.filter(f => f.includes('RECHAZADO'));
+
+      await send(chatId,
+        `💤 *Estado del Dreamer SICC*\n\n` +
+        `📓 *Sueños registrados (${dreams.length} total):*\n` +
+        `• ${aprobados.length} CERTIFICADOS | ${rechazados.length} RECHAZADOS\n` +
+        (dreams.slice(0, 4).map(f => `  \`${f}\``).join('\n') || '  _(ninguno)_') + `\n\n` +
+        `🔶 *Borradores pendientes revisión humana (${pending.length}):*\n` +
+        (pending.length ? pending.map(f => `• \`${f}\``).join('\n') : '_(ninguno — el Juez no ha rechazado 3 ciclos consecutivos)_') + `\n\n` +
+        `🧬 *Lecciones Karpathy por área:*\n` +
+        specs.map(f => `• ${f.replace('.md', '')}`).join('  ') + `\n\n` +
+        `Usa */dream [área]* para iniciar un nuevo ciclo de decantación.`
+      );
+      return;
+    } catch (_) {}
+  }
+
   // ── Fallback IA ──────────────────────────────────────────────────────────
   console.log(`[BOT] 📨 "${texto.substring(0, 60)}"`);
   await bot.sendChatAction(chatId, 'typing');
