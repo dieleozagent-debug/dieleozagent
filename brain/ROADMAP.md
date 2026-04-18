@@ -29,6 +29,14 @@
 
 ---
 
+## 🔄 EN PROGRESO AHORA
+
+| Ítem | Estado |
+|---|---|
+| Refactor `src/index.js` (790 líneas → ~150) — extraer handlers + utils | 🔄 En curso |
+
+---
+
 ## 🔴 PENDIENTE — Alta prioridad
 
 | Ítem | Descripción |

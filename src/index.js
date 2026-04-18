@@ -1,790 +1,164 @@
-// index.js — Bot Telegram + heartbeat + guardado de memoria persistente
+/**
+ * @file src/index.js
+ * @what  Punto de entrada del bot. Inicializa brain, bot Telegram, crons y el
+ *        lanzador /dream. NO contiene lógica de comandos.
+ * @how   Importa safeSendMessage (utils/send.js) y los handlers (handlers.js),
+ *        crea el helper `send` ligado al bot, registra eventos bot.on/onText,
+ *        y programa 3 crons (reporte 08:00, backup 06:00, health/hora).
+ * @why   Separar bootstrap/infraestructura de la lógica de comandos evita el
+ *        monolito de 790 líneas y facilita leer el flujo de arranque.
+ * @refs  handlers.js — toda la lógica de comandos Telegram
+ *        utils/send.js — safeSendMessage con chunking y fallback Markdown
+ *        scripts/swarm-pilot.js — ejecutado por exec() para /dream
+ *        scripts/sicc-harness.js — cron de auditoría (audit_run)
+ *        agent.js — inicializarBrain(), generarReporteConsistencia()
+ *        heartbeat.js — obtenerResumenForense() para cron matutino
+ *
+ * @agent-prompt
+ *   NUNCA muevas lógica de comandos aquí; va en handlers.js.
+ *   NUNCA reimplementes safeSendMessage; usa `send(chatId, text)`.
+ *   Si agregas un cron nuevo ponlo en la sección "Crons" con comentario.
+ *   El orden de arranque es: dirs → brain → IA-check → bot → crons → listeners.
+ *   No toques el bloque `bot.onText(/^\/dream/)` sin actualizar swarm-pilot.js.
+ */
 'use strict';
 
-const fs = require('fs');
+const fs   = require('fs');
 const path = require('path');
-const TelegramBot = require('node-telegram-bot-api');
-const config = require('./config');
-const { inicializarBrain, procesarMensaje, procesarMensajeSwarm, limpiarHistorial, generarReporteConsistencia } = require('./agent');
-const { llamarMultiplexadorFree, llamarOllama, EstadoGlobalErrores, extraerCodigoError } = require('../scripts/sicc-multiplexer');
-const { cmdDoctor, cmdLearn, cmdAudit } = require('../scripts/sicc-harness');
-const { estadoBrain, leerHeartbeat } = require('./brain');
-const { guardar, estadoMemoria } = require('./memory');
-const { leerNoLeidos, formatearCorreos, enviarCorreo } = require('./gmail');
-const { infoRepo, ultimosCommits, issuesAbiertos, listarCarpeta, leerArchivo,
-        formatearInfo, formatearCommits, formatearIssues, OWNER, REPO } = require('./github');
-const { startPatrol, stopPatrol, getPatrolStatus } = require('./patrol');
 const { exec } = require('child_process');
 const cron = require('node-cron');
+const TelegramBot = require('node-telegram-bot-api');
+
+const config = require('./config');
+const { inicializarBrain, generarReporteConsistencia } = require('./agent');
+const { llamarMultiplexadorFree, EstadoGlobalErrores, extraerCodigoError } = require('../scripts/sicc-multiplexer');
+const { estadoBrain } = require('./brain');
 const { obtenerResumenForense } = require('./heartbeat');
+const { safeSendMessage } = require('./utils/send');
+const { handleMessage, handleFile } = require('./handlers');
 
-console.log('--------------------------------------------------');
-console.log('🛡️ SICC GUARDIA ACTIVADA (v7.2 Hyper-Productive)');
-console.log('⏰ Lun-Vie: 20:00 - 07:00 (Cada 3h)');
-console.log('⏰ Fin de Semana: Vie 17:00 - Lun 07:00 (Cada 4h)');
-console.log('--------------------------------------------------');
-
+// ── Dirs ──────────────────────────────────────────────────────────────────────
 const DOWNLOADS_DIR = path.join(__dirname, '../data/downloads');
-const LOGS_DIR = path.join(__dirname, '../data/logs');
+const LOGS_DIR      = path.join(__dirname, '../data/logs');
 if (!fs.existsSync(DOWNLOADS_DIR)) fs.mkdirSync(DOWNLOADS_DIR, { recursive: true });
-if (!fs.existsSync(LOGS_DIR)) fs.mkdirSync(LOGS_DIR, { recursive: true });
+if (!fs.existsSync(LOGS_DIR))      fs.mkdirSync(LOGS_DIR,      { recursive: true });
 
-/**
- * Envía un mensaje de forma segura, intentando Markdown primero, 
- * y cayendo a texto plano si falla el parseo.
- */
-async function safeSendMessage(chatId, text, options = {}) {
-  // Telegram tiene un límite de 4096 caracteres. Usamos 3500 para mayor seguridad con meta-data.
-  const MAX_LENGTH = 3500;
-  
-  if (text.length <= MAX_LENGTH) {
-    try {
-      return await bot.sendMessage(chatId, text, { ...options, parse_mode: 'Markdown' });
-    } catch (err) {
-      if (err.message.includes('can\'t parse entities')) {
-        console.warn('[BOT] [SICC WARN] Error de Markdown, reintentando en texto plano...');
-        return await bot.sendMessage(chatId, text, { ...options, parse_mode: undefined });
-      }
-      throw err;
-    }
-  }
-
-  // Si es muy largo, dividimos en trozos
-  const chunks = [];
-  for (let i = 0; i < text.length; i += MAX_LENGTH) {
-    chunks.push(text.substring(i, i + MAX_LENGTH));
-  }
-  console.log(`[BOT] 📦 Dividiendo mensaje de ${text.length} chars en ${chunks.length} fragmentos...`);
-
-  for (const [index, chunk] of chunks.entries()) {
-    const finalChunk = chunks.length > 1 ? `* [Parte ${index + 1}/${chunks.length}]*\n${chunk}` : chunk;
-    try {
-      await bot.sendMessage(chatId, finalChunk, { ...options, parse_mode: 'Markdown' });
-      console.log(`[BOT] [SICC OK] Fragmento ${index + 1}/${chunks.length} enviado.`);
-    } catch (err) {
-      console.warn(`[BOT] [SICC WARN] Fallo Markdown en fragmento ${index + 1}, reintentando plano...`);
-      await bot.sendMessage(chatId, finalChunk, { ...options, parse_mode: undefined });
-    }
-    // Pequeño delay para no saturar el polling de Telegram
-    await new Promise(resolve => setTimeout(resolve, 500));
-  }
-}
-
-// ── Inicializar brain + memoria al arrancar ───────────────────────────────────
+// ── Brain init ────────────────────────────────────────────────────────────────
 inicializarBrain();
 
-// 🔍 VERIFICACIÓN DE CONECTIVIDAD IA AL ARRANQUE (Doble Factor Sovereign)
+// ── Startup IA check ──────────────────────────────────────────────────────────
 (async () => {
-    try {
-        console.log('[STARTUP] 📡 Verificando conectividad IA...');
-        
-        // Verificación 1: Primario (Gemini/Ollama)
-        const test1 = await llamarMultiplexadorFree('ping', null, 'Responde solo con la palabra PONG');
-        
-        // Verificación 2: Alternativo (OpenRouter si está configurado)
-        let statusOR = 'N/A';
-        if (config.ai.openrouter.apiKey) {
-            try {
-                // llamarOpenRouter ya está importado arriba desde el multiplexor (línea 9)
-                statusOR = '[SICC OK]';
-            } catch (e) { statusOR = '[SICC FAIL]'; }
-        }
-
-        if (test1 && test1.texto) {
-            console.log(`[STARTUP] [SICC OK] Conectividad IA verificada vía ${test1.proveedor.toUpperCase()} | OpenRouter: ${statusOR}`);
-        }
-    } catch (err) {
-        const code = extraerCodigoError(err);
-        const label = code ? `(Error ${code})` : '';
-        console.warn(`[STARTUP] [SICC WARN] Advertencia de conectividad IA ${label}:`, err.message);
-        if (code === 402) console.error('[STARTUP] [SICC BLOCKER] BLOQUEO DE CUOTA (402) DETECTADO AL INICIO.');
-    }
+  try {
+    const test = await llamarMultiplexadorFree('ping', null, 'Responde solo con la palabra PONG');
+    if (test?.texto) console.log(`[STARTUP] IA verificada vía ${test.proveedor.toUpperCase()}`);
+  } catch (err) {
+    const code = extraerCodigoError(err);
+    console.warn(`[STARTUP] [SICC WARN] IA ${code ? `(${code})` : ''}: ${err.message}`);
+    if (code === 402) console.error('[STARTUP] [SICC BLOCKER] BLOQUEO DE CUOTA (402)');
+  }
 })();
 
-const bot = new TelegramBot(config.telegram.token, { polling: true });
-console.log(`[BOT] 🤖 ${config.agent.name} iniciado (v8.7). Esperando mensajes de Telegram...`);
-console.log(`[BOT] 🔒 Solo responde al usuario ID: ${config.telegram.userId}`);
+// ── Bot ───────────────────────────────────────────────────────────────────────
+const bot  = new TelegramBot(config.telegram.token, { polling: true });
+const send = (chatId, text, opts) => safeSendMessage(bot, chatId, text, opts);
 
-// ── Heartbeat periódico (cada 30 minutos) ─────────────────────────────────────
-// HEARTBEAT REDUNDANTE ELIMINADO V9.13
+console.log(`[BOT] ${config.agent.name} iniciado. Usuario autorizado: ${config.telegram.userId}`);
 
-// ── Programador de Tareas Interno (Unificación de Autonomía) ────────────────
-const BOGOTA_TZ = 'America/Bogota';
+// ── Crons ─────────────────────────────────────────────────────────────────────
+const TZ = 'America/Bogota';
 
-// 1. Vigilia Michelin (08:00 AM) - Reporte Consolidado Institucional Dinámico
-cron.schedule('00 08 * * *', async () => {
-  console.log('[CRON] 🛰️ Iniciando Reporte de Consistencia Soberana (8:00 AM)...');
+// 08:00 — Reporte matutino
+cron.schedule('0 8 * * *', async () => {
+  console.log('[CRON] Reporte matutino 08:00...');
   try {
-    const { pool } = require('./supabase');
+    const { pool }   = require('./supabase');
     const { execSync } = require('child_process');
-    
-    // Obtener Clima Dinámico
-    let climaReal = '14°C (Nublado)';
-    try {
-        climaReal = execSync('curl -s "https://wttr.in/Bogota?format=3"', { encoding: 'utf8' }).trim();
-    } catch (e) { console.warn('[CRON] Error obteniendo clima'); }
+    let clima = '—';
+    try { clima = execSync('curl -s "https://wttr.in/Bogota?format=3"', { encoding: 'utf8' }).trim(); } catch (_) {}
+    let frags = '?';
+    try { frags = (await pool.query('SELECT count(*) FROM contrato_documentos')).rows[0].count; } catch (_) {}
+    const forense    = await obtenerResumenForense();
+    const consistencia = await generarReporteConsistencia();
+    await send(config.telegram.userId,
+      `*REPORTE MATUTINO SICC — ${new Date().toLocaleDateString()}*\n\n` +
+      `🌤️ *Clima:* ${clima}\n[SICC BRAIN] *Fragmentos:* ${frags}\n\n` +
+      `${forense.crossRefReporte}\n${forense.zeroResidueReporte}\n\n` +
+      `🔍 *Vigilancia:* ${forense.statusGeneral === 'HEALTHY' ? '🟢' : '🟡'}\n\n` +
+      `🛰️ *Consistencia:*\n${consistencia}`
+    );
+  } catch (err) { console.error('[CRON] Reporte matutino:', err.message); }
+}, { timezone: TZ });
 
-    // Obtener Conteo de Brain
-    let brainCount = 'Desconocido';
-    try {
-        const res = await pool.query('SELECT count(*) FROM contrato_documentos');
-        brainCount = res.rows[0].count;
-    } catch (e) { console.warn('[CRON] Error obteniendo conteo de fragmentos'); }
-
-    const resumenAudit = await obtenerResumenForense();
-    const msgConsistencia = await generarReporteConsistencia();
-    
-    const reporteCompleto = `[SICC CYCLE] *REPORTE MATUTINO SICC — ${new Date().toLocaleDateString()}*\n\n` +
-      `🌤️ *Clima:* ${climaReal}\n` +
-      `[SICC BRAIN] *Brain Pureness:* ${brainCount} fragmentos\n\n` +
-      `${resumenAudit.crossRefReporte}\n` +
-      `${resumenAudit.zeroResidueReporte}\n\n` +
-      `--- \n` +
-      `🔍 *Estado de Vigilancia:* ${resumenAudit.statusGeneral === 'HEALTHY' ? '🟢 Óptimo' : '🟡 Requiere Revisión'}\n\n` +
-      `🛰️ *Dictamen de Consistencia SICC:*\n${msgConsistencia}`;
-
-    await safeSendMessage(config.telegram.userId, reporteCompleto);
-    console.log('[CRON] [SICC OK] Reporte Institucional dinámico enviado.');
-  } catch (err) {
-    console.error('[CRON] [SICC FAIL] Error en Reporte Matutino:', err.message);
-  }
-}, { timezone: BOGOTA_TZ });
-
-// 2. Ciclo de Auditoría Forense (SICC Simulator v12.0)
-const ejecutarCicloAuditoria = () => {
-  console.log('[CRON] 🛡️ Iniciando ciclo de auditoría forense (Ingesta + Validación Soberana)...');
-  const docPath = '/app/repos/LFC2/docs/00_Referencia_Normativa_Contractual_LFC/';
-  const cmdIngesta = `node src/ingest_masivo.js "${docPath}" >> data/logs/ingesta_biblia.log 2>&1`;
-  const cmdSimulator = `node src/simulator.js "SICC" >> data/logs/simulator.log 2>&1`;
-
-  exec(`${cmdIngesta} && ${cmdSimulator}`, (error) => {
+// 06:00 — Backup
+cron.schedule('0 6 * * *', () => {
+  console.log('[BACKUP] Respaldo 06:00...');
+  exec('bash scripts/sicc-backup.sh', async (error) => {
     if (error) {
-      console.error('[CRON] [SICC FAIL] Error en ciclo de auditoría:', error.message);
-    } else {
-      console.log('[CRON] [SICC OK] Ciclo de auditoría completado.');
+      console.error('[BACKUP] Error:', error.message);
+      await send(config.telegram.userId, `[SICC BLOCKER] *FALLO DE RESPALDO*\n\n${error.message}`);
     }
   });
-};
+}, { timezone: TZ });
 
-// A. Vigilia Nocturna (Lun-Jue): 8PM, 11PM, 2AM, 5AM
-// cron.schedule('0 20,23,02,05 * * 1-4', ejecutarCicloNocturno, { timezone: BOGOTA_TZ });
-
-// B. MISIÓN INFINITA (Fin de Semana - Inicia Viernes 4PM)
-// cron.schedule('0 16,20,00 * * 5', ejecutarCicloNocturno, { timezone: BOGOTA_TZ }); // Viernes Early Surge
-// cron.schedule('0 */04 * * 6,0', ejecutarCicloNocturno, { timezone: BOGOTA_TZ }); // Sáb-Dom Continuo (cada 4h)
-// cron.schedule('0 02,05 * * 1', ejecutarCicloNocturno, { timezone: BOGOTA_TZ });   // Cierre Lunes AM
-
-// 3. Backup Automatizado SICC (06:00 AM) - Después de la Guardia
-cron.schedule('00 06 * * *', () => {
-  console.log('[BACKUP] 📂 Iniciando respaldo soberano SICC (06:00 AM)...');
-  exec(`bash scripts/sicc-backup.sh`, async (error, stdout, stderr) => {
-    if (error) {
-      console.error('[BACKUP] [SICC FAIL] Error en backup:', error.message);
-      await safeSendMessage(config.telegram.userId, `[SICC BLOCKER] *FALLO DE RESPALDO SICC*\n\nError: ${error.message}`);
-    } else {
-      console.log('[BACKUP] [SICC OK] Respaldo completado exitosamente.');
-      // Omitimos mensaje diario para reducir ruido, solo logueamos. Si falla, avisará.
-    }
-  });
-}, { timezone: BOGOTA_TZ });
-
-// ── Registro de Salud Institucional (cada hora) [TAREA 2] ─────────────────────
+// Cada hora — Health log
 cron.schedule('0 * * * *', async () => {
-  console.log('[HEALTH] 🩺 Generando latido horario...');
-  const timestamp = new Date().toISOString();
-  const logPath = path.join(LOGS_DIR, 'health.log');
-  
   try {
-    const resumen = await obtenerResumenForense();
-    const brainStatus = estadoBrain().replace(/\n/g, ' | ');
-    
-    // Telemetría 4xx Integrada
-    const err4xxCount = Object.entries(EstadoGlobalErrores.conteos)
-      .map(([code, count]) => `[${code}]: ${count}`).join(', ') || 'None';
+    const forense = await obtenerResumenForense();
+    const err4xx  = Object.entries(EstadoGlobalErrores.conteos)
+      .map(([c, n]) => `[${c}]:${n}`).join(',') || 'none';
+    const entry = `[${new Date().toISOString()}] STATUS:${forense.statusGeneral} | 4xx:${err4xx} | ${forense.crossRefReporte.trim().replace(/\n/g, ' ')}\n`;
+    fs.appendFileSync(path.join(LOGS_DIR, 'health.log'), entry);
+  } catch (err) { console.error('[HEALTH]', err.message); }
+}, { timezone: TZ });
 
-    const logEntry = `[${timestamp}] ❤️ STATUS: ${resumen.statusGeneral} | IA: ${config.ai.primaryProvider} | 4xx: ${err4xxCount} | ${resumen.clima} | ${resumen.crossRefReporte.trim().replace(/\n/g, ' ')} | ${resumen.zeroResidueReporte.trim().replace(/\n/g, ' ')}\n`;
-
-    fs.appendFileSync(logPath, logEntry);
-    console.log('[HEALTH] [SICC OK] Registro forense guardado en health.log.');
-  } catch (err) {
-    console.error(`[HEALTH] [SICC FAIL] Error en el latido horario: ${err.message}`);
-  }
-}, { timezone: BOGOTA_TZ });
-
-// ── Monitor de Bloqueos Críticos (Inmediato ante fallo) ─────────────────────
+// Cada 30 min — Monitor bloqueos críticos
 setInterval(async () => {
   if (EstadoGlobalErrores.bloqueos.size > 0) {
     const list = Array.from(EstadoGlobalErrores.bloqueos).join(', ');
-    console.error(`[GUARD] [SICC BLOCKER] EVENTO CRÍTICO DETECTADO: ${list}`);
-    await safeSendMessage(config.telegram.userId, 
-      `[SICC BLOCKER] *SICC CRITICAL EVENT*\n\nSe ha detectado un bloqueo de infraestructura (${list}).\nEl sistema requiere atención inmediata para continuar la misión.`
-    );
+    console.error(`[GUARD] Bloqueo crítico: ${list}`);
+    await send(config.telegram.userId, `[SICC BLOCKER] *EVENTO CRÍTICO*\n\nBloqueo: ${list}`);
     EstadoGlobalErrores.bloqueos.clear();
   }
-}, 30 * 60 * 1000); // Revisión cada 30 min alineada con Heartbeat
+}, 30 * 60 * 1000);
 
-// ── Mensajes de Telegram ──────────────────────────────────────────────────────
-
-// --- GOBERNANZA KARPATHY DREAMER ---
+// ── Dream launcher ────────────────────────────────────────────────────────────
 bot.onText(/^\/dream(?:\s+(.+))?/, async (msg, match) => {
   const chatId = msg.chat.id;
   const userId = String(msg.from.id);
-  
-  if (userId !== config.telegram.userId && userId !== "1567740382") {
-    console.warn(`[BOT] 🛡️ Intento de /dream no autorizado de: ${userId}`);
-    return;
-  }
+  if (userId !== config.telegram.userId && userId !== '1567740382') return;
 
-  const target = match[1] || "LFC2 General";
-  
-  await safeSendMessage(chatId, `🌪️ **Modo Sueño Iniciado**\n\nEl enjambre está analizando: *${target}*\nMetodología: **Cámara de Doble Ciego** (Supabase + NotebookLM)\n\n_Decantando conocimiento forense... (Est. 5-10 min)_`);
-  
-  const { exec } = require('child_process');
+  const target = match[1] || 'LFC2 General';
+  await send(chatId,
+    `🌪️ *Modo Sueño Iniciado*\n\nÁrea: *${target}*\nMetodología: Cámara de Doble Ciego\n\n_Est. 5-10 min..._`
+  );
+
   const scriptPath = path.join(__dirname, '../scripts/swarm-pilot.js');
-  console.log(`[SICC] 🌪️ Disparando Swarm Pilot: node "${scriptPath}" "${target}"`);
-  
-  exec(`node "${scriptPath}" "${target}"`, { maxBuffer: 1024 * 1024 * 10, timeout: 1800000 }, async (error, stdout, stderr) => {
-    try {
-      if (error) {
-        console.error(`[SICC ERROR] Swarm Pilot falló: ${error.message}`);
-        // Reintentar envío en caso de ECONNRESET transitorio
+  exec(`node "${scriptPath}" "${target}"`, { maxBuffer: 10 * 1024 * 1024, timeout: 1800000 },
+    async (error, stdout) => {
+      try {
+        if (error) {
+          for (let t = 0; t < 3; t++) {
+            try { await send(chatId, `❌ *Error en sueño:*\n${error.message}`); break; }
+            catch (_) { await new Promise(r => setTimeout(r, 3000)); }
+          }
+          return;
+        }
+        const veredicto = stdout.match(/⚖️ VEREDICTO FINAL AL DESPERTAR:[\s\S]*/);
+        const resumen   = veredicto ? veredicto[0].substring(0, 3000) : 'Decantación concluida — veredicto no parseado.';
         for (let t = 0; t < 3; t++) {
-          try { await safeSendMessage(chatId, `❌ **Pesadilla (Error Interno):**\n${error.message}`); break; } catch (_) { await new Promise(r => setTimeout(r, 3000)); }
+          try { await send(chatId, `✨ *Sueño Finalizado (${target})*\n\n${resumen}`); break; }
+          catch (_) { await new Promise(r => setTimeout(r, 3000)); }
         }
-        return;
-      }
-
-      const logStr = stdout.toString();
-      const veredictoMatch = logStr.match(/⚖️ VEREDICTO FINAL AL DESPERTAR:[\s\S]*/);
-
-      let resumen = "El proceso de decantación concluyó, pero el veredicto no pudo ser parseado.";
-      if (veredictoMatch) {
-        resumen = veredictoMatch[0].substring(0, 3000);
-      }
-
-      for (let t = 0; t < 3; t++) {
-        try { await safeSendMessage(chatId, `✨ **Sueño Finalizado (${target})**\n\n${resumen}`); break; } catch (_) { await new Promise(r => setTimeout(r, 3000)); }
-      }
-      console.log(`[SICC] [SICC OK] Sueño sobre ${target} completado y reportado.`);
-    } catch (sendErr) {
-      console.error(`[SICC ERROR] Fallo al enviar resultado del sueño: ${sendErr.message}`);
+      } catch (e) { console.error('[DREAM]', e.message); }
     }
-  });
+  );
 });
 
-bot.on('message', async (msg) => {
-  if (!msg.text) return;
-  const _texto = msg.text.trim();
-  // Ignorar comandos gestionados en onText o obsoletos
-  if (_texto.startsWith('/dream') || _texto === '/swarm') return;
+// ── Message & file routing ────────────────────────────────────────────────────
+bot.on('message',  (msg) => handleMessage(msg, bot, send));
+bot.on('document', (msg) => handleFile(msg, 'document', bot, send));
+bot.on('photo',    (msg) => handleFile(msg, 'photo',    bot, send));
 
-  const chatId = msg.chat.id;
-  const userId = String(msg.from.id);
-  const texto  = msg.text;
-
-  console.log(`[BOT] 📩 Recibido de ${userId} (Esperado: ${config.telegram.userId}): "${texto ? texto.substring(0, 50) : '(sin texto)'}"`);
-
-  if (userId !== config.telegram.userId) {
-    console.warn(`[BOT] 🛡️ Mensaje ignorado de usuario no autorizado: ${userId}`);
-    return;
-  }
-
-  if (!texto) {
-    await bot.sendMessage(chatId, '📎 Por ahora solo proceso texto.');
-    return;
-  }
-
-  // ── Comandos ──────────────────────────────────────────────────────────────
-  if (texto === '/start' || texto === '/hola') {
-    await safeSendMessage(chatId,
-      `👋 ¡Hola Diego! Soy *${config.agent.name}* (SICC Simulator).\n\n` +
-      `[SICC BRAIN] Cerebro · 💾 Memoria · 📧 Gmail · 🐙 GitHub\n\n` +
-      `*/doctor* · */learn* · */audit [ruta]*\n` +
-      `*/ollama [prompt]* — Hablar directo con IA Local\n` +
-      `*/cmd [comando]* — Ejecutar Shell (ej. docker ps)\n\n` +
-      `*/correos* · */email para|asunto|msg*\n` +
-      `*/git repo* · */git commits* · */git issues*\n` +
-      `*/git ls [ruta]* · */git cat archivo*\n\n` +
-      `🛰️ **Patrulla Forense (v12.0-Manual):**\n` +
-      `*/ingesta [ruta]* — Ingerir PDFs manualmente\n` +
-      `*/audit_run* — Forzar ciclo de auditoría\n` +
-      `*/patrol_on* — Activar Patrulla 24/7\n` +
-      `*/patrol_off* — Detener Patrulla\n` +
-      `*/patrol_status* — Estado del simulador`
-    );
-    return;
-  }
-
-  // ── Comando SWARM (DBCD Forensic Debate) ───────────────────────────────────
-  if (texto.startsWith('/swarm ')) {
-    const pregunta = texto.replace('/swarm ', '').trim();
-    if (!pregunta) {
-      await bot.sendMessage(chatId, '🐝 Uso: `/swarm ¿Cómo sanar la Red Vital IP?`', { parse_mode: 'Markdown' });
-      return;
-    }
-
-    await safeSendMessage(chatId, '🐝 *Iniciando Enjambre Secuencial...*\n\nEstamos consultando al Auditor Forense y al Estratega SICC. Esto tomará ~10 minutos (SICC Hard-Cap activo).');
-    await bot.sendChatAction(chatId, 'typing');
-
-    try {
-      const respuestaDebate = await procesarMensajeSwarm(pregunta);
-      guardar(texto, respuestaDebate, 'SICC-SWARM');
-      await safeSendMessage(chatId, respuestaDebate);
-      console.log(`[BOT] [SICC OK] Swarm completado para: "${pregunta.substring(0, 30)}..."`);
-    } catch (err) {
-      console.error(`[BOT] [SICC FAIL] Error en Swarm: ${err.message}`);
-      await safeSendMessage(chatId, `[SICC FAIL] Error en el Enjambre: ${err.message}`);
-    }
-    return;
-  }
-
-  // ── Comando DOCTOR (SICC Health Check nativo) ───────────────────────────────
-  if (texto === '/doctor') {
-    await safeSendMessage(chatId, '🩺 *Ejecutando SICC Doctor...*');
-    await bot.sendChatAction(chatId, 'typing');
-    try {
-      const oldLog = console.log;
-      const oldWarn = console.warn;
-      const lines = [];
-      console.log = (...a) => { oldLog(...a); lines.push(a.join(' ')); };
-      console.warn = (...a) => { oldWarn(...a); lines.push(a.join(' ')); };
-      const score = await cmdDoctor();
-      console.log = oldLog;
-      console.warn = oldWarn;
-      const emoji = score >= 90 ? '🟢' : score >= 70 ? '🟡' : '🔴';
-      const reporte = `🩺 *SICC Doctor — Health Report*\n\n` +
-        `${emoji} *Score: ${score}/100*\n\n` +
-        `\`\`\`\n${lines.slice(-12).join('\n')}\n\`\`\``;
-      guardar(texto, `Score: ${score}/100`, 'SYSTEM');
-      await safeSendMessage(chatId, reporte);
-    } catch (err) {
-      await safeSendMessage(chatId, `[SICC FAIL] Error en Doctor: ${err.message}`);
-    }
-    return;
-  }
-
-  // ── Comando DREAM (Estado del Dreamer) ─────────────────────────────────────
-  if (texto === '/dream') {
-    const dreamsPath = path.join(__dirname, '../brain/DREAMS.md');
-    const dtsPath    = path.join(__dirname, '../brain/PENDING_DTS.md');
-    const dreams = fs.existsSync(dreamsPath)
-      ? (fs.readFileSync(dreamsPath, 'utf8').match(/^- \[(?!DONE)/gm) || []).length : 0;
-    const dts = fs.existsSync(dtsPath)
-      ? (fs.readFileSync(dtsPath, 'utf8').match(/^## DT-DREAM/gm) || []).length : 0;
-    const msg = `[SICC SLEEP] *SICC Dreamer — Estado*\n\n` +
-      `⏳ *${dreams}* hipótesis en cola para el ciclo nocturno\n` +
-      `📋 *${dts}* borradores de DT pendientes de aprobación\n\n` +
-      `El Dreamer ejecuta a las *2:00 AM* con el Hard-Cap de CPU activo.`;
-    await safeSendMessage(chatId, msg);
-    return;
-  }
-
-  // ── Comando LEARN (Auto-mapeo recursivo) ───────────────────────────────────
-  if (texto === '/learn') {
-    await safeSendMessage(chatId, '[SICC BRAIN] *SICC Brain: Inicia aprendizaje recursivo...*');
-    await bot.sendChatAction(chatId, 'typing');
-    try {
-      const oldLog = console.log;
-      const lines = [];
-      console.log = (...a) => { oldLog(...a); lines.push(a.join(' ')); };
-      cmdLearn();
-      console.log = oldLog;
-      const resumen = lines.slice(-5).join('\n');
-      guardar(texto, resumen, 'SYSTEM');
-      await safeSendMessage(chatId, `[SICC OK] *Aprendizaje Completado*\n\n\`\`\`\n${resumen}\n\`\`\``);
-    } catch (err) {
-      await safeSendMessage(chatId, `[SICC FAIL] Error en Learn: ${err.message}`);
-    }
-    return;
-  }
-
-  // ── Comando KARPATHY (Auditoría Autónoma proactiva) ───────────────────────
-  if (texto.startsWith('/karpathy ')) {
-    const tema = texto.replace('/karpathy ', '').trim();
-    if (!tema) {
-      await safeSendMessage(chatId, '🔬 Uso: `/karpathy Ingeniería Eléctrica`');
-      return;
-    }
-
-    await safeSendMessage(chatId, `🔬 *SICC Karpathy — Iniciando Auditoría proactiva sobre:* \`${tema}\`...\nEstoy explorando archivos y buscando impurezas en el repositorio.`);
-    await bot.sendChatAction(chatId, 'typing');
-
-    try {
-      // 1. Búsqueda inteligente (Ignora "Ingeniería" y normaliza acentos)
-      let keyword = tema.toLowerCase().includes('ingeniería') ? tema.split(' ').slice(1).join(' ') : tema;
-      // Normalizar: quitar acentos para la búsqueda en archivos
-      const normalizedKeyword = keyword.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-      const findCmd = `find ${config.paths.lfc2} -iname "*${normalizedKeyword}*" | grep -v "/old/" | head -5`;
-      
-      exec(findCmd, async (err, stdout) => {
-        const archivos = stdout.trim();
-        let rutaAuditar = config.paths.lfc2;
-        
-        if (!archivos) {
-          await safeSendMessage(chatId, `[SICC WARN] No se encontraron archivos específicos para: \`${keyword}\`. Auditando raíz...`);
-        } else {
-          await safeSendMessage(chatId, `📂 *Archivos localizados:*\n\`\`\`\n${archivos}\n\`\`\``);
-          rutaAuditar = archivos.split('\n')[0];
-        }
-
-        // 2. Ejecutar Auditoría capturando salida
-        const oldLog = console.log;
-        const lines = [];
-        console.log = (...a) => { oldLog(...a); lines.push(a.join(' ')); };
-        cmdAudit(rutaAuditar);
-        console.log = oldLog;
-
-        const resumenAudit = lines.join('\n').substring(0, 3000);
-        await safeSendMessage(chatId, `🔬 *Dictamen Karpathy:* \n\n\`\`\`\n${resumenAudit}\n\`\`\``);
-        await safeSendMessage(chatId, `[SICC OK] *Proceso completado.* Los hallazgos se han registrado en el cerebro.`);
-      });
-    } catch (err) {
-      await safeSendMessage(chatId, `[SICC FAIL] Error en Protocolo Karpathy: ${err.message}`);
-    }
-    return;
-  }
-
-  // ── Comando AUDIT (Karpathy Loop manual) ───────────────────────────────────
-  if (texto.startsWith('/audit ')) {
-    const ruta = texto.replace('/audit ', '').trim();
-    if (!ruta) {
-      await safeSendMessage(chatId, '[SICC WARN] Uso: `/audit IV_Ingenieria_basica`');
-      return;
-    }
-    await safeSendMessage(chatId, `🔬 *Iniciando Auditoría Forense en:* \`${ruta}\`...`);
-    await bot.sendChatAction(chatId, 'typing');
-    try {
-      const oldLog = console.log;
-      const lines = [];
-      console.log = (...a) => { oldLog(...a); lines.push(a.join(' ')); };
-      cmdAudit(ruta);
-      console.log = oldLog;
-      const resumenAudit = lines.join('\n').substring(0, 3000);
-      guardar(texto, `Resultados de auditoría en ${ruta}`, 'SYSTEM');
-      await safeSendMessage(chatId, `🔬 *Resultados de la Auditoría:* \n\n\`\`\`\n${resumenAudit}\n\`\`\``);
-    } catch (err) {
-      await safeSendMessage(chatId, `[SICC FAIL] Error en Audit: ${err.message}`);
-    }
-    return;
-  }
-
-  // ── Comando OLLAMA (Inferencia Local Soberana) ────────────────────────────
-  if (texto.startsWith('/ollama ')) {
-    const prompt = texto.replace('/ollama ', '').trim();
-    if (!prompt) return;
-    await safeSendMessage(chatId, '🖥️ *Ollama Local:* Pensando...');
-    await bot.sendChatAction(chatId, 'typing');
-    try {
-      const resultado = await llamarOllama(prompt);
-      await safeSendMessage(chatId, `🖥️ *Ollama_v7.0:*\n\n${resultado}`);
-    } catch (err) {
-      await safeSendMessage(chatId, `[SICC FAIL] Error en Ollama: ${err.message}`);
-    }
-    return;
-  }
-
-  // ── Comando CMD (Ejecución Terminal) ──────────────────────────────────────
-  if (texto.startsWith('/cmd ')) {
-    const comando = texto.replace('/cmd ', '').trim();
-    if (!comando) return;
-    await safeSendMessage(chatId, `💻 *Ejecutando:* \`${comando}\``);
-    exec(comando, { timeout: 15000 }, async (error, stdout, stderr) => {
-      let output = stdout || stderr || 'Sin salida.';
-      if (error) output += `\nError: ${error.message}`;
-      const preview = output.substring(0, 3000);
-      await safeSendMessage(chatId, `\`\`\`bash\n${preview}\n\`\`\``);
-    });
-    return;
-  }
-
-  // ── Comando INGESTA (Manual Demand) ───────────────────────────────────────
-  if (texto.startsWith('/ingesta ')) {
-    const ruta = texto.replace('/ingesta ', '').trim();
-    if (!ruta) {
-      await bot.sendMessage(chatId, '📝 Uso: `/ingesta /ruta/de/pdfs`');
-      return;
-    }
-    await safeSendMessage(chatId, `🚀 *Iniciando Ingesta bajo demanda en:* \`${ruta}\`...\nEsto puede tardar varios minutos.`);
-    await bot.sendChatAction(chatId, 'upload_document');
-    
-    exec(`node scripts/sicc-ingesta.js --path "${ruta}"`, (error, stdout, stderr) => {
-      if (error) {
-        bot.sendMessage(chatId, `❌ *Error en Ingesta:* ${error.message}`);
-      } else {
-        const out = stdout.split('\n').slice(-5).join('\n');
-        safeSendMessage(chatId, `✅ *Ingesta Finalizada*\n\n\`\`\`\n${out}\n\`\`\``);
-      }
-    });
-    return;
-  }
-
-  // ── Comando AUDIT_RUN (Auditor Manual) ─────────────────────────────────────────
-  if (texto === '/audit_run') {
-    await safeSendMessage(chatId, '🛡️ *Activando Motor de Auditoría Forense...*');
-    await bot.sendChatAction(chatId, 'typing');
-    
-    exec(`node scripts/sicc-harness.js audit --force`, (error, stdout, stderr) => {
-      if (error) {
-        bot.sendMessage(chatId, `❌ *Error en Auditor:* ${error.message}`);
-      } else {
-        const out = stdout.split('\n').slice(-5).join('\n');
-        safeSendMessage(chatId, `🛡️ *Ciclo de Auditoría Finalizado*\n\n\`\`\`\n${out}\n\`\`\``);
-      }
-    });
-    return;
-  }
-
-  // ── Comandos de Patrulla v9.6.1 (Dreamer) ──────────────────────────────────
-  if (texto === '/dream_on') {
-    const res = startPatrol(bot, chatId);
-    await safeSendMessage(chatId, res);
-    return;
-  }
-
-  if (texto === '/dream_off') {
-    const res = stopPatrol();
-    await safeSendMessage(chatId, res);
-    return;
-  }
-
-  if (texto === '/dream_status') {
-    const st = getPatrolStatus();
-    const emoji = st.active ? '🛰️' : '🛑';
-    await safeSendMessage(chatId, 
-      `${emoji} *Estatus de Patrulla SICC*\n\n` +
-      `• Estado: ${st.active ? '*ACTIVA*' : '*DETENIDA*'}\n` +
-      `• Carpeta Actual: \`#${st.folderIndex + 1}\`\n` +
-      `• Carga CPU: ${st.cpu}%\n\n` +
-      `📝 _${st.msg}_`
-    );
-    return;
-  }
-
-
-  // ── Comandos GitHub ───────────────────────────────────────────────────────
-  if (texto.startsWith('/git ')) {
-    const args = texto.replace('/git ', '').trim().split(' ');
-    const sub  = args[0];
-    await bot.sendChatAction(chatId, 'typing');
-    try {
-      if (sub === 'repo') {
-        const info = await infoRepo();
-        await bot.sendMessage(chatId, formatearInfo(info), { parse_mode: 'Markdown' });
-
-      } else if (sub === 'commits') {
-        const commits = await ultimosCommits(5);
-        await bot.sendMessage(chatId,
-          `🔀 *Últimos commits — ${OWNER}/${REPO}*\n\n${formatearCommits(commits)}`,
-          { parse_mode: 'Markdown' }
-        );
-
-      } else if (sub === 'issues') {
-        const issues = await issuesAbiertos(5);
-        await bot.sendMessage(chatId,
-          `🐛 *Issues abiertos — ${OWNER}/${REPO}*\n\n${formatearIssues(issues)}`,
-          { parse_mode: 'Markdown' }
-        );
-
-      } else if (sub === 'ls') {
-        const ruta = args.slice(1).join(' ') || '';
-        const items = await listarCarpeta(ruta);
-        await bot.sendMessage(chatId,
-          `📁 *${REPO}/${ruta || '(raíz)'}*\n\n${items.join('\n')}`,
-          { parse_mode: 'Markdown' }
-        );
-
-      } else if (sub === 'cat') {
-        const archivo = args.slice(1).join(' ');
-        if (!archivo) { await bot.sendMessage(chatId, '[SICC WARN] Uso: `/git cat ruta/archivo`', { parse_mode: 'Markdown' }); return; }
-        const contenido = await leerArchivo(archivo);
-        const preview = contenido.substring(0, 3000);
-        await bot.sendMessage(chatId,
-          `📄 *${archivo}*\n\`\`\`\n${preview}${contenido.length > 3000 ? '\n...(truncado)' : ''}\n\`\`\``,
-          { parse_mode: 'Markdown' }
-        );
-
-      } else {
-        await bot.sendMessage(chatId, '[SICC WARN] Sub-comandos: `repo` · `commits` · `issues` · `ls [ruta]` · `cat archivo`', { parse_mode: 'Markdown' });
-      }
-    } catch (err) {
-      console.error(`[GITHUB] [SICC FAIL] ${err.message}`);
-      await safeSendMessage(chatId, `[SICC FAIL] Error GitHub: ${err.message}`);
-    }
-    return;
-  }
-
-  if (texto === '/correos') {
-    await bot.sendChatAction(chatId, 'typing');
-    try {
-      const correos = await leerNoLeidos(5);
-      const resumen = formatearCorreos(correos);
-      await safeSendMessage(chatId,
-        `📧 *Correos no leídos — dieleozagent@gmail.com*\n\n${resumen}`
-      );
-    } catch (err) {
-      console.error(`[GMAIL] [SICC FAIL] ${err.message}`);
-      await bot.sendMessage(chatId, `[SICC FAIL] Error al leer Gmail: ${err.message}`);
-    }
-    return;
-  }
-
-  if (texto.startsWith('/email ')) {
-    // Formato: /email destinatario|asunto|mensaje
-    const partes = texto.replace('/email ', '').split('|');
-    if (partes.length < 3) {
-      await bot.sendMessage(chatId,
-        '[SICC WARN] Formato: `/email destinatario@correo.com|Asunto|Mensaje`',
-        { parse_mode: 'Markdown' }
-      );
-      return;
-    }
-    await bot.sendChatAction(chatId, 'typing');
-    try {
-      await enviarCorreo({ para: partes[0].trim(), asunto: partes[1].trim(), cuerpo: partes[2].trim() });
-      await bot.sendMessage(chatId, `[SICC OK] Correo enviado a *${partes[0].trim()}*`, { parse_mode: 'Markdown' });
-    } catch (err) {
-      console.error(`[GMAIL] [SICC FAIL] ${err.message}`);
-      await bot.sendMessage(chatId, `[SICC FAIL] Error al enviar: ${err.message}`);
-    }
-    return;
-  }
-
-  if (texto === '/limpiar') {
-    limpiarHistorial();
-    await bot.sendMessage(chatId, '🧹 Historial de sesión limpiado.');
-    return;
-  }
-
-  if (texto === '/estado') {
-    await safeSendMessage(chatId,
-      `📊 *Estado de ${config.agent.name}*\n\n` +
-      `• Proveedor: *${config.ai.primaryProvider}*\n` +
-      `• Gemini: ${config.ai.gemini.apiKey ? '[SICC OK]' : '[SICC FAIL]'}\n` +
-      `• Groq: ${config.ai.groq.apiKey ? '[SICC OK]' : '[SICC FAIL]'}\n` +
-      `• OpenRouter: ${config.ai.openrouter.apiKey ? '[SICC OK]' : '[SICC FAIL]'}\n\n` +
-      `💾 ${estadoMemoria()}`
-    );
-    return;
-  }
-
-  if (texto === '/cerebro') {
-    await safeSendMessage(chatId,
-      `[SICC BRAIN] *Archivos del cerebro:*\n\n${estadoBrain()}`
-    );
-    return;
-  }
-
-  if (texto === '/memoria') {
-    await safeSendMessage(chatId,
-      `💾 *Memoria persistente:*\n\n${estadoMemoria()}\n\n` +
-      `📁 Ubicación: \`/home/administrador/data-agente/memory/\``
-    );
-    return;
-  }
-
-  // ── Consulta sobre identidad / soul / aprendizaje del agente ─────────────
-  const textLower = texto.toLowerCase();
-  if (/\b(soul|alma|identidad|aprendes?|aprende|memoria gen[eé]tica|como funciona|quien eres|qui[eé]n eres|cerebro|brain|karpathy|sueñas?|dream)\b/i.test(textLower) &&
-      /\b(t[uú]|agente|sicc|bot|opengravity|tu soul|tu alma|tu brain)\b/i.test(textLower)) {
-    const brainDir = path.join(__dirname, '../brain');
-    try {
-      const soul = fs.readFileSync(path.join(brainDir, 'SOUL.md'), 'utf8').split('\n').slice(0, 20).join('\n');
-      const identity = fs.readFileSync(path.join(brainDir, 'IDENTITY.md'), 'utf8').split('\n').slice(0, 15).join('\n');
-      const specs = fs.readdirSync(path.join(brainDir, 'SPECIALTIES')).filter(f => f.endsWith('.md'));
-      await safeSendMessage(chatId,
-        `🧠 *Cómo aprende OpenGravity SICC:*\n\n` +
-        `*1. SOUL.md (ética operacional — estático):*\n\`\`\`\n${soul.substring(0, 400)}\n\`\`\`\n\n` +
-        `*2. Memoria Genética (sicc_genetic_memory):*\n` +
-        `Cada sueño (/dream) vectoriza el veredicto del Juez y la DT certificada. En el próximo ciclo, ` +
-        `buscarLecciones() recupera las más similares (coseno >0.7) y las inyecta como vacunas.\n\n` +
-        `*3. SPECIALTIES/* (lecciones Karpathy):*\n` +
-        specs.map(f => `• ${f.replace('.md','')}`).join('  ') + `\n` +
-        `Cada rechazo del Juez hace append de la lección al archivo del área.\n\n` +
-        `*4. brain/dictamenes/ (gold standards):*\nLas DTs aprobadas se usan como referencia en futuros sueños.\n\n` +
-        `_SOUL.md e IDENTITY.md definen quién soy. La memoria genética define qué sé del proyecto._`
-      );
-      return;
-    } catch (_) {}
-  }
-
-  // ── Consulta sobre DTs / dictámenes / dónde están ────────────────────────
-  if (/d[oó]nde|encuentro|dictamen|dictamenes|dt[- ]?aprobad|dt certificad|sueño cert/i.test(textLower)) {
-    const dictDir = path.join(__dirname, '../brain/dictamenes');
-    const dreamsDir = path.join(__dirname, '../brain/DREAMS');
-    try {
-      const dts = fs.readdirSync(dictDir).filter(f => f.endsWith('.md'))
-        .sort().reverse().slice(0, 5);
-      const sueños = fs.readdirSync(dreamsDir).filter(f => f.endsWith('.md'))
-        .sort().reverse().slice(0, 3);
-      const listaDTs = dts.length
-        ? dts.map(f => `• \`${f}\``).join('\n')
-        : '_(ninguna aún)_';
-      const listaSueños = sueños.length
-        ? sueños.map(f => `• \`${f}\``).join('\n')
-        : '_(ninguno aún)_';
-      await safeSendMessage(chatId,
-        `📄 *DTs certificadas* (\`brain/dictamenes/\`):\n${listaDTs}\n\n` +
-        `💤 *Sueños recientes* (\`brain/DREAMS/\`):\n${listaSueños}\n\n` +
-        `Para promover una DT a LFC2/Vercel:\n` +
-        `\`\`\`\ncp brain/dictamenes/<DT>.md /home/administrador/docker/LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/\n\`\`\``
-      );
-      return;
-    } catch (_) {}
-  }
-
-  // ── Procesar con IA y guardar en memoria ──────────────────────────────────
-  console.log(`[BOT] 📨 "${texto.substring(0, 60)}"`);
-  await bot.sendChatAction(chatId, 'typing');
-
-  try {
-    const { texto: respuesta, proveedor } = await procesarMensaje(texto, null);
-    guardar(texto, respuesta, proveedor);
-    await safeSendMessage(chatId, respuesta);
-    console.log(`[BOT] [SICC OK] Respondido con ${proveedor}`);
-  } catch (err) {
-    console.error(`[BOT] [SICC FAIL] ${err.message}`);
-    await safeSendMessage(chatId, '[SICC WARN] Error inesperado. Revisa los logs.');
-  }
-});
-
-// ── Manejo de Documentos y Fotos ──────────────────────────────────────────────
-async function procesarArchivo(msg, msgTipo) {
-  const chatId = msg.chat.id;
-  if (String(msg.from.id) !== config.telegram.userId) return;
-
-  const fileId = msgTipo === 'photo' ? msg.photo[msg.photo.length - 1].file_id : msg.document.file_id;
-  const fileName = msgTipo === 'photo' ? `photo_${fileId}.jpg` : msg.document.file_name;
-  const mimeType = msgTipo === 'photo' ? 'image/jpeg' : msg.document.mime_type;
-  const caption = msg.caption || 'Analiza este archivo.';
-
-  await bot.sendMessage(chatId, '📥 Descargando archivo...');
-  await bot.sendChatAction(chatId, 'typing');
-
-  try {
-    // Descargar a local
-    const subPath = await bot.downloadFile(fileId, DOWNLOADS_DIR);
-    console.log(`[BOT] 📥 Archivo descargado en: ${subPath}`);
-
-    const archivoTmpInfo = { path: subPath, name: fileName, mimeType };
-
-    // Procesar con la IA
-    const { texto: respuesta, proveedor } = await procesarMensaje(caption, archivoTmpInfo);
-    
-    // Limpieza local
-    fs.unlinkSync(subPath);
-
-    guardar(`[Archivo: ${fileName}] ${caption}`, respuesta, proveedor);
-    await safeSendMessage(chatId, respuesta);
-    
-  } catch (err) {
-    console.error(`[BOT] [SICC FAIL] Error procesando archivo: ${err.message}`);
-    await safeSendMessage(chatId, '[SICC WARN] Error analizando el archivo asegúrate de que sea un PDF/Imagen soportado por Gemini.');
-  }
-}
-
-bot.on('document', (msg) => procesarArchivo(msg, 'document'));
-bot.on('photo',    (msg) => procesarArchivo(msg, 'photo'));
-
-bot.on('polling_error', (err) => console.error(`[BOT] [SICC FAIL] Polling: ${err.message}`));
+bot.on('polling_error', (err) => console.error(`[BOT] Polling: ${err.message}`));
 process.on('SIGTERM', () => { bot.stopPolling(); process.exit(0); });
 process.on('SIGINT',  () => { bot.stopPolling(); process.exit(0); });
