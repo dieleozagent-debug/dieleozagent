@@ -130,8 +130,16 @@ Responde ÚNICAMENTE en JSON:
             
             const jsonMatch = decisionRAW.match(/\{[\s\S]*\}/);
             if (!jsonMatch) throw new Error("Juez falló al emitir JSON válido");
-            
-            const decision = JSON.parse(jsonMatch[0]);
+
+            let decision;
+            try {
+                decision = JSON.parse(jsonMatch[0]);
+            } catch (parseErr) {
+                // JSON malformado (caracteres escapados inválidos de Ollama) — tratar como rechazo
+                console.error(`⚠️ [JUEZ] JSON inválido: ${parseErr.message}. Tratando como rechazo.`);
+                ultimaLeccion = `El Juez emitió JSON malformado: ${parseErr.message}`;
+                continue;
+            }
             console.log(`⚖️ VEREDICTO: ${decision.aprobado ? '✅ APROBADO' : '❌ RECHAZADO'}`);
             console.log(`   Razón: ${decision.razon || 'No especificada'}`);
 

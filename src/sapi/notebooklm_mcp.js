@@ -15,13 +15,15 @@ function withTimeout(promise, ms, label) {
 }
 
 async function resetOracle() {
-  // Mata Chrome atascado y limpia locks — el MCP server lo reiniciará en el próximo ask_question
-  try {
-    execSync('docker exec notebooklm-mcp-v12 sh -c "pkill -9 -f chrome 2>/dev/null; rm -f /root/.local/share/notebooklm-mcp/chrome_profile/SingletonLock /root/.local/share/notebooklm-mcp/chrome_profile/SingletonSocket /root/.local/share/notebooklm-mcp/chrome_profile/SingletonCookie"', { timeout: 8000 });
-    console.log('[SAPI NotebookLM] Chrome reiniciado por Oracle atascado.');
-  } catch (_) {}
+  // Reinicia el contenedor completo — matar solo Chrome deja el MCP server en estado roto
   if (mcpClient) { try { await mcpClient.close(); } catch (_) {} }
   mcpClient = null;
+  try {
+    execSync('docker restart notebooklm-mcp-v12', { timeout: 30000 });
+    console.log('[SAPI NotebookLM] Contenedor Oracle reiniciado.');
+  } catch (e) {
+    console.error('[SAPI NotebookLM] Fallo al reiniciar contenedor Oracle:', e.message);
+  }
 }
 
 async function initMCP() {
@@ -61,7 +63,7 @@ async function validarExternaNotebook(queryRaw) {
       if (esAtasco && intento === 1) {
         console.log('[SAPI NotebookLM] Chrome atascado detectado — reiniciando y reintentando...');
         await resetOracle();
-        await new Promise(r => setTimeout(r, 5000)); // esperar 5s para que Chrome arranque
+        await new Promise(r => setTimeout(r, 15000)); // esperar 15s para que el contenedor y Chrome arranquen
       } else {
         if (mcpClient) { try { await mcpClient.close(); } catch (_) {} }
         mcpClient = null;
