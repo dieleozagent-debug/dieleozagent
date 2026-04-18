@@ -682,6 +682,32 @@ bot.on('message', async (msg) => {
     return;
   }
 
+  // ── Consulta sobre DTs / dictámenes / dónde están ────────────────────────
+  const textLower = texto.toLowerCase();
+  if (/d[oó]nde|encuentro|dictamen|dictamenes|dt[- ]?aprobad|dt certificad|sueño cert/i.test(textLower)) {
+    const dictDir = path.join(__dirname, '../brain/dictamenes');
+    const dreamsDir = path.join(__dirname, '../brain/DREAMS');
+    try {
+      const dts = fs.readdirSync(dictDir).filter(f => f.endsWith('.md'))
+        .sort().reverse().slice(0, 5);
+      const sueños = fs.readdirSync(dreamsDir).filter(f => f.endsWith('.md'))
+        .sort().reverse().slice(0, 3);
+      const listaDTs = dts.length
+        ? dts.map(f => `• \`${f}\``).join('\n')
+        : '_(ninguna aún)_';
+      const listaSueños = sueños.length
+        ? sueños.map(f => `• \`${f}\``).join('\n')
+        : '_(ninguno aún)_';
+      await safeSendMessage(chatId,
+        `📄 *DTs certificadas* (\`brain/dictamenes/\`):\n${listaDTs}\n\n` +
+        `💤 *Sueños recientes* (\`brain/DREAMS/\`):\n${listaSueños}\n\n` +
+        `Para promover una DT a LFC2/Vercel:\n` +
+        `\`\`\`\ncp brain/dictamenes/<DT>.md /home/administrador/docker/LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/\n\`\`\``
+      );
+      return;
+    } catch (_) {}
+  }
+
   // ── Procesar con IA y guardar en memoria ──────────────────────────────────
   console.log(`[BOT] 📨 "${texto.substring(0, 60)}"`);
   await bot.sendChatAction(chatId, 'typing');
