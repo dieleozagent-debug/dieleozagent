@@ -49,46 +49,8 @@
 
 ---
 
-## 🔧 DEUDA TÉCNICA — Archivos a eliminar
+## 🔧 DEUDA TÉCNICA — Dead code en `agent.js` (pendiente limpieza)
 
-### `src/` sin referencias activas
-```
-cachear_contrato.js     — reemplazado por ingest_masivo.js
-extract_to_md.js        — herramienta one-off
-gitlocal.js             — no usado por ningún handler activo
-ingestar_contrato.js    — superado por ingest_masivo.js
-ingestar_gemini.js      — superado por ingest_masivo.js
-ocr_pilot.js            — superado por ingest_masivo.js
-ocr_sovereign.js        — superado por ingest_masivo.js
-test_migracion_soberana.js — script de prueba, no módulo
-```
-
-### `scripts/` sin referencias activas
-```
-sicc-dreamer.js         — reemplazado por swarm-pilot.js
-sicc-seed-memory.js     — ejecución única completada (59 entradas sembradas)
-lfc-doctor.js           — duplica cmdDoctor de sicc-harness.js
-scorecard-v2.js         — no referenciado
-sicc-rag-match.js       — no referenciado
-sicc-sentinel.js        — no referenciado
-sicc-sweep.js           — no referenciado
-sit-simulator.js        — no referenciado
-next_dream.js           — no referenciado
-fix_encoding.js         — one-off ejecutado
-fix_telecom_html.js     — one-off ejecutado
-normalize_paths.js      — one-off ejecutado
-sync_links.js           — one-off ejecutado
-debug_db_conn.js        — debug temporal
-test-factory.js         — no invocado
-test-oracle-sapi.js     — no invocado
-test-resiliencia.js     — no invocado
-test_db_fix.js          — no invocado
-test_gmail_connectivity.js — no invocado
-test_inside_conn.js     — no invocado
-test_michelin_health.js — no invocado
-```
-
-### Dead code en `agent.js` (líneas ~10-11, 107-156, 162-203)
 ```
 rutarEstrategiaAdvisor  — importado, nunca llamado
 encolarHallazgo         — importado, nunca llamado
@@ -97,6 +59,19 @@ rutarEspecialidad()     — calcula especialidadPrompt que finalPrompt ignora
 ESPECIALIDADES dict     — sobreescrito por getMultiplexedContext()
 finalPrompt             — construido pero systemPromptSoberano lo ignora
 ```
+
+## 🗂️ Archivos rescatados (funcionalidad pendiente de activar)
+
+| Archivo | Funcionalidad rescatada |
+|---|---|
+| `src/gitlocal.js` | Operaciones git sobre LFC2 — necesario para `promote` DT→LFC2 |
+| `src/ingestar_gemini.js` | Ingesta OCR premium vía Gemini File API — alternativa a tesseract |
+| `scripts/sicc-rag-match.js` | Valida que párrafos de LFC2 tienen ancla en Supabase — útil para `/audit` |
+
+## 🗑️ Eliminados (2026-04-18)
+
+26 archivos eliminados: variantes antiguas de OCR/ingesta, scripts one-off, tests, duplicados.
+Quedan **29 archivos JS activos** (src/ + scripts/) con referencias verificadas.
 
 ---
 
