@@ -340,11 +340,17 @@ function inyectarIdioma(sp) {
   return sp + IDIOMA_SICC;
 }
 
+// Retorna true si el proveedor tuvo 429 en los últimos 15 minutos — skip rápido para no gastar budget de tiempo
+function proveedorBloqueadoReciente(id) {
+  const cutoff = Date.now() - 15 * 60 * 1000;
+  return EstadoGlobalErrores.ultimos4xx.some(
+    e => e.proveedor === id && e.code === 429 && new Date(e.ts).getTime() > cutoff
+  );
+}
+
 async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt = null) {
   const sp = inyectarIdioma(systemPrompt);
 
-  // --- ARQUITECTURA DE RESILIENCIA v2.0 ---
-  // Reordenamos: OpenRouter es prioritario sobre Ollama para evitar que los timeouts bloqueen el enjambre.
   const proveedoresFree = [
     { id: 'gemini',     fn: async (q, a, ctx, h, s) => llamarGemini(q, a, ctx, s) },
     { id: 'groq',       fn: async (q, a, ctx, h, s) => llamarGroq(q, a, ctx, s) },
@@ -356,6 +362,12 @@ async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt 
   for (const p of proveedoresFree) {
     const status = !!(config.ai[p.id]?.apiKey || (p.id === 'ollama' && config.ai.ollama.host));
     if (!status) continue;
+
+    // Skip rápido si tuvo 429 reciente — no gastar los 5s de RTT para fallar de nuevo
+    if (proveedorBloqueadoReciente(p.id)) {
+      console.log(`[GATEWAY-AHORRO] ⏭️  Saltando ${p.id.toUpperCase()} (429 reciente <15min)`);
+      continue;
+    }
 
     try {
       console.log(`[GATEWAY-AHORRO] 💸 Intentando vía gratuita: ${p.id.toUpperCase()}...`);

@@ -243,7 +243,7 @@ bot.onText(/^\/dream(?:\s+(.+))?/, async (msg, match) => {
   const scriptPath = path.join(__dirname, '../scripts/swarm-pilot.js');
   console.log(`[SICC] 🌪️ Disparando Swarm Pilot: node "${scriptPath}" "${target}"`);
   
-  exec(`node "${scriptPath}" "${target}"`, { maxBuffer: 1024 * 1024 * 10, timeout: 660000 }, async (error, stdout, stderr) => {
+  exec(`node "${scriptPath}" "${target}"`, { maxBuffer: 1024 * 1024 * 10, timeout: 900000 }, async (error, stdout, stderr) => {
     if (error) {
       console.error(`[SICC ERROR] Swarm Pilot falló: ${error.message}`);
       await safeSendMessage(chatId, `❌ **Pesadilla (Error Interno):**\n${error.message}`);
