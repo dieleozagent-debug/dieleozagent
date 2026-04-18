@@ -682,8 +682,32 @@ bot.on('message', async (msg) => {
     return;
   }
 
-  // ── Consulta sobre DTs / dictámenes / dónde están ────────────────────────
+  // ── Consulta sobre identidad / soul / aprendizaje del agente ─────────────
   const textLower = texto.toLowerCase();
+  if (/\b(soul|alma|identidad|aprendes?|aprende|memoria gen[eé]tica|como funciona|quien eres|qui[eé]n eres|cerebro|brain|karpathy|sueñas?|dream)\b/i.test(textLower) &&
+      /\b(t[uú]|agente|sicc|bot|opengravity|tu soul|tu alma|tu brain)\b/i.test(textLower)) {
+    const brainDir = path.join(__dirname, '../brain');
+    try {
+      const soul = fs.readFileSync(path.join(brainDir, 'SOUL.md'), 'utf8').split('\n').slice(0, 20).join('\n');
+      const identity = fs.readFileSync(path.join(brainDir, 'IDENTITY.md'), 'utf8').split('\n').slice(0, 15).join('\n');
+      const specs = fs.readdirSync(path.join(brainDir, 'SPECIALTIES')).filter(f => f.endsWith('.md'));
+      await safeSendMessage(chatId,
+        `🧠 *Cómo aprende OpenGravity SICC:*\n\n` +
+        `*1. SOUL.md (ética operacional — estático):*\n\`\`\`\n${soul.substring(0, 400)}\n\`\`\`\n\n` +
+        `*2. Memoria Genética (sicc_genetic_memory):*\n` +
+        `Cada sueño (/dream) vectoriza el veredicto del Juez y la DT certificada. En el próximo ciclo, ` +
+        `buscarLecciones() recupera las más similares (coseno >0.7) y las inyecta como vacunas.\n\n` +
+        `*3. SPECIALTIES/* (lecciones Karpathy):*\n` +
+        specs.map(f => `• ${f.replace('.md','')}`).join('  ') + `\n` +
+        `Cada rechazo del Juez hace append de la lección al archivo del área.\n\n` +
+        `*4. brain/dictamenes/ (gold standards):*\nLas DTs aprobadas se usan como referencia en futuros sueños.\n\n` +
+        `_SOUL.md e IDENTITY.md definen quién soy. La memoria genética define qué sé del proyecto._`
+      );
+      return;
+    } catch (_) {}
+  }
+
+  // ── Consulta sobre DTs / dictámenes / dónde están ────────────────────────
   if (/d[oó]nde|encuentro|dictamen|dictamenes|dt[- ]?aprobad|dt certificad|sueño cert/i.test(textLower)) {
     const dictDir = path.join(__dirname, '../brain/dictamenes');
     const dreamsDir = path.join(__dirname, '../brain/DREAMS');
