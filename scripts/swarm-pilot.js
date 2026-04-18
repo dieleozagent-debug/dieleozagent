@@ -128,22 +128,41 @@ Responde ÚNICAMENTE en JSON:
             let responseJuez = await llamarMultiplexadorFree("Despierta al enjambre y evalúa el sueño.", "", promptJuez);
             let decisionRAW = typeof responseJuez === 'string' ? responseJuez : (responseJuez.texto || responseJuez.content || JSON.stringify(responseJuez));
             
-            // Extraer JSON de respuesta directa o de code fence ```json {...} ```
-            const fenceMatch = decisionRAW.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
-            const jsonMatch = fenceMatch ? [fenceMatch[1]] : decisionRAW.match(/\{[\s\S]*\}/);
-            if (!jsonMatch) {
-                console.error(`⚠️ [JUEZ] Sin JSON. Respuesta raw (200c): ${decisionRAW.substring(0, 200)}`);
-                ultimaLeccion = "El Juez no emitió JSON — modelo respondió en lenguaje natural.";
-                continue;
+            // Parsear respuesta del Juez: JSON limpio → code fence → extracción campo a campo
+            function extraerCampoJuez(texto, campo) {
+                const m = texto.match(new RegExp(`"${campo}"\\s*:\\s*"([^"]*)"`, 'i'))
+                         || texto.match(new RegExp(`"${campo}"\\s*:\\s*(true|false)`, 'i'));
+                return m ? m[1] : null;
             }
 
             let decision;
-            try {
-                decision = JSON.parse(jsonMatch[0]);
-            } catch (parseErr) {
-                console.error(`⚠️ [JUEZ] JSON inválido: ${parseErr.message}. Raw (200c): ${jsonMatch[0].substring(0, 200)}`);
-                ultimaLeccion = `El Juez emitió JSON malformado: ${parseErr.message}`;
-                continue;
+            const fenceMatch = decisionRAW.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
+            const jsonMatch = fenceMatch ? fenceMatch[1] : (decisionRAW.match(/\{[\s\S]*\}/) || [null])[0];
+
+            if (jsonMatch) {
+                try {
+                    decision = JSON.parse(jsonMatch);
+                } catch (_) {
+                    // JSON malformado — extraer campos individualmente
+                    decision = {
+                        aprobado: /\"aprobado\"\s*:\s*true/i.test(jsonMatch),
+                        razon: extraerCampoJuez(jsonMatch, 'razon') || 'JSON malformado por el modelo',
+                        categoria_fallida: extraerCampoJuez(jsonMatch, 'categoria_fallida') || 'Ninguna',
+                        leccion_karpathy: extraerCampoJuez(jsonMatch, 'leccion_karpathy') || 'Respuesta JSON malformada del Juez.',
+                    };
+                    console.warn(`⚠️ [JUEZ] JSON malformado — campos extraídos individualmente.`);
+                }
+            } else {
+                // Sin llaves: el modelo respondió en lenguaje natural — inferir por palabras clave
+                const textoUpper = decisionRAW.toUpperCase();
+                const aprobadoInferido = textoUpper.includes('APROBADO') && !textoUpper.includes('NO APROBADO') && !textoUpper.includes('RECHAZADO') && !textoUpper.includes('BLOCKER');
+                decision = {
+                    aprobado: aprobadoInferido,
+                    razon: decisionRAW.substring(0, 300),
+                    categoria_fallida: 'Ninguna',
+                    leccion_karpathy: 'El Juez respondió en lenguaje natural en lugar de JSON — ajustar instrucciones.',
+                };
+                console.warn(`⚠️ [JUEZ] Sin JSON — respuesta inferida por palabras clave. Aprobado: ${aprobadoInferido}`);
             }
             console.log(`⚖️ VEREDICTO: ${decision.aprobado ? '✅ APROBADO' : '❌ RECHAZADO'}`);
             console.log(`   Razón: ${decision.razon || 'No especificada'}`);
