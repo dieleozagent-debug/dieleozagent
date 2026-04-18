@@ -16,6 +16,46 @@ const { checkYEncolar, getCpuLoad } = require('./resource-governor');
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+const AREA_PREFIX = {
+    'señaliz': 'CTSC', 'señal': 'CTSC', 'comunicaci': 'COMS', 'telecom': 'COMS',
+    'power': 'ENRG', 'potencia': 'ENRG', 'energi': 'ENRG',
+    'integr': 'INTG', 'control': 'CTRL', 'ence': 'ENCE',
+};
+
+function generarNombreDT(area, textoDT) {
+    const dictamenesDir = path.join(__dirname, '..', 'brain', 'dictamenes');
+    // Próximo número secuencial global
+    let maxNum = 0;
+    try {
+        fs.readdirSync(dictamenesDir).forEach(f => {
+            const m = f.match(/DT-\w+-\d+-(\d+)/);
+            if (m) maxNum = Math.max(maxNum, parseInt(m[1]));
+        });
+    } catch (_) {}
+    const seq = String(maxNum + 1).padStart(3, '0');
+
+    const areaLower = area.toLowerCase();
+    const prefix = Object.entries(AREA_PREFIX).find(([k]) => areaLower.includes(k))?.[1] || 'SICC';
+    const year = new Date().getFullYear();
+
+    // Descripción desde el primer encabezado H2/H3 o primeras palabras del DT
+    const headingMatch = textoDT.match(/##?\s+(.+)/);
+    const descripcion = (headingMatch ? headingMatch[1] : textoDT.substring(0, 50))
+        .replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')
+        .trim().split(/\s+/).slice(0, 4).join('_')
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, ''); // quitar tildes para el filename
+
+    return { id: `DT-${prefix}-${year}-${seq}`, filename: `DT-${prefix}-${year}-${seq}_${descripcion}_APROBADO.md` };
+}
+
+function guardarDTEnDisco(area, textoDT, razonJuez, idDT, filename) {
+    const dictamenesDir = path.join(__dirname, '..', 'brain', 'dictamenes');
+    const fecha = new Date().toISOString();
+    const contenido = `# ⚖️ DICTAMEN TÉCNICO VINCULANTE (SICC v12.9)\n\n**Documento:** ${idDT} (Pureza N-1)\n**Área:** ${area}\n**Fecha:** ${fecha}\n**Validado por:** Cámara de Doble Ciego (Supabase RAG + NotebookLM Oracle)\n**Razón Juez:** ${razonJuez}\n\n---\n\n${textoDT}`;
+    fs.writeFileSync(path.join(dictamenesDir, filename), contenido, 'utf8');
+    console.log(`\n📄 DT guardada en disco: brain/dictamenes/${filename}`);
+}
+
 const arg = process.argv[2] || "Señalización";
 
 async function updateKarpathySpecialty(specialty, leccion) {
@@ -171,8 +211,10 @@ Responde ÚNICAMENTE en JSON:
                 aprobado = true;
                 console.log(`\n✅ SUEÑO CERTIFICADO TRAS ${ciclosRealizados} CICLOS.`);
                 console.log(`\n--- DT FINAL ---\n${borrador_DT}\n----------------`);
-                const idDT = await guardarDTCertificada(arg, borrador_DT, decision.razon || '');
-                if (idDT) console.log(`\n📦 DT vectorizada en Supabase: ${idDT}`);
+                const { id: idDT, filename } = generarNombreDT(arg, borrador_DT);
+                guardarDTEnDisco(arg, borrador_DT, decision.razon || '', idDT, filename);
+                const idSupabase = await guardarDTCertificada(arg, borrador_DT, decision.razon || '');
+                if (idSupabase) console.log(`\n📦 DT vectorizada en Supabase: ${idSupabase}`);
             } else {
                 ultimaLeccion = decision.leccion_karpathy || decision.razon || "Alucinación de proceso detectada.";
                 const VALID_SPECIALTIES = ['COMMUNICATIONS', 'SIGNALIZATION', 'POWER', 'INTEGRATION', 'ENCE', 'CONTROL_CENTER'];
