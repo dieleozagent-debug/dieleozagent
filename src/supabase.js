@@ -76,6 +76,25 @@ async function buscarSimilares(preguntaTexto, limite = 3) {
     return result.rows;
 }
 
+async function guardarDTCertificada(area, textoDT, razonJuez) {
+    try {
+        const fecha = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+        const idDT = `DT-SICC-${fecha}-${area.toUpperCase().replace(/\s+/g, '_').substring(0, 20)}`;
+        const contenido = `[DT CERTIFICADA: ${idDT}]\nÁREA: ${area}\nFECHA: ${new Date().toISOString()}\nRAZÓN JUEZ: ${razonJuez}\n\n${textoDT}`;
+        const vector = await obtenerEmbedding(contenido);
+        const metadata = { tipo: 'DT_CERTIFICADA', area, idDT, fecha: new Date().toISOString() };
+        await pool.query(
+            `INSERT INTO sicc_genetic_memory (content, metadata, embedding) VALUES ($1, $2, $3)`,
+            [contenido, JSON.stringify(metadata), `[${vector.join(',')}]`]
+        );
+        console.log(`[SUPABASE] ✅ DT certificada vectorizada: ${idDT}`);
+        return idDT;
+    } catch (e) {
+        console.error(`[SUPABASE] ❌ Error guardando DT certificada: ${e.message}`);
+        return null;
+    }
+}
+
 async function buscarLecciones(preguntaTexto, limite = 2) {
     try {
         const vectorQuery = await obtenerEmbedding(preguntaTexto);
@@ -92,4 +111,4 @@ async function buscarLecciones(preguntaTexto, limite = 2) {
     }
 }
 
-module.exports = { obtenerEmbedding, insertarFragmento, buscarSimilares, buscarLecciones, pool };
+module.exports = { obtenerEmbedding, insertarFragmento, buscarSimilares, buscarLecciones, guardarDTCertificada, pool };

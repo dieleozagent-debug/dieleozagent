@@ -11,7 +11,7 @@ const { llamarMultiplexadorFree } = require('./sicc-multiplexer');
 const { inicializarBrain } = require('../src/agent');
 const { validarExternaNotebook } = require('../src/sapi/notebooklm_mcp');
 const { validarInternaSupabase } = require('../src/sapi/supabase_rag');
-const { buscarLecciones } = require('../src/supabase');
+const { buscarLecciones, guardarDTCertificada } = require('../src/supabase');
 const { checkYEncolar, getCpuLoad } = require('./resource-governor');
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -171,6 +171,8 @@ Responde ÚNICAMENTE en JSON:
                 aprobado = true;
                 console.log(`\n✅ SUEÑO CERTIFICADO TRAS ${ciclosRealizados} CICLOS.`);
                 console.log(`\n--- DT FINAL ---\n${borrador_DT}\n----------------`);
+                const idDT = await guardarDTCertificada(arg, borrador_DT, decision.razon || '');
+                if (idDT) console.log(`\n📦 DT vectorizada en Supabase: ${idDT}`);
             } else {
                 ultimaLeccion = decision.leccion_karpathy || decision.razon || "Alucinación de proceso detectada.";
                 const VALID_SPECIALTIES = ['COMMUNICATIONS', 'SIGNALIZATION', 'POWER', 'INTEGRATION', 'ENCE', 'CONTROL_CENTER'];
