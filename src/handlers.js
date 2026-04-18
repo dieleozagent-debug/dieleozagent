@@ -374,6 +374,71 @@ async function handleMessage(msg, bot, send) {
     } catch (_) {}
   }
 
+  // ── Historial de sueños por área específica ───────────────────────────────
+  // Captura: "de comunicaciones algo falló?", "soñaste de señalización?",
+  //          "qué pasó con ENCE", "algún dt de energía?", "donde lo veo en vercel?"
+  const AREA_MAP = {
+    comunicac: 'COMMUNICATIONS', telecom: 'COMMUNICATIONS', telecomunicac: 'COMMUNICATIONS',
+    señali: 'SIGNALIZATION',    senali: 'SIGNALIZATION',    ctsc: 'SIGNALIZATION',
+    energ: 'POWER',             potencia: 'POWER',          enrg: 'POWER',
+    integrac: 'INTEGRATION',    integ: 'INTEGRATION',
+    ence: 'ENCE',
+    control: 'CONTROL_CENTER',  centro: 'CONTROL_CENTER',
+  };
+  const DT_PREFIX = {
+    COMMUNICATIONS: 'COMS', SIGNALIZATION: 'CTSC', POWER: 'ENRG',
+    INTEGRATION: 'INTG',   ENCE: 'ENCE',           CONTROL_CENTER: 'CTRL'
+  };
+  const LFC2_DT_DIR = '/home/administrador/docker/LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas';
+
+  const areaKey = Object.keys(AREA_MAP).find(k => textLower.includes(k));
+  if (areaKey && /soñ|dream|dt |comunicac|telecom|señali|senali|energ|integrac|ence|control|fallo|pasó|pend|vercel|lfc/i.test(textLower)) {
+    const area = AREA_MAP[areaKey];
+    const prefix = DT_PREFIX[area];
+    try {
+      // Leer lecciones Karpathy del área
+      const specFile = path.join(BRAIN_DIR, 'SPECIALTIES', `${area}.md`);
+      const specContent = fs.existsSync(specFile) ? fs.readFileSync(specFile, 'utf8') : '';
+      const lecciones = [...specContent.matchAll(/\*\*Karpathy Dream Lesson \(([^)]+)\):\*\*\n> ([^\n]+)/g)]
+        .map(m => `• ${m[1].substring(0, 19)}: ${m[2].substring(0, 80)}`);
+
+      // DTs aprobadas para este área
+      const dtsArea = fs.readdirSync(path.join(BRAIN_DIR, 'dictamenes'))
+        .filter(f => f.includes(prefix) && f.endsWith('.md'));
+
+      // Dreams registrados del área
+      const dreamsArea = fs.existsSync(path.join(BRAIN_DIR, 'DREAMS'))
+        ? fs.readdirSync(path.join(BRAIN_DIR, 'DREAMS')).filter(f => f.toUpperCase().includes(area.split('_')[0]))
+        : [];
+
+      // ¿Está promovida a LFC2?
+      const enLfc2 = fs.existsSync(LFC2_DT_DIR)
+        ? fs.readdirSync(LFC2_DT_DIR).filter(f => f.includes(prefix))
+        : [];
+
+      const estadoDT = dtsArea.length
+        ? `✅ *${dtsArea.length} DT aprobada(s):*\n${dtsArea.map(f => `• \`${f}\``).join('\n')}`
+        : `❌ *Sin DT aprobada* — todos los ciclos fueron rechazados por el Juez.`;
+
+      const estadoVercel = enLfc2.length
+        ? `✅ En LFC2 → visible en lfc-2.vercel.app:\n${enLfc2.map(f => `• \`${f}\``).join('\n')}`
+        : `⚠️ *No promovida a LFC2/Vercel* — promotion manual pendiente.\nUsa: \`cp brain/dictamenes/${prefix}-*.md ${LFC2_DT_DIR}/\``;
+
+      await send(chatId,
+        `🔍 *Historial SICC — Área: ${area}*\n\n` +
+        estadoDT + `\n\n` +
+        `📓 *Sueños registrados del área:* ${dreamsArea.length || 0}\n` +
+        (dreamsArea.length ? dreamsArea.map(f => `• \`${f}\``).join('\n') + '\n\n' : '_(sin archivos en DREAMS/)_\n\n') +
+        `🧬 *Lecciones Karpathy (${lecciones.length} ciclos fallidos):*\n` +
+        (lecciones.length
+          ? lecciones.slice(0, 5).join('\n') + (lecciones.length > 5 ? `\n  _...+${lecciones.length - 5} más en brain/SPECIALTIES/${area}.md_` : '')
+          : '_(sin lecciones — área sin ciclos aún)_') + `\n\n` +
+        estadoVercel
+      );
+      return;
+    } catch (_) {}
+  }
+
   // ── Respuesta directa sobre ubicación de DTs ──────────────────────────────
   if (/d[oó]nde|encuentro|dictamen|dt[- ]?aprobad|dt certificad|sueño cert/i.test(textLower)) {
     try {
