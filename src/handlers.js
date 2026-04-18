@@ -1,29 +1,27 @@
 /**
  * @file src/handlers.js
- * @what  Contiene TODA la lógica de comandos del bot Telegram.
- *        Exporta handleMessage(msg, bot, send) y handleFile(msg, tipo, bot, send).
- * @how   handleMessage recibe cada msg.text, lo enruta por prefijo/regex a un
- *        bloque handler. Usa `send(chatId, text)` para responder (nunca bot.sendMessage
- *        directamente salvo casos que necesitan parse_mode explícito en /git).
- *        captureLog() captura console.log de funciones síncronas (cmdDoctor, cmdLearn).
- *        Los handlers de soul/identidad y DTs leen archivos del brain/ directamente.
- * @why   Extraído de index.js (790 líneas) para que el bootstrap sea legible y
- *        esta lógica de dominio viva en un solo lugar fácil de extender.
+ * @what  Router de comandos Telegram. Maneja comandos /slash y delega intents de
+ *        lenguaje natural a src/intents/*.js. Exporta handleMessage y handleFile.
+ * @how   handleMessage enruta /comandos por prefijo exacto (bloque if por comando).
+ *        Para lenguaje natural: loop sobre INTENTS — cada módulo expone matches() y
+ *        handle(); el primero que coincide responde y retorna true. Si ninguno
+ *        coincide, cae al fallback IA (procesarMensaje).
+ * @why   Separar routing de lógica de intent evita que este archivo crezca.
+ *        Para agregar un intent nuevo: crear src/intents/nuevo.js y añadirlo a INTENTS.
  * @refs  index.js — llama handleMessage/handleFile desde bot.on('message/document/photo')
- *        utils/send.js — `send` es un wrapper de safeSendMessage ligado al bot
+ *        utils/send.js — `send` = safeSendMessage ligado al bot
  *        agent.js — procesarMensaje(), procesarMensajeSwarm(), limpiarHistorial()
- *        scripts/sicc-multiplexer.js — llamarOllama()
- *        scripts/sicc-harness.js — cmdDoctor(), cmdLearn(), cmdAudit()
- *        brain/SOUL.md, brain/SPECIALTIES/* — leídos por el handler de identidad
- *        brain/dictamenes/, brain/DREAMS/ — leídos por el handler de DTs
+ *        src/intents/navigation.js — "me pierdo / cómo empiezo"
+ *        src/intents/brain-state.js — soul / identidad / enjambre / lecciones
+ *        src/intents/dream-state.js — sueños / DREAMS / PENDING / historial área / roadmap
+ *        src/intents/dt-ops.js — DTs aprobadas / bloqueadas / qué hacemos con X
  *
  * @agent-prompt
- *   Para agregar un comando nuevo: añade un bloque `if (texto === '/nuevo')` ANTES
- *   del fallback IA (último bloque). No cambies el orden de los handlers existentes.
- *   `send` ya maneja chunking y fallback Markdown; úsalo siempre.
- *   Los handlers de soul y DTs tienen try/catch silencioso; si fallan, caen al IA.
- *   captureLog() NO captura funciones async; para async usa await y lee el retorno.
- *   handleFile vive aquí porque comparte imports y sigue el mismo patrón de autorización.
+ *   Para agregar un COMANDO nuevo (/slash): añade un bloque if ANTES del loop INTENTS.
+ *   Para agregar un INTENT de lenguaje natural: crea src/intents/nuevo.js con
+ *   { matches(textLower, texto), handle(chatId, texto, textLower, send, BRAIN_DIR) }
+ *   y agrégalo al array INTENTS. NO pongas lógica de intent aquí directamente.
+ *   captureLog() solo funciona con funciones síncronas (cmdDoctor, cmdLearn).
  */
 'use strict';
 
@@ -45,6 +43,16 @@ const { startPatrol, stopPatrol, getPatrolStatus } = require('./patrol');
 
 const DOWNLOADS_DIR = path.join(__dirname, '../data/downloads');
 const BRAIN_DIR     = path.join(__dirname, '../brain');
+
+// ── Intents de lenguaje natural ───────────────────────────────────────────────
+// Cada módulo expone { matches(textLower, texto), handle(chatId, texto, textLower, send, BRAIN_DIR) }
+// Orden importa: el primero que coincide responde.
+const INTENTS = [
+  require('./intents/navigation'),
+  require('./intents/brain-state'),
+  require('./intents/dream-state'),
+  require('./intents/dt-ops'),
+];
 
 // ── Autorizacion ─────────────────────────────────────────────────────────────
 function autorizado(userId) {
@@ -326,237 +334,19 @@ async function handleMessage(msg, bot, send) {
     return;
   }
 
-  // ── Respuestas directas sobre identidad / soul / learning ─────────────────
+  // ── Intents de lenguaje natural (loop extensible) ────────────────────────
+  // Cada módulo en src/intents/ expone { matches(textLower, texto), handle(...) }.
+  // Para agregar un intent: crear el archivo y añadirlo al array INTENTS.
   const textLower = texto.toLowerCase();
-
-  // ── Guía de navegación / onboarding ("me pierdo", "cómo me ayudas") ─────────
-  // Captura: "me pierdo", "cómo me ayudas", "cómo trabajamos", "por dónde empiezo",
-  //          "cómo mejoro lfc", "qué hago", "cómo uso esto", "ayúdame a"
-  if (/me pierdo|c[oó]mo.*(ayud|trabaj|us[ao]|mejor|empez)|por d[oó]nde|qu[eé] hago|ayúdame|mejorar.*lfc|lfc.*mejor/i.test(textLower)) {
+  for (const intent of INTENTS) {
     try {
-      const specDir = path.join(BRAIN_DIR, 'SPECIALTIES');
-      const areas   = fs.existsSync(specDir) ? fs.readdirSync(specDir).filter(f => f.endsWith('.md')).map(f => f.replace('.md','').toLowerCase()) : [];
-      const dts     = fs.existsSync(path.join(BRAIN_DIR,'dictamenes')) ? fs.readdirSync(path.join(BRAIN_DIR,'dictamenes')).filter(f=>f.endsWith('.md')).length : 0;
-
-      await send(chatId,
-        `🧭 *Cómo trabajamos juntos — Guía rápida SICC*\n\n` +
-
-        `*Para generar una Decisión Técnica nueva:*\n` +
-        `\`/dream [área]\` → ciclo completo (5-10 min)\n` +
-        areas.map(a => `  • \`/dream ${a}\``).join('\n') + `\n\n` +
-
-        `*Para analizar una pregunta puntual del contrato:*\n` +
-        `\`/swarm ¿cuál es la obligación de CAPEX en AT1 sección 5.1?\`\n\n` +
-
-        `*Para ver qué tenemos aprobado (${dts} DTs):*\n` +
-        `Pregúntame: _"qué DTs tenemos aprobadas"_ o _"dónde están los dictámenes"_\n\n` +
-
-        `*Para ver qué falló y por qué:*\n` +
-        `Pregúntame: _"qué pasó con señalización"_ o _"historial de comunicaciones"_\n\n` +
-
-        `*Para promover una DT aprobada a LFC2/Vercel:*\n` +
-        `\`\`\`\ncp brain/dictamenes/<DT>.md \\\n  /home/administrador/docker/LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/\n\`\`\`\n` +
-        `Luego: \`cd /home/administrador/docker/LFC2 && git add . && git commit -m "DT" && git push\`\n\n` +
-
-        `*Para correr un análisis forense de archivos LFC2:*\n` +
-        `\`/audit IV_Ingenieria_basica\`\n\n` +
-
-        `*Estado del sistema:*\n` +
-        `\`/doctor\` — health score | \`/estado\` — proveedores IA | \`/cerebro\` — brain activo\n\n` +
-
-        `_El flujo principal: /dream → Juez aprueba → promote → Vercel._\n` +
-        `_Si el Juez rechaza, la lección queda en SPECIALTIES/ para el próximo ciclo._`
-      );
-      return;
-    } catch (_) {}
-  }
-
-  // ── Estado de aprendizaje del enjambre (lecciones Karpathy ya activas?) ───
-  // Captura: "ya entiende?", "el enjambre ya sabe?", "necesitas algo?",
-  //          "qué significa enjambre debe entender", "las lecciones ya se aplican?"
-  if (/enjambre.*(entend|sab|aprend|necesit)|ya.*(entend|aprend|sab|internali)|lecciones?.*(aplica|activ|ya)|necesitas?.*(algo|más|info)|qu[eé] significa.*entend/i.test(textLower)) {
-    try {
-      const specDir = path.join(BRAIN_DIR, 'SPECIALTIES');
-      const areas = fs.readdirSync(specDir).filter(f => f.endsWith('.md'));
-      const totalLecciones = areas.reduce((acc, f) => {
-        const c = fs.readFileSync(path.join(specDir, f), 'utf8');
-        return acc + (c.match(/\*\*Karpathy Dream Lesson/g) || []).length;
-      }, 0);
-
-      await send(chatId,
-        `🧬 *"El enjambre debe entender" — ¿qué significa?*\n\n` +
-        `Esa frase es una *lección Karpathy*: se escribe automáticamente cuando el Juez rechaza una DT. ` +
-        `No es una queja — es una vacuna para el *próximo ciclo*.\n\n` +
-        `*¿Ya entiende?* Sí — parcialmente:\n` +
-        `• Las ${totalLecciones} lecciones están en \`brain/SPECIALTIES/\`\n` +
-        `• En el próximo \`/dream [área]\`, \`buscarLecciones()\` las recupera ` +
-        `por similitud de coseno (>0.7) y las inyecta en *FASE-1* como vacunas anti-alucinación\n` +
-        `• El LLM las lee *antes* de generar la DT — evita repetir el mismo error\n\n` +
-        `*¿Qué falta para que realmente "entienda" en comunicaciones?*\n` +
-        `1. Oracle estable — Chrome desbloqueado (\`/root/.local/share/notebooklm-mcp/\`)\n` +
-        `2. Correr \`/dream telecomunicaciones\` para que el Juez evalúe con las vacunas activas\n` +
-        `3. Si aprueba → DT certificada en \`brain/dictamenes/\` → promote a LFC2 → Vercel\n\n` +
-        `_Las lecciones no sustituyen el sueño — lo preparan para no fallar de nuevo._`
-      );
-      return;
-    } catch (_) {}
-  }
-
-  if (/\b(soul|alma|identidad|aprendes?|aprende|memoria gen[eé]tica|como funciona|quien eres|qui[eé]n eres|cerebro|brain|karpathy|sueñas?|dream)\b/i.test(textLower) &&
-      /\b(t[uú]|agente|sicc|bot|opengravity|tu soul|tu alma|tu brain)\b/i.test(textLower)) {
-    try {
-      const soul  = fs.readFileSync(path.join(BRAIN_DIR, 'SOUL.md'), 'utf8').split('\n').slice(0, 20).join('\n');
-      const specs = fs.readdirSync(path.join(BRAIN_DIR, 'SPECIALTIES')).filter(f => f.endsWith('.md'));
-      await send(chatId,
-        `🧠 *Cómo aprende OpenGravity SICC:*\n\n` +
-        `*1. SOUL.md (ética — estático):*\n\`\`\`\n${soul.substring(0, 400)}\n\`\`\`\n\n` +
-        `*2. Memoria Genética (sicc_genetic_memory):*\n` +
-        `buscarLecciones() inyecta vacunas por coseno >0.7 en cada dream/mensaje.\n\n` +
-        `*3. SPECIALTIES/* (Karpathy):*\n` +
-        specs.map(f => `• ${f.replace('.md', '')}`).join('  ') + `\n` +
-        `Cada rechazo del Juez hace append de la lección.\n\n` +
-        `*4. brain/dictamenes/* (gold standards):*\nDTs aprobadas = referencia para futuros sueños.\n\n` +
-        `_SOUL e IDENTITY definen quién soy. La memoria genética define qué sé del proyecto._`
-      );
-      return;
-    } catch (_) {}
-  }
-
-  // ── Respuesta directa sobre temas para /dream y pendientes de trabajo ───────
-  // Captura: "qué temas puedo proponer", "qué tenemos pendiente", "qué falta", etc.
-  if (/temas?.*(proponer|dream|soñar)|pendiente.*(trabajo|hacer|falta)|qu[eé] falta|qu[eé] tenemos|roadmap|agenda|backlog|prioridades/i.test(textLower)) {
-    try {
-      const roadmap    = fs.readFileSync(path.join(BRAIN_DIR, 'ROADMAP.md'), 'utf8');
-      const specDir    = path.join(BRAIN_DIR, 'SPECIALTIES');
-      const areas      = fs.existsSync(specDir) ? fs.readdirSync(specDir).filter(f => f.endsWith('.md')).map(f => f.replace('.md', '')) : [];
-
-      // Extraer sección PENDIENTE del ROADMAP
-      const pendienteMatch = roadmap.match(/## 🔴 PENDIENTE[\s\S]*?(?=\n## |$)/);
-      const pendienteMed   = roadmap.match(/## 🟡 PENDIENTE[\s\S]*?(?=\n## |$)/);
-      const pendienteTexto = pendienteMatch ? pendienteMatch[0].split('\n').slice(1, 8).join('\n') : '';
-      const pendienteMedTexto = pendienteMed ? pendienteMed[0].split('\n').slice(1, 6).join('\n') : '';
-
-      await send(chatId,
-        `🗺️ *Agenda SICC — Qué trabajar*\n\n` +
-        `*Áreas disponibles para /dream:*\n` +
-        areas.map(a => `• \`/dream ${a.toLowerCase()}\``).join('\n') + `\n\n` +
-        `*Alta prioridad (🔴):*\n\`\`\`\n${pendienteTexto.trim()}\n\`\`\`\n\n` +
-        `*Media prioridad (🟡):*\n\`\`\`\n${pendienteMedTexto.trim()}\n\`\`\`\n\n` +
-        `Ver roadmap completo: \`brain/ROADMAP.md\``
-      );
-      return;
-    } catch (_) {}
-  }
-
-  // ── Historial de sueños por área específica ───────────────────────────────
-  // Captura: "de comunicaciones algo falló?", "soñaste de señalización?",
-  //          "qué pasó con ENCE", "algún dt de energía?", "donde lo veo en vercel?"
-  const AREA_MAP = {
-    comunicac: 'COMMUNICATIONS', telecom: 'COMMUNICATIONS', telecomunicac: 'COMMUNICATIONS',
-    señali: 'SIGNALIZATION',    senali: 'SIGNALIZATION',    ctsc: 'SIGNALIZATION',
-    energ: 'POWER',             potencia: 'POWER',          enrg: 'POWER',
-    integrac: 'INTEGRATION',    integ: 'INTEGRATION',
-    ence: 'ENCE',
-    control: 'CONTROL_CENTER',  centro: 'CONTROL_CENTER',
-  };
-  const DT_PREFIX = {
-    COMMUNICATIONS: 'COMS', SIGNALIZATION: 'CTSC', POWER: 'ENRG',
-    INTEGRATION: 'INTG',   ENCE: 'ENCE',           CONTROL_CENTER: 'CTRL'
-  };
-  const LFC2_DT_DIR = '/home/administrador/docker/LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas';
-
-  const areaKey = Object.keys(AREA_MAP).find(k => textLower.includes(k));
-  if (areaKey && /soñ|dream|dt |comunicac|telecom|señali|senali|energ|integrac|ence|control|fallo|pasó|pend|vercel|lfc/i.test(textLower)) {
-    const area = AREA_MAP[areaKey];
-    const prefix = DT_PREFIX[area];
-    try {
-      // Leer lecciones Karpathy del área
-      const specFile = path.join(BRAIN_DIR, 'SPECIALTIES', `${area}.md`);
-      const specContent = fs.existsSync(specFile) ? fs.readFileSync(specFile, 'utf8') : '';
-      const lecciones = [...specContent.matchAll(/\*\*Karpathy Dream Lesson \(([^)]+)\):\*\*\n> ([^\n]+)/g)]
-        .map(m => `• ${m[1].substring(0, 19)}: ${m[2].substring(0, 80)}`);
-
-      // DTs aprobadas para este área
-      const dtsArea = fs.readdirSync(path.join(BRAIN_DIR, 'dictamenes'))
-        .filter(f => f.includes(prefix) && f.endsWith('.md'));
-
-      // Dreams registrados del área
-      const dreamsArea = fs.existsSync(path.join(BRAIN_DIR, 'DREAMS'))
-        ? fs.readdirSync(path.join(BRAIN_DIR, 'DREAMS')).filter(f => f.toUpperCase().includes(area.split('_')[0]))
-        : [];
-
-      // ¿Está promovida a LFC2?
-      const enLfc2 = fs.existsSync(LFC2_DT_DIR)
-        ? fs.readdirSync(LFC2_DT_DIR).filter(f => f.includes(prefix))
-        : [];
-
-      const estadoDT = dtsArea.length
-        ? `✅ *${dtsArea.length} DT aprobada(s):*\n${dtsArea.map(f => `• \`${f}\``).join('\n')}`
-        : `❌ *Sin DT aprobada* — todos los ciclos fueron rechazados por el Juez.`;
-
-      const estadoVercel = enLfc2.length
-        ? `✅ En LFC2 → visible en lfc-2.vercel.app:\n${enLfc2.map(f => `• \`${f}\``).join('\n')}`
-        : `⚠️ *No promovida a LFC2/Vercel* — promotion manual pendiente.\nUsa: \`cp brain/dictamenes/${prefix}-*.md ${LFC2_DT_DIR}/\``;
-
-      await send(chatId,
-        `🔍 *Historial SICC — Área: ${area}*\n\n` +
-        estadoDT + `\n\n` +
-        `📓 *Sueños registrados del área:* ${dreamsArea.length || 0}\n` +
-        (dreamsArea.length ? dreamsArea.map(f => `• \`${f}\``).join('\n') + '\n\n' : '_(sin archivos en DREAMS/)_\n\n') +
-        `🧬 *Lecciones Karpathy (${lecciones.length} ciclos fallidos):*\n` +
-        (lecciones.length
-          ? lecciones.slice(0, 5).join('\n') + (lecciones.length > 5 ? `\n  _...+${lecciones.length - 5} más en brain/SPECIALTIES/${area}.md_` : '')
-          : '_(sin lecciones — área sin ciclos aún)_') + `\n\n` +
-        estadoVercel
-      );
-      return;
-    } catch (_) {}
-  }
-
-  // ── Respuesta directa sobre ubicación de DTs ──────────────────────────────
-  if (/d[oó]nde|encuentro|dictamen|dt[- ]?aprobad|dt certificad|sueño cert/i.test(textLower)) {
-    try {
-      const dts    = fs.readdirSync(path.join(BRAIN_DIR, 'dictamenes')).filter(f => f.endsWith('.md')).sort().reverse().slice(0, 5);
-      const sueños = fs.readdirSync(path.join(BRAIN_DIR, 'DREAMS')).filter(f => f.endsWith('.md')).sort().reverse().slice(0, 3);
-      await send(chatId,
-        `📄 *DTs certificadas* (\`brain/dictamenes/\`):\n` +
-        (dts.length ? dts.map(f => `• \`${f}\``).join('\n') : '_(ninguna)_') + `\n\n` +
-        `💤 *Sueños recientes* (\`brain/DREAMS/\`):\n` +
-        (sueños.length ? sueños.map(f => `• \`${f}\``).join('\n') : '_(ninguno)_') + `\n\n` +
-        `Para promover a LFC2:\n\`\`\`\ncp brain/dictamenes/<DT>.md /home/administrador/docker/LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/\n\`\`\``
-      );
-      return;
-    } catch (_) {}
-  }
-
-  // ── Respuesta directa sobre sueños / DREAMS / PENDING ────────────────────
-  // Captura: "qué sueños tienes pendientes", "dreams pendientes", "qué soñaste", etc.
-  if (/sue[ñn]|dream|pending|pendiente|borrador|karpathy.*(pendiente|queue)|ciclo.*(pendiente|sueño)/i.test(textLower) &&
-      !/\/dream/.test(texto)) {
-    try {
-      const dreamsDir  = path.join(BRAIN_DIR, 'DREAMS');
-      const pendingDir = path.join(BRAIN_DIR, 'PENDING_DTS');
-      const specDir    = path.join(BRAIN_DIR, 'SPECIALTIES');
-      const dreams  = fs.existsSync(dreamsDir)  ? fs.readdirSync(dreamsDir).filter(f => f.endsWith('.md')).sort().reverse()  : [];
-      const pending = fs.existsSync(pendingDir) ? fs.readdirSync(pendingDir).filter(f => f.endsWith('.md')).sort().reverse() : [];
-      const specs   = fs.existsSync(specDir)    ? fs.readdirSync(specDir).filter(f => f.endsWith('.md'))                     : [];
-
-      const aprobados = dreams.filter(f => f.includes('CERTIFICADO'));
-      const rechazados = dreams.filter(f => f.includes('RECHAZADO'));
-
-      await send(chatId,
-        `💤 *Estado del Dreamer SICC*\n\n` +
-        `📓 *Sueños registrados (${dreams.length} total):*\n` +
-        `• ${aprobados.length} CERTIFICADOS | ${rechazados.length} RECHAZADOS\n` +
-        (dreams.slice(0, 4).map(f => `  \`${f}\``).join('\n') || '  _(ninguno)_') + `\n\n` +
-        `🔶 *Borradores pendientes revisión humana (${pending.length}):*\n` +
-        (pending.length ? pending.map(f => `• \`${f}\``).join('\n') : '_(ninguno — el Juez no ha rechazado 3 ciclos consecutivos)_') + `\n\n` +
-        `🧬 *Lecciones Karpathy por área:*\n` +
-        specs.map(f => `• ${f.replace('.md', '')}`).join('  ') + `\n\n` +
-        `Usa */dream [área]* para iniciar un nuevo ciclo de decantación.`
-      );
-      return;
-    } catch (_) {}
+      if (intent.matches(textLower, texto)) {
+        const handled = await intent.handle(chatId, texto, textLower, send, BRAIN_DIR);
+        if (handled) return;
+      }
+    } catch (e) {
+      console.warn(`[BOT] Intent ${intent._name || '?'} error: ${e.message}`);
+    }
   }
 
   // ── Fallback IA ──────────────────────────────────────────────────────────
