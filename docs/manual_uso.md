@@ -9,7 +9,7 @@
 | Comando | Estado | Velocidad | Notas |
 |:---|:---:|:---|:---|
 | `/hola` | ✅ | Inmediato | Menú de ayuda |
-| `/dream [tema]` | ✅ | 5-11 min | Comando principal. Ver sección detallada abajo |
+| `/dream [tema]` | ✅ | 5-30 min | Comando principal. Ver sección detallada abajo |
 | `/swarm [pregunta]` | ✅ | ~10 min | Pregunta libre al enjambre sin ciclo de 5 fases |
 | `/doctor` | ✅ | ~5s | Health check — score 85/100 en validación |
 | `/learn` | ✅ | ~3s | Mapea 119 rutas LFC2, actualiza índice |
@@ -62,13 +62,20 @@ El comando más importante. Ejecuta un ciclo forense autónomo de **5 fases**.
 - Emite JSON: `{ aprobado, razon, categoria_fallida, leccion_karpathy }`
 - Resultado: **APROBADO** o **RECHAZADO**
 
-**Fase 5 — Auto-tuning Karpathy** *(solo si RECHAZADO)*
-- La lección del fallo se inyecta en `brain/SPECIALTIES/{categoria}.md`
-- El siguiente `/dream` sobre el mismo tema parte con ese conocimiento adicional
-- La lección también se puede guardar en `sicc_genetic_memory`
+**Fase 5 — Persistencia y Auto-tuning**
+
+Si **APROBADO**:
+- `brain/dictamenes/DT-{PREFIX}-{AÑO}-{SEQ}_*_APROBADO.md` — texto completo certificado
+- `brain/DREAMS/DREAM-*-CERTIFICADO.md` — log del sueño
+- `sicc_genetic_memory` (Supabase) — vectorizado para RAG en sueños futuros del área
+
+Si **RECHAZADO** (y se agotaron los 3 ciclos):
+- `brain/SPECIALTIES/{categoria}.md` — lección Karpathy append (auto-tuning)
+- `brain/PENDING_DTS/PENDING-*.md` — borrador impuro para revisión humana
+- `brain/DREAMS/DREAM-*-RECHAZADO.md` — log del sueño
 
 **Ciclos:** Máximo 3 intentos. Si los 3 fallan → `🛑 SICC BLOCKER`.
-**Timeout total:** 11 minutos (exec hard-cap).
+**Timeout total:** 30 minutos (exec hard-cap). Oracle: 90s por consulta, auto-restart si Chrome cuelga.
 
 ### Cascada de Proveedores LLM
 

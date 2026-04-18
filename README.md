@@ -89,7 +89,17 @@ curl http://localhost:3001/health
         └─ Si RECHAZADO → lección en brain/SPECIALTIES/*.md
 ```
 
-**Hard-cap:** 3 ciclos máx, 11 min por `/dream` (timeout exec).
+**Hard-caps:** 3 ciclos máx | 30 min timeout | Oracle 90s | Auto-restart Chrome si -32001
+
+**Persistencia al certificar:**
+- `brain/dictamenes/DT-{PREFIX}-{AÑO}-{SEQ}_*_APROBADO.md` — texto completo
+- `brain/DREAMS/DREAM-*-CERTIFICADO.md` — registro del sueño
+- `sicc_genetic_memory` (Supabase) — vector embedding para RAG futuro
+
+**Persistencia al rechazar (3 ciclos):**
+- `brain/PENDING_DTS/PENDING-*.md` — borrador impuro para revisión humana
+- `brain/DREAMS/DREAM-*-RECHAZADO.md` — registro del sueño
+- `brain/SPECIALTIES/{categoria}.md` — lección Karpathy append
 
 ---
 
@@ -108,11 +118,19 @@ curl http://localhost:3001/health
 
 ```
 brain/
-├── IDENTITY.md       ← ADN del agente v6
-├── SOUL.md           ← Ética operacional
-├── R-HARD.md         ← 7 restricciones duras (CAPEX $726MM, fechas 2025-2026)
-├── SICC_METHODOLOGY.md ← Protocolo N-1 deductivo
-├── SPECIALTIES/      ← 6 mini-expertos (Señalización, Comms, Energía...)
-├── dictamenes/       ← Decisiones Técnicas aprobadas (inmutables)
-└── sources/          ← Base legal (49 CFR, AREMA, Manual Vial 2024)
+├── IDENTITY.md           ← ADN del agente v6
+├── SOUL.md               ← Ética operacional
+├── R-HARD.md             ← 7 restricciones duras (CAPEX $726MM, fechas 2025-2026)
+├── SICC_METHODOLOGY.md   ← Protocolo N-1 deductivo
+├── SPECIALTIES/          ← 6 mini-expertos (lecciones Karpathy auto-append)
+│   ├── SIGNALIZATION.md
+│   ├── COMMUNICATIONS.md
+│   ├── POWER.md
+│   ├── INTEGRATION.md
+│   ├── ENCE.md
+│   └── CONTROL_CENTER.md
+├── dictamenes/           ← DTs aprobadas (texto completo, inmutables)
+├── DREAMS/               ← Log de cada sueño (aprobado y rechazado)
+├── PENDING_DTS/          ← Borradores impuros tras 3 ciclos → revisión humana
+└── sources/              ← Base legal (49 CFR, AREMA, Manual Vial 2024)
 ```

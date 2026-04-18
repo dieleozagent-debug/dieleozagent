@@ -56,6 +56,48 @@ function guardarDTEnDisco(area, textoDT, razonJuez, idDT, filename) {
     console.log(`\n📄 DT guardada en disco: brain/dictamenes/${filename}`);
 }
 
+function registrarEnDreams(area, textoDT, veredicto, razon, ciclos) {
+    const dreamsDir = path.join(__dirname, '..', 'brain', 'DREAMS');
+    const fecha = new Date().toISOString();
+    const slug = fecha.replace(/[:.]/g, '-');
+    const estado = veredicto ? 'CERTIFICADO' : 'RECHAZADO';
+    const filename = `DREAM-${area.toUpperCase().replace(/\s+/g, '_')}-${slug}.md`;
+    const contenido = [
+        `# 💤 SUEÑO ${estado} — ${area.toUpperCase()}`,
+        `**Fecha:** ${fecha} | **Ciclos:** ${ciclos}/3 | **Estado:** ${estado}`,
+        `**Veredicto Juez:** ${razon}`,
+        ``,
+        `---`,
+        ``,
+        textoDT,
+    ].join('\n');
+    fs.writeFileSync(path.join(dreamsDir, filename), contenido, 'utf8');
+    console.log(`\n📓 Sueño registrado en DREAMS/${filename}`);
+}
+
+function guardarPendingDT(area, textoDT, ultimaLeccion) {
+    const pendingDir = path.join(__dirname, '..', 'brain', 'PENDING_DTS');
+    const fecha = new Date().toISOString();
+    const slug = fecha.slice(0, 10);
+    const areaSlug = area.toUpperCase().replace(/\s+/g, '_').substring(0, 20);
+    const filename = `PENDING-${areaSlug}-${slug}.md`;
+    const contenido = [
+        `# 🔶 PENDING DT — ${area.toUpperCase()} (Impureza Persistente)`,
+        `**Fecha:** ${fecha}`,
+        `**Estado:** RECHAZADO tras 3 ciclos — pendiente revisión humana`,
+        `**Última lección Karpathy:** ${ultimaLeccion}`,
+        ``,
+        `---`,
+        ``,
+        `> ⚠️ Este borrador no superó la Cámara de Doble Ciego en 3 ciclos.`,
+        `> Requiere revisión manual antes de promover a dictamenes/.`,
+        ``,
+        textoDT,
+    ].join('\n');
+    fs.writeFileSync(path.join(pendingDir, filename), contenido, 'utf8');
+    console.log(`\n🔶 Borrador impuro guardado en PENDING_DTS/${filename}`);
+}
+
 const arg = process.argv[2] || "Señalización";
 
 async function updateKarpathySpecialty(specialty, leccion) {
@@ -94,6 +136,7 @@ async function runSwarmPilot() {
     const MAX_CICLOS = 3;
     let aprobado = false;
     let ultimaLeccion = "";
+    let ultimoBorrador = "";
 
     while (ciclosRealizados < MAX_CICLOS && !aprobado) {
         ciclosRealizados++;
@@ -121,6 +164,7 @@ async function runSwarmPilot() {
             console.log(`🐝 Disparando enjambre (Fase 1: Sueño Soberano)...`);
             let responseObj = await llamarMultiplexadorFree(agent1.prompt, "", `Role: ${agent1.name}`);
             let borrador_DT = typeof responseObj === 'string' ? responseObj : (responseObj.texto || responseObj.content || JSON.stringify(responseObj));
+            ultimoBorrador = borrador_DT;
             
             if (borrador_DT.includes("I need more information") || borrador_DT.includes("Could you please provide")) {
                 console.error(`🚨 [ALUCINACIÓN DETECTADA] Abortando ciclo por intento de meta-habla.`);
@@ -213,6 +257,7 @@ Responde ÚNICAMENTE en JSON:
                 console.log(`\n--- DT FINAL ---\n${borrador_DT}\n----------------`);
                 const { id: idDT, filename } = generarNombreDT(arg, borrador_DT);
                 guardarDTEnDisco(arg, borrador_DT, decision.razon || '', idDT, filename);
+                registrarEnDreams(arg, borrador_DT, true, decision.razon || '', ciclosRealizados);
                 const idSupabase = await guardarDTCertificada(arg, borrador_DT, decision.razon || '');
                 if (idSupabase) console.log(`\n📦 DT vectorizada en Supabase: ${idSupabase}`);
             } else {
@@ -244,6 +289,10 @@ Responde ÚNICAMENTE en JSON:
     if (!aprobado) {
         console.log(`\n🛑 [SICC BLOCKER] El enjambre no logró decantar una DT pura tras ${MAX_CICLOS} ciclos.`);
         console.log(`Gobernanza activa: El tema ha sido bloqueado por impureza persistente.`);
+        if (ultimoBorrador) {
+            registrarEnDreams(arg, ultimoBorrador, false, ultimaLeccion, ciclosRealizados);
+            guardarPendingDT(arg, ultimoBorrador, ultimaLeccion);
+        }
     }
 
     console.log(`\n--------------------------------------------------`);

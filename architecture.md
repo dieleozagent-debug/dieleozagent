@@ -6,10 +6,6 @@ SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agent
 
 ## 🛰️ Topología de Red (Nodo Único Soberano)
 
-El sistema opera en un servidor Ubuntu dedicado con 4 servicios Docker + 1 proceso nativo.
-
-### 1. Mapa de Servicios
-
 | Servicio | Contenedor / Proceso | Puerto | Función |
 | :--- | :--- | :--- | :--- |
 | **Agente Core** | `dieleozagent-debug-dieleozagent-1` | — | Bot Telegram + orquestación de sueños |
@@ -17,113 +13,106 @@ El sistema opera en un servidor Ubuntu dedicado con 4 servicios Docker + 1 proce
 | **Base de Datos** | `sicc-postgres` | 5432 | pgvector — LTM contractual + memoria genética |
 | **Ollama (Embeddings)** | **Nativo en Host** | 11434 | `nomic-embed-text` 768 dims, soberanía total |
 
-### 2. Modelos de Inteligencia (Ollama local)
-
-| Modelo | Función |
-| :--- | :--- |
-| `gemma4-light:latest` | Auditoría Forense — fallback offline |
-| `nomic-embed-text` | Embeddings vectoriales (LTM) |
-| `phi3.5:latest` | Análisis rápido de sintaxis |
-
-### 3. Conectividad
-
-- **Host → Ollama:** `localhost:11434` (`OLLAMA_HOST=0.0.0.0`)
-- **Agente → Ollama:** alias `opengravity-ollama` → `172.20.0.1`
+### Conectividad
+- **Agente → Ollama:** alias `opengravity-ollama` → `172.20.0.1` (extra_hosts)
 - **Agente → Oracle:** `http://notebooklm-mcp-v12:3001/sse` (red `docker_sicc_net`)
 - **Agente → Postgres:** `sicc-postgres:5432`
 
 ---
 
-## 🌪️ El Bucle de Decantación (Karpathy Loop) — v12.9
+## 📡 Multiplexador de Proveedores IA — Cascada v12.9
 
-### Ciclo completo de `/dream [especialidad]`
+| Nivel | Proveedor | Modelo | Nota |
+|---|---|---|---|
+| 1 | Gemini | `gemini-2.0-flash` | Free tier — agotado en uso intensivo |
+| 1 | Groq | `llama-3.3-70b-versatile` | Free 100K tokens/día |
+| 1 | Ollama local | `gemma2:2b` | Sin límite, prompt segmentado 4 secciones |
+| 2 | OpenRouter free | auto | Nemotron 70B, Trinity, gpt-oss-120b… |
+| 3 | OpenRouter pagado | `gemini-2.0-flash-001` | ~$0.10/1M tokens |
+| 3 | OpenRouter pagado | `llama-3.3-70b-instruct` | ~$0.12/1M tokens — sin cuota diaria |
+
+**Skip 429:** `proveedorBloqueadoReciente()` saltea proveedores con 429 en últimos 15 min.
+**Ollama timeout:** 45s — prompt estructurado en 4 secciones (`construirPromptOllama`).
+
+---
+
+## 🌪️ Bucle de Decantación Karpathy — `/dream [área]`
 
 ```
-Telegram: /dream telecomunicaciones
+Telegram: /dream señalizacion
          │
          ▼
-[index.js] exec(swarm-pilot.js, timeout:660s)
+[index.js] exec(swarm-pilot.js, timeout: 1800s / 30 min)
          │
-         ▼ FASE 1 — VACUNACIÓN
-[supabase.js] buscarLecciones(tema, 3)
-  └─ sicc_genetic_memory → vacunas anti-alucinación inyectadas al prompt
+         ▼ ── hasta 3 ciclos ──────────────────────────────────────────
          │
-         ▼ FASE 2 — RAG MATCH
-[sapi/supabase_rag.js] buscarSimilares(borrador, 5)
+         ▼ FASE 1 — VACUNACIÓN GENÉTICA
+[supabase.js] buscarLecciones(área, 3)
+  └─ sicc_genetic_memory → lecciones + DTs certificadas previas del área
+         │
+         ▼ FASE 2 — GENERACIÓN (Auditor Forense Soberano)
+[sicc-multiplexer.js] llamarMultiplexadorFree(prompt_auditor)
+  └─ Borrador DT generado (texto completo)
+         │
+         ▼ FASE 3 — CÁMARA DE DOBLE CIEGO
+[sapi/supabase_rag.js] validarInternaSupabase(borrador)
   └─ contrato_documentos → fragmentos literales del contrato LFC2
-  └─ llamarMultiplexadorFree() → Borrador DT
-         │
-         ▼ FASE 3 — ORACLE CHECK
+
 [sapi/notebooklm_mcp.js] validarExternaNotebook(borrador)
-  └─ SSE → notebooklm-mcp-v12:3001
-  └─ Google Chrome (Patchright) → NotebookLM (108 fuentes)
-  └─ Timeout: 3 min (BROWSER_TIMEOUT=120s en Oracle)
+  └─ SSE → notebooklm-mcp-v12:3001 → Chrome (Patchright) → NotebookLM
+  └─ Timeout cliente: 90s | Auto-restart Chrome: docker restart si -32001
          │
-         ▼ FASE 4 — JUICIO
-[swarm-pilot.js] llamarMultiplexadorFree(prompt_juez)
-  └─ JSON: { aprobado, razon, categoria_fallida, leccion_karpathy }
+         ▼ FASE 4 — JUICIO (Juez Soberano)
+[sicc-multiplexer.js] llamarMultiplexadorFree(prompt_juez)
+  └─ Parser robusto: JSON limpio → code fence → campo a campo → inferencia
+  └─ { aprobado, razon, categoria_fallida, leccion_karpathy }
          │
-    ┌────┴────┐
-APROBADO    RECHAZADO
-    │            │
-    ▼            ▼ FASE 5 — AUTO-TUNING
-DT Final   brain/SPECIALTIES/{categoria}.md ← lección Karpathy
+    ┌────┴──────────────────────┐
+APROBADO                   RECHAZADO
+    │                          │
+    ▼ PERSISTENCIA             ▼ FASE 5 — KARPATHY AUTO-TUNING
+brain/dictamenes/          brain/SPECIALTIES/{categoria}.md ← lección
+  DT-CTSC-2026-XXX_*.md    brain/PENDING_DTS/PENDING-*.md ← borrador impuro
+brain/DREAMS/              brain/DREAMS/DREAM-*-RECHAZADO.md
+  DREAM-*-CERTIFICADO.md
+sicc_genetic_memory        [siguiente ciclo con lección inyectada]
+  (vector embedding)
     │
     ▼
 Telegram: ⚖️ VEREDICTO FINAL AL DESPERTAR
 ```
 
-**Hard-caps:** MAX_CICLOS=3, exec timeout=11min, Oracle timeout=3min/consulta.
+**Hard-caps:** MAX_CICLOS=3 | exec timeout=1800s | Oracle timeout cliente=90s
 
 ---
 
-## 📡 Multiplexador de Proveedores IA — Cascada v12.9
+## 🗄️ Brain — Jerarquía de Directorios
 
-Orden de escalación en `llamarMultiplexadorFree()`:
-
-| Nivel | Proveedor | Modelo | Cuota / Costo |
-|---|---|---|---|
-| 1 | Gemini | `gemini-2.0-flash` | Free tier (límite diario ~1500 req) |
-| 1 | Groq | `llama-3.3-70b-versatile` | Free tier (100K tokens/día) |
-| 1 | Ollama | `gemma4-light` local | Sin límite — responde en español por prompt |
-| 2 | OpenRouter | `openrouter/free` | Auto-selección: Nemotron 70B, Trinity Large, gpt-oss-120b… |
-| 3 | OpenRouter | `gemini-2.0-flash-001` | ~$0.10/1M tokens — último recurso pagado |
-| 3 | OpenRouter | `llama-3.3-70b-instruct` | ~$0.12/1M tokens — sin cuota diaria |
-
-**Idioma garantizado:** Todos los llamados incluyen `REGLA ABSOLUTA DE IDIOMA: responde siempre en español` en el system prompt — incluyendo Ollama y OpenRouter.
-
----
-
-## 🗄️ Infraestructura Vectorial (LTM)
-
-### Colecciones Postgres/pgvector
-
-| Colección | Función | Estado |
+| Directorio | Escrito por | Cuándo |
 |---|---|---|
-| `contrato_documentos` | Biblia Legal — Contrato LFC2 + normas | 🟢 Activo |
-| `sicc_genetic_memory` | 53 lecciones aprendidas — Sistema Inmune | 🟢 Activo |
+| `brain/dictamenes/` | `swarm-pilot.js` | Al **aprobar** el Juez — texto completo DT |
+| `brain/DREAMS/` | `swarm-pilot.js` | Siempre — aprobado **y** rechazado |
+| `brain/PENDING_DTS/` | `swarm-pilot.js` | Al **rechazar** tras 3 ciclos — borrador impuro para revisión humana |
+| `brain/SPECIALTIES/*.md` | `swarm-pilot.js` | Al **rechazar** — lección Karpathy append |
+| `sicc_genetic_memory` | `supabase.js` | Al **aprobar** — vector embedding del DT |
+| `brain/AUDIT_QUEUE.md` | `resource-governor.js` | CPU >80% — sueños encolados |
 
-### Motor de Embeddings (Soberanía Dual)
-1. **Primario:** `nomic-embed-text` vía Ollama local (768 dims, 100% soberano)
-2. **Contingencia:** `text-embedding-004` vía Gemini Cloud
-
-### Ingesta (Michelin v7.2)
-- OCR con `pdftoppm` (300dpi) + Tesseract
-- Checkpoints por archivo — resume-capable
-- `node scripts/sicc-ingesta.js --path [ruta]`
+### Naming de archivos
+- **Dictamen aprobado:** `DT-{PREFIX}-{AÑO}-{SEQ}_{Descripcion}_APROBADO.md`
+  - Prefix por área: señaliz→CTSC, telecom→COMS, energi→ENRG, integr→INTG, control→CTRL
+- **Sueño (log):** `DREAM-{AREA}-{ISO_TIMESTAMP}.md`
+- **Pending:** `PENDING-{AREA}-{FECHA}.md`
 
 ---
 
-## 🏛️ Jerarquía de Rutas Soberanas (SSoP)
+## 🗃️ Infraestructura Vectorial (LTM)
 
-| Directorio | Ruta en Contenedor | Función |
-| :--- | :--- | :--- |
-| **Raíz Agente** | `/home/administrador/docker/agente` | Código + Brain |
-| **Cerebro (SSOT)** | `/home/administrador/docker/agente/brain` | R-HARD, IDENTITY, SPECIALTIES |
-| **Oracle** | `/home/administrador/docker/notebook-mcp` | NotebookLM MCP server |
-| **LFC2 (Docs)** | `/home/administrador/docker/LFC2` | Ingeniería externa |
-| **Biblia Legal** | `/home/administrador/docker/agente/Contrato pdf` | PDFs contractuales |
-| **Logs / Traces** | `/home/administrador/docker/agente/data/logs` | Telemetría forense |
+| Tabla Postgres | Función |
+|---|---|
+| `contrato_documentos` | Biblia Legal — Contrato LFC2 + normas técnicas |
+| `sicc_genetic_memory` | Lecciones Karpathy + DTs certificadas (tipo: DT_CERTIFICADA) |
+
+**Embeddings:** `nomic-embed-text` (Ollama, 768 dims) → fallback `text-embedding-004` (Gemini)
 
 ---
 
@@ -131,7 +120,7 @@ Orden de escalación en `llamarMultiplexadorFree()`:
 
 1. **CAPEX Blindado:** $726.000.000 COP máx (WBS 6.1.100)
 2. **Normativa:** FRA 49 CFR Part 236 / AREMA / Manual Vial 2024
-3. **CPU:** 80% → encolar en `AUDIT_QUEUE.md` / 95% → bloquear inferencia local
+3. **CPU:** >80% → encolar | >95% → bloquear inferencia local
 4. **Idioma:** Español obligatorio en toda salida del enjambre
 5. **Verdad:** Oracle prevalece sobre intuición de la IA generativa
 
@@ -140,22 +129,28 @@ Orden de escalación en `llamarMultiplexadorFree()`:
 ## 🛠️ Diagnóstico Rápido
 
 ```bash
-# Estado de contenedores
+# Estado contenedores
 docker ps --format "table {{.Names}}\t{{.Status}}"
 
 # Oracle health
 curl http://localhost:3001/health
 
-# Test Oracle desde agente
+# Test Oracle directo
 docker exec dieleozagent-debug-dieleozagent-1 node -e "
   const {validarExternaNotebook}=require('./src/sapi/notebooklm_mcp');
-  validarExternaNotebook('hola').then(r=>console.log(r?.substring(0,200)));
+  validarExternaNotebook('test').then(r=>console.log(r?.substring(0,200)));
 "
 
-# Logs agente en vivo
-docker compose logs -f --tail=30
+# DTs certificadas
+ls brain/dictamenes/
+
+# Sueños recientes
+ls brain/DREAMS/ | tail -5
+
+# Pendientes revisión humana
+ls brain/PENDING_DTS/
 ```
 
 ---
 
-*Certificado: OpenGravity Forensic Auditor — v12.9 "Oráculo Certificado" — 2026-04-17*
+*Actualizado: 2026-04-18 | OpenGravity SICC v12.9 "Oráculo Certificado"*
