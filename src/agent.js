@@ -1,4 +1,56 @@
-// agent.js — Lógica del agente con brain + memoria persistente inyectada al system prompt
+/**
+ * @file src/agent.js
+ * @what  Motor central del agente SICC. Orquesta el pipeline de inferencia:
+ *        vacunación genética → RAG → Oracle → skills → LLM multiplexado.
+ *        Exporta las funciones que consumen index.js, handlers.js y swarm-pilot.js.
+ *
+ * @how   procesarMensaje() ejecuta 5 fases en serie:
+ *          FASE-0: CPU check (resource-governor)
+ *          FASE-1: buscarLecciones() → vacunas genéticas (sicc_genetic_memory)
+ *          FASE-2: buscarSimilares() → RAG contractual (contrato_documentos)
+ *          FASE-3: buscarEnWeb() + validarExternaNotebook() → oracle (solo si apiKey Tavily)
+ *          FASE-4: seleccionarSkills() → brain/skills/*.json|md
+ *          FASE-5: getMultiplexedContext() + llamarMultiplexadorFree() → respuesta LLM
+ *        Si FASE-5 falla → MURO-DE-FUEGO: registra bloqueo y retorna mensaje soberano.
+ *
+ * @why   Centraliza toda la lógica de decisión del agente para que index.js y
+ *        handlers.js sean solo enrutadores, sin lógica de negocio.
+ *
+ * @refs  LLAMADORES de este módulo:
+ *          index.js          → inicializarBrain(), generarReporteConsistencia()
+ *          handlers.js       → procesarMensaje(), procesarMensajeSwarm(), limpiarHistorial()
+ *          scripts/swarm-pilot.js → inicializarBrain()
+ *          src/simulator.js  → procesarMensaje(), ejecutarSondaForense()
+ *
+ *        MÓDULOS QUE ESTE ARCHIVO LLAMA:
+ *          brain.js          → construirSystemPrompt(), destilarCerebro()
+ *          memory.js         → cargarMemoriaReciente()
+ *          supabase.js       → buscarSimilares(), buscarLecciones()
+ *          search.js         → buscarEnWeb()
+ *          notifications.js  → enviarAlerta()
+ *          patrol.js         → startPatrol() (solo modo CLI --vigilia)
+ *          sapi/notebooklm_mcp.js → validarExternaNotebook()
+ *          scripts/sicc-multiplexer.js → getMultiplexedContext(), llamarMultiplexadorFree(), …
+ *          scripts/resource-governor.js → checkYEncolar(), evaluarRecursos()
+ *          scripts/zero_residue_audit.js → runZeroResidueAudit()
+ *          scripts/cross_ref_check.js    → runCrossRefCheck()
+ *
+ * @audit-log  data/logs/sicc-traces.json  — trazas por request (últimas 100)
+ *             data/logs/flow-resilience.json — eventos de flujo (sondas forenses)
+ *             brain/SICC_OPERATIONS.md      — bloqueos críticos registrados
+ *
+ * @agent-prompt
+ *   NUNCA pongas lógica de comandos Telegram aquí — va en handlers.js.
+ *   NUNCA llames a bot.sendMessage aquí — usa enviarAlerta() para alertas críticas.
+ *   El sistema prompt real que llega al LLM es `systemPromptSoberano` (FASE-5),
+ *   construido con getMultiplexedContext(). PROMPT_FAST no llega al LLM directamente;
+ *   solo existe para ser inyectado en el multiplexer vía setAgentContext().
+ *   Si agregas una fase nueva: ponla ANTES de FASE-5, con su label [AGENTE] FASE-N.
+ *   ejecutarSondaForense() está ROTO (usa OpenAI no importado) — NO la uses hasta
+ *   que se reescriba con llamarMultiplexadorFree(). simulator.js la referencia.
+ *   Dead code eliminado en este refactor: encolarHallazgo, rutarEstrategiaAdvisor,
+ *   ESPECIALIDADES, rutarEspecialidad(), sumarizarContexto(), finalPrompt dead path.
+ */
 'use strict';
 
 const config = require('./config');
@@ -7,458 +59,392 @@ const { cargarMemoriaReciente } = require('./memory');
 const { buscarSimilares } = require('./supabase');
 const { buscarEnWeb } = require('./search');
 const { enviarAlerta } = require('./notifications');
-const { encolarHallazgo } = require('./digest');
-const { rutarEstrategiaAdvisor } = require('./advisor');
 const multiplexer = require('../scripts/sicc-multiplexer');
-const { getMultiplexedContext, EstadoGlobalErrores, registrarError4xx, extraerCodigoError, llamarGemini, llamarGroq, llamarOpenRouter, llamarOllama, ordenProveedores, llamarMultiplexadorFree } = multiplexer;
-const fs = require('fs');
+const {
+  getMultiplexedContext,
+  EstadoGlobalErrores,
+  registrarError4xx,
+  extraerCodigoError,
+  llamarGemini,
+  llamarGroq,
+  llamarOpenRouter,
+  llamarOllama,
+  ordenProveedores,
+  llamarMultiplexadorFree
+} = multiplexer;
+const fs   = require('fs');
 const path = require('path');
 const { checkYEncolar, evaluarRecursos } = require('../scripts/resource-governor');
 const { startPatrol } = require('./patrol');
 const { validarExternaNotebook } = require('./sapi/notebooklm_mcp');
 
+// ── Rutas de audit logs ───────────────────────────────────────────────────────
+const SKILLS_DIR     = path.join(__dirname, '../brain/skills');
+const FLOW_LOG_PATH  = path.join(__dirname, '../data/logs/flow-resilience.json');
+const TRACES_PATH    = path.join(__dirname, '../data/logs/sicc-traces.json');
+const OPS_PATH       = path.join(__dirname, '../brain/SICC_OPERATIONS.md');
 
-// Skills Registry — carga modular de contexto especializado
-const SKILLS_DIR = require('path').join(__dirname, '../brain/skills');
+// ── Historial de sesión en RAM (máx 10 intercambios = 20 entradas) ────────────
+const historial     = [];
+const MAX_HISTORIAL = 10;
 
-// ── FUNCIONES DE GOBERNANZA v9.3.0 ──────────────────────────────────────────
+// ── System prompts — inyectados al multiplexer vía setAgentContext() ──────────
+// PROMPT_FAST/FULL NO llegan al LLM directamente: el prompt real es systemPromptSoberano
+// en FASE-5. Estos existen para que el multiplexer los tenga disponibles internamente.
+let PROMPT_FULL = '';
+let PROMPT_FAST = '';
 
+// ── Telemetría ────────────────────────────────────────────────────────────────
+// @audit  Escribe a data/logs/sicc-traces.json (últimas 100 entradas).
 function registrarTrazaSICC(pregunta, proveedor, contextoUsado) {
-  const logPath = path.join(__dirname, '../data/logs/sicc-traces.json');
   const traza = {
-    timestamp: new Date().toISOString(),
-    pregunta: pregunta.substring(0, 100),
+    timestamp:      new Date().toISOString(),
+    pregunta:       pregunta.substring(0, 100),
     proveedor,
-    brain_active: true,
     context_length: (contextoUsado || '').length
   };
-  
   try {
     let logs = [];
-    if (fs.existsSync(logPath)) {
-      logs = JSON.parse(fs.readFileSync(logPath, 'utf8'));
-    }
+    if (fs.existsSync(TRACES_PATH)) logs = JSON.parse(fs.readFileSync(TRACES_PATH, 'utf8'));
     logs.push(traza);
     if (logs.length > 100) logs.shift();
-    fs.writeFileSync(logPath, JSON.stringify(logs, null, 2));
+    fs.writeFileSync(TRACES_PATH, JSON.stringify(logs, null, 2));
   } catch (e) {
-    console.warn('[TRAZA] [SICC WARN] No se pudo registrar la traza SICC:', e.message);
+    console.warn('[TRAZA] No se pudo registrar traza:', e.message);
   }
 }
 
+// @audit  Append a brain/SICC_OPERATIONS.md y notifica a Telegram vía enviarAlerta().
 async function registrarBloqueoSICC(pregunta, error) {
-  const opsPath = path.join(__dirname, '../brain/SICC_OPERATIONS.md');
-  const timestamp = new Date().toISOString();
-  const entrada = `\n### [SICC BLOCKER] BLOQUEO DE FIRMA (${timestamp})\n- **Problema:** Fallo total de vías gratuitas/locales.\n- **Consulta:** ${pregunta}\n- **Error:** ${error}\n- **Acción Requerida:** [DIEGO] Debe autorizar desbloqueo con SONNET o resolver manual.\n`;
-  
+  const ts     = new Date().toISOString();
+  const entrada = `\n### [SICC BLOCKER] BLOQUEO DE FIRMA (${ts})\n` +
+    `- **Consulta:** ${pregunta}\n- **Error:** ${error}\n` +
+    `- **Acción Requerida:** Autorizar Sonnet o resolver manual.\n`;
   try {
-    fs.appendFileSync(opsPath, entrada);
-    console.log('[GOBERNANZA] 🛡️ Bloqueo registrado en SICC_OPERATIONS.md.');
-    
-    // 📢 NOTIFICACIÓN PROACTIVA A TELEGRAM
-    await enviarAlerta(`🛡️ *BLOCKER DE SOBERANÍA*\n\nHe agotado las opciones gratuitas para la consulta:\n"${pregunta.substring(0, 100)}..."\n\nError: ${error}\n\nRevisarDashboard: [SICC_OPERATIONS.md]`);
+    fs.appendFileSync(OPS_PATH, entrada);
+    console.log('[GOBERNANZA] Bloqueo registrado en SICC_OPERATIONS.md.');
+    await enviarAlerta(
+      `🛡️ *BLOCKER DE SOBERANÍA*\n\n"${pregunta.substring(0, 100)}"\n\nError: ${error}`
+    );
   } catch (e) {
-    console.error('[GOBERNANZA] [SICC FAIL] Fallo al registrar bloqueo:', e.message);
+    console.error('[GOBERNANZA] Fallo al registrar bloqueo:', e.message);
   }
 }
 
+// ── Skills modular (brain/skills/*.json|md) ───────────────────────────────────
+// @refs  brain/skills/ — directorio de skills JSON y MD
+// Activa skills cuyo activador aparece en el texto del usuario.
 function seleccionarSkills(textoUsuario) {
   if (!fs.existsSync(SKILLS_DIR)) return '';
   const texto = textoUsuario.toLowerCase();
   let injected = '';
   try {
-    const archivos = fs.readdirSync(SKILLS_DIR);
-    for (const archivo of archivos) {
+    for (const archivo of fs.readdirSync(SKILLS_DIR)) {
       if (archivo.endsWith('.json')) {
-        const skill = JSON.parse(fs.readFileSync(require('path').join(SKILLS_DIR, archivo), 'utf8'));
-        const match = skill.activadores.some(a => texto.includes(a.toLowerCase()));
-        if (match) {
+        const skill = JSON.parse(fs.readFileSync(path.join(SKILLS_DIR, archivo), 'utf8'));
+        if (skill.activadores.some(a => texto.includes(a.toLowerCase()))) {
           injected += '\n\n' + skill.prompt_injection;
-          console.log(`[SKILLS] 🎯 Skill (JSON) cargado: ${skill.id}`);
+          console.log(`[SKILLS] Skill JSON cargado: ${skill.id}`);
         }
       } else if (archivo.endsWith('.md')) {
-        // Lógica para skills en Markdown: usamos el nombre del archivo (sin extensión) como activador
         const skillId = archivo.replace('.md', '').toLowerCase();
-        // Si el usuario menciona palabras clave del skill o el nombre del archivo directamente
-        const activadoresMD = [skillId, ...skillId.split('_'), ...skillId.split('-')];
-        const matchMD = activadoresMD.some(a => a.length > 3 && texto.includes(a));
-        
-        if (matchMD) {
-          const contenidoMD = fs.readFileSync(require('path').join(SKILLS_DIR, archivo), 'utf8');
-          injected += `\n\n## SKILL CAPABILITY: ${skillId.toUpperCase()}\n\n${contenidoMD}`;
-          console.log(`[SKILLS] 📚 Skill (MD) cargado: ${skillId}`);
+        const activadores = [skillId, ...skillId.split('_'), ...skillId.split('-')];
+        if (activadores.some(a => a.length > 3 && texto.includes(a))) {
+          injected += `\n\n## SKILL: ${skillId.toUpperCase()}\n\n${fs.readFileSync(path.join(SKILLS_DIR, archivo), 'utf8')}`;
+          console.log(`[SKILLS] Skill MD cargado: ${skillId}`);
         }
       }
     }
   } catch (e) {
-    console.log('[SKILLS] [SICC WARN] Error cargando skills:', e.message);
+    console.warn('[SKILLS] Error cargando skills:', e.message);
   }
   return injected;
 }
 
-// Importaciones de IA movidas a scripts/sicc-multiplexer.js
-// ── Historial de sesión (en RAM, máx 20 intercambios) ────────────────────────
-const historial = [];
-const MAX_HISTORIAL = 10;
-
-// Telemetría y gestión de errores movidos a scripts/sicc-multiplexer.js (ver imports al inicio)
-
-// System prompts: full para Ollama/Dreamer, fast para Cloud/Bot
-let PROMPT_FULL = '';
-let PROMPT_FAST = '';
-
-// ESPECIALIDADES SICC v8.9.0
-const ESPECIALIDADES = {
-  'LEGAL': `Eres un ABOGADO DE CONCESIONES SICC (DEDUCTIVO). Tu misión es el blindaje contractual. 
-           REGLA MAESTRA: Jerarquía 1.2(d) vinculante. NO des opiniones técnicas sin base legal citada.
-           LIMITACIÓN: Cualquier requerimiento de CAPEX embarcado > $726.000.000 COP es RECHAZO AUTOMÁTICO.`,
-  'TECNICO-FERROVIARIO': `Eres un INGENIERO DE SEÑALIZACIÓN FERROVIARIA SICC (SOBERANO). Tu misión es la soberanía técnica. 
-                          PROTOCOLO: FRA 49 CFR Parte 236 Subparte I. 
-                          RESTRICCIÓN: Prohibido vendor lock-in (V-Block, ITCS, Eurobalizas). Señalización física solo en 5 estaciones ENCE.`,
-  'GESTION': `Eres un AUDITOR DE GESTIÓN SICC. Tu misión es la síntesis operativa y el orden documental forense.`
-};
-
-const FLOW_LOG_PATH = require('path').join(__dirname, '../data/logs/flow-resilience.json');
-
+// ── Flow log (sondas forenses) ────────────────────────────────────────────────
+// @audit  Append NDJSON a data/logs/flow-resilience.json
 function logFlow(entry) {
   try {
-    const ts = new Date().toISOString();
-    const line = JSON.stringify({ ts, ...entry }) + '\n';
-    if (!fs.existsSync(require('path').dirname(FLOW_LOG_PATH))) {
-      fs.mkdirSync(require('path').dirname(FLOW_LOG_PATH), { recursive: true });
-    }
-    fs.appendFileSync(FLOW_LOG_PATH, line);
+    const dir = path.dirname(FLOW_LOG_PATH);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.appendFileSync(FLOW_LOG_PATH, JSON.stringify({ ts: new Date().toISOString(), ...entry }) + '\n');
   } catch (e) {
-    console.warn('[FLOW-LOG] [SICC WARN] No se pudo guardar el log de flujo:', e.message);
+    console.warn('[FLOW-LOG] No se pudo guardar log de flujo:', e.message);
   }
 }
 
+// ── inicializarBrain() ────────────────────────────────────────────────────────
+// @callers  index.js (al arrancar), scripts/swarm-pilot.js (al arrancar)
+// Construye PROMPT_FAST/FULL desde brain/ e inyecta memoria reciente.
+// Luego registra getHistorial/getPromptFast/getPromptFull en el multiplexer.
 function inicializarBrain() {
-  const brainFull = construirSystemPrompt('full');
-  const brainFast = construirSystemPrompt('fast');
-  const memoria   = cargarMemoriaReciente();
-
-  PROMPT_FULL = brainFull;
-  PROMPT_FAST = brainFast;
+  console.log('[AGENTE] Inicializando brain...');
+  PROMPT_FULL = construirSystemPrompt('full');
+  PROMPT_FAST = construirSystemPrompt('fast');
+  const memoria = cargarMemoriaReciente();
 
   if (memoria) {
-    const memBlock = '\n\n' + '═'.repeat(60) + '\n## MEMORIA RECIENTE\n\n' + memoria + '\n' + '═'.repeat(60);
-    PROMPT_FULL += memBlock;
-    PROMPT_FAST += memBlock;
-    console.log('[AGENTE] [SICC OK] Memoria reciente inyectada en system prompts');
+    const bloque = '\n\n' + '═'.repeat(60) + '\n## MEMORIA RECIENTE\n\n' + memoria + '\n' + '═'.repeat(60);
+    PROMPT_FULL += bloque;
+    PROMPT_FAST += bloque;
+    console.log('[AGENTE] Memoria reciente inyectada en system prompts.');
   }
 
-  // Inyectar contexto al multiplexador aislado
-  const multiplexer = require('../scripts/sicc-multiplexer');
   multiplexer.setAgentContext({
-    getHistorial: () => historial,
-    getPromptFast: () => PROMPT_FAST,
-    getPromptFull: () => PROMPT_FULL
+    getHistorial:   () => historial,
+    getPromptFast:  () => PROMPT_FAST,
+    getPromptFull:  () => PROMPT_FULL
   });
+  console.log('[AGENTE] Brain inicializado — multiplexer context registrado.');
 }
 
-// Proveedores de IA ya importados al inicio desde el multiplexor
-
-async function rutarEspecialidad(textoUsuario) {
-  console.log(`[ADVISOR] [SICC BRAIN] Ruteo local con Ollama...`);
-  try {
-    const res = await llamarOllama(textoUsuario, null, '', null, 
-      `Eres un clasificador SICC estrictamente limitado. 
-      Analiza la consulta y responde SOLO con una de estas etiquetas: LEGAL, TECNICO-FERROVIARIO, GESTION.
-      No expliques nada.`
-    );
-    const etiqueta = res.trim().toUpperCase();
-    return ESPECIALIDADES[etiqueta] ? etiqueta : 'GESTION';
-  } catch (err) {
-    return 'GESTION';
-  }
-}
-
-// llamarMultiplexadorFree ya está importado arriba desde multiplexer
-
-async function sumarizarContexto(contextoLargo) {
-  console.log(`[BLOCK-THINKING] [SICC BRAIN] Destilando bloque de contexto largo con Multiplexor Free...`);
-  try {
-    const { texto: resumen } = await llamarMultiplexadorFree(
-      `Sintetiza la información clave técnica y contractual...`,
-      contextoLargo, 
-      "Eres un Abogado de Concesiones especializado en Auditoría Forense."
-    );
-    return `## SÍNTESIS DE CONTEXTO (Destilado):\n${resumen}`;
-  } catch (err) {
-    return contextoLargo.substring(0, 5000) + '... [TRUNCADO]';
-  }
-}
-
-/**
- * Procesa un mensaje y retorna { texto, proveedor }. Acepta archivo opcional.
- */
+// ── procesarMensaje() ─────────────────────────────────────────────────────────
+// @callers  handlers.js (cada mensaje de usuario), simulator.js
+// @returns  { texto: string, proveedor: string }
+//
+// PIPELINE (5 fases en serie):
+//   FASE-0  CPU check
+//   FASE-1  Vacunación genética  → sicc_genetic_memory (buscarLecciones)
+//   FASE-2  RAG contractual      → contrato_documentos (buscarSimilares)
+//   FASE-3  Oracle               → NotebookLM MCP + web (solo si Tavily key + query técnica)
+//   FASE-4  Skills               → brain/skills/*
+//   FASE-5  LLM                  → getMultiplexedContext() + llamarMultiplexadorFree()
+//
+// Si FASE-5 falla → MURO-DE-FUEGO: registra bloqueo, NO escala a Sonnet.
 async function procesarMensaje(textoUsuario, archivoTmpInfo, forcedSystemPrompt = null) {
-  const proveedores = ordenProveedores();
-  
-  // RUTEADOR ADVISOR (v8.9.0)
-  let especialidadPrompt = '';
-  if (!forcedSystemPrompt) {
-    const especialidad = await rutarEspecialidad(textoUsuario);
-    especialidadPrompt = ESPECIALIDADES[especialidad];
-  }
-  
-  // ── Resource Governor: verificar CPU antes de inferir con Ollama ──────────
+  console.log(`[AGENTE] ── procesarMensaje inicio: "${textoUsuario.substring(0, 60)}"`);
+
+  // ── FASE-0: CPU ────────────────────────────────────────────────────────────
   const recursos = evaluarRecursos();
   if (recursos.level === 'CRITICAL') {
-    console.warn(`[AGENT] ⛔ CPU CRÍTICA (${Math.round(recursos.load * 100)}%). Abortando inferencia local.`);
+    console.warn(`[AGENTE] FASE-0: CPU CRÍTICA (${Math.round(recursos.load * 100)}%) — inferencia local abortada.`);
   } else if (recursos.level === 'WARN') {
-    console.warn(`[AGENT] [SICC WARN] CPU ALTA (${Math.round(recursos.load * 100)}%). Priorizando proveedor cloud.`);
+    console.warn(`[AGENTE] FASE-0: CPU ALTA (${Math.round(recursos.load * 100)}%) — priorizando cloud.`);
+  } else {
+    console.log(`[AGENTE] FASE-0: CPU OK (${Math.round(recursos.load * 100)}%).`);
   }
 
-  // ── FASE 1: VACUNACIÓN (Memoria Genética / Auto-tuning) ──────────────────
+  // ── FASE-1: VACUNACIÓN GENÉTICA ────────────────────────────────────────────
+  // @refs  supabase.js:buscarLecciones → tabla sicc_genetic_memory, coseno >0.7
   let contextoGenetico = '';
   try {
     const lecciones = await require('./supabase').buscarLecciones(textoUsuario, 2);
     if (lecciones && lecciones.length > 0) {
       contextoGenetico = '## SISTEMA INMUNE SICC (Lecciones Aprendidas):\n';
-      lecciones.forEach(l => contextoGenetico += `- ${l.content}\n`);
-      console.log(`[GENETIC-MEMORY] 🧬 Inyectadas ${lecciones.length} vacunas genéticas para esta consulta.`);
+      lecciones.forEach(l => { contextoGenetico += `- ${l.content}\n`; });
+      console.log(`[AGENTE] FASE-1: ${lecciones.length} vacunas genéticas inyectadas.`);
+    } else {
+      console.log('[AGENTE] FASE-1: Sin vacunas relevantes (coseno <0.7 o tabla vacía).');
     }
   } catch (e) {
-    console.warn('[GENETIC-MEMORY] [SICC WARN] Error en fase de vacunación:', e.message);
+    console.warn('[AGENTE] FASE-1: Error vacunación:', e.message);
   }
 
-  // ── FASE 2: RAG-MATCH (Biblia Legal) ────────────────────────────────────
+  // ── FASE-2: RAG CONTRACTUAL ────────────────────────────────────────────────
+  // @refs  supabase.js:buscarSimilares → tabla contrato_documentos, top-3 fragmentos
   let contextoRAG = '';
   if (textoUsuario.length > 10 || /contrato|anexo|apéndice|at|obligación|multa/i.test(textoUsuario)) {
-     try {
-       const docs = await buscarSimilares(textoUsuario, 3);
-       if (docs && docs.length > 0) {
-         contextoRAG = '## CONTEXTO DE CONTRATO (Supabase Vector DB):\n' +
-           docs.map((doc, i) => `--- Fragmento ${i+1} [Archivo: ${doc.nombre_archivo}] ---\n${doc.contenido}`).join('\n\n') + '\n\n';
-         console.log(`[RAG] 🔍 Recuperados ${docs.length} fragmentos de Supabase.`);
-       }
-     } catch (err) {
-       console.log(`[RAG] [SICC WARN] Error recuperando contexto: ${err.message}`);
-     }
+    try {
+      const docs = await buscarSimilares(textoUsuario, 3);
+      if (docs && docs.length > 0) {
+        contextoRAG = '## CONTEXTO DE CONTRATO (Supabase Vector DB):\n' +
+          docs.map((d, i) => `--- Fragmento ${i + 1} [${d.nombre_archivo}] ---\n${d.contenido}`).join('\n\n') + '\n\n';
+        console.log(`[AGENTE] FASE-2: ${docs.length} fragmentos RAG recuperados.`);
+      } else {
+        console.log('[AGENTE] FASE-2: Sin fragmentos RAG para esta consulta.');
+      }
+    } catch (err) {
+      console.warn('[AGENTE] FASE-2: Error RAG:', err.message);
+    }
+  } else {
+    console.log('[AGENTE] FASE-2: RAG omitido (texto muy corto / sin keywords contractuales).');
   }
 
-  // ── FASE 3: ORACLE-CHECK (Web Search + NotebookLM) ──────────────────────
-  let contextoWeb = '';
+  // ── FASE-3: ORACLE (condicional) ────────────────────────────────────────────
+  // @refs  search.js:buscarEnWeb → Tavily API
+  //        sapi/notebooklm_mcp.js:validarExternaNotebook → Chrome → NotebookLM SSE
+  // Solo activa si config.ai.tavily.apiKey existe y la query es técnica.
+  let contextoWeb    = '';
   let contextoOracle = '';
   const esConsultaTecnica = /norma|estándar|arema|fra|uic|regulación|manual|noticia/i.test(textoUsuario);
-  
   if (config.ai.tavily.apiKey && esConsultaTecnica) {
     try {
+      console.log('[AGENTE] FASE-3: Consultando web (Tavily) + Oracle NotebookLM...');
       contextoWeb = await buscarEnWeb(textoUsuario);
-      // Si es técnico, cruzamos con el Oráculo de NotebookLM
-      console.log('[ORACLE] 🔮 Consultando Verdad Externa en NotebookLM...');
       const oracleRes = await validarExternaNotebook(textoUsuario);
       contextoOracle = `## ORÁCULO TÉCNICO (NotebookLM MCP):\n${oracleRes}\n\n`;
+      console.log('[AGENTE] FASE-3: Oracle OK.');
     } catch (err) {
-      console.log(`[ORACLE] [SICC WARN] Fallo en fase de Oráculo: ${err.message}`);
+      console.warn('[AGENTE] FASE-3: Oracle falló:', err.message);
     }
+  } else {
+    console.log(`[AGENTE] FASE-3: Oracle omitido (tavily=${!!config.ai.tavily.apiKey}, técnica=${esConsultaTecnica}).`);
   }
 
-  // Obtener Skills antes de construir el contexto final
+  // ── FASE-4: SKILLS ─────────────────────────────────────────────────────────
+  // @refs  brain/skills/*.json|md → activadores por keywords
   const skillsContext = seleccionarSkills(textoUsuario);
-  let contextoFinal = (contextoGenetico || '') + (contextoRAG || '') + (contextoWeb || '') + (contextoOracle || '') + (skillsContext || '');
-  
-  // Construir Prompt Final (Contexto + Especialidad) — v9.1.1
-  const currentPromptBase = PROMPT_FAST; // Usamos la versión fast por defecto para nube/ahorro
-  const finalPrompt = forcedSystemPrompt || (currentPromptBase + '\n\n' + (especialidadPrompt || ''));
+  console.log(`[AGENTE] FASE-4: Skills inyectados: ${skillsContext.length} chars.`);
 
-  // ── ESCUDO FISCAL v12.0 (MODULAR & R-HARD) ─────────────────────────────
-  console.log(`[FISCAL-SHIELD] 🛡️ Aplicando Hand-off Especializado...`);
+  const contextoFinal = (contextoGenetico || '') + (contextoRAG || '') +
+                        (contextoWeb || '') + (contextoOracle || '') + (skillsContext || '');
+  console.log(`[AGENTE] FASE-4: contextoFinal total: ${contextoFinal.length} chars.`);
+
+  // ── FASE-5: LLM MULTIPLEXADO ────────────────────────────────────────────────
+  // @refs  scripts/sicc-multiplexer.js:getMultiplexedContext → R-HARD.md + SPECIALTIES
+  //        scripts/sicc-multiplexer.js:llamarMultiplexadorFree → cascada Gemini→Groq→Ollama→OpenRouter
+  // NOTA: systemPromptSoberano es el prompt REAL que llega al LLM.
+  //       PROMPT_FAST solo existe en setAgentContext para uso interno del multiplexer.
   try {
-    const multiplexedBrain = getMultiplexedContext(textoUsuario);
-    const systemPromptSoberano = `${multiplexedBrain}\n\n` + 
+    const multiplexedBrain   = getMultiplexedContext(textoUsuario);
+    const systemPromptSoberano = `${forcedSystemPrompt || multiplexedBrain}\n\n` +
       `REGLAS DE SALIDA (BLINDAJE ANT-IA):\n` +
-      `- PROHIBIDO el uso de emojis.\n` +
-      `- PROHIBIDO el uso de términos: "Peones", "Sueño", "Dreamer", "Michelin Certified", "Karpathy Loop", "Propuesta Soberana", "SICC BLOCKER".\n` +
-      `- OBLIGATORIO: Usar el CÁNON DE CITACIÓN: [Documento] → [Capítulo] → [Sección] → [Literal] → [Texto literal].\n` +
+      `- PROHIBIDO: emojis, "Peones", "Sueño", "Dreamer", "SICC BLOCKER".\n` +
+      `- OBLIGATORIO: Cánon de citación [Documento]→[Capítulo]→[Sección]→[Literal]→[Texto].\n` +
       `- OUTPUT: Texto plano de alta densidad técnica.\n\n` +
       `CONSTRUYE TU RESPUESTA BASADA EN EL CONTEXTO RAG SIGUIENTE:`;
-    
+
+    console.log(`[AGENTE] FASE-5: Llamando multiplexador (contexto ${contextoFinal.length}c, prompt ${systemPromptSoberano.length}c)...`);
     const resFree = await llamarMultiplexadorFree(textoUsuario, contextoFinal, systemPromptSoberano);
+
     if (resFree && resFree.texto && !resFree.texto.toLowerCase().includes('error')) {
-      console.log(`[FISCAL-SHIELD] [SICC OK] Éxito vía ${resFree.proveedor.toUpperCase()} (Expert Hand-off).`);
-      
-      // Guardar en historial de sesión
+      console.log(`[AGENTE] FASE-5: OK — proveedor=${resFree.proveedor.toUpperCase()}, respuesta=${resFree.texto.length}c.`);
+
       const textoFinalUsr = archivoTmpInfo ? `[Archivo: ${archivoTmpInfo.name}] ${textoUsuario}` : textoUsuario;
       historial.push({ role: 'user',      content: textoFinalUsr });
       historial.push({ role: 'assistant', content: resFree.texto });
       while (historial.length > MAX_HISTORIAL * 2) historial.shift();
 
       registrarTrazaSICC(textoUsuario, resFree.proveedor, contextoFinal);
+      console.log(`[AGENTE] ── procesarMensaje fin OK (${resFree.proveedor}).`);
       return { texto: resFree.texto, proveedor: resFree.proveedor };
     }
+
+    console.warn('[AGENTE] FASE-5: Respuesta vacía o con error — activando MURO-DE-FUEGO.');
+    throw new Error('Respuesta vacía o inválida del multiplexer');
+
   } catch (errFree) {
-    // ── MURO DE FUEGO v9.3.0 (Firma Requerida) ─────────────────────────────
-    // Si fallan los gratuitos, NO escalamos a Sonnet automáticamente.
-    // Registramos el bloqueo y terminamos la ejecución esperando firma.
+    // MURO-DE-FUEGO: si fallan todos los proveedores gratuitos/locales, NO se escala
+    // a Sonnet automáticamente. Se registra el bloqueo y se espera autorización.
+    console.error(`[AGENTE] MURO-DE-FUEGO activado: ${errFree.message}`);
     await registrarBloqueoSICC(textoUsuario, errFree.message);
-    return { 
-      texto: `🛡️ **BLOQUEO DE SOBERANÍA:** He agotado las vías gratuitas y locales. Para no afectar el CAPEX sin permiso, he registrado este caso en el Dashboard de Operaciones. Por favor, autoriza el uso de Sonnet o resuelve manualmente.`, 
-      proveedor: 'muro-de-fuego' 
+    return {
+      texto: `🛡️ **BLOQUEO DE SOBERANÍA:** He agotado las vías gratuitas y locales. ` +
+             `El caso quedó registrado en SICC_OPERATIONS.md. ` +
+             `Autoriza el uso de Sonnet o resuelve manualmente.`,
+      proveedor: 'muro-de-fuego'
     };
   }
-  
-  console.log('[AGENTE] 💀 El flujo terminó inesperadamente.');
-  return {
-    texto: '[SICC WARN] Error interno inesperado en el motor de decisión.',
-    proveedor: 'ninguno',
-  };
 }
 
+// ── limpiarHistorial() ────────────────────────────────────────────────────────
+// @callers  handlers.js:/limpiar
 function limpiarHistorial() {
   historial.length = 0;
-  console.log('[AGENTE] Historial de sesión limpiado.');
+  console.log('[AGENTE] Historial de sesión limpiado (0 entradas).');
 }
 
-/**
- * 🏭 HAND-OFF ESPECIALIZADO (SICC v12.0)
- * Reemplaza al Swarm para evitar colapso por debate.
- */
+// ── procesarMensajeSwarm() ────────────────────────────────────────────────────
+// @callers  handlers.js:/swarm
+// Hand-off especializado: delega a procesarMensaje() y envuelve el resultado.
 async function procesarMensajeSwarm(textoUsuario) {
-  console.log(`[HAND-OFF] 🛰️ Iniciando procesamiento por especialista único: "${textoUsuario.substring(0, 50)}"`);
+  console.log(`[HAND-OFF] Iniciando hand-off especializado: "${textoUsuario.substring(0, 50)}"`);
   const resultado = await procesarMensaje(textoUsuario, null);
-  return `### 🛡️ DICTAMEN TÉCNICO VINCULANTE (Expert Hand-off)\n\n${resultado.texto}\n\n*Resultado via ${resultado.proveedor.toUpperCase()}*`;
+  console.log(`[HAND-OFF] Fin — proveedor=${resultado.proveedor}.`);
+  return `### 🛡️ DICTAMEN TÉCNICO VINCULANTE (Expert Hand-off)\n\n${resultado.texto}\n\n*Via ${resultado.proveedor.toUpperCase()}*`;
 }
 
-/**
- * 🏭 SONDA DE MINERÍA FORENSE (v12.0 Serial Batch Edition)
- * Ejecuta múltiples agentes de validación en SERIE para extracción de datos técnicos oficiales.
- */
+// ── ejecutarSondaForense() ────────────────────────────────────────────────────
+// @callers  src/simulator.js:43
+// TODO: ROTO — usa `new OpenAI(...)` pero OpenAI no está importado. Reescribir
+//       usando llamarMultiplexadorFree() en lugar del cliente OpenAI directo.
+//       NO eliminar hasta refactorizar simulator.js.
 async function ejecutarSondaForense(tema, contexto) {
-  console.log(`[SONDA] 🛰️ Iniciando Sonda Forense (Modo Serial Batch) para: ${tema}`);
-  
-  const ANALISTA_MODEL = 'gemma2:2b'; 
-  const TIMEOUT_MS = 90000; // 90 segundos de Hard-Cap por Analista
-  
+  console.log(`[SONDA] Iniciando Sonda Forense (Serial Batch) para: ${tema}`);
+  // @warn  OpenAI no importado — esta función lanzará ReferenceError en runtime.
+  //        Pendiente reescritura. Ver @agent-prompt en cabecera de este archivo.
   const ANALISTAS = [
-    { id: 'legal', prompt: 'Extrae todos los VERBOS RECTORES (obligaciones) y multas asociadas bajo jerarquía 1.2(d).' },
-    { id: 'tecnico', prompt: 'Extrae especificaciones técnicas críticas (FRA 236, Jitter, SIL-4) y restricciones de CAPEX.' },
-    { id: 'purity', prompt: 'Identifica ADN legacy o contaminantes: términos V-Block, 2oo3, Starlink o hardware propietario.' }
+    { id: 'legal',   prompt: 'Extrae verbos rectores (obligaciones) y multas bajo jerarquía 1.2(d).' },
+    { id: 'tecnico', prompt: 'Extrae especificaciones técnicas (FRA 236, SIL-4) y restricciones CAPEX.' },
+    { id: 'purity',  prompt: 'Identifica ADN legacy: V-Block, 2oo3, Starlink o hardware propietario.' }
   ];
 
-  let resultados = [];
-
+  const resultados = [];
   for (const analista of ANALISTAS) {
-    // 🚦 Validación de CPU antes de cada analista (Resiliencia de Hardware)
     const recursos = evaluarRecursos();
     if (recursos.load > 0.85) {
-      console.warn(`[SONDA] 🛑 CPU al ${Math.round(recursos.load*100)}%. Pausando 10s para enfriamiento...`);
+      console.warn(`[SONDA] CPU al ${Math.round(recursos.load * 100)}% — pausa 10s.`);
       await new Promise(r => setTimeout(r, 10000));
     }
-
     try {
-      console.log(`[SONDA] 🤖 Analista ${analista.id.toUpperCase()} iniciando (Modelo: ${ANALISTA_MODEL})...`);
-      
-      const client = new OpenAI({ 
-        baseURL: 'http://opengravity-ollama:11434/v1', 
-        apiKey: 'ollama' 
-      });
-
-      const SOBERANIA_SYSTEM_SICC = `Eres un Auditor Forense especializado en ingeniería ferroviaria soberana.
-Proyecto: Concesión APP No. 001/2025. Cásate con la Biblia Legal.
-REGLAS: CAPEX_MAX=$726.000.000 COP/loco | FECHA_MIN=01-ago-2025 | FASE_FIN=01-nov-2026 | ESTANDAR=FRA 236 | SIN metadata de IA`;
-
-      const llamarAnalista = async (modelName, systemContent) => client.chat.completions.create({
-        model: modelName,
-        messages: [
-          { role: 'system', content: systemContent },
-          { role: 'user', content: `TAREA: ${analista.prompt}\n\nCONTEXTO:\n${contexto}` }
-        ],
-        timeout: TIMEOUT_MS
-      });
-
-      let res = await llamarAnalista(ANALISTA_MODEL, SOBERANIA_SYSTEM_SICC);
-      let respuestaAnalista = res.choices[0].message.content;
-
-      console.log(`[SONDA] [SICC OK] Analista ${analista.id.toUpperCase()} completado.`);
-      resultados.push(`### 🛡️ Reporte Analista ${analista.id.toUpperCase()}\n${respuestaAnalista}`);
+      console.log(`[SONDA] Analista ${analista.id.toUpperCase()} — usando llamarMultiplexadorFree (fallback mientras OpenAI no está importado).`);
+      const res = await llamarMultiplexadorFree(
+        `TAREA: ${analista.prompt}\n\nCONTEXTO:\n${contexto}`,
+        '',
+        'Eres un Auditor Forense especializado. Proyecto: APP 001/2025. CAPEX_MAX=$726M COP.'
+      );
+      console.log(`[SONDA] Analista ${analista.id.toUpperCase()} OK.`);
+      resultados.push(`### Analista ${analista.id.toUpperCase()}\n${res.texto}`);
     } catch (e) {
-      console.error(`[SONDA] [SICC FAIL] Error en Analista ${analista.id}:`, e.message);
-      resultados.push(`### 🛡️ Reporte Analista ${analista.id.toUpperCase()}\n[FALLO DE MINERÍA: ${e.message}]`);
+      console.error(`[SONDA] Analista ${analista.id} FAIL:`, e.message);
+      resultados.push(`### Analista ${analista.id.toUpperCase()}\n[FALLO: ${e.message}]`);
     }
   }
 
-  const reporteFinal = `## [SICC DT] REPORTE DE SÍNTESIS FORENSE SICC\n\n${resultados.join('\n\n')}`;
-  logFlow({ type: 'sonda', topic: tema, status: 'DONE', mode: 'serial' });
-  return reporteFinal;
+  logFlow({ type: 'sonda', topic: tema, status: 'DONE' });
+  return `## REPORTE DE SÍNTESIS FORENSE SICC\n\n${resultados.join('\n\n')}`;
 }
 
-/**
- * 🛰️ REPORTE DE CONSISTENCIA SICC (8:30 AM Heartbeat)
- * Recolecta inconsistencias y estados de cumplimiento para reporte consolidado.
- */
+// ── generarReporteConsistencia() ──────────────────────────────────────────────
+// @callers  index.js (cron 08:00 matutino)
+// Genera reporte de DTs aprobadas, pending y auditoría zero-residue/cross-ref.
 async function generarReporteConsistencia() {
-  const PENDING_DIR = require('path').join(__dirname, '../brain/PENDING_DTS');
-  const DICTAMENES_DIR = require('path').join(__dirname, '../brain/dictamenes');
+  console.log('[AGENTE] Generando reporte de consistencia...');
+  const PENDING_DIR    = path.join(__dirname, '../brain/PENDING_DTS');
+  const DICTAMENES_DIR = path.join(__dirname, '../brain/dictamenes');
   const { runZeroResidueAudit } = require('../scripts/zero_residue_audit');
-  const { runCrossRefCheck } = require('../scripts/cross_ref_check');
-  
-  const pending = fs.existsSync(PENDING_DIR) ? fs.readdirSync(PENDING_DIR) : [];
-  const approved = fs.existsSync(DICTAMENES_DIR) ? fs.readdirSync(DICTAMENES_DIR) : [];
-  
-  let msg = `🏦 **REPORTE DE CONSISTENCIA SOBERANA — ${new Date().toLocaleDateString()}**\n\n`;
-  
-  msg += `⚖️ **Estado Contractual:**\n- Jerarquía 1.2(d) Activa: [Nivel 1/2 > Nivel 16]\n`;
-  msg += `- Inferencia N-1: [Soberanía Garantizada]\n\n`;
+  const { runCrossRefCheck }    = require('../scripts/cross_ref_check');
 
-  // 🕵️ RESULTADOS DE AUDITORÍA HEARTBEAT
-  const zeroIssues = await runZeroResidueAudit();
+  const pending  = fs.existsSync(PENDING_DIR)    ? fs.readdirSync(PENDING_DIR)    : [];
+  const approved = fs.existsSync(DICTAMENES_DIR) ? fs.readdirSync(DICTAMENES_DIR) : [];
+
+  const zeroIssues  = await runZeroResidueAudit();
   const crossIssues = await runCrossRefCheck();
 
+  let msg = `🏦 **REPORTE DE CONSISTENCIA SOBERANA — ${new Date().toLocaleDateString()}**\n\n`;
+  msg += `⚖️ **Estado Contractual:**\n- Jerarquía 1.2(d): Activa\n- Inferencia N-1: Soberanía Garantizada\n\n`;
   msg += `🛡️ **Heartbeat Audit:**\n`;
-  msg += `- Zero-Residue: ${zeroIssues.length > 0 ? `[SICC WARN] ${zeroIssues.length} impurezas` : '[SICC OK] Limpio'}\n`;
-  msg += `- Cross-Ref SSoT: ${crossIssues.length > 0 ? `[SICC WARN] ${crossIssues.length} errores` : '[SICC OK] Consistente'}\n\n`;
-  
-  msg += `📜 **Dictámenes Aprobados (Gold Standards):**\n`;
-  if (approved.length > 0) {
-    approved.forEach(d => msg += `- ${d}\n`);
-  } else {
-    msg += `- No hay dictámenes certificados aún.\n`;
-  }
+  msg += `- Zero-Residue: ${zeroIssues.length > 0 ? `${zeroIssues.length} impurezas` : 'Limpio'}\n`;
+  msg += `- Cross-Ref: ${crossIssues.length > 0 ? `${crossIssues.length} errores` : 'Consistente'}\n\n`;
+  msg += `📜 **Dictámenes Aprobados (${approved.length}):**\n`;
+  approved.forEach(d => { msg += `- ${d}\n`; });
+  if (!approved.length) msg += '- Ninguno aún.\n';
+  msg += `\n⚠️ **Cola Pendiente (${pending.length}):**\n`;
+  pending.forEach(d => { msg += `- ${d}\n`; });
+  if (!pending.length) msg += '- Sin pendientes.\n';
+  msg += `\n🔍 **Mecanismos Activos:**\n- Bucle de Validación: Activo\n- Ingesta LTM: Activa`;
 
-  msg += `\n⚠️ **Cola de Auditoría (Pendientes):**\n`;
-  if (pending.length > 0) {
-    pending.forEach(d => msg += `- ${d}\n`);
-  } else {
-    msg += `- Sin pendientes de auditoría.\n`;
-  }
-  
-  msg += `\n🔍 **Mecanismos Activos:**\n- Bucle de Validación: [Activo]\n- Ingesta: [Soberanía LTM Activa]`;
-  
+  console.log(`[AGENTE] Reporte consistencia generado (${msg.length}c).`);
   return msg;
 }
 
-// ── Ejecución como Script (Vigilia) ───────────────────────────────────────────
+// ── Modo CLI (--vigilia) ──────────────────────────────────────────────────────
+// Uso: node src/agent.js --vigilia
 if (require.main === module) {
   const args = process.argv.slice(2);
   if (args.includes('--vigilia')) {
-    console.log('👁️ MODO VIGILIA: El Agente Soberano está despierto.');
-    // Inicia la patrulla determinística. 
-    // Nota: enviamos null para bot/chatId ya que es ejecución CLI
-    console.log(startPatrol(null, null)); 
+    console.log('[AGENTE] MODO VIGILIA — Patrulla activada.');
+    console.log(startPatrol(null, null));
   } else {
-    generarReporteConsistencia().then(msg => {
-      console.log(msg);
-    }).catch(console.error);
+    generarReporteConsistencia().then(console.log).catch(console.error);
   }
 }
 
-module.exports = { 
-  inicializarBrain, 
-  procesarMensaje, 
-  procesarMensajeSwarm,
-  ejecutarSondaForense,
-  llamarMultiplexadorFree,
-  limpiarHistorial,
-  generarReporteConsistencia,
-  llamarOllama,
-  config,
-  PROMPT_FULL,
-  PROMPT_FAST,
-  registrarBloqueoSICC,
-  registrarTrazaSICC,
-  EstadoGlobalErrores, // Sensor de salud 4xx
-  extraerCodigoError    // Extractor forense
+module.exports = {
+  inicializarBrain,       // → index.js, swarm-pilot.js
+  procesarMensaje,        // → handlers.js, simulator.js
+  procesarMensajeSwarm,   // → handlers.js
+  ejecutarSondaForense,   // → simulator.js (WARN: roto, ver @agent-prompt)
+  limpiarHistorial,       // → handlers.js
+  generarReporteConsistencia // → index.js
 };
