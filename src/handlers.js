@@ -328,6 +328,38 @@ async function handleMessage(msg, bot, send) {
 
   // ── Respuestas directas sobre identidad / soul / learning ─────────────────
   const textLower = texto.toLowerCase();
+
+  // ── Estado de aprendizaje del enjambre (lecciones Karpathy ya activas?) ───
+  // Captura: "ya entiende?", "el enjambre ya sabe?", "necesitas algo?",
+  //          "qué significa enjambre debe entender", "las lecciones ya se aplican?"
+  if (/enjambre.*(entend|sab|aprend|necesit)|ya.*(entend|aprend|sab|internali)|lecciones?.*(aplica|activ|ya)|necesitas?.*(algo|más|info)|qu[eé] significa.*entend/i.test(textLower)) {
+    try {
+      const specDir = path.join(BRAIN_DIR, 'SPECIALTIES');
+      const areas = fs.readdirSync(specDir).filter(f => f.endsWith('.md'));
+      const totalLecciones = areas.reduce((acc, f) => {
+        const c = fs.readFileSync(path.join(specDir, f), 'utf8');
+        return acc + (c.match(/\*\*Karpathy Dream Lesson/g) || []).length;
+      }, 0);
+
+      await send(chatId,
+        `🧬 *"El enjambre debe entender" — ¿qué significa?*\n\n` +
+        `Esa frase es una *lección Karpathy*: se escribe automáticamente cuando el Juez rechaza una DT. ` +
+        `No es una queja — es una vacuna para el *próximo ciclo*.\n\n` +
+        `*¿Ya entiende?* Sí — parcialmente:\n` +
+        `• Las ${totalLecciones} lecciones están en \`brain/SPECIALTIES/\`\n` +
+        `• En el próximo \`/dream [área]\`, \`buscarLecciones()\` las recupera ` +
+        `por similitud de coseno (>0.7) y las inyecta en *FASE-1* como vacunas anti-alucinación\n` +
+        `• El LLM las lee *antes* de generar la DT — evita repetir el mismo error\n\n` +
+        `*¿Qué falta para que realmente "entienda" en comunicaciones?*\n` +
+        `1. Oracle estable — Chrome desbloqueado (\`/root/.local/share/notebooklm-mcp/\`)\n` +
+        `2. Correr \`/dream telecomunicaciones\` para que el Juez evalúe con las vacunas activas\n` +
+        `3. Si aprueba → DT certificada en \`brain/dictamenes/\` → promote a LFC2 → Vercel\n\n` +
+        `_Las lecciones no sustituyen el sueño — lo preparan para no fallar de nuevo._`
+      );
+      return;
+    } catch (_) {}
+  }
+
   if (/\b(soul|alma|identidad|aprendes?|aprende|memoria gen[eé]tica|como funciona|quien eres|qui[eé]n eres|cerebro|brain|karpathy|sueñas?|dream)\b/i.test(textLower) &&
       /\b(t[uú]|agente|sicc|bot|opengravity|tu soul|tu alma|tu brain)\b/i.test(textLower)) {
     try {
