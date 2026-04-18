@@ -105,12 +105,45 @@ Telegram: ⚖️ VEREDICTO FINAL AL DESPERTAR
 
 ---
 
+## 📦 Pipeline DT → LFC2 → Vercel
+
+Las DTs certificadas en `brain/dictamenes/` son **borradores soberanos** — para publicarse en el sitio Vercel deben promoverse manualmente al repositorio documental LFC2.
+
+```
+brain/dictamenes/                    LFC2/II_Apendices_Tecnicos/
+DT-CTSC-2026-060_*_APROBADO.md  →  Decisiones_Tecnicas/DT-CTSC-2026-060.md
+                                         │
+                              node scripts/lfc-cli.js cook
+                                         │ (pandoc MD → HTML/Word)
+                              node scripts/lfc-cli.js serve
+                                         │
+                              git push origin main (LFC2 repo)
+                                         │
+                                    Vercel auto-deploy
+                                    lfc-2.vercel.app
+```
+
+| Script | Rol |
+|---|---|
+| `forensic_auditor.js` | Escanea LFC2, usa `brain/dictamenes/` como referencia de pureza |
+| `simulator.js` | Lee dictámenes como "gold standards" para validar propuestas |
+| `gitlocal.js` | Hace commit/push sobre `LFC2_ROOT` |
+| `sicc-harness.js` | Audita git LFC2, genera dictámenes contractuales en `II_A_Analisis_Contractual/` |
+
+**Variable clave:** `LFC2_ROOT=/home/administrador/docker/LFC2` (`.env`)
+
+**Pendiente:** comando `promote` automático — copia DT aprobada de `brain/dictamenes/` a `LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/` y hace commit.
+
+---
+
 ## 🗃️ Infraestructura Vectorial (LTM)
 
 | Tabla Postgres | Función |
 |---|---|
 | `contrato_documentos` | Biblia Legal — Contrato LFC2 + normas técnicas |
-| `sicc_genetic_memory` | Lecciones Karpathy + DTs certificadas (tipo: DT_CERTIFICADA) |
+| `sicc_genetic_memory` | Lecciones Karpathy + DTs certificadas + veredictos Juez |
+
+**Estado actual (2026-04-18):** 59 entradas manuales (`metadata.type`). Las entradas automáticas (`metadata.tipo = DT_CERTIFICADA | VEREDICTO_JUEZ`) se generan en el próximo `/dream` completo.
 
 **Embeddings:** `nomic-embed-text` (Ollama, 768 dims) → fallback `text-embedding-004` (Gemini)
 
@@ -153,4 +186,4 @@ ls brain/PENDING_DTS/
 
 ---
 
-*Actualizado: 2026-04-18 | OpenGravity SICC v12.9 "Oráculo Certificado"*
+*Actualizado: 2026-04-18 | OpenGravity SICC v12.9 "Oráculo Certificado + Pipeline LFC2"*

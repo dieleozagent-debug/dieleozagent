@@ -103,6 +103,29 @@ curl http://localhost:3001/health
 
 ---
 
+## 📦 Integración LFC2 → Vercel
+
+Las DTs certificadas por el agente deben **promoverse manualmente** al repo documental:
+
+```bash
+# 1. Copiar DT aprobada a LFC2
+cp brain/dictamenes/DT-CTSC-2026-XXX_*_APROBADO.md \
+   /home/administrador/docker/LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/
+
+# 2. Compilar y servir (pandoc MD → HTML)
+cd /home/administrador/docker/LFC2
+node scripts/lfc-cli.js cook && node scripts/lfc-cli.js serve
+
+# 3. Publicar a Vercel
+git add II_Apendices_Tecnicos/Decisiones_Tecnicas/ && git commit -m "feat: DT certificada SICC" && git push
+```
+
+Vercel auto-deploya en `lfc-2.vercel.app` al detectar el push.
+
+**Ruta clave:** `LFC2_ROOT=/home/administrador/docker/LFC2` (`.env` del agente)
+
+---
+
 ## 🗄️ Infraestructura
 
 | Servicio | Contenedor | Puerto | Estado |

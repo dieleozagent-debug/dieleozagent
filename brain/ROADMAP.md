@@ -21,6 +21,7 @@
 | Skip 429 reciente en cascada de proveedores | ✅ |
 | exec timeout 30 min | ✅ |
 | Retry Telegram en ECONNRESET | ✅ |
+| Arquitectura DT → LFC2 → Vercel documentada | ✅ |
 
 ---
 
@@ -29,10 +30,29 @@
 | Ítem | Prioridad |
 |---|---|
 | `/dream telecomunicaciones` — validar ciclo completo con Oracle | 🔴 Alta |
+| Comando `promote` — copia DT de `brain/dictamenes/` → `LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/` + git commit automático | 🔴 Alta |
+| Validar primeras entradas `DT_CERTIFICADA` / `VEREDICTO_JUEZ` en `sicc_genetic_memory` tras próximo sueño | 🔴 Alta |
 | Re-ingesta de chunks anteriores (pre-fix) con nuevo chunking 800c | 🟡 Media |
-| `SICC_OPERATIONS.md` actualización automática tras cada sueño | 🟡 Media |
 | Rate limit diario Gemini/Groq — rotación de API keys | 🟡 Media |
+| `SICC_OPERATIONS.md` actualización automática tras cada sueño | 🟡 Media |
 | Test `/cerebro` valida SOUL + R-HARD activos en prompt | 🟢 Baja |
+
+---
+
+## 🔗 Pipeline DT → LFC2 → Vercel (flujo actual — manual)
+
+```
+brain/dictamenes/DT-*.md
+        │ (copia manual)
+        ▼
+LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/
+        │ node scripts/lfc-cli.js cook && serve
+        ▼
+LFC2/X_ENTREGABLES_CONSOLIDADOS/8_DOCUMENTOS_SERVIDOS/HTML/
+        │ git push LFC2 origin main
+        ▼
+lfc-2.vercel.app (auto-deploy)
+```
 
 ---
 
