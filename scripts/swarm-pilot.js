@@ -11,7 +11,7 @@ const { llamarMultiplexadorFree } = require('./sicc-multiplexer');
 const { inicializarBrain } = require('../src/agent');
 const { validarExternaNotebook } = require('../src/sapi/notebooklm_mcp');
 const { validarInternaSupabase } = require('../src/sapi/supabase_rag');
-const { buscarLecciones, guardarDTCertificada } = require('../src/supabase');
+const { buscarLecciones, guardarDTCertificada, guardarVeredictoJuez } = require('../src/supabase');
 const { checkYEncolar, getCpuLoad } = require('./resource-governor');
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -250,6 +250,9 @@ Responde ÚNICAMENTE en JSON:
             }
             console.log(`⚖️ VEREDICTO: ${decision.aprobado ? '✅ APROBADO' : '❌ RECHAZADO'}`);
             console.log(`   Razón: ${decision.razon || 'No especificada'}`);
+
+            // Vectorizar veredicto siempre — aprobado y rechazado
+            await guardarVeredictoJuez(arg, decision);
 
             if (decision.aprobado) {
                 aprobado = true;

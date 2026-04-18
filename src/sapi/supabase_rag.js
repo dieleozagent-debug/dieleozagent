@@ -5,7 +5,9 @@ const { buscarSimilares } = require('../supabase');
  */
 async function validarInternaSupabase(queryRaw) {
   try {
-    const query = typeof queryRaw === 'string' ? queryRaw : JSON.stringify(queryRaw);
+    const full = typeof queryRaw === 'string' ? queryRaw : JSON.stringify(queryRaw);
+    // Embeddear texto largo degrada la búsqueda — usar solo las primeras 500 chars (núcleo semántico)
+    const query = full.length > 500 ? full.substring(0, 500) : full;
     console.log(`[SAPI Supabase] Verificando contrato LFC2: ${query.substring(0, 50)}...`);
     const resultados = await buscarSimilares(query, 5); 
     

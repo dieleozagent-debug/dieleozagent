@@ -76,6 +76,24 @@ async function buscarSimilares(preguntaTexto, limite = 3) {
     return result.rows;
 }
 
+async function guardarVeredictoJuez(area, veredicto) {
+    // Vectoriza el JSON completo del Juez para que futuros sueños sepan por qué se aprobó/rechazó
+    try {
+        const { aprobado, razon, categoria_fallida, leccion_karpathy } = veredicto;
+        const estado = aprobado ? 'APROBADO' : 'RECHAZADO';
+        const contenido = `[VEREDICTO JUEZ ${estado}] Área: ${area}\nRazón: ${razon}\nCategoría: ${categoria_fallida || 'N/A'}\nLección: ${leccion_karpathy || 'N/A'}`;
+        const vector = await obtenerEmbedding(contenido);
+        const metadata = { tipo: 'VEREDICTO_JUEZ', area, estado, fecha: new Date().toISOString() };
+        await pool.query(
+            `INSERT INTO sicc_genetic_memory (content, metadata, embedding) VALUES ($1, $2, $3)`,
+            [contenido, JSON.stringify(metadata), `[${vector.join(',')}]`]
+        );
+        console.log(`[SUPABASE] ✅ Veredicto Juez vectorizado: ${estado} — ${area}`);
+    } catch (e) {
+        console.error(`[SUPABASE] ❌ Error guardando veredicto: ${e.message}`);
+    }
+}
+
 async function guardarDTCertificada(area, textoDT, razonJuez) {
     try {
         const fecha = new Date().toISOString().slice(0, 10).replace(/-/g, '');
@@ -111,4 +129,4 @@ async function buscarLecciones(preguntaTexto, limite = 2) {
     }
 }
 
-module.exports = { obtenerEmbedding, insertarFragmento, buscarSimilares, buscarLecciones, guardarDTCertificada, pool };
+module.exports = { obtenerEmbedding, insertarFragmento, buscarSimilares, buscarLecciones, guardarDTCertificada, guardarVeredictoJuez, pool };

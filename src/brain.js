@@ -7,14 +7,14 @@ const config = require('./config');
 
 const BRAIN_DIR = config.paths.brain;
 
+// Solo los 4 archivos que moldean comportamiento del agente.
+// AGENTS.md duplica R-HARD. SYNOPSIS/ROADMAP/OPERATIONS son meta, no behavior.
+// El aprendizaje real ocurre en: sicc_genetic_memory (Supabase) + SPECIALTIES/*.md (Karpathy)
 const BRAIN_FILES = [
-  { file: 'AGENTS.md',          label: 'RESTRICCIONES DURAS — INSTRUCTIVO MAESTRO V5.0', required: true  },
-  { file: 'IDENTITY.md',        label: 'IDENTIDAD Y LEYES FIJAS SICC',  required: true  },
-  { file: 'SICC_METHODOLOGY.md', label: 'METODOLOGÍA DE AUDITORÍA N-1',  required: true  },
-  { file: 'SYNOPSIS.md',        label: 'SINOPSIS DEL SISTEMA',          required: true  },
-  { file: 'DREAMS.md',          label: 'SUEÑOS (HIPÓTESIS PENDIENTES)', required: false },
-  { file: 'ROADMAP.md',         label: 'HOJA DE RUTA ESTRATÉGICA',      required: false },
-  { file: 'SICC_OPERATIONS.md', label: 'DASHBOARD DE OPERACIONES',      required: false },
+  { file: 'SOUL.md',             label: 'ALMA Y ÉTICA OPERACIONAL',       required: true  },
+  { file: 'R-HARD.md',           label: 'RESTRICCIONES DURAS UNIVERSALES', required: true  },
+  { file: 'IDENTITY.md',         label: 'IDENTIDAD SICC',                  required: true  },
+  { file: 'SICC_METHODOLOGY.md', label: 'METODOLOGÍA DE AUDITORÍA N-1',    required: true  },
 ];
 
 function leerArchivo(filename) {

@@ -106,10 +106,23 @@ async function run() {
                                 const textoHoja = fs.readFileSync(`${outBase}.txt`, 'utf8').trim();
                                 
                                 if (textoHoja.length > 50) {
-                                    // 3. OCR -> DB (Chequeo de duplicados por contenido simple si fuera necesario)
-                                    const fragmentos = textoHoja.split('\n\n').filter(f => f.trim().length > 50);
+                                    // Chunking: párrafos por \n\n, max 800 chars, overlap de 100 chars
+                                    const MAX_CHUNK = 800;
+                                    const OVERLAP = 100;
+                                    const parrafos = textoHoja.split('\n\n').filter(f => f.trim().length > 50);
+                                    const fragmentos = [];
+                                    let buffer = '';
+                                    for (const p of parrafos) {
+                                        if ((buffer + p).length > MAX_CHUNK && buffer.length > 0) {
+                                            fragmentos.push(buffer.trim());
+                                            buffer = buffer.slice(-OVERLAP) + '\n\n' + p;
+                                        } else {
+                                            buffer = buffer ? buffer + '\n\n' + p : p;
+                                        }
+                                    }
+                                    if (buffer.trim().length > 50) fragmentos.push(buffer.trim());
                                     console.log(`      📄 Pág ${pageNum}: ${fragmentos.length} fragmentos...`);
-                                    
+
                                     for (const fragmento of fragmentos) {
                                         try {
                                             const vector = await obtenerEmbedding(fragmento);
