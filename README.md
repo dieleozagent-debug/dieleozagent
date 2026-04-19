@@ -1,21 +1,39 @@
-# 🤖 OpenGravity SICC — Agente Soberano v12.9
+# 🤖 OpenGravity SICC — Agente Soberano v13.0
 
-> **⚡ INICIO RÁPIDO:** Lee `architecture.md` para el diseño completo. `brain/ROADMAP.md` para el estado exacto.
+> **⚡ INICIO RÁPIDO:** Lee `architecture.md` para el diseño completo. `roadmap.md` para el estado exacto.
 
 **OpenGravity SICC** es un bot de Telegram + motor RAG para auditoría forense del
 **Contrato APP No. 001/2025** (Línea Ferroviaria de Carga — LFC2, Colombia).
 
 ---
 
-## 🚀 Estado Actual: v12.9 — Pipeline de Aprendizaje Activo
+## 🚀 Estado Actual: v13.0 — Intents Soberanos
 
 | Sistema | Estado |
 |---|---|
 | Bot Telegram | 🟢 Operativo |
-| Oracle NotebookLM | 🟢 `notebooklm-mcp-v12` — 108 fuentes activas |
-| Learning pipeline | 🟢 Primeras entradas reales en `sicc_genetic_memory` (2026-04-18) |
+| Oracle NotebookLM | 🟢 `notebooklm-mcp-v12` — Sesión persistente Chrome |
+| Learning pipeline | 🟢 DT_CERTIFICADA + VEREDICTO_JUEZ automáticos en `sicc_genetic_memory` |
+| Intents directos | 🟢 10 intents sin costo LLM — respuestas instantáneas |
 | CPU Governor | 🟢 Umbral 80%, throttling activo |
 | Ollama embeddings | 🟢 `nomic-embed-text` 768 dims |
+
+---
+
+## 🗂️ Estructura de Código
+
+```
+src/
+├── index.js          Bootstrap: dirs, brain, bot, crons, /dream launcher
+├── agent.js          Motor: pipeline FASE-0..5 con trazas audit
+├── handlers.js       Router: /comandos + loop INTENTS[]
+├── utils/send.js     safeSendMessage: chunking + fallback Markdown
+└── intents/          Lenguaje natural sin LLM
+    ├── navigation.js     "me pierdo / cómo empiezo"
+    ├── brain-state.js    soul / enjambre / lecciones
+    ├── dream-state.js    sueños / historial área / roadmap
+    └── dt-ops.js         DTs bloqueadas / promote / qué hacemos con X
+```
 
 ---
 
@@ -37,7 +55,7 @@
 
 | Comando | Función |
 |---|---|
-| `/dream [tema]` | Ciclo Karpathy 5 fases — Vacunación → RAG → Oracle → Juicio → Auto-tuning. Timeout 30 min. |
+| `/dream [tema]` | Ciclo Karpathy 5 fases — Vacunación → RAG → Oracle → Juicio → Persistencia. Timeout 30 min. |
 | `/swarm [pregunta]` | Enjambre secuencial: Auditor + Estratega SICC |
 | `/doctor` | Health report: score, CPU, telemetría 4xx |
 | `/learn` | Auto-mapeo recursivo LFC2 |
@@ -46,6 +64,22 @@
 | `/cmd [comando]` | Shell en el contenedor |
 | `/audit [ruta]` | Auditoría forense de un directorio LFC2 |
 | `/estado` | Proveedores IA y memoria activos |
+
+## 🤖 Lenguaje Natural (sin /comando)
+
+El bot entiende preguntas directas sin necesidad de comandos slash:
+
+| Pregunta | Responde con |
+|---|---|
+| `hola` / `buenas` / `hi` | Menú de comandos |
+| `me pierdo, cómo me ayudas` | Guía del flujo completo |
+| `como aprende tu soul` | SOUL.md + pipeline de aprendizaje |
+| `el enjambre ya entiende?` | Estado de lecciones Karpathy activas |
+| `qué sueños tienes pendientes` | DREAMS/ + PENDING_DTS/ |
+| `qué temas puedo proponer` | Áreas disponibles + ROADMAP pendiente |
+| `historial de comunicaciones` | Lecciones + DTs + estado Vercel del área |
+| `qué DT tengo bloqueadas` | Aprobadas, sin promover, pendientes revisión |
+| `qué hacemos con DT-ENRG-2026-004` | Resumen del archivo + pasos promote |
 
 ---
 
@@ -70,11 +104,10 @@
     └─ Fase 5: PERSISTENCIA
         ├─ SIEMPRE: guardarVeredictoJuez() → sicc_genetic_memory
         ├─ Si APROBADO: DT en brain/dictamenes/ + guardarDTCertificada() → sicc_genetic_memory
-        └─ Si RECHAZADO: lección en brain/SPECIALTIES/{categoria}.md
-                         borrador en brain/PENDING_DTS/ (tras 3 ciclos)
+        └─ Si RECHAZADO: lección → brain/SPECIALTIES/{área}.md | borrador → PENDING_DTS/
 ```
 
-**Hard-caps:** 3 ciclos máx | 30 min exec | Oracle 90s client timeout | Auto-restart Chrome si -32001
+**Hard-caps:** 3 ciclos máx | 30 min exec | Oracle 90s timeout
 
 ---
 
@@ -82,75 +115,37 @@
 
 | Mecanismo | Dónde | Cuándo |
 |---|---|---|
-| Vacunas genéticas | `sicc_genetic_memory` → inyectadas en Fase 1 | Cada `/dream` y cada mensaje |
+| Vacunas genéticas | `sicc_genetic_memory` → inyectadas en FASE-1 | Cada `/dream` y cada mensaje |
 | Lecciones Karpathy | `brain/SPECIALTIES/{area}.md` → append | Cada rechazo del Juez |
 | Gold standards | `brain/dictamenes/` → leídos por `simulator.js` | Futuros sueños del mismo área |
 | SOUL + R-HARD + IDENTITY | Estáticos — definen comportamiento base | Siempre en system prompt |
 
-**Estado sicc_genetic_memory (2026-04-18):** 59 lecciones manuales + 1 DT_CERTIFICADA + 1 VEREDICTO_JUEZ reales (dream ENCE).
+---
+
+## 🛡️ Gobernanza Muro de Fuego
+
+El agente opera bajo un régimen de **Muro de Fuego (Firewall)**:
+- Prioriza proveedores gratuitos (Gemini, Groq, OpenRouter Free).
+- Usa modelos locales (Ollama) para soberanía total.
+- **BLOQUEO:** Si se agotan las vías gratuitas, el agente emite un `[SICC BLOCKER]` y requiere autorización manual para usar modelos premium.
 
 ---
 
-## 📦 Integración LFC2 → Vercel
+## 📦 Pipeline DT → LFC2 → Vercel
 
-Las DTs certificadas se **promueven manualmente** al repo documental:
+Las DTs certificadas se **promueven manualmente** (comando `/promote` pendiente):
 
 ```bash
 # 1. Copiar DT aprobada a LFC2
 cp brain/dictamenes/DT-*_APROBADO.md \
    /home/administrador/docker/LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/
 
-# 2. Compilar y servir (pandoc MD → HTML)
+# 2. Publicar
 cd /home/administrador/docker/LFC2
-node scripts/lfc-cli.js cook && node scripts/lfc-cli.js serve
-
-# 3. Publicar
-git add II_Apendices_Tecnicos/ && git commit -m "feat: DT certificada SICC" && git push
+git add . && git commit -m "feat: DT certificada SICC" && git push
 ```
 
-Vercel auto-deploya en `lfc-2.vercel.app` al detectar el push.
-
----
-
-## 🗄️ Infraestructura
-
-| Servicio | Contenedor | Puerto | Estado |
-|---|---|---|---|
-| Agente Core | `dieleozagent-debug-dieleozagent-1` | — | 🟢 |
-| Oracle NotebookLM | `notebooklm-mcp-v12` | 3001 (SSE) | 🟢 |
-| Postgres + pgvector | `sicc-postgres` | 5432 | 🟢 |
-| Ollama (embeddings) | Nativo en host | 11434 | 🟢 |
-
----
-
-## 🧠 Cerebro (brain/)
-
-```
-brain/
-├── IDENTITY.md           ← ADN del agente
-├── SOUL.md               ← Ética operacional
-├── R-HARD.md             ← 7 restricciones duras (CAPEX $726MM)
-├── SICC_METHODOLOGY.md   ← Protocolo N-1 deductivo
-├── SPECIALTIES/          ← 6 mini-expertos (lecciones Karpathy auto-append)
-│   ├── SIGNALIZATION.md
-│   ├── COMMUNICATIONS.md
-│   ├── POWER.md
-│   ├── INTEGRATION.md
-│   ├── ENCE.md
-│   └── CONTROL_CENTER.md
-├── dictamenes/           ← DTs aprobadas (texto completo, inmutables)
-├── DREAMS/               ← Log de cada sueño (aprobado y rechazado)
-├── PENDING_DTS/          ← Borradores impuros tras 3 ciclos → revisión humana
-└── ROADMAP.md            ← Estado del proyecto + deuda técnica
-```
-
----
-
-## ⚠️ Deuda Técnica Activa
-
-Ver sección completa en `architecture.md` y `brain/ROADMAP.md`.
-
-**Resumen:** ~8 archivos `src/` + ~15 `scripts/` muertos. Dead code en `agent.js` (rutarEspecialidad, PROMPT_FULL, advisor/digest nunca llamados). Pendiente limpieza.
+Vercel auto-deploya en `lfc-2.vercel.app` al detectar el push (~2 min).
 
 ---
 
@@ -160,5 +155,10 @@ Ver sección completa en `architecture.md` y `brain/ROADMAP.md`.
 cd /home/administrador/docker/agente
 docker compose ps
 docker compose logs -f --tail=30
+
+# Solo pipeline de inferencia (sin ruido)
+docker compose logs -f | grep "\[AGENTE\]"
+
+# Oracle health
 curl http://localhost:3001/health
 ```

@@ -1,4 +1,4 @@
-# 🏛️ Arquitectura SICC v12.9 — "Oráculo Certificado"
+# 🏛️ Arquitectura SICC v13.0 — "Intents Soberanos"
 
 SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agente soberano para auditoría técnica y jurídica del proyecto LFC2 (Línea Ferroviaria de Carga 2, Colombia).
 
@@ -10,6 +10,7 @@ SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agent
 | :--- | :--- | :--- | :--- |
 | **Agente Core** | `dieleozagent-debug-dieleozagent-1` | — | Bot Telegram + orquestación de sueños |
 | **Oracle NotebookLM** | `notebooklm-mcp-v12` | 3001 (SSE) | Verdad Externa — 108 fuentes "Contrato Ardanuy LFC" |
+| **Infra Oracle** | **Chrome + Xvfb + auth2.cjs** | — | Sesión Google persistente (Google Sign-In bypass) |
 | **Base de Datos** | `sicc-postgres` | 5432 | pgvector — LTM contractual + memoria genética |
 | **Ollama (Embeddings)** | **Nativo en Host** | 11434 | `nomic-embed-text` 768 dims, soberanía total |
 
@@ -24,66 +25,138 @@ SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agent
 
 | Nivel | Proveedor | Modelo | Nota |
 |---|---|---|---|
-| 1 | Gemini | `gemini-2.0-flash` | Free tier — agotado en uso intensivo |
-| 1 | Groq | `llama-3.3-70b-versatile` | Free 100K tokens/día |
-| 1 | Ollama local | `gemma2:2b` | Sin límite, prompt segmentado 4 secciones |
-| 2 | OpenRouter free | auto | Nemotron 70B, Trinity, gpt-oss-120b… |
-| 3 | OpenRouter pagado | `gemini-2.0-flash-001` | ~$0.10/1M tokens |
-| 3 | OpenRouter pagado | `llama-3.3-70b-instruct` | ~$0.12/1M tokens — sin cuota diaria |
+| 1 | Gemini | `gemini-2.0-flash` | Free tier (1500 req/día) |
+| 1 | Groq | `llama-3.3-70b-versatile` | Free tier (100K tokens/día) |
+| 1 | Ollama local | `gemma4-light:latest` | Sin límite, español forzado, prompt segmentado |
+| 2 | OpenRouter free | `openrouter/free` | Nemotron 70B, Trinity, gpt-oss-120b… |
+| 3 | OpenRouter paid | `gemini-2.0-flash-001` | ~$0.10/1M tokens — Último recurso |
+| 3 | OpenRouter paid | `llama-3.3-70b-instruct` | ~$0.12/1M tokens — Sin cuota diaria |
 
-**Skip 429:** `proveedorBloqueadoReciente()` saltea proveedores con 429 en últimos 15 min.
-**Ollama timeout:** 45s — prompt estructurado en 4 secciones (`construirPromptOllama`).
+**Muro de Fuego (Firewall):** Si fallan todos los niveles gratuitos/locales, el sistema **no escala a modelos premium** sin autorización. Registra un `[SICC BLOCKER]` y encola en `SICC_OPERATIONS.md`.
+
+**Skip 429:** `proveedorBloqueadoReciente()` saltea proveedores con 429 en los últimos 15 min.
+
+---
+
+## 🗂️ Arquitectura de Código — v13.0
+
+```
+src/
+├── index.js          ← Bootstrap: dirs, brain init, IA check, bot, crons, dream launcher (~160 líneas)
+├── agent.js          ← Motor: pipeline FASE-0..5 (CPU→Vacunas→RAG→Oracle→Skills→LLM) (~450 líneas)
+├── handlers.js       ← Router: /comandos slash + loop INTENTS[] (~390 líneas)
+├── utils/
+│   └── send.js       ← safeSendMessage: chunking 3500c + fallback Markdown
+└── intents/          ← Intents de lenguaje natural (sin costo LLM)
+    ├── navigation.js     "me pierdo / cómo empiezo"
+    ├── brain-state.js    soul / enjambre / lecciones Karpathy
+    ├── dream-state.js    sueños / DREAMS / historial área / roadmap
+    └── dt-ops.js         DTs aprobadas / bloqueadas / qué hacemos con X
+```
+
+### Flujo de un mensaje Telegram
+
+```
+Telegram msg
+    │
+    ▼ index.js:bot.on('message')
+    │
+    ▼ handlers.js:handleMessage()
+    │
+    ├─ ¿Es /comando slash? → handler exacto → send() → return
+    │
+    ├─ ¿Lenguaje natural? → loop INTENTS[]
+    │   ├─ intent.matches(textLower) ?
+    │   │   └─ intent.handle() → send() → return
+    │   └─ (siguiente intent)
+    │
+    └─ Fallback IA → agent.js:procesarMensaje() → send()
+```
+
+### Cómo agregar un intent nuevo
+```bash
+# 1. Crear archivo
+cat > src/intents/mi-intent.js << 'EOF'
+module.exports = {
+  matches(textLower, texto) { return /mi regex/i.test(textLower); },
+  async handle(chatId, texto, textLower, send, BRAIN_DIR) {
+    await send(chatId, 'respuesta directa');
+    return true;
+  }
+};
+EOF
+
+# 2. Registrar en handlers.js
+# En el array INTENTS: require('./intents/mi-intent')
+```
+
+---
+
+## 🌪️ Pipeline de Inferencia — `procesarMensaje()` (agent.js)
+
+```
+procesarMensaje(textoUsuario)
+    │
+    ├─ FASE-0: evaluarRecursos() → CPU check
+    │
+    ├─ FASE-1: buscarLecciones() → sicc_genetic_memory (coseno >0.7)
+    │           → contextoGenetico (vacunas anti-alucinación)
+    │
+    ├─ FASE-2: buscarSimilares() → contrato_documentos (top-3 fragmentos)
+    │           → contextoRAG (Biblia Legal)
+    │
+    ├─ FASE-3: buscarEnWeb() + validarExternaNotebook() [solo si Tavily+técnica]
+    │           → contextoWeb + contextoOracle
+    │
+    ├─ FASE-4: seleccionarSkills() → brain/skills/*.json|md
+    │           → skillsContext
+    │
+    ├─ FASE-5: getMultiplexedContext() → systemPromptSoberano
+    │                llamarMultiplexadorFree(texto, contextoFinal, systemPromptSoberano)
+    │                → { texto, proveedor }
+    │                ─ Si falla → MURO-DE-FUEGO → registrarBloqueoSICC()
+```
+
+**Audit logs:** `data/logs/sicc-traces.json` (últimas 100) · `data/logs/flow-resilience.json`
 
 ---
 
 ## 🌪️ Bucle de Decantación Karpathy — `/dream [área]`
 
 ```
-Telegram: /dream señalizacion
-         │
-         ▼
-[index.js] exec(swarm-pilot.js, timeout: 1800s / 30 min)
-         │
-         ▼ ── hasta 3 ciclos ──────────────────────────────────────────
-         │
-         ▼ FASE 1 — VACUNACIÓN GENÉTICA
-[supabase.js] buscarLecciones(área, 3)
-  └─ sicc_genetic_memory → lecciones + DTs certificadas previas del área
-         │
-         ▼ FASE 2 — GENERACIÓN (Auditor Forense Soberano)
-[sicc-multiplexer.js] llamarMultiplexadorFree(prompt_auditor)
-  └─ Borrador DT generado (texto completo)
-         │
-         ▼ FASE 3 — CÁMARA DE DOBLE CIEGO
-[sapi/supabase_rag.js] validarInternaSupabase(borrador)
-  └─ contrato_documentos → fragmentos literales del contrato LFC2
-
-[sapi/notebooklm_mcp.js] validarExternaNotebook(borrador)
-  └─ SSE → notebooklm-mcp-v12:3001 → Chrome (Patchright) → NotebookLM
-  └─ Timeout cliente: 90s | Auto-restart Chrome: docker restart si -32001
-         │
-         ▼ FASE 4 — JUICIO (Juez Soberano)
-[sicc-multiplexer.js] llamarMultiplexadorFree(prompt_juez)
-  └─ Parser robusto: JSON limpio → code fence → campo a campo → inferencia
-  └─ { aprobado, razon, categoria_fallida, leccion_karpathy }
-         │
-    ┌────┴──────────────────────┐
-APROBADO                   RECHAZADO
-    │                          │
-    ▼ PERSISTENCIA             ▼ FASE 5 — KARPATHY AUTO-TUNING
-brain/dictamenes/          brain/SPECIALTIES/{categoria}.md ← lección
-  DT-CTSC-2026-XXX_*.md    brain/PENDING_DTS/PENDING-*.md ← borrador impuro
-brain/DREAMS/              brain/DREAMS/DREAM-*-RECHAZADO.md
-  DREAM-*-CERTIFICADO.md
-sicc_genetic_memory        [siguiente ciclo con lección inyectada]
-  DT_CERTIFICADA (vector)
-  VEREDICTO_JUEZ (vector)
+/dream señalizacion
     │
-    ▼
-Telegram: ⚖️ VEREDICTO FINAL AL DESPERTAR
+    ▼ index.js:bot.onText — exec(swarm-pilot.js, timeout 30 min)
+    │
+    ▼ ── hasta 3 ciclos ─────────────────────────────────────────
+    │
+    ├─ FASE 1: buscarLecciones() → sicc_genetic_memory → vacunas
+    ├─ FASE 2: Auditor Forense genera borrador DT
+    ├─ FASE 3: validarInternaSupabase() + validarExternaNotebook()
+    ├─ FASE 4: Juez → { aprobado, razon, leccion_karpathy }
+    └─ FASE 5: Persistencia
+        ├─ APROBADO: brain/dictamenes/ + sicc_genetic_memory (DT_CERTIFICADA)
+        └─ RECHAZADO: brain/SPECIALTIES/{area}.md + brain/DREAMS/ + [tras 3: PENDING_DTS/]
 ```
 
-**Hard-caps:** MAX_CICLOS=3 | exec timeout=1800s | Oracle timeout cliente=90s
+**Hard-caps:** MAX_CICLOS=3 | exec timeout=1800s | Oracle timeout=90s
+
+---
+
+## 🤖 Intents Directos Activos (sin costo LLM)
+
+| Trigger (lenguaje natural) | Intent | Responde con |
+|---|---|---|
+| `hola` / `buenas` / `hi` | handlers.js | Menú de comandos |
+| `me pierdo / cómo empiezo / cómo me ayudas` | navigation.js | Guía rápida del flujo |
+| `como aprende tu soul / quien eres` | brain-state.js | SOUL.md + pipeline aprendizaje |
+| `el enjambre ya entiende / necesitas algo` | brain-state.js | Estado lecciones Karpathy |
+| `qué sueños tienes pendientes` | dream-state.js | DREAMS/ + PENDING_DTS/ |
+| `qué temas puedo proponer / roadmap` | dream-state.js | SPECIALTIES/ + ROADMAP.md |
+| `historial de comunicaciones / señalización` | dream-state.js | Lecciones + DTs + Vercel status |
+| `dónde están las DTs / dictamenes` | dt-ops.js | brain/dictamenes/ + DREAMS/ |
+| `qué DT tengo bloqueadas / pendientes` | dt-ops.js | Aprobadas / sin promover / PENDING |
+| `qué hacemos con DT-ENRG-2026-004` | dt-ops.js | Resumen DT + pasos promote |
 
 ---
 
@@ -93,14 +166,14 @@ Telegram: ⚖️ VEREDICTO FINAL AL DESPERTAR
 |---|---|---|
 | `brain/dictamenes/` | `swarm-pilot.js` | Al **aprobar** el Juez — texto completo DT |
 | `brain/DREAMS/` | `swarm-pilot.js` | Siempre — aprobado **y** rechazado |
-| `brain/PENDING_DTS/` | `swarm-pilot.js` | Al **rechazar** tras 3 ciclos — borrador impuro para revisión humana |
+| `brain/PENDING_DTS/` | `swarm-pilot.js` | Al **rechazar** tras 3 ciclos |
 | `brain/SPECIALTIES/*.md` | `swarm-pilot.js` | Al **rechazar** — lección Karpathy append |
-| `sicc_genetic_memory` | `supabase.js` | Al **completar** cada ciclo — veredicto + DT si aprobada |
-| `brain/AUDIT_QUEUE.md` | `resource-governor.js` | CPU >80% — sueños encolados |
+| `sicc_genetic_memory` | `supabase.js` | Al **completar** cada ciclo — veredicto + DT |
+| `brain/AUDIT_QUEUE.md` | `resource-governor.js` | CPU >80% |
 
 ### Naming de archivos
 - **Dictamen aprobado:** `DT-{PREFIX}-{AÑO}-{SEQ}_{Descripcion}_APROBADO.md`
-  - Prefix por área: señaliz→CTSC, telecom→COMS, energi→ENRG, integr→INTG, control→CTRL, ence→ENCE
+  - Prefijos: CTSC (señalización), COMS (telecom), ENRG (energía), INTG (integración), CTRL (control), ENCE
 - **Sueño (log):** `DREAM-{AREA}-{ISO_TIMESTAMP}.md`
 - **Pending:** `PENDING-{AREA}-{FECHA}.md`
 
@@ -111,17 +184,13 @@ Telegram: ⚖️ VEREDICTO FINAL AL DESPERTAR
 | Tabla Postgres | Función |
 |---|---|
 | `contrato_documentos` | Biblia Legal — Contrato LFC2 + normas técnicas (OCR chunking 800c/100c) |
-| `sicc_genetic_memory` | 59 lecciones manuales + entradas automáticas DT_CERTIFICADA / VEREDICTO_JUEZ |
-
-**Estado 2026-04-18:** Primera `DT_CERTIFICADA` real (dream ENCE) + `VEREDICTO_JUEZ` en DB. El pipeline de aprendizaje automático está activo.
+| `sicc_genetic_memory` | 59 lecciones manuales + DT_CERTIFICADA + VEREDICTO_JUEZ automáticos |
 
 **Embeddings:** `nomic-embed-text` (Ollama, 768 dims) → fallback `text-embedding-004` (Gemini)
 
 ---
 
-## 📦 Pipeline DT → LFC2 → Vercel
-
-Las DTs certificadas en `brain/dictamenes/` se **promueven manualmente** al repo documental:
+## 📦 Pipeline DT → LFC2 → Vercel (manual — /promote pendiente)
 
 ```
 brain/dictamenes/DT-*.md
@@ -133,32 +202,28 @@ LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/
 X_ENTREGABLES_CONSOLIDADOS/8_DOCUMENTOS_SERVIDOS/HTML/
         │ git push LFC2 origin main
         ▼
-lfc-2.vercel.app (Vercel auto-deploy)
+lfc-2.vercel.app (Vercel auto-deploy ~2 min)
 ```
 
-| Script agente | Qué hace con LFC2 |
-|---|---|
-| `forensic_auditor.js` | Escanea LFC2, usa `brain/dictamenes/` como referencia de pureza |
-| `simulator.js` | Lee dictámenes como "gold standards" para validar propuestas |
-| `sicc-harness.js` | Audita git LFC2, genera dictámenes contractuales en `II_A_Analisis_Contractual/` |
-
-**Variable clave:** `LFC2_ROOT=/home/administrador/docker/LFC2` (`.env`)
+```bash
+# Promote manual de una DT aprobada
+cp brain/dictamenes/DT-XXXX.md \
+   /home/administrador/docker/LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/
+cd /home/administrador/docker/LFC2
+git add . && git commit -m "feat: DT certificada SICC" && git push
+```
 
 ---
 
-## ⚠️ Deuda Técnica Identificada (2026-04-18)
+## ⚠️ Deuda Técnica Activa
 
-### Dead code en `agent.js`
-| Elemento | Problema |
+| Item | Estado |
 |---|---|
-| `rutarEstrategiaAdvisor` | Importado, nunca llamado |
-| `encolarHallazgo` | Importado, nunca llamado |
-| `PROMPT_FULL` | Construido pero nunca llega al LLM (solo `PROMPT_FAST` se usa) |
-| `rutarEspecialidad()` + `ESPECIALIDADES` | Calculan `finalPrompt` que `systemPromptSoberano` sobreescribe |
-
-### Archivos muertos (pendiente eliminación)
-- **`src/`**: `cachear_contrato`, `extract_to_md`, `gitlocal`, `ingestar_contrato`, `ingestar_gemini`, `ocr_pilot`, `ocr_sovereign`, `test_migracion_soberana`
-- **`scripts/`**: `sicc-dreamer`, `sicc-seed-memory`, `lfc-doctor`, `scorecard-v2`, `sicc-rag-match`, `sicc-sentinel`, `sicc-sweep`, `sit-simulator`, `next_dream`, 7 archivos `test_*`, 4 one-offs (`fix_encoding`, `fix_telecom_html`, `normalize_paths`, `sync_links`)
+| `ejecutarSondaForense()` en simulator.js | ROTO (OpenAI no importado). Requiere refactor a `llamarMultiplexadorFree()`. |
+| Comando `/promote` DT→LFC2 | Automatizar pipeline manual — usar `src/gitlocal.js`. |
+| Re-ingesta `contrato_documentos` | Fragmentos pre-fix oversized — re-ingestar con 800c/100c. |
+| Interrogación iterativa Oracle | Juez debe emitir ≥2 preguntas de seguimiento al Oracle por ciclo. |
+| `SICC_OPERATIONS.md` auto-actualización | Tras cada sueño — fecha, área, veredicto. |
 
 ---
 
@@ -178,8 +243,8 @@ lfc-2.vercel.app (Vercel auto-deploy)
 # Estado contenedores
 docker ps --format "table {{.Names}}\t{{.Status}}"
 
-# Oracle health
-curl http://localhost:3001/health
+# Logs del agente (solo pipeline de inferencia)
+docker compose -f docker-compose.yaml logs -f | grep "\[AGENTE\]"
 
 # DTs certificadas
 ls brain/dictamenes/
@@ -191,10 +256,10 @@ docker exec sicc-postgres psql -U sicc_app -d postgres_sicc \
 # Sueños recientes
 ls brain/DREAMS/ | tail -5
 
-# Pendientes revisión humana
-ls brain/PENDING_DTS/
+# Trazas de inferencia (últimas 5)
+tail -5 data/logs/sicc-traces.json | python3 -m json.tool
 ```
 
 ---
 
-*Actualizado: 2026-04-18 | OpenGravity SICC v12.9*
+*Actualizado: 2026-04-18 | OpenGravity SICC v13.0*
