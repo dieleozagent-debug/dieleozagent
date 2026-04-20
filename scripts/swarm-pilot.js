@@ -51,7 +51,7 @@ function generarNombreDT(area, textoDT) {
 function guardarDTEnDisco(area, textoDT, razonJuez, idDT, filename) {
     const dictamenesDir = path.join(__dirname, '..', 'brain', 'dictamenes');
     const fecha = new Date().toISOString();
-    const contenido = `# ⚖️ DICTAMEN TÉCNICO VINCULANTE (SICC v12.9)\n\n**Documento:** ${idDT} (Pureza N-1)\n**Área:** ${area}\n**Fecha:** ${fecha}\n**Validado por:** Cámara de Doble Ciego (Supabase RAG + NotebookLM Oracle)\n**Razón Juez:** ${razonJuez}\n\n---\n\n${textoDT}`;
+    const contenido = `# ⚖️ DICTAMEN TÉCNICO VINCULANTE (SICC v12.9)\n\n**Documento:** ${idDT} (Pureza N-1)\n**Área:** ${area}\n**Fecha:** ${fecha}\n**Validado por:** Dirección Técnica y Jurídica SICC - LFC\n**Razón Juez:** ${razonJuez}\n\n---\n\n${textoDT}`;
     fs.writeFileSync(path.join(dictamenesDir, filename), contenido, 'utf8');
     console.log(`\n📄 DT guardada en disco: brain/dictamenes/${filename}`);
 }
@@ -89,7 +89,7 @@ function guardarPendingDT(area, textoDT, ultimaLeccion) {
         ``,
         `---`,
         ``,
-        `> ⚠️ Este borrador no superó la Cámara de Doble Ciego en 3 ciclos.`,
+        `> ⚠️ Este borrador no superó la Verificación Contractual en 3 ciclos.`,
         `> Requiere revisión manual antes de promover a dictamenes/.`,
         ``,
         textoDT,
@@ -152,61 +152,74 @@ async function runSwarmPilot() {
         }
 
         const promptFase1 = ciclosRealizados === 1 
-            ? `### TAREA DE INVESTIGACIÓN (DECANTACIÓN INICIAL)\n${contextoGenetico}Genera una Decisión Técnica (DT) radical sobre el área de ${arg} para el tren LFC2...`
-            : `### REFINAMIENTO POR FALLO PREVIO (PURA DE GRASA)\n${contextoGenetico}Tu propuesta anterior fue RECHAZADA por el Juez...`;
+            ? `### TAREA DE INVESTIGACIÓN (DECANTACIÓN INICIAL)\n${contextoGenetico}Genera una Decisión Técnica (DT) soberana sobre el área de ${arg} para el Proyecto SICC...`
+            : `### REFINAMIENTO POR FALLO PREVIO (PURA DE GRASA)\n${contextoGenetico}Tu propuesta anterior fue RECHAZADA por el Juez por contener alucinaciones o violar la R-HARD-06...`;
 
         const agent1 = {
-            name: "AUDITOR FORENSE SOBERANO",
-            prompt: `### MANDATO SUPERIOR SICC\n${identitySicc}\n\n### METODOLOGÍA DE PRODUCCIÓN\n${methodologySicc}\n\n${promptFase1}`
+            name: "DIRECCIÓN TÉCNICA SICC",
+            prompt: `### MANDATO SUPERIOR SICC (SSoT)
+${identitySicc}
+
+### METODOLOGÍA DE AUDITORÍA
+${methodologySicc}
+
+🛡️ MURO DE FUEGO CONTRACTUAL (R-HARD-06) - PROHIBICIONES ABSOLUTAS:
+1. PROHIBIDO citar herramientas de IA: "Supabase", "RAG", "Oráculo", "NotebookLM", "Doble Ciego", "Algoritmo", "Script".
+2. PROHIBIDO personificar: "Diego", "Soberano", "Karpathy", "Peones".
+3. PROHIBIDO alucinar flotas: Solo existen locomotoras **GR12 y U10** (Nación) y **U18** (Calidad). El "Tren LFC2" es una alucinación.
+4. PROHIBIDO inventar cláusulas: La "Cláusula N-1" o "Deducción Radical" NO existen. Solo el Orden de Prelación 1.2(d).
+5. PROHIBIDO alucinar seguros: El Artículo 12.1 NO existe para seguros. Usar Resolución de Surcos (Art. 9): 11.300 SMMLV (RCE) y 3.900 SMMLV (Patronal).
+6. PROHIBIDO confundir conceptos: "Pasos a Nivel (PaN)" son cruces físicos, NO cantidades administrativas.
+
+### TAREA:
+${promptFase1}
+
+REGLA DE ORO: Tu lenguaje debe ser estrictamente institucional, legalista y técnico. Si el Juez detecta una sola palabra de la lista negra, el ciclo será abortado.`
         };
 
         try {
-            console.log(`🐝 Disparando enjambre (Fase 1: Sueño Soberano)...`);
+            console.log(`🐝 Disparando enjambre (Fase 1: Decantación Técnica)...`);
             let responseObj = await llamarMultiplexadorFree(agent1.prompt, "", `Role: ${agent1.name}`);
             let borrador_DT = typeof responseObj === 'string' ? responseObj : (responseObj.texto || responseObj.content || JSON.stringify(responseObj));
             ultimoBorrador = borrador_DT;
             
             if (borrador_DT.includes("I need more information") || borrador_DT.includes("Could you please provide")) {
                 console.error(`🚨 [ALUCINACIÓN DETECTADA] Abortando ciclo por intento de meta-habla.`);
-                ultimaLeccion = "El agente intentó pedir información al usuario en lugar de dictaminar soberanamente.";
+                ultimaLeccion = "El agente intentó pedir información en lugar de dictaminar soberanamente.";
                 continue;
             }
 
-            console.log(`💤 SUEÑO GENERADO (Resumen): ${borrador_DT.substring(0,200)}...`);
+            console.log(`💤 BORRADOR GENERADO (Resumen): ${borrador_DT.substring(0,200)}...`);
             
             await sleep(2000); 
 
-            console.log(`🛡️ [Fase 2] CÁMARA DE VALIDACIÓN (Doble Ciego)...`);
-            console.log(`   🔸 Interrogando Supabase RAG...`);
+            console.log(`🛡️ [Fase 2] AUDITORÍA FORENSE (Cámara de Verificación)...`);
+            console.log(`   🔸 Verificando consistencia con SSoT...`);
             const validInterna = await validarInternaSupabase(borrador_DT);
             
-            console.log(`   🔸 Interrogando NotebookLM MCP...`);
+            console.log(`   🔸 Cruzando con Normativa Externa...`);
             const validExterna = await validarExternaNotebook(borrador_DT);
 
-            console.log(`⚖️ [Fase 3] DESPERTAR Y JUZGAR (Firma Forense)...`);
+            console.log(`⚖️ [Fase 3] VEREDICTO DE LA DIRECCIÓN TÉCNICA (R-HARD-06)...`);
 
-            const promptJuez = `Eres el JUEZ SOBERANO SICC v12.4. 
-Evalúa estrictamente este sueño del enjambre. 
-SUEÑO DEL ENJAMBRE:
+            const promptJuez = `Eres la DIRECCIÓN TÉCNICA Y JURÍDICA SICC. 
+Tu única misión es RECHAZAR cualquier dictamen que contenga alucinaciones, personificaciones o menciones a herramientas de IA.
+
+### PROTOCOLO DE RECHAZO FULMINANTE:
+1. RECHAZAR si menciona: "Diego", "Soberano", "Karpathy", "RAG", "Supabase", "NotebookLM", "IA", "Algoritmo".
+2. RECHAZAR si menciona: "Tren LFC2" o "Cláusula N-1".
+3. RECHAZAR si confunde "Pasos a Nivel" con "pasos de cantidades".
+4. RECHAZAR si cita el "Artículo 12.1" para seguros.
+
+### TEXTO A EVALUAR:
 ${borrador_DT}
 
-RESTRICCIONES INTERNAS (Supabase):
-${validInterna}
-
-PERSPECTIVA EXTERNA (NotebookLM):
-${validExterna}
-
-TAREA: 
-1. Si hay contradicción con los Estándares de Oro, R-HARD o el Oráculo Externo, responde iniciando con "BLOCKER: [Motivo]".
-2. IMPORTANTE: Si el Oráculo Externo (NotebookLM) proporciona feedback correctivo, inclúyelo OBLIGATORIAMENTE en la "leccion_karpathy" para que el enjambre se autocorrija en el siguiente ciclo.
-3. Si no hay fallos y el Oráculo valida la propuesta, genera la Decisión Técnica Certificada (N-1).
-
-Responde ÚNICAMENTE en JSON:
+### FORMATO DE SALIDA (JSON ESTRICTO):
 {
   "aprobado": boolean,
-  "razon": "Justificación técnica/contractual",
-  "categoria_fallida": "COMMUNICATIONS | SIGNALIZATION | POWER | INTEGRATION | ENCE | Ninguna",
-  "leccion_karpathy": "Lección estricta para el Brain si falló (DEBE incluir correcciones del Oráculo si las hubo)."
+  "razon": "Justificación legalista citando el Contrato APP 001/2025",
+  "categoria_fallida": "SIGNALIZATION | POWER | COMMUNICATIONS | INTEGRATION | LEGAL",
+  "leccion_karpathy": "Mandato técnico para purgar el error en el siguiente ciclo"
 }`;
 
             let responseJuez = await llamarMultiplexadorFree("Despierta al enjambre y evalúa el sueño.", "", promptJuez);

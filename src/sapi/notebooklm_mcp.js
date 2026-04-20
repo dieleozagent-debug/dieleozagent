@@ -19,7 +19,7 @@ async function resetOracle() {
   if (mcpClient) { try { await mcpClient.close(); } catch (_) {} }
   mcpClient = null;
   try {
-    execSync('docker restart notebooklm-mcp-v12', { timeout: 30000 });
+    execSync('docker restart 172.20.0.4', { timeout: 30000 });
     console.log('[SAPI NotebookLM] Contenedor Oracle reiniciado.');
   } catch (e) {
     console.error('[SAPI NotebookLM] Fallo al reiniciar contenedor Oracle:', e.message);
@@ -28,7 +28,7 @@ async function resetOracle() {
 
 async function initMCP() {
   if (mcpClient) return mcpClient;
-  const transport = new SSEClientTransport(new URL('http://notebooklm-mcp-v12:3001/sse'));
+  const transport = new SSEClientTransport(new URL('http://172.20.0.4:3001/sse'));
   const client = new Client({ name: 'SICC_Agent', version: '12.2.0' }, { capabilities: { tools: {} } });
   await withTimeout(client.connect(transport), MCP_CONNECT_TIMEOUT_MS, 'initMCP connect');
   mcpClient = client;

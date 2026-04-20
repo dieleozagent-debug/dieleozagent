@@ -12,15 +12,17 @@ const fs = require('fs');
 const isDocker = fs.existsSync('/.dockerenv');
 
 const dbConfig = {
-    host: process.env.DB_HOST || 'postgres',
+    host: process.env.DB_HOST || 'sicc-postgres', // Fallback al nombre real del contenedor
     port: parseInt(process.env.DB_PORT) || 5432,
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || 'postgres',
     database: process.env.DB_NAME || 'postgres'
 };
 
-// 🛰️ AJUSTE DE PRIORIDAD SOBERANA (v8.9.8)
-if (!isDocker && (dbConfig.host === 'postgres' || dbConfig.port === 5432)) {
+// 🛰️ AJUSTE DE PRIORIDAD SOBERANA (v8.9.9 - Fixed)
+// Solo cambia a localhost si detectamos explícitamente que estamos en el host (sin .dockerenv)
+// Y si no se ha definido un DB_HOST específico en el .env
+if (!isDocker && !process.env.DB_HOST) {
     dbConfig.host = '127.0.0.1';
     dbConfig.port = 54322; // Puerto expuesto en el host
 }

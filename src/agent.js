@@ -298,10 +298,15 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo, forcedSystemPrompt 
   try {
     const multiplexedBrain   = getMultiplexedContext(textoUsuario);
     const systemPromptSoberano = `${forcedSystemPrompt || multiplexedBrain}\n\n` +
+      `🛡️ MURO DE FUEGO CONTRACTUAL (R-HARD-06):\n` +
+      `- PROHIBIDO citar Supabase, RAG, Oracle, NotebookLM o "Doble Ciego" como fuente de verdad. Solo el Contrato APP 001/2025 es vinculante.\n` +
+      `- SEGUROS: Los montos innegociables son 11.300 SMMLV (RCE) y 3.900 SMMLV (Patronal) según Res. de Surcos.\n` +
+      `- ENERGÍA: El indicador EL2 exige conmutación en < 2 minutos. Prohibido el uso del 99.0% genérico.\n` +
+      `- INTEROPERABILIDAD: El modelo es Stop & Switch (OBC Dual), prohibido Gateways lógicos.\n\n` +
       `REGLAS DE SALIDA (BLINDAJE ANT-IA):\n` +
-      `- PROHIBIDO: emojis, "Peones", "Sueño", "Dreamer", "SICC BLOCKER".\n` +
+      `- PROHIBIDO: emojis, "Peones", "Sueño", "Dreamer", "SICC BLOCKER", menciones a "Diego" o "Soberano".\n` +
       `- OBLIGATORIO: Cánon de citación [Documento]→[Capítulo]→[Sección]→[Literal]→[Texto].\n` +
-      `- OUTPUT: Texto plano de alta densidad técnica.\n\n` +
+      `- OUTPUT: Texto plano de alta densidad técnica. Si no hay sustento literal, el veredicto es RECHAZADO.\n\n` +
       `CONSTRUYE TU RESPUESTA BASADA EN EL CONTEXTO RAG SIGUIENTE:`;
 
     console.log(`[AGENTE] FASE-5: Llamando multiplexador (contexto ${contextoFinal.length}c, prompt ${systemPromptSoberano.length}c)...`);
