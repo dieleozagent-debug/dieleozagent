@@ -1,0 +1,50 @@
+
+4. **🔒 CIBERSEGURIDAD EN PENALIDADES:**
+   - **Penalidades por ciberseguridad:** Multas por incumplimiento de estándares NIST/IEC 62443
+   - **Retrasos en seguridad:** Penalidades por demoras en implementación de seguridad
+   - **Incidentes de seguridad:** Multas por incidentes de ciberseguridad
+   - **Auditorías de seguridad:** Penalidades por fallas en auditorías de seguridad
+
+5. **🔄 REDUNDANCIA EN PENALIDADES:**
+   - **Penalidades por redundancia:** Multas por incumplimiento de arquitectura N+1
+   - **Retrasos en redundancia:** Penalidades por demoras en implementación de redundancia
+   - **Fallas de redundancia:** Multas por fallas en sistemas redundantes
+   - **Mantenimiento de redundancia:** Penalidades por fallas en mantenimiento de redundancia
+
+#### **⚠️ VACÍOS IDENTIFICADOS Y CORREGIDOS:**
+
+1. **Falta de especificaciones PTC en penalidades:** Agregadas multas por incumplimiento PTC PTC Virtual (FRA 236)
+2. **Ausencia de interoperabilidad FENOCO:** Incluidas penalidades por problemas de interoperabilidad
+3. **Criterios AT4 no integrados:** Incorporadas multas por incumplimiento de disponibilidad
+4. **Ciberseguridad no especificada:** Agregadas penalidades por incumplimiento de seguridad
+5. **Redundancia no definida:** Establecidas multas por incumplimiento de redundancia
+
+#### **⚠️ RIESGOS IDENTIFICADOS PARA ANÁLISIS PMI:**
+
+| ID | Riesgo | Categoría | Prob | Impacto | Descripción |
+|:---|:---|:---:|:---:|:---:|:---|
+| R-285 | Dependencia AT3 para PTC en penalidades | Técnico | Alta | Alto | Penalidades por PTC sin especificaciones AT3 |
+| R-286 | Interoperabilidad FENOCO en penalidades | Técnico | Media | Alto | Penalidades por problemas de interoperabilidad |
+| R-287 | Disponibilidad AT4 en penalidades | Contractual | Media | Alto | Penalidades por incumplimiento de indicadores |
+| R-288 | Ciberseguridad en penalidades | Técnico | Media | Alto | Penalidades por incumplimiento de seguridad |
+| R-289 | Redundancia en penalidades | Técnico | Media | Alto | Penalidades por incumplimiento de redundancia |
+
+#### **📋 MATRIZ DE TRAZABILIDAD CONTRACTUAL:**
+
+| Sistema | Cláusula | AT | Especificación | Estado |
+|:---|:---|:---|:---|:---:|
+| **PTC Penalidades** | 16.1 | AT3 | PTC Virtual (FRA 236) | ✅ Implementado |
+| **FENOCO Penalidades** | 16.1 | AT1 | Protocolos FRA/AREMA | ✅ Implementado |
+| **AT4 Penalidades** | 16.1 | AT4 | Disponibilidad 99.95% | ✅ Implementado |
+| **Ciberseguridad Penalidades** | 16.1 | AT3 | NIST/IEC 62443 | ✅ Implementado |
+| **Redundancia Penalidades** | 16.1 | AT4 | Arquitectura N+1 | ✅ Implementado |
+
+#### **🎯 OPTIMIZACIONES EPC ESPECÍFICAS:**
+
+1. **Estrategia de Avance con Bloqueos PTC:**
+   - **Fase 1:** Gestión de penalidades con PTC Virtual (FRA 236) (0-12 meses)
+   - **Fase 2:** Monitoreo de cumplimiento (12-24 meses)
+   - **Fase 3:** Integración con AT3 cuando esté disponible (24-36 meses)
+   - **Fase 4:** Optimización de cumplimiento (36+ meses)
+
+2. **Gestión Integrada de Riesgos en Penalidades:**

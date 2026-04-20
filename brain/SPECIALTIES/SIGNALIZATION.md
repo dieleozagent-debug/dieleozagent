@@ -77,11 +77,11 @@ Se prohíbe el uso de legacy tags: `Michelin Certified`, `Karpathy Loop`, `Peone
 > 1. **EL2 (Respaldo Crítico):** Se prohíbe el uso del umbral genérico del 99.0%. El indicador EL2 exige estrictamente la entrada de energía auxiliar en menos de 2 minutos en el 100% de los eventos.
 > 2. **Interoperabilidad:** Se prohíbe el uso de Gateways lógicos. El modelo oficial es **Stop & Switch (OBC Dual)** con conmutación física en la frontera de Chiriguaná.
 
-> [!CAUTION] **AXIOMAS DE PASOS A NIVEL (PaN) - REGLA DE SOBERANÍA:**
-> 1. **Definición Semántica:** Un 'Paso a Nivel' (PaN) es estrictamente una intersección física entre la vía férrea y una vía vehicular o peatonal. Se prohíbe el término 'pasos de cantidades'.
-> 2. **Alcance Técnico:** El diseño debe garantizar la integración de la protección activa (barreras/señales) con el sistema PTC conforme al Apéndice Técnico 1.
-> 3. **Prohibición CAPEX:** En la fase de auditoría de alcance técnico, queda prohibido discutir presupuestos o WBS. El foco es la integridad jurídica y el cumplimiento del AT1.
-> 4. **Invalidez Normativa:** La 'Cláusula N-1' es INEXISTENTE. La resolución de dudas se rige por las Secciones 8 y 9 del Contrato.
+> [!CAUTION] **AXIOMAS DE SOBERANÍA Y OPERACIÓN (ESCUDOS CONTRACTUALES):**
+> 1. **Notificación Oficial (Sección 2.156):** Nada es informal ni verbal. Solo la comunicación escrita oficial es vinculante. Los chats y minutas son informativos, NO contractuales.
+> 2. **Régimen de Revisión (Sección 8.1):** La Interventoría tiene plazos técnicos. Si hay rechazo injustificado (caprichoso), se acude al Amigable Componedor (Sección 2.20).
+> 3. **Equipos Complementarios (Sección 9.12):** Todo requerimiento de la ANI fuera del AT1 es un "Equipo Complementario" y debe ser pagado por el Estado (Sección 2.159).
+> 4. **Responsabilidad Indelegable (Sección 7.1):** El retraso de subcontratistas (Ardanuy, etc.) no exime al Concesionario ante la ANI.
 
 > [!CAUTION] **AXIOMAS DE MATERIAL RODANTE / PUESTA A PUNTO (WBS CAP. 6):**
 > 1. **Flota Real:** Se prohíbe el término 'Tren LFC2'. La única flota vinculante son las locomotoras propiedad de la Nación: **GR12 y U10**.
@@ -106,3 +106,17 @@ Se prohíbe el uso de legacy tags: `Michelin Certified`, `Karpathy Loop`, `Peone
 - **Rechazo automático:** Cualquier DT de seguros que cite un "Artículo 12.1", que pida "revisar la cantidad de cobertura", o que asegure un "Tren LFC2".
 - **Nota:** Las garantías generales del Contrato están en Sección 18. Los seguros de operación ferroviaria los rige el Art. 9 de la Resolución de Surcos.
 
+## S-PTC-07 — ANCLAJE FINANCIERO PTC (WBS CAP. 1)
+
+- **Mandato:** El Sistema de Señalización y Control (PTC) tiene un presupuesto anclado al **WBS Oficial v3.0, Capítulo 1**.
+- **Referencia CTC:** Tan solo la partida 1.1.103 (Software CTC Virtual + ETCS L2) tiene un valor asignado de **$88.112.090.432 COP**.
+- **Rechazo automático:** Cualquier DT que asigne presupuestos irrisorios (ej. $150.000.000 COP) para la señalización principal será RECHAZADO por inviabilidad técnica.
+
+## S-PTC-08 — MANDATO ENCE (5 ESTACIONES CRÍTICAS)
+
+- **Mandato:** El diseño DEBE incluir los cinco (5) Enclavamientos Electrónicos (ENCE) físicos exigidos por la **Tabla 17 del AT1**.
+- **Sitios Obligatorios:** Zapatosa, García Cadena, Barrancabermeja, Pto. Berrío–Grecia y La Dorada–México.
+- **Prohibición:** Se prohíbe el término "Infraestructura Zero". La arquitectura es **Virtual V-Rail** con componentes físicos ENCE en los nodos estratégicos.
+
+> [!WARNING] **AUDIT_LESSON (SICC v12.8 - 2026-04-20T03:35:09.064Z):**
+> Se debe eliminar cualquier referencia a 'Soberana' o 'Infraestructura Zero' y respetar estrictamente las terminologías contractuales establecidas (e.g., Arquitectura Virtual V‑Rail). El siguiente ciclo deberá incluir el uso correcto de términos técnicos y la evitación de conceptos ficticios.

@@ -1,0 +1,50 @@
+# 🔴 BLOCKER CRÍTICO 001: INDEFINICIÓN SISTEMA PTC
+
+**ID:** BLOCKER-001  
+**Fecha Identificación:** 9 de Octubre 2025 (Mes 4)  
+**Responsable Gestión:** PMO + Gerencia Técnica  
+**Criticidad:** 🔴 **BLOQUEADOR DEL PROYECTO**  
+**Estado:** ❌ **NO RESUELTO** - Requiere decisión ANI URGENTE
+
+---
+
+## ⚠️ **PROBLEMA CRÍTICO**
+
+### **Indefinición Contractual:**
+
+**Base de datos dice:** "PTC Virtual (FRA 236)"  
+**Realidad contractual:** ✅ **DEFINICIÓN SICC ALINEADA** - Arquitectura 100% Virtual sobre FRA 49 CFR 236.
+
+### **Impacto:**
+
+**Documentos BLOQUEADOS (no se puede avanzar):**
+- ❌ `AT3_Especificaciones.docx` - BLOQUEADO
+- ❌ `29_Sistema_Senalización_Integrado.md` - Filosofía NO clara
+- ❌ `32_Material_Rodante_Integrado.md` - Equipos embarcados SIN DEFINIR
+- ❌ `V.1_Senalización_Ferroviaria_Detalle.md` - Diseno SUSPENDIDO
+- ❌ `IV.1_Interfaces_Sistemas.md` - Arquitectura indefinida
+
+**Alcance afectado:**
+- 🔴 60% de Capítulo 1 (Control y Senalización) = **$132,228M COP**
+- 🔴 40% de Capítulo 4 (Material Rodante) = **$20,520M COP**
+- 🔴 **Total en riesgo:** **$152,748M COP** (58% del proyecto)
+
+**Impacto temporal:**
+- ⏸️ Ingeniería de detalle Cap 1 **DETENIDA**
+- ⚠️ Si no se resuelve Mes 6 → Retraso mínimo **3 meses**
+- 🔴 Si no se resuelve Mes 12 → **Proyecto NO viable**
+
+---
+
+## 🎯 **OPCIONES TÉCNICAS**
+
+### **Opción 1: PTC/PTC Estándar (FRA Class 1)** 🇺🇸
+
+**Descripción:** Sistema americano de Protección Automática de Trenes
+
+**Ventajas:**
+- ✅ Estándar probado en USA (20+ anos)
+- ✅ Múltiples proveedores (Wabtec, Alstom, Siemens)
+- ✅ Compatible con material rodante diesel
+- ✅ Menor costo relativo
+

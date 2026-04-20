@@ -1,0 +1,50 @@
+**Lead time:** 14 meses  
+**Proveedor:** Thales, Alstom  
+**Recomendación:** ❌ NO viable para este proyecto
+
+---
+
+### **Opción 4: Solución Híbrida FENOCO + Sistema Nuevo** 🔗
+
+**Descripción:** Gateway que integra sistema FENOCO existente con nuevo PTC/PTC VIRTUAL
+
+**Ventajas:**
+- ✅ Aprovecha infraestructura FENOCO existente
+- ✅ Menor costo de integración
+- ✅ Interoperabilidad garantizada
+- ✅ Implementación gradual posible
+
+**Desventajas:**
+- ⚠️ Depende 100% de colaboración FENOCO
+- ⚠️ Requiere especificaciones FENOCO (actualmente NO disponibles)
+- ⚠️ Gateway custom (desarrollo específico)
+
+**Costo estimado:** $10M USD (~$72,800M COP)  
+**Lead time:** 11 meses  
+**Proveedor:** Integrador (Siemens, Indra, GMV)  
+**Recomendación:** ⭐ SI FENOCO colabora
+
+---
+
+## 📋 **PLAN DE RESOLUCIÓN**
+
+### **FASE 1: SOLICITUD FORMAL (HOY - Mes 4)**
+
+**Oficio a ANI + Concesionario:**
+
+```
+ASUNTO: SOLICITUD URGENTE - DEFINICIÓN SISTEMA PTC
+
+De: PMO Proyecto APP La Dorada
+Para: ANI + Concesionario
+Fecha: 9 de Octubre 2025
+Prioridad: 🔴 CRÍTICA - BLOCKER DEL PROYECTO
+
+ANTECEDENTES:
+El proyecto se encuentra en Mes 4/12 de ingeniería. Se requiere 
+definición formal del Sistema PTC para poder avanzar con el 60% 
+del alcance de Control y Senalización ($152,748M COP en riesgo).
+
+SOLICITUD:
+Definir formalmente cuál de las siguientes opciones será implementada:
+

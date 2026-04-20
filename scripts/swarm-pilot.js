@@ -51,7 +51,7 @@ function generarNombreDT(area, textoDT) {
 function guardarDTEnDisco(area, textoDT, razonJuez, idDT, filename) {
     const dictamenesDir = path.join(__dirname, '..', 'brain', 'dictamenes');
     const fecha = new Date().toISOString();
-    const contenido = `# ⚖️ DICTAMEN TÉCNICO VINCULANTE (SICC v12.9)\n\n**Documento:** ${idDT} (Pureza N-1)\n**Área:** ${area}\n**Fecha:** ${fecha}\n**Validado por:** Dirección Técnica y Jurídica SICC - LFC\n**Razón Juez:** ${razonJuez}\n\n---\n\n${textoDT}`;
+    const contenido = `# ⚖️ DICTAMEN TÉCNICO VINCULANTE (SICC v13.0)\n\n**Documento:** ${idDT} (Validación Forense)\n**Área:** ${area}\n**Fecha:** ${fecha}\n**Validado por:** Dirección Técnica y Jurídica SICC - LFC\n**Razón Juez:** ${razonJuez}\n\n---\n\n${textoDT}`;
     fs.writeFileSync(path.join(dictamenesDir, filename), contenido, 'utf8');
     console.log(`\n📄 DT guardada en disco: brain/dictamenes/${filename}`);
 }
@@ -85,7 +85,7 @@ function guardarPendingDT(area, textoDT, ultimaLeccion) {
         `# 🔶 PENDING DT — ${area.toUpperCase()} (Impureza Persistente)`,
         `**Fecha:** ${fecha}`,
         `**Estado:** RECHAZADO tras 3 ciclos — pendiente revisión humana`,
-        `**Última lección Karpathy:** ${ultimaLeccion}`,
+        `**Última lección de auditoría:** ${ultimaLeccion}`,
         ``,
         `---`,
         ``,
@@ -206,10 +206,25 @@ REGLA DE ORO: Tu lenguaje debe ser estrictamente institucional, legalista y téc
 Tu única misión es RECHAZAR cualquier dictamen que contenga alucinaciones, personificaciones o menciones a herramientas de IA.
 
 ### PROTOCOLO DE RECHAZO FULMINANTE:
-1. RECHAZAR si menciona: "Diego", "Soberano", "Karpathy", "RAG", "Supabase", "NotebookLM", "IA", "Algoritmo".
-2. RECHAZAR si menciona: "Tren LFC2" o "Cláusula N-1".
-3. RECHAZAR si confunde "Pasos a Nivel" con "pasos de cantidades".
-4. RECHAZAR si cita el "Artículo 12.1" para seguros.
+1. RECHAZAR si menciona: "Diego", "Soberano", "Karpathy", "RAG", "Supabase", "NotebookLM", "IA", "Algoritmo", "Tren LFC2", "Cláusula N-1" o "Protocolo de Soberanía".
+2. RECHAZAR si menciona fibra óptica asociada a material rodante o trenes (la fibra es exclusivamente BACKBONE SOTERRADO).
+3. RECHAZAR si menciona el "Artículo 12.1" para seguros o cláusulas inexistentes como "Capítulo 3 → Sección 2 → Literal 1".
+4. RECHAZAR si menciona componentes mecánicos de trenes (acoples, 1.200 unidades, etc.) en dictámenes de señalización o Pasos a Nivel.
+5. RECHAZAR si el dictamen es "vacío" o "puramente motivacional". UN DICTAMEN VÁLIDO DEBE TENER:
+   - Sección **CITACIÓN CANÓNICA** (con numerales reales del Contrato APP 001/2025).
+   - Sección **ANÁLISIS** técnico o jurídico sustantivo.
+   - Sección **DECISIÓN** vinculante clara.
+6. RECHAZAR si sugiere "omitir" o "desviar" el cumplimiento de **SIL-4** en hardware de control de trenes. El SIL-4 es innegociable bajo norma FRA 236.
+7. RECHAZAR si el texto está en portugués, caracteres asiáticos o cualquier idioma distinto al ESPAÑOL (excepto siglas técnicas como SIL, PTC, TETRA).
+8. RECHAZAR si cita reglas internas (R-HARD-01, $726M) como si fueran "Cláusulas Literales del Contrato". Deben citarse como "Normativa Interna de Proyecto".
+9. RECHAZAR si confunde Pasos a Nivel (PaN) con "pasos de cantidades" o "acoples mecánicos".
+10. RECHAZAR si los Pasos a Nivel no coinciden con las cantidades cerradas: 9 Tipo C, 15 Tipo B, 122 Tipo A.
+11. RECHAZAR si asigna presupuestos irrisorios para Señalización (ej. $150M). El software CTC/PTC (Partida 1.1.103) cuesta más de **$88.000 Millones COP**.
+12. RECHAZAR si menciona "Infraestructura Zero". El término correcto es **Arquitectura Virtual V-Rail**.
+13. RECHAZAR si no cita los 5 ENCE obligatorios (Zapatosa, García Cadena, Barrancabermeja, Pto. Berrío, La Dorada) de la **Tabla 17 del AT1**.
+14. RECHAZAR si cita el "WBS v2.9" (el único válido es WBS v3.0).
+15. RECHAZAR si el dictamen usa excusas de "falta de claridad" (Sección 3.9(a)(v)).
+16. RECHAZAR si no cita la flota real: GR12, U10 o U18.
 
 ### TEXTO A EVALUAR:
 ${borrador_DT}
@@ -217,10 +232,11 @@ ${borrador_DT}
 ### FORMATO DE SALIDA (JSON ESTRICTO):
 {
   "aprobado": boolean,
-  "razon": "Justificación legalista citando el Contrato APP 001/2025",
+  "razon": "Justificación legalista citando el Contrato APP 001/2025 (Secciones 1.2(d), 3.9, 9.11, 18.7, etc.)",
   "categoria_fallida": "SIGNALIZATION | POWER | COMMUNICATIONS | INTEGRATION | LEGAL",
-  "leccion_karpathy": "Mandato técnico para purgar el error en el siguiente ciclo"
-}`;
+  "leccion_auditoria": "Mandato técnico para purgar el error en el siguiente ciclo"
+}
+`;
 
             let responseJuez = await llamarMultiplexadorFree("Despierta al enjambre y evalúa el sueño.", "", promptJuez);
             let decisionRAW = typeof responseJuez === 'string' ? responseJuez : (responseJuez.texto || responseJuez.content || JSON.stringify(responseJuez));
@@ -245,19 +261,25 @@ ${borrador_DT}
                         aprobado: /\"aprobado\"\s*:\s*true/i.test(jsonMatch),
                         razon: extraerCampoJuez(jsonMatch, 'razon') || 'JSON malformado por el modelo',
                         categoria_fallida: extraerCampoJuez(jsonMatch, 'categoria_fallida') || 'Ninguna',
-                        leccion_karpathy: extraerCampoJuez(jsonMatch, 'leccion_karpathy') || 'Respuesta JSON malformada del Juez.',
+                        leccion_auditoria: extraerCampoJuez(jsonMatch, 'leccion_auditoria') || 'Respuesta JSON malformada del Juez.',
                     };
                     console.warn(`⚠️ [JUEZ] JSON malformado — campos extraídos individualmente.`);
                 }
             } else {
                 // Sin llaves: el modelo respondió en lenguaje natural — inferir por palabras clave
                 const textoUpper = decisionRAW.toUpperCase();
-                const aprobadoInferido = textoUpper.includes('APROBADO') && !textoUpper.includes('NO APROBADO') && !textoUpper.includes('RECHAZADO') && !textoUpper.includes('BLOCKER');
+                const aprobadoInferido = textoUpper.includes('APROBADO') && 
+                                         !textoUpper.includes('NO APROBADO') && 
+                                         !textoUpper.includes('RECHAZO') && 
+                                         !textoUpper.includes('RECHAZADO') && 
+                                         !textoUpper.includes('RECHAZAR') && 
+                                         !textoUpper.includes('BLOCKER') && 
+                                         !textoUpper.includes('IMPUREZA');
                 decision = {
                     aprobado: aprobadoInferido,
                     razon: decisionRAW.substring(0, 300),
                     categoria_fallida: 'Ninguna',
-                    leccion_karpathy: 'El Juez respondió en lenguaje natural en lugar de JSON — ajustar instrucciones.',
+                    leccion_auditoria: 'El Juez respondió en lenguaje natural en lugar de JSON — ajustar instrucciones.',
                 };
                 console.warn(`⚠️ [JUEZ] Sin JSON — respuesta inferida por palabras clave. Aprobado: ${aprobadoInferido}`);
             }
@@ -277,7 +299,7 @@ ${borrador_DT}
                 const idSupabase = await guardarDTCertificada(arg, borrador_DT, decision.razon || '');
                 if (idSupabase) console.log(`\n📦 DT vectorizada en Supabase: ${idSupabase}`);
             } else {
-                ultimaLeccion = decision.leccion_karpathy || decision.razon || "Alucinación de proceso detectada.";
+                ultimaLeccion = decision.leccion_auditoria || decision.razon || "Alucinación de proceso detectada.";
                 const VALID_SPECIALTIES = ['COMMUNICATIONS', 'SIGNALIZATION', 'POWER', 'INTEGRATION', 'ENCE', 'CONTROL_CENTER'];
                 const SPECIALTY_MAP = {
                     'comunicaci': 'COMMUNICATIONS', 'telecom': 'COMMUNICATIONS', 'señaliz': 'SIGNALIZATION',

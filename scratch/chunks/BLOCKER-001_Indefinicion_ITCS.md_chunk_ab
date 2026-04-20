@@ -1,0 +1,50 @@
+**Desventajas:**
+- ❌ NO cumple normativa europea PTC VIRTUAL
+- ❌ Menor funcionalidad que PTC VIRTUAL L2
+- ❌ Interoperabilidad limitada con sistemas europeos
+
+**Costo estimado:** $8M USD (~$58,000M COP)  
+**Lead time:** 10 meses  
+**Proveedor:** Wabtec, Alstom  
+**Madurez:** Alta ✅
+
+---
+
+### **Opción 2: PTC Virtual (FRA 236) - SICC SOBERANO** 🇺🇸 ⭐ SELECCIONADA
+
+**Descripción:** Positive Train Control (FRA 49 CFR 236) adaptado a 100% Virtual (sin punto de referencia virtuals físicas).
+
+**Ventajas:**
+- ✅ Estándar AmericanO soberano (FRA/AREMA)
+- ✅ Interoperable con FENOCO vía Gateway 918-4
+- ✅ Mayor funcionalidad (comunicación continua TETRA)
+- ✅ Independencia de proveedores europeos (Evita Monopolio)
+
+**Desventajas:**
+- ⚠️ Requiere Servidor PTC Central (Non-propietary)
+- ⚠️ Equipos embarcados (OBC) compatibles con FRA
+
+**Costo estimado:** $12M USD (~$87,000M COP)  
+**Lead time:** 12 meses  
+**Proveedor:** Wabtec, Siemens, Alstom (Versión FRA)  
+**Madurez:** Alta ✅  
+**Normativa:** FRA 49 CFR Part 236 / AREMA
+
+---
+
+### **Opción 3: CBTC Adaptado (Metro/Urbano)** 🚇
+
+**Descripción:** Communications-Based Train Control adaptado a corredor
+
+**Ventajas:**
+- ✅ Tecnología avanzada (automática)
+- ✅ Alta capacidad de tráfico
+- ✅ Comunicación continua Red Vital IP / TETRA
+
+**Desventajas:**
+- ❌ Disenado para metros (no ferrocarril largo)
+- ❌ Costo muy alto
+- ❌ Sobreespecificado para este corredor
+- ❌ Incompatible con FENOCO
+
+**Costo estimado:** $15M USD (~$109,000M COP)  

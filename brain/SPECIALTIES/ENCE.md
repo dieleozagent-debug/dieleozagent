@@ -35,6 +35,18 @@ Se prohíbe el uso de legacy tags: `Michelin Certified`, `Karpathy Loop`, `Peone
 
 ---
 
+## R-HARD-05 — NOMENCLATURA PROHIBIDA
+- **Prohibición:** Se prohíbe taxativamente el uso de términos algorítmicos o ficticios: "Pureza N-1", "Validación Soberana", "Protocolo N-1", "Soberano", "Attestation Statement".
+- **Razón:** Estos términos no existen en la ingeniería ferroviaria ni en el marco de APPs en Colombia.
+
+---
+
+## R-HARD-06 — SOBERANÍA DOCUMENTAL
+- **Mandato:** Las herramientas de IA (RAG, Supabase, Oracle, LLM) son instrumentos de TRABAJO, no fuentes de VERDAD vinculante.
+- **Autoridad:** La única validación válida es la citación canónica del Contrato APP 001/2025 y sus Apéndices (Niveles 1-10). Todo documento fundamentado en oráculos externos será RECHAZADO.
+
+---
+
 # REGLAS ESPECÍFICAS: ENCE (ENCLAVAMIENTOS ELECTRÓNICOS SIL-4)
 
 ## ENC-00 — NEUTRALIDAD TECNOLÓGICA (UNIVERSAL)

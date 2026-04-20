@@ -150,5 +150,21 @@ Un output sin ruta de citación completa no pasa a firma jurídica.
 - **Implicación:** La redundancia TETRA + Satelital/LTE debe prevenir eventos de pérdida > 1 min.
 - **Rechazo automático:** DTs que usen "99.0%" o "99.9%" para justificar diseño de comunicaciones de campo.
 
-> [!WARNING] **Karpathy Dream Lesson (2026-04-20T02:29:39.043Z):**
+
+> [!WARNING] **AUDIT_LESSON (SICC v12.8 - 2026-04-20T02:48:44.404Z):**
+> Se debe presentar un dictamen estructurado conforme al Contrato APP 001/2025, con citación canónica, análisis sustantivo y decisión vinculante, incluyendo los montos y cantidades exigidos.
+
+> [!WARNING] **AUDIT_LESSON (SICC v12.8 - 2026-04-20T02:49:10.998Z):**
+> Todo dictamen debe ser estrictamente técnico y jurídico, citando las cláusulas específicas del Contrato APP 001/2025 y evitando cualquier lenguaje motivacional o imaginativo. La falta de contenido sustantivo y de referencias canónicas anula la autorización técnica.
+
+> [!WARNING] **AUDIT_LESSON (SICC v12.8 - 2026-04-20T03:01:10.565Z):**
+> El Juez respondió en lenguaje natural en lugar de JSON — ajustar instrucciones.
+
+> [!WARNING] **AUDIT_LESSON (SICC v12.8 - 2026-04-20T03:01:28.522Z):**
+> En el siguiente ciclo, cada dictamen debe incluir explícitamente: (i) citación canónica con numerales reales del Contrato APP 001/2025; (ii) análisis técnico o jurídico detallado que aporte valor sustancial; y (iii) decisión vinculante que resuelva la cuestión planteada, bajo pena de rechazo automático por falta de cumplimiento de las secciones 1.2(d), 3.9, 9.11 y 18.7 del contrato.
+
+> [!WARNING] **AUDIT_LESSON (SICC v12.8 - 2026-04-20T03:05:42.212Z):**
+> El Juez respondió en lenguaje natural en lugar de JSON — ajustar instrucciones.
+
+> [!WARNING] **AUDIT_LESSON (SICC v12.8 - 2026-04-20T03:38:58.737Z):**
 > El Juez respondió en lenguaje natural en lugar de JSON — ajustar instrucciones.

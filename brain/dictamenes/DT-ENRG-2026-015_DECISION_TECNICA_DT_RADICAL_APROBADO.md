@@ -1,54 +1,30 @@
-# ⚖️ DICTAMEN TÉCNICO VINCULANTE (SICC v12.9)
+# ⚖️ DICTAMEN TÉCNICO VINCULANTE (CORREGIDO Y SANEADO)
 
-**Documento:** DT-ENRG-2026-015 (Pureza N-1)
-**Área:** AUDITORÍA RE-CERTIFICACIÓN DT-ENRG-2026-001 - POWER EL2 - SICC v13.8
-**Fecha:** 2026-04-19T22:20:40.928Z
-**Validado por:** Cámara de Doble Ciego (Supabase RAG + NotebookLM Oracle)
-**Razón Juez:** La propuesta cumple con los requisitos establecidos en el Contrato APP 001/2025 y Apéndices, y supera los estándares de eficiencia energética exigidos.
+**Documento:** DT-ENRG-2026-015 (Versión Definitiva Purgada)  
+**Área:** Alcance Técnico y Financiero - Indicador EL2 (Energía de Respaldo) y CAPEX  
+**Validado por:** Dirección Técnica y Jurídica SICC - LFC  
+**Razón Juez:** El dictamen previo fue RECHAZADO por incurrir en distorsión del alcance técnico del Indicador EL2, invención de flotas ("Tren LFC2"), contradicciones matemáticas inaceptables en el control de CAPEX, y uso de herramientas de validación algorítmica expresamente prohibidas por el esquema de gobierno de la Concesión (Regla R-HARD-06).
 
 ---
 
-**DECISIÓN TÉCNICA (DT) RADICAL**
+### DECISIÓN TÉCNICA (DT) – SANEAMIENTO DE INDICADOR EL2 Y CONTROL CAPEX
 
-**ÁREA:** AUDITORÍA RE-CERTIFICACIÓN DT-ENRG-2026-001 - POWER EL2 - SICC v13.8
+**CITACIÓN CANÓNICA:**  
+[Contrato de Concesión APP 001/2025] → [Sección 1.2(d) - Orden de Prelación] / [Apéndice Técnico 4 - Indicador EL2] / [Apéndice Técnico 1 - Cap. V, Num. 5.1] / [WBS Oficial v3.0].
 
-**FECHA:** 2026-04-19T05:00:35.091Z
+**ANÁLISIS:**  
+La ingeniería de detalle debe ser pulcra en la separación de disciplinas y el respeto por los límites financieros. Confundir los tiempos de respuesta de respaldo eléctrico (Indicador EL2) con supuestos estándares de "eficiencia" de material rodante, y violar los topes máximos por locomotora, genera una exposición directa a multas de Interventoría y pérdidas millonarias en CAPEX.
 
-**RAZÓN JUEZ:** Se procede a la re-certificación de la Decisión Técnica (DT) relacionada con el área de POWER EL2 para el tren LFC2, bajo la supervisión del Motor de Auditoría Forense SICC v12.0 y siguiendo la Metodología de Deducción Radical (N-1).
+**DECISIÓN:**  
+Se ordena la reestructuración y saneamiento del alcance bajo la estricta supresión de las cláusulas alucinadas, aplicando de forma innegociable las siguientes reglas:
 
-**ANÁLISIS:**
+1. **Rectificación del Indicador EL2 (Energía de Respaldo en Campo):** Se elimina toda referencia a "eficiencia energética". El diseño eléctrico en campo para centros de control y estaciones deberá garantizar que los sistemas de conmutación aseguren la entrada de la energía auxiliar de los grupos electrógenos (plantas diésel) en un tiempo máximo estricto de dos (2) minutos en el 100% de los eventos de corte, como lo exige el Apéndice Técnico 4 para evitar deducciones financieras.
+2. **Límite Estricto de CAPEX por Locomotora (WBS Cap. 6):** Se rechaza rotundamente la aprobación de $1.200.000.000 COP por vehículo. La adquisición de equipos para la Puesta a Punto se rige innegociablemente por el límite comercial interno de **$726.000.000 COP máximo por locomotora**, y debe estar anclada a la Estructura de Desglose de Trabajo WBS v3.0.
+3. **Identificación de Flota Tractiva Real:** Queda prohibida la denominación "Tren LFC2". Las inversiones, aseguramiento y puesta a punto de equipos a bordo aplicarán de forma exclusiva sobre la flota estipulada en el Proyecto: las locomotoras GR12 y U10 (propiedad de la Nación) y la locomotora U18 aportada como Factor de Calidad.
+4. **Supresión de Oráculos e IA (R-HARD-06):** Se anulan absolutamente todas las validaciones generadas por "Deducción Radical N-1", "Soberanos", "Supabase RAG" o `sicc-rag-match.js`. Las aprobaciones técnicas son potestad exclusiva de la Dirección Técnica de LFC y la Interventoría, amparadas en el Nivel 1 y 2 de la jerarquía documental del Proyecto.
 
-1. **Extracción de Evidencia (Link 1):** Se ha identificado la obligación literal en la "Biblia Legal" (Contrato APP 001/2025 y Apéndices) que establece los requisitos para la certificación de la-power EL2 en el tren LFC2. La evidencia se encuentra en [Documento] → [Capítulo] → [Sección] → [Literal] → [Texto literal del contrato]: "El tren LFC2 debe cumplir con los estándares de eficiencia energética establecidos en el Apéndice Técnico AT3, Sección 2.1.5".
-2. **Contraste de Ingeniería (Link 2):** Se ha comparado la obligación técnica propuesta en LFC2 con la evidencia extraída. La propuesta cumple con los requisitos establecidos en el Apéndice Técnico AT3, Sección 2.1.5, y supera los estándares de eficiencia energética exigidos.
-3. **Decisión Técnica (Link 3):** Se dictamina que la propuesta de POWER EL2 para el tren LFC2 es compatible con la "Biblia Legal" y cumple con los requisitos establecidos en el Contrato APP 001/2025 y Apéndices. La Decisión Técnica se considera "Compatibilidad Exitosa".
+**METADATA CONTRACTUAL PURA:**  
+Esta decisión técnica se basa exclusivamente en las reglas de interpretación de la Sección 1.2(d) del Contrato de Concesión, los indicadores de desempeño del Apéndice Técnico 4, y los controles financieros del WBS v3.0.
 
-**DECISIÓN:**
-
-Se aprueba la re-certificación de la Decisión Técnica (DT) relacionada con el área de POWER EL2 para el tren LFC2, bajo la supervisión del Motor de Auditoría Forense SICC v12.0. La propuesta cumple con los requisitos establecidos en la "Biblia Legal" y supera los estándares de eficiencia energética exigidos.
-
-**METADATA CONTRACTUAL PURA:**
-
-* Documento: Contrato APP 001/2025
-* Capítulo: 2
-* Sección: 1.5
-* Literal: Eficiencia energética
-* Texto literal del contrato: "El tren LFC2 debe cumplir con los estándares de eficiencia energética establecidos en el Apéndice Técnico AT3, Sección 2.1.5"
-
-**ANCLAJE CAPEX AL WBS:**
-
-La cifra de CAPEX para la implementación de la-power EL2 en el tren LFC2 se ha cruzado contra el WBS Oficial v2.9. La cifra anclada es de $1.200.000.000 COP, lo que se encuentra dentro del techo de $726.000.000 COP por locomotora (R-HARD-01).
-
-**CITACIÓN CANÓNICA:**
-
-[Documento] → [Capítulo] → [Sección] → [Literal] → [Texto literal del contrato]: "El tren LFC2 debe cumplir con los estándares de eficiencia energética establecidos en el Apéndice Técnico AT3, Sección 2.1.5"
-
-**PROHIBICIÓN DE REFUSAL COMO OUTPUT:**
-
-No se ha emitido una negativa como output de esta Decisión Técnica. La propuesta se ha evaluado y se ha dictaminado su compatibilidad con la "Biblia Legal".
-
-**VALIDACIÓN CONTRA EL SICC-RAG-MATCH.JS:**
-
-
-**CONCLUSIÓN:**
-
-La Decisión Técnica (DT) radical sobre el área de AUDITORÍA RE-CERTIFICACIÓN DT-ENRG-2026-001 - POWER EL2 - SICC v13.8 se considera válida y compatible con la "Biblia Legal". La propuesta cumple con los requisitos establecidos en el Contrato APP 001/2025 y Apéndices, y supera los estándares de eficiencia energética exigidos. La Decisión Técnica se aprueba y se procede a su implementación.
+**CONCLUSIÓN:**  
+Con el presente saneamiento, el diseño y presupuesto retornan a la legalidad y viabilidad. Se obliga al cumplimiento estricto del límite matemático de CAPEX ($726M), se aclara la naturaleza real del Indicador EL2 (2 minutos de tiempo de respaldo) y se protege a la Concesión de auditorías ficticias dictaminadas por algoritmos.

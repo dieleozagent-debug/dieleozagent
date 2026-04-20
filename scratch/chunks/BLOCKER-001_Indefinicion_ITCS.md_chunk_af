@@ -1,0 +1,34 @@
+| **Lead time** | 10m | 12m | 14m | 11m |
+| **Interop. FENOCO** | ❌ Baja | ✅ Alta | ❌ Baja | ✅ Alta |
+| **Madurez** | ✅ Alta | ✅ Alta | ⚠️ Media | ⚠️ Media |
+| **Estándar** | FRA USA | UE | Metro | Custom |
+| **Funcionalidad** | Básica | Avanzada | Muy Alta | Media |
+| **Riesgo técnico** | Bajo | Bajo | Alto | Medio |
+
+**Decisión Final:** **Opción 2 (PTC Virtual (FRA 236))** Seleccionada por Soberanía Tecnológica y cumplimiento DBCD.
+
+---
+
+## ⚠️ **IMPACTO EN CRONOGRAMA**
+
+### **Si se resuelve Mes 6:** ✅
+- Ingeniería detalle continúa normal
+- Compras post-aprobación M12
+- Sin impacto en cronograma
+
+### **Si se resuelve Mes 8-10:** ⚠️
+- Retraso ingeniería detalle: **1 mes**
+- Compras post-M13
+- Impacto: **+1 mes total**
+
+### **Si NO se resuelve Mes 12:** 🔴
+- Retraso crítico: **3-6 meses**
+- Requiere usar buffer completo
+- **Proyecto en riesgo de incumplimiento**
+
+---
+
+**Elaborado por:** PMO / Gestión de Riesgos  
+**Requiere acción:** HOY  
+**Próximo seguimiento:** Mes 5
+

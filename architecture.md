@@ -1,4 +1,4 @@
-# 🏛️ Arquitectura SICC v13.0 — "Intents Soberanos"
+# 🏛️ Arquitectura SICC v13.0 — "Intents Soberanos" (Saneada)
 
 SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agente soberano para auditoría técnica y jurídica del proyecto LFC2 (Línea Ferroviaria de Carga 2, Colombia).
 
@@ -49,7 +49,7 @@ src/
 │   └── send.js       ← safeSendMessage: chunking 3500c + fallback Markdown
 └── intents/          ← Intents de lenguaje natural (sin costo LLM)
     ├── navigation.js     "me pierdo / cómo empiezo"
-    ├── brain-state.js    soul / enjambre / lecciones Karpathy
+    ├── brain-state.js    soul / enjambre / lecciones de auditoría
     ├── dream-state.js    sueños / DREAMS / historial área / roadmap
     └── dt-ops.js         DTs aprobadas / bloqueadas / qué hacemos con X
 ```
@@ -121,7 +121,7 @@ procesarMensaje(textoUsuario)
 
 ---
 
-## 🌪️ Bucle de Decantación Karpathy — `/dream [área]`
+## 🌪️ Bucle de Auditoría SICC — `/dream [área]`
 
 ```
 /dream señalizacion
@@ -133,7 +133,7 @@ procesarMensaje(textoUsuario)
     ├─ FASE 1: buscarLecciones() → sicc_genetic_memory → vacunas
     ├─ FASE 2: Auditor Forense genera borrador DT
     ├─ FASE 3: validarInternaSupabase() + validarExternaNotebook()
-    ├─ FASE 4: Juez → { aprobado, razon, leccion_karpathy }
+    ├─ FASE 4: Juez → { aprobado, razon, leccion_auditoria }
     └─ FASE 5: Persistencia
         ├─ APROBADO: brain/dictamenes/ + sicc_genetic_memory (DT_CERTIFICADA)
         └─ RECHAZADO: brain/SPECIALTIES/{area}.md + brain/DREAMS/ + [tras 3: PENDING_DTS/]
@@ -164,10 +164,10 @@ procesarMensaje(textoUsuario)
 
 | Directorio | Escrito por | Cuándo |
 |---|---|---|
-| `brain/dictamenes/` | `swarm-pilot.js` | Al **aprobar** el Juez — texto completo DT |
+| `brain/dictamenes/` | `swarm-pilot.js` | Al **aprobar** el Juez — PROHIBIDO EDITAR MANUALMENTE |
 | `brain/DREAMS/` | `swarm-pilot.js` | Siempre — aprobado **y** rechazado |
 | `brain/PENDING_DTS/` | `swarm-pilot.js` | Al **rechazar** tras 3 ciclos |
-| `brain/SPECIALTIES/*.md` | `swarm-pilot.js` | Al **rechazar** — lección Karpathy append |
+| `brain/SPECIALTIES/*.md` | `swarm-pilot.js` | Al **rechazar** — lección auditoría append (Vacuna) |
 | `sicc_genetic_memory` | `supabase.js` | Al **completar** cada ciclo — veredicto + DT |
 | `brain/AUDIT_QUEUE.md` | `resource-governor.js` | CPU >80% |
 
@@ -234,6 +234,7 @@ git add . && git commit -m "feat: DT certificada SICC" && git push
 3. **CPU:** >80% → encolar | >95% → bloquear inferencia local
 4. **Idioma:** Español obligatorio en toda salida del enjambre
 5. **Verdad:** Oracle prevalece sobre intuición de la IA generativa
+6. **Soberanía:** PROHIBIDA la edición manual de dictámenes. Todo cambio debe ser vía ajuste del BRAIN y re-ejecución del enjambre.
 
 ---
 

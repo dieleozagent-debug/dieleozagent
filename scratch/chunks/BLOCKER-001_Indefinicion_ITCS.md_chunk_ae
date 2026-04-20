@@ -1,0 +1,50 @@
+4. Identificación de riesgos (30 min)
+5. **Decisión preliminar** ANI (30 min)
+6. Plan de acción y responsables (15 min)
+
+**Participantes:**
+- ANI (Gerencia Técnica)
+- Concesionario (Gerencia Operaciones)
+- FENOCO (Gerente Técnico + Especialista)
+- PMO Proyecto
+- Interventoría
+- (Oferente EPC pre-seleccionado)
+
+**Entregable:** Acta de reunión con decisión preliminar
+
+---
+
+### **FASE 4: DECISIÓN FORMAL (Mes 6)**
+
+**Fecha límite:** 15 de Diciembre 2025
+
+**Documento:** Carta de No Objeción ANI - Definición PTC
+
+**Contenido requerido:**
+- ✅ Opción técnica seleccionada (1, 2, 3, o 4)
+- ✅ Presupuesto aprobado
+- ✅ Especificaciones técnicas de referencia
+- ✅ Plan de interoperabilidad FENOCO
+- ✅ Responsabilidades clarificadas
+
+**Si NO llega:** Activar Plan B (PTC VIRTUAL L2 genérico)
+
+---
+
+## 🎯 **RESPONSABLES Y PLAZOS**
+
+| Acción | Responsable | Plazo | Criticidad |
+|:-------|:------------|:-----:|:----------:|
+| Oficiar a ANI solicitud | PMO | **HOY Mes 4** | 🔴 URGENTE |
+| Mesa de trabajo interna | PMO + Interventoría | **Semanal M4-6** | 🔴 CRÍTICA |
+| Matriz de decisión | Especialista Senalización | **Mes 5** | 🟠 ALTA |
+| Mesa técnica ANI/FENOCO | Gerencia Técnica | **Mes 5** | 🔴 CRÍTICA |
+| Decisión formal ANI | ANI | **Mes 6** | 🔴 **BLOCKER** |
+
+---
+
+## 📊 **COMPARATIVA TÉCNICA**
+
+| Criterio | PTC/PTC | PTC VIRTUAL L2 ⭐ | CBTC | Híbrida |
+|:---------|:-------:|:---------:|:----:|:-------:|
+| **Costo** | $8M | $12M | $15M | $10M |

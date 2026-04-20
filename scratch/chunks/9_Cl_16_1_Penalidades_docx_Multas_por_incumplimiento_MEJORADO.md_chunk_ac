@@ -1,0 +1,50 @@
+- **Impacto en flujo de caja** (afectación de retribución mensual)
+- **Riesgo reputacional** (registro en SECOP e historial contractual)
+
+### 4.2 Riesgos Operacionales
+- **Interrupción de pagos** por descuento automático
+- **Afectación de garantías** por incumplimiento reiterado
+- **Impacto en relaciones** con proveedores y contratistas
+- **Dificultad para financiación** futura
+
+## 5. RECOMENDACIONES PRÁCTICAS EPC
+
+### 5.1 Gestión Preventiva
+- **Implementar tablero de control** de plazos y entregables
+- **Gestionar en paralelo** licencias críticas (ANLA, ANE, predial, municipales)
+- **Documentar todas las comunicaciones** con ANI e Interventoría
+- **Crear sistema de alertas internas** de riesgos de incumplimiento
+- **Disenar buffers de tiempo** en el Plan de Obras (AT9) para mitigar retrasos
+
+### 5.2 Optimizaciones Técnicas Específicas para EPC
+- **Dashboard ejecutivo** con métricas de cumplimiento en tiempo real
+- **Protocolo de escalamiento** para riesgos de incumplimiento
+- **Matriz de responsabilidades** RACI para cada entregable
+- **Plan de contingencia** para escenarios de retraso
+- **Comunicación proactiva** con ANI sobre posibles demoras
+
+## 6. INTEGRACIÓN CON DOCUMENTOS RELACIONADOS
+
+### 6.1 Documentos Base (Completados ✅)
+- **Cl_2.14_LicenciasPermisos v3.0** ✅ - Gestión de licencias y permisos
+- **Cl_8.1_Preconstruccion v3.0** ✅ - Obligaciones de estudios y disenos
+- **Cl_8.2_Construccion v3.0** ✅ - Obligaciones en fase de construcción
+- **AT9_PlanObras v3.0** ✅ - Cronogramas de obra y entregables
+
+### 6.2 Documentos Dependientes
+- **AT4_IndicadoresDesempeno** - Penalidades por indicadores (Cl. 18.3)
+- **AT2_OperacionMantenimiento** - Fallas en O&M que generan multas
+- **Cl_9.1_OM** - Obligaciones de operación y mantenimiento
+
+## 7. MATRIZ DE CONTROL Y SEGUIMIENTO
+
+### 7.1 Métricas de Seguimiento Automatizadas
+| Métrica | Objetivo | Frecuencia | Responsable |
+|:---|:---:|:---:|:---|
+| **Cumplimiento de plazos** | 100% | Diaria | Jefe de Proyecto |
+| **Entregables pendientes** | 0 | Semanal | Supervisor Técnico |
+| **Alertas de riesgo** | < 5 | Diaria | Gerencia de Proyecto |
+
+## 8. CONCLUSIONES Y PRÓXIMOS PASOS
+
+### 8.1 Estado del Documento v4.0

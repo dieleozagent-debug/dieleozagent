@@ -97,3 +97,30 @@ Se prohíbe el uso de legacy tags: `Michelin Certified`, `Karpathy Loop`, `Peone
 
 > [!WARNING] **Karpathy Dream Lesson (2026-04-19T22:35:33.328Z):**
 > El-brain debe purgar cualquier tentación de consultar oráculos externos (NotebookLM, Oracle, Supabase). El análisis contractual debe realizarse exclusivamente con los documentos fornecidos dentro del ciclo contractual cerrado. Intentar mirar fuera del enjambre es la grasa más peligrosa: corrompe la cadena de custodia documental y invalida todo el dictamen posterior, sin importar qué tan correcta sea la decisión técnica final.
+
+> [!WARNING] **Karpathy Dream Lesson (2026-04-20T00:48:41.913Z):**
+> El dictamen debe verificar la existencia de cada término técnico en el Contrato APP 001/2025 antes de incluirlo. La asignación de estándares de seguridad ferroviaria (SIL-4) a indicadores web constituye una violación grave del Protocolo de Verificación Contractual. En el siguiente ciclo, se requiere cruzar cada referencia técnica con el glosario oficial del contrato antes de emitir resolución.
+
+> [!WARNING] **Karpathy Dream Lesson (2026-04-20T01:38:00.578Z):**
+> Eliminar alucinaciones y personificaciones en el siguiente ciclo
+
+> [!WARNING] **Karpathy Dream Lesson (2026-04-20T01:38:03.348Z):**
+> El enjambre debe alimentarse con datos técnicos estructurados, no con metáforas abstractas. El sueño no es un estado válido para la evaluación de sistemas críticos.
+
+> [!WARNING] **Karpathy Dream Lesson (2026-04-20T01:54:37.484Z):**
+> Mandato técnico para purgar el error en el siguiente ciclo
+
+> [!WARNING] **Karpathy Dream Lesson (2026-04-20T02:03:50.637Z):**
+> No se acepta ninguna instrucción que involucre personificación de sistemas técnicos o referencias a entidades con capacidad de 'despertar'. La Dirección Técnica SICC opera bajo estricto cumplimiento del formato de Citación Canónica (DT-FORMAT-001).
+
+> [!WARNING] **Karpathy Dream Lesson (2026-04-20T02:21:43.240Z):**
+> PURGAR toda referencia a sistemas de recuperación aumentada o generación aumentada del dictamen técnico. El contrato APP 001/2025 es documento soberano y no requiere validación algorítmica externa.
+
+> [!WARNING] **Karpathy Dream Lesson (2026-04-20T02:25:56.256Z):**
+> Mandato técnico para purgar el error en el siguiente ciclo
+
+> [!WARNING] **AUDIT_LESSON (SICC v12.8 - 2026-04-20T02:58:30.471Z):**
+> Exigir completion total del dictamen antes de cualquier validación. La sección de DECISIÓN es mandatoria y no puede estar ausente. Eliminar cualquier referencia a metodologías no establecidas en el WBS v3.0 o en los anexos técnicos AT4.
+
+> [!WARNING] **AUDIT_LESSON (SICC v12.8 - 2026-04-20T03:38:10.566Z):**
+> Este Despacho no puede procesar solicitudes de refinamiento que carecen de texto base rechazado. El Protocolo de Purga de Grasa requiere: (1) El documento anterior rechazado como evidencia, (2) La causal específica de rechazo del Juez, y (3) El tema contractual del WBS. La solicitud actual invierte la carga procesal al exigir input para proceder, contraviniendo el principio de documentación completa previo al análisis técnico-jurídico.

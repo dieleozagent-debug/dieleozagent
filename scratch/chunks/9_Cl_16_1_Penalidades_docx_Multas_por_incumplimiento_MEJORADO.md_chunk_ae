@@ -1,0 +1,50 @@
+| Cumplimiento de cronograma | 95% | Diaria | Jefe de Proyecto |
+| Calidad de entregables | Excelente | Quincenal | Auditoria Tecnica |
+| Satisfaccion del cliente | Alta | Mensual | Gerencia de Proyecto |
+
+### PENALIDADES Y SANCIONES
+
+| Tipo de Incumplimiento | Penalidad | Aplicacion |
+|:---|:---:|:---|
+| Retraso en entregables | 0.1% del valor por dia | Automatica |
+| Incumplimiento tecnico | 1% del valor del item | Segun evaluacion |
+| No conformidad grave | 5% del valor del contrato | Segun evaluacion |
+
+---
+
+## ADVERTENCIA LEGAL
+
+Esta informacion es unicamente de caracter informativo. Se recomienda su revision y validacion por el equipo juridico del proyecto antes de ser utilizada formalmente.
+
+---
+
+Estado del documento: Completado - 27/01/2025  
+Version: 4.1  
+Responsable: Administrador Contractual EPC  
+Proxima actualizacion: 27/02/2025
+
+---
+
+## ACTUALIZACIÓN v4.1 - REVISIÓN METODOLOGÍA PUNTO 42
+
+### **🔍 ANÁLISIS EXHAUSTIVO CONTRA CONTRATO Y APÉNDICES TÉCNICOS**
+
+#### **✅ MEJORAS IMPLEMENTADAS:**
+
+1. **🚂 INTEGRACIÓN PTC PTC Virtual (FRA 236) EN PENALIDADES:**
+   - **Penalidades por PTC:** Multas por incumplimiento de especificaciones PTC PTC Virtual (FRA 236)
+   - **Retrasos en PTC:** Penalidades por demoras en implementación de equipos PTC
+   - **Disponibilidad PTC:** Multas por incumplimiento de disponibilidad en sistemas PTC
+   - **Mantenimiento PTC:** Penalidades por fallas en mantenimiento de equipos PTC
+
+2. **🔗 INTEROPERABILIDAD FENOCO EN PENALIDADES:**
+   - **Penalidades por interoperabilidad:** Multas por incumplimiento de protocolos FRA/AREMA
+   - **Retrasos en FENOCO:** Penalidades por demoras en coordinación con FENOCO
+   - **Compatibilidad FENOCO:** Multas por problemas de interoperabilidad con FENOCO
+   - **Coordinación FENOCO:** Penalidades por fallas en coordinación operativa
+
+3. **📊 CRITERIOS DE DISPONIBILIDAD AT4 EN PENALIDADES:**
+   - **Penalidades por AT4:** Multas por incumplimiento de indicadores de disponibilidad
+   - **Retrasos en AT4:** Penalidades por demoras en cumplimiento de AT4
+   - **Disponibilidad 99.95%:** Multas por incumplimiento de disponibilidad contractual
+   - **SICC:** Penalidades por fallas en sistemas de monitoreo
