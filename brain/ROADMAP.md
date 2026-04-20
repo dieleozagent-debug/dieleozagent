@@ -1,4 +1,4 @@
-# 🗺️ Roadmap OpenGravity SICC — v12.9 (Estado real 2026-04-18)
+# 🗺️ Roadmap OpenGravity SICC — v13.0 (Estado real 2026-04-18)
 
 ---
 
@@ -22,23 +22,22 @@
 | exec timeout 30 min | ✅ |
 | Retry Telegram en ECONNRESET | ✅ |
 | Arquitectura DT → LFC2 → Vercel documentada | ✅ |
-| Handler bot: "¿dónde están las DTs?" | ✅ |
-| Handler bot: soul/identidad/aprendizaje | ✅ |
-| Handler bot: sueños/dreams/pendientes (lenguaje natural) | ✅ |
-| Handler bot: temas para /dream + roadmap pendiente | ✅ |
-| Handler bot: saludos naturales (hola/buenas/hi sin barra) | ✅ |
 | Primera `DT_CERTIFICADA` + `VEREDICTO_JUEZ` real en `sicc_genetic_memory` (dream ENCE 2026-04-18) | ✅ |
-| Refactor `src/index.js` 790→142 líneas (handlers.js + utils/send.js) | ✅ |
-| Dead code eliminado en `agent.js` (rutarEspecialidad, ESPECIALIDADES, encolarHallazgo, rutarEstrategiaAdvisor, sumarizarContexto) | ✅ |
-| Trazas FASE-0..5 en `procesarMensaje()` para audit de flujo | ✅ |
-| Cabeceras `@agent-prompt` en index.js, handlers.js, utils/send.js, agent.js | ✅ |
-| 26 archivos muertos eliminados (scripts/ + src/) | ✅ |
-
----
-
-## 🔄 EN PROGRESO AHORA
-
-_(ninguno — refactor completado)_
+| **Refactor `src/index.js`** 790→142 líneas (handlers.js + utils/send.js) | ✅ |
+| **Dead code eliminado en `agent.js`** (rutarEspecialidad, ESPECIALIDADES, encolarHallazgo, sumarizarContexto) | ✅ |
+| **Trazas FASE-0..5** en `procesarMensaje()` para audit de flujo | ✅ |
+| **Cabeceras `@agent-prompt`** en index.js, handlers.js, agent.js, utils/send.js, intents/*.js | ✅ |
+| **26 archivos muertos eliminados** (scripts/ + src/) | ✅ |
+| **Intents de lenguaje natural** extraídos a `src/intents/` — handlers.js es router puro | ✅ |
+| Handler: saludos naturales (hola/buenas/hi sin barra) | ✅ |
+| Handler: soul/identidad/aprendizaje | ✅ |
+| Handler: enjambre/lecciones Karpathy ya activas | ✅ |
+| Handler: sueños/DREAMS/PENDING (lenguaje natural) | ✅ |
+| Handler: temas para /dream + roadmap pendiente | ✅ |
+| Handler: historial por área (comunicaciones, señalización, etc.) | ✅ |
+| Handler: DTs bloqueadas/sin promover/PENDING revisión humana | ✅ |
+| Handler: qué hacemos con [DT-nombre] → resumen + pasos promote | ✅ |
+| Handler: guía de navegación "me pierdo / cómo empiezo" | ✅ |
 
 ---
 
@@ -46,10 +45,10 @@ _(ninguno — refactor completado)_
 
 | Ítem | Descripción |
 |---|---|
-| **`promote` DT→LFC2** | Comando `/promote` que copia DT de `brain/dictamenes/` → `LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/` + git commit automático. Usa `src/gitlocal.js`. |
-| **Validar `/dream telecomunicaciones`** | Primer dream post-refactor — validar Oracle, parser Juez, persistencia con código nuevo. |
-| **Re-ingesta con chunking nuevo** | Fragmentos pre-fix son oversized — re-ingestar `contrato_documentos` con max 800c + overlap 100c. |
-| **`ejecutarSondaForense` roto en simulator.js** | Usaba `new OpenAI()` no importado — parcialmente corregido con `llamarMultiplexadorFree`, pero simulator.js necesita prueba real. |
+| **`/promote` DT→LFC2** | Comando que copia DT de `brain/dictamenes/` → LFC2 + git commit automático. Usa `src/gitlocal.js`. |
+| **Validar `/dream telecomunicaciones`** | Primer dream post-refactor con todas las vacunas activas — validar Oracle, parser, persistencia. |
+| **Re-ingesta `contrato_documentos`** | Fragmentos pre-fix oversized — re-ingestar con max 800c + overlap 100c. |
+| **Probar `ejecutarSondaForense` en simulator.js** | Corregida con `llamarMultiplexadorFree`, pendiente prueba real con simulator.js. |
 
 ## 🟡 PENDIENTE — Media prioridad
 
@@ -62,17 +61,32 @@ _(ninguno — refactor completado)_
 
 ---
 
+## 🤖 Intents Directos Activos (sin costo LLM)
+
+| Trigger | Módulo | Responde con |
+|---|---|---|
+| `hola` / `buenas` / `hi` | handlers.js | Menú de comandos |
+| `me pierdo / cómo empiezo / cómo me ayudas` | navigation.js | Guía rápida del flujo |
+| `como aprende tu soul / quien eres` | brain-state.js | SOUL.md + pipeline aprendizaje |
+| `el enjambre ya entiende / necesitas algo` | brain-state.js | Estado lecciones Karpathy |
+| `qué sueños tienes pendientes / dreams` | dream-state.js | DREAMS/ + PENDING_DTS/ |
+| `qué temas puedo proponer / roadmap` | dream-state.js | SPECIALTIES/ + ROADMAP.md |
+| `historial de comunicaciones / señalización` | dream-state.js | Lecciones + DTs + Vercel |
+| `dónde están las DTs / dictamenes` | dt-ops.js | brain/dictamenes/ + DREAMS/ |
+| `qué DT tengo bloqueadas / pendientes` | dt-ops.js | Aprobadas / sin promover / PENDING |
+| `qué hacemos con DT-ENRG-2026-004` | dt-ops.js | Resumen DT + pasos promote |
+
+**Para agregar un intent:** crear `src/intents/nuevo.js` + añadir al array `INTENTS` en handlers.js.
+
+---
+
 ## 🗂️ Archivos rescatados (funcionalidad pendiente de activar)
 
 | Archivo | Funcionalidad rescatada |
 |---|---|
-| `src/gitlocal.js` | Operaciones git sobre LFC2 — necesario para `promote` DT→LFC2 |
+| `src/gitlocal.js` | Operaciones git sobre LFC2 — necesario para `/promote` DT→LFC2 |
 | `src/ingestar_gemini.js` | Ingesta OCR premium vía Gemini File API — alternativa a tesseract |
 | `scripts/sicc-rag-match.js` | Valida que párrafos de LFC2 tienen ancla en Supabase — útil para `/audit` |
-
-## 🗑️ Eliminados (2026-04-18)
-
-26 archivos eliminados: variantes antiguas de OCR/ingesta, scripts one-off, tests, duplicados.
 
 ---
 
@@ -88,24 +102,9 @@ LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/
 LFC2/X_ENTREGABLES_CONSOLIDADOS/8_DOCUMENTOS_SERVIDOS/HTML/
         │ git push LFC2 origin main
         ▼
-lfc-2.vercel.app (auto-deploy)
+lfc-2.vercel.app (auto-deploy ~2 min)
 ```
 
 ---
 
-## 🤖 Handlers directos activos (sin costo de LLM)
-
-| Trigger | Responde con |
-|---|---|
-| `hola` / `buenas` / `hi` | Menú de comandos |
-| `como aprende tu soul` / `quien eres` | SOUL.md + pipeline de aprendizaje |
-| `dónde están las DTs` / `dictamen` | Listado de `brain/dictamenes/` + `brain/DREAMS/` |
-| `sueños pendientes` / `dreams` | Estado `brain/DREAMS/` + `brain/PENDING_DTS/` |
-| `qué temas puedo proponer` / `pendiente de trabajo` | Áreas /dream + ROADMAP pendientes |
-| `/cerebro` | Estado archivos brain/ |
-| `/estado` | Proveedores IA activos |
-| `/doctor` | Health score |
-
----
-
-*Actualizado: 2026-04-18 | OpenGravity SICC v12.9*
+*Actualizado: 2026-04-18 | OpenGravity SICC v13.0*

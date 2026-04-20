@@ -19,8 +19,14 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Brain — repositorio Git independiente
-brain/
+# Brain — incluido en repo principal (R-HARD, SPECIALTIES, ROADMAP, dictamenes)
+# Excluir solo directorios de datos en runtime:
+brain/DREAMS/
+brain/PENDING_DTS/
+brain/old/
+brain/archive/
+brain/sources/
+brain/skills/
 
 # Documentos pesados (Manuales, PDFs > 50MB) - SICC Sovereign Protection
 docs/

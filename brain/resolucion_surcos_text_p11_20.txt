@@ -1,0 +1,497 @@
+19/3/26, 14:08
+
+Resolución 20243040046045 de 2024 Ministerio de Transporte
+
+identifique la malla de circulación óptima, posibles conflictos operacionales
+y la solución óptima.
+Organismo de certificación, auditoría, control e inspección en la
+industria ferroviaria: Se entiende como cualquiera de: (A) Un organismo
+acreditado en Colombia para expedir un Documento de Validación, de
+conformidad con el Subsistema Nacional de la Calidad, contemplado en el
+Decreto número 1074 de 2015, o la norma que lo modifique, adicione o
+sustituya; (B) Un organismo acreditado en un país extranjero, cuyas
+certificaciones sean reconocidas en Colombia, de acuerdo con las
+posibilidades previstas en las normas del Subsistema Nacional de la
+Calidad, contemplado en el Decreto número 1074 de 2015, o la norma que
+lo modifique, adicione o sustituya; o (C) Una empresa proveedora de
+servicios técnicos, de seguridad y certificación cuyo objeto social contemple
+la certificación de equipos y sistemas ferroviarios respecto de la
+compatibilidad de determinado material rodante con la correspondiente
+Infraestructura Ferroviaria, que cumpla con los siguientes requisitos: (i) que
+haya expedido al menos tres certificaciones sobre compatibilidad técnica de
+Material Rodante en los diez (10) años anteriores a la fecha en que se
+radica la solicitud de Compatibilidad Exitosa para la asignación de Surcos
+Ferroviarios válidos en su país de origen; y (ii) que cuente con experiencia
+probada en la actividad certificadora de que se ocupa esta resolución, en al
+menos tres (3) países.
+Operación Ferroviaria: Conjunto de actividades que deben adelantarse de
+forma coordinada y planificada para la optimización y seguridad del
+movimiento de Material Rodante sobre la Red Férrea Nacional, conforme al
+Reglamento de Operación de Trenes (ROT) establecido para el tramo o
+sector o corredor ferroviario.
+Permiso de Operación: Para efectos de la presente resolución, el Permiso
+de Operación es la autorización otorgada por el Ministerio de Transporte
+para la prestación del servicio público de transporte público ferroviario, a
+una empresa ferroviaria debidamente habilitada y que tenga autorizado un
+Surco Ferroviario, para que esta pueda desarrollar las actividades objeto de
+tal autorización.
+Red Férrea Nacional: Conjunto de vías, corredores férreos y nodos de
+transferencia, junto con sus anexidades, y demás elementos de la
+Infraestructura Ferroviaria nacional con vocación de interoperabilidad, cuya
+naturaleza es la de bienes públicos afectos a la prestación de servicio de
+transporte ferroviario de carga, pasajeros o mixto en todo el territorio
+nacional, y que puede tener conectividad intermodal con otras
+infraestructuras de transporte, redes de carácter regional, departamental o
+municipal y/o con redes externas (aquellas de carácter internacional).
+Servicio Privado de Transporte Ferroviario: Es aquel que se presta para
+satisfacer necesidades propias de movilización de personas o bienes con
+
+https://www.alcaldiabogota.gov.co/sisjur/normas/Norma1.jsp?i=185153&dt=S
+
+11/34
+
+19/3/26, 14:08
+
+Resolución 20243040046045 de 2024 Ministerio de Transporte
+
+su propio Material Rodante, de conformidad con lo establecido en el artículo
+5° de la Ley 336 de 1996.
+Sistema de Señalización, Telecomunicaciones y de Control de Tráfico:
+Complementario a lo definido en el artículo 2.2.4.2.10 del Decreto número
+1079 de 2015 para Centros de Control de Tráfico, el Sistema de
+Señalización, Telecomunicaciones y de Control de Tráfico es el conjunto de
+elementos y componentes necesarios de señalización, enclavamientos,
+comunicaciones, tecnológicos, entre otros, destinados a garantizar que la
+Operación Ferroviaria se efectúe de forma segura y eficiente sobre la
+Infraestructura Ferroviaria Nacional, y que permita informar y regular el
+tránsito de peatones y de vehículos de todo tipo en inmediaciones de las
+instalaciones del respectivo corredor ferroviario. Este debe realizar la
+coordinación y sincronización automática y centralizada de todos los
+aspectos de las señales, telecomunicaciones y controles de tráfico, que se
+encuentran en el corredor ferroviario y en los dispositivos remotos del
+Material Rodante.
+Solicitante: Toda persona, incluyendo a cualquier contratista Gestor o
+Administrador de la Infraestructura Ferroviaria Nacional en virtud de un
+contrato estatal cuando requiera solicitar Surcos Ferroviarios adicionales a
+los asignados contractualmente, que sea operador de Servicio Privado de
+Transporte Ferroviario o, en caso de ser operador de servicio público de
+transporte ferroviario y/o mixto, bien (i) haya radicado una solicitud de
+Habilitación ante el Ministerio de Transporte, o la entidad que haga sus
+veces, en los términos de los artículos 2.2.4.2.1 y 2.2.4.2.2 del Decreto
+número 1079 de 2015, o las normas que los modifiquen, complementen o
+sustituyan; o (ii) que cuente con dicha Habilitación; y que esté interesado en
+solicitar la asignación de Surcos Ferroviarios con el propósito de operar
+sobre la Red Férrea Nacional con la utilización del Material Rodante
+aportado por él (por ser propio, o en virtud de un contrato de arrendamiento,
+declaración de importación o el contrato que asegure la disponibilidad del
+equipo) y con su propia tripulación.
+Surco Ferroviario: Capacidad Ferroviaria habilitada en un período dado,
+para realizar un trayecto específico (origen-destino) dentro de la Red Férrea
+Nacional, otorgada por la Entidad Ejecutora de la Infraestructura Ferroviaria
+Nacional en conjunto con el Gestor o Administrador de la Infraestructura
+Ferroviaria Nacional según corresponda, para el ingreso y operación de un
+operador ferroviario público o privado.
+Tarifa por Uso de Infraestructura Ferroviaria: Corresponde al cobro que
+un Gestor o Administrador de la Infraestructura Ferroviaria Nacional podrá
+hacer a los operadores ferroviarios por el uso de la misma y el control de
+tráfico de Trenes.
+Trámite de Asignación de Surcos Ferroviarios: Es el trámite que se
+regula en esta Resolución el cual está compuesto por dos etapas, a saber:
+
+https://www.alcaldiabogota.gov.co/sisjur/normas/Norma1.jsp?i=185153&dt=S
+
+12/34
+
+19/3/26, 14:08
+
+Resolución 20243040046045 de 2024 Ministerio de Transporte
+
+(i) La solicitud de Compatibilidad Exitosa para la asignación de Surcos
+Ferroviarios; y (ii) La expedición del acto administrativo de asignación de
+Surcos Ferroviarios.
+Tren: Conformación en serie de vehículos ferroviarios compuestos por al
+menos un vehículo de tracción que le permiten circular sobre la vía férrea.
+TÍTULO 2
+TRÁMITE DE ASIGNACIÓN DE SURCOS FERROVIARIOS
+Artículo 3°. Trámite de Asignación de Surcos Ferroviarios. El trámite
+para la asignación de Surcos Ferroviarios a Solicitantes está compuesto por
+las dos siguientes etapas:
+1: Solicitud de Compatibilidad Exitosa para la asignación de Surcos
+Ferroviarios.
+2: Expedición del acto administrativo de asignación de Surcos Ferroviarios.
+Artículo 4°. Requisitos de la etapa 1 - solicitud de Compatibilidad
+Exitosa para la asignación de Surcos Ferroviarios. La solicitud de
+Compatibilidad Exitosa para la asignación de Surcos Ferroviarios por parte
+del Solicitante, deberá presentarse por escrito a la Entidad Ejecutora de la
+Infraestructura Ferroviaria Nacional sobre la que se solicita la asignación de
+Surcos Ferroviarios y con copia al Gestor o Administrador de la
+Infraestructura Ferroviaria Nacional, cuando aplique. El Solicitante deberá
+contar previamente con la habilitación otorgada por el Ministerio de
+Transporte o haber radicado la solicitud de la Habilitación ante esta entidad
+para prestar el servicio público de transporte ferroviario de carga, pasajeros
+o mixto, lo cual deberá ser verificado por la Entidad Ejecutora de la
+Infraestructura Ferroviaria Nacional. La solicitud de Compatibilidad Exitosa
+debe estar acompañada de los siguientes documentos:
+1. La manifestación de interés en operar Material Rodante y la cantidad de
+Surcos Ferroviarios que se pretenden operar, junto con el formato
+denominado Formulario para la solicitud de Compatibilidad Exitosa incluido
+en el anexo 1 de la presente resolución, indicando el plazo de asignación
+de Surcos Ferroviarios el cual no podrá ser superior a cinco (5) años.
+2. Documento que contenga toda la información técnica del Material
+Rodante y que permita verificar los requisitos técnicos exigidos en el
+artículo 5° de la presente resolución, incluyendo los manuales de operación
+y mantenimiento.
+3. Adicionalmente, el Solicitante deberá presentar una manifestación
+mediante la cual declare que acepta y conoce todos y cada uno de los
+documentos de la Entidad Ejecutora de la Infraestructura Ferroviaria
+
+https://www.alcaldiabogota.gov.co/sisjur/normas/Norma1.jsp?i=185153&dt=S
+
+13/34
+
+19/3/26, 14:08
+
+Resolución 20243040046045 de 2024 Ministerio de Transporte
+
+Nacional y del Gestor o Administrador de la Infraestructura Ferroviaria
+Nacional, cuando aplique, en los cuales se establezcan los reglamentos,
+requisitos y especificaciones para permitir el acceso de operadores
+ferroviarios y su correspondiente operación. El procedimiento para la
+modificación y/o actualización de los reglamentos, requisitos,
+especificaciones deberá regularse por la Entidad Ejecutora de la
+Infraestructura Ferroviaria Nacional o en los respectivos contratos con el
+respectivo Gestor o Administrador de la Infraestructura Ferroviaria Nacional,
+cuando aplique.
+4. Documento de Validación emitido por un Organismo de certificación,
+auditoría, control e inspección en la industria ferroviaria. En caso de que se
+trate de una tipología de Material Rodante cuya Compatibilidad Exitosa
+haya sido previamente verificada por parte de la Entidad Ejecutora de la
+Infraestructura Ferroviaria Nacional para una Infraestructura Ferroviaria
+específica de la Red Férrea Nacional, este Documento de Validación sólo
+deberá determinar que la tipología del respectivo Material Rodante
+corresponde a la misma tipología de aquél cuya Compatibilidad Exitosa fue
+previamente verificada. Para estos efectos, la Entidad Ejecutora de la
+Infraestructura Ferroviaria Nacional mantendrá un registro de la totalidad de
+las tipologías de todas las unidades de Material Rodante con
+Compatibilidad Exitosa verificada y las especificaciones relevantes para
+verificar dicha compatibilidad.
+5. Documento que acredite la disponibilidad del Material Rodante y que
+permita verificar si dicho Material Rodante existe al momento de radicar la
+solicitud o debe fabricarse, para efectos de lo establecido en el parágrafo 2°
+del artículo 7° de esta resolución. La disponibilidad del Material Rodante
+debe acreditarse al menos por el tiempo que se solicita la asignación de
+Surcos Ferroviarios, hecho que deberá demostrar aportando documento
+que acredite la propiedad, el contrato de arrendamiento, promesa o contrato
+de compraventa, declaración de importación o, en general, el documento
+legal que asegure la disponibilidad del Material Rodante por parte del
+Solicitante, según corresponda.
+La verificación de la compatibilidad entre el Material Rodante y la
+Infraestructura Ferroviaria Nacional a cargo de la Entidad Ejecutora de la
+Infraestructura Ferroviaria Nacional deberá seguir el siguiente
+procedimiento:
+1. Una vez radicada toda la documentación, la Entidad Ejecutora de la
+Infraestructura Ferroviaria Nacional verificará que el Solicitante cuente con
+la Habilitación otorgada por el Ministerio de Transporte para prestar el
+servicio público de transporte ferroviario de carga, pasajeros o mixto, o que
+el Solicitante radicó dicha solicitud ante este ministerio. La Entidad
+Ejecutora de la Infraestructura Ferroviaria Nacional realizará la revisión de
+la compatibilidad con base en los requerimientos establecidos en el artículo
+5° de la presente resolución, y contará con un término no superior a treinta
+(30) días hábiles para pronunciarse, contados desde la fecha de radicación
+
+https://www.alcaldiabogota.gov.co/sisjur/normas/Norma1.jsp?i=185153&dt=S
+
+14/34
+
+19/3/26, 14:08
+
+Resolución 20243040046045 de 2024 Ministerio de Transporte
+
+de la solicitud de Compatibilidad Exitosa por parte del Solicitante. En caso
+de que la documentación se encuentre incompleta o que el Solicitante deba
+realizar una gestión de trámite a su cargo, necesaria para adoptar una
+decisión de fondo, se requerirá al Solicitante dentro de los diez (10) días
+hábiles siguientes a la fecha de radicación, para que la complete en el
+término máximo de un (1) mes, prorrogable hasta por un término igual,
+conforme al artículo 17 de la Ley 1437 de 2011, sustituido por el artículo 1°
+de la Ley 1755 de 2015.
+2. Una vez vencido el plazo sin que el Solicitante aporte la información
+requerida, se configurará el desistimiento tácito y se aplicará el
+procedimiento establecido en el artículo 17 de la Ley 1437 de 2011,
+sustituido por el artículo 1° de la Ley 1755 de 2015 o la norma que lo
+modifique, adicione o sustituya. En este caso perderá la prelación en el
+Trámite de Asignación de Surcos Ferroviarios de conformidad con lo
+dispuesto en el artículo 15 de esta resolución, sin perjuicio de que pueda
+presentar una nueva solicitud.
+3. En caso tal que la revisión sea exitosa, la Entidad Ejecutora de la
+Infraestructura Ferroviaria Nacional deberá expedir el correspondiente acto
+administrativo de Compatibilidad Exitosa.
+4. Si, por el contrario, la revisión de compatibilidad realizada por la Entidad
+Ejecutora de la Infraestructura Ferroviaria Nacional no genera un resultado
+satisfactorio, deberá comunicar al Solicitante mediante acto administrativo
+motivado, las razones puntuales por las cuales no aprueba la
+compatibilidad y archivar la solicitud dando por concluido el trámite. Este
+acto administrativo estará sujeto al recurso de reposición. En caso de que lo
+considere pertinente, el Solicitante podrá iniciar nuevamente el Trámite de
+Asignación de Surcos Ferroviarios, perdiendo, en este caso, el orden de
+prelación.
+Parágrafo 1°. Cuando aplique, siempre deberá enviarse copia al Gestor o
+Administrador de la Infraestructura Ferroviaria Nacional de todas las
+comunicaciones que se generen en el marco de la solicitud de
+Compatibilidad Exitosa.
+Parágrafo 2°. El procedimiento contemplado en este artículo no deberá ser
+adelantado para la misma unidad o unidades de Material Rodante que ya
+cuente(n) previamente con verificación de Compatibilidad Exitosa para la
+misma Infraestructura Ferroviaria sobre la cual se realiza la solicitud.
+Parágrafo 3°. Sin perjuicio del cumplimiento de todos los demás requisitos
+establecidos en esta resolución, en caso de que el Solicitante que pretenda
+acceder a la Red Férrea Nacional sea un prestador de Servicio Privado de
+Transporte Ferroviario, no se le exigirá que cuente con la Habilitación
+otorgada por el Ministerio de Transporte señalada en el presente artículo, ni
+
+https://www.alcaldiabogota.gov.co/sisjur/normas/Norma1.jsp?i=185153&dt=S
+
+15/34
+
+19/3/26, 14:08
+
+Resolución 20243040046045 de 2024 Ministerio de Transporte
+
+el posterior Permiso de Operación a la asignación de Surcos Ferroviarios
+señalado en el artículo 11 de la presente resolución.
+Parágrafo 4°. Los Solicitantes que pretendan acceder a la Red Férrea
+Nacional para transportar materiales o mercancías peligrosas, deberán
+cumplir con la regulación que expida el Ministerio de Transporte referente a
+los requisitos técnicos y de seguridad para el manejo y transporte ferroviario
+de mercancías peligrosas en todo el territorio nacional, con el fin de
+minimizar los riesgos, garantizar la seguridad y proteger la vida y el medio
+ambiente.
+Artículo 5°. Requerimientos técnicos para evaluar en la comprobación
+de la compatibilidad del Material Rodante:
+1. Especificaciones geométricas
+a) Compatibilidad con la Trocha y con los aparatos de vía (cambiavías,
+diamantes, aparatos de dilatación y encarriladores);
+b) Compatibilidad con los radios de giro;
+c) Compatibilidad con el gálibo de la línea o la red;
+d) Compatibilidad con la capacidad portante de la vía y de las obras de arte
+de la línea o la red;
+e) Compatibilidad con los sistemas de comunicación entre Material Rodante
+y centro de control, así como los sistemas de control activo en caso de que
+se encuentren instalados en la vía al momento de la solicitud.
+2. Se comprobará que las cargas por eje del Material Rodante de Tracción y
+Remolcado cargado a su capacidad máxima no generen esfuerzos mayores
+que los máximos permisibles en la Infraestructura Ferroviaria y en cada
+estructura del corredor al que el Solicitante pretende acceder, de acuerdo
+con su diseño y estado.
+3. El Material Rodante de Tracción deberá contar con un velocímetro, un
+registrador de eventos que permita la grabación y registro de los eventos
+trascendentales de la operación, tales como la velocidad, aplicaciones de
+frenado, detenciones y tiempo.
+4. El Material Rodante de Tracción deberá estar equipados con dispositivos
+de seguridad, control y vigilancia como:
+a) Dispositivo de hombre muerto o cualquier sistema de detección
+automática por incapacidad del maquinista;
+b) Sistemas de protección automática de Trenes u otros equivalentes.
+
+https://www.alcaldiabogota.gov.co/sisjur/normas/Norma1.jsp?i=185153&dt=S
+
+16/34
+
+19/3/26, 14:08
+
+Resolución 20243040046045 de 2024 Ministerio de Transporte
+
+c) Aquellos dispositivos que sean utilizados en la red a la que se pretende
+acceder.
+d) Localización Satelital en tiempo real.
+e) Sistema de gases. (opcional)
+f) Sistema de detección de incendios. (opcional)
+g) Botón alerta o pánico al operador. (pasajeros)
+h) Sistema de detección de descarrilamientos. (opcional)
+i) Dispositivos de verificación de la integridad del Tren (Dispositivos de final
+de Tren o similar)
+5. Todo el Material Rodante de Tracción y el Material Rodante Remolcado
+deberán estar equipados con enganches que les permitan unirse entre sí y
+mantener distancias que permitan conservar suficiente resistencia y
+seguridad; cumpliendo con los requisitos establecidos en las normas
+técnicas de referencia (RAILROAD FREIGHT CAR SAFETY STANDARDS
+Part. 215), o las normas que las modifiquen, complementen o sustituyan.
+Asimismo, los Trenes deberán contar, en alguno de sus vagones, con
+enganches que permitan realizar maniobras de auxilio con otros
+operadores.
+6. La circunferencia de las ruedas, su variación entre ruedas y entre pares
+de ruedas, así como las dimensiones de las pestañas de estas deben
+mantenerse dentro de los límites establecidos en las normas técnicas de
+referencia (RAILROAD FREIGHT CAR SAFETY STANDARDS Part. 215), o
+las normas que las modifiquen, complementen o sustituyan; quedando
+prohibido circular con ruedas aplanadas, rajadas, pestañas rotas, estrías o
+fisuras fuertes, rozaduras o descascaradas.
+7. Plan de mantenimiento específico sobre el re-torneo de ruedas con el fin
+de garantizar una correcta interacción entre el riel y la rueda, para lo cual se
+deberán tener en cuenta los patrones de esmerilado de rieles.
+8. A partir de los manuales de mantenimiento del Material Rodante, el
+Solicitante deberá realizar y entregar un plan de mantenimiento que se
+adecúe a su operación futura y a las condiciones de la vía férrea que
+operará.
+9. El Material Rodante de Tracción y el Material Rodante Remolcado (para
+pasajeros) deben contar con vidrios de seguridad que garanticen al
+personal de conducción o a los usuarios, evitar daños personales en caso
+de accidentes que generen rotura de estos.
+
+https://www.alcaldiabogota.gov.co/sisjur/normas/Norma1.jsp?i=185153&dt=S
+
+17/34
+
+19/3/26, 14:08
+
+Resolución 20243040046045 de 2024 Ministerio de Transporte
+
+10. El Material Rodante de Tracción y el Material Rodante Remolcado
+deberán contar con la iluminación que le permita a la tripulación una
+visibilidad adecuada para una operación segura, tanto en la parte delantera,
+como posterior.
+11. El Material Rodante de Tracción y el Material Rodante Remolcado podrá
+estar provisto de topes de protección en su parte delantera en dirección del
+movimiento.
+12. Compatibilidad entre el Sistema de Control de Tráfico en funcionamiento
+de la Infraestructura Ferroviaria Nacional a la que se pretende acceder con
+el equipo a bordo del Material Rodante propuesto, certificación que deberá
+ser suministrada por el fabricante de dicho material.
+13. Guía o manual de operaciones ferroviarias que involucre los requisitos
+exigidos al personal o tripulación (Aptitudes técnicas, físicas y psicológicas)
+y un plan de atención de emergencias.
+14. Requerimientos técnicos específicos adicionales que deban ser
+considerados por condiciones y/o especificaciones puntuales en los
+diferentes tramos de la Red Férrea Nacional, los cuales deberán ser
+puestos en conocimiento de los Solicitantes por el Gestor o Administrador
+de la Infraestructura Ferroviaria Nacional, conforme a lo dispuesto en el
+requisito número 3 del primer inciso del artículo 4° de la presente
+resolución. Harán parte de estos requisitos las condiciones para obtener
+una prueba satisfactoria del Material Rodante de que trata el artículo 10 de
+la presente resolución, condiciones que deberán tener en cuenta los plazos
+para acreditar la prueba satisfactoria que se contemplan en esta resolución.
+En línea con lo establecido en este requisito número 3 del primer inciso del
+artículo 4° de esta resolución, los requisitos técnicos adicionales deberán
+constar en los documentos contractuales aplicables en caso de que el
+respectivo corredor de la Red Férrea Nacional se encuentre en
+administración por un tercero diferente a la Entidad Ejecutora de la
+Infraestructura Ferroviaria Nacional, o, en caso de que sea administrado por
+ella directamente, deberán ser puestos en conocimiento del público en
+general en cumplimiento del principio de publicidad contenido en el numeral
+9 del artículo 3° y artículo 8° del Código de Procedimiento Administrativo y
+de lo Contencioso Administrativo, o la norma que lo modifique,
+complemente o sustituya. Estos requisitos adicionales deberán responder a
+aspectos puntuales que, desde el punto de vista técnico, obliguen a su
+correspondiente consideración y verificación en cumplimiento de la
+compatibilidad, interoperabilidad y/o seguridad del respectivo corredor
+férreo de la Red Férrea Nacional y, asimismo, deberán regirse bajo los
+principios de equidad, imparcialidad y objetividad con todos los Solicitantes,
+de manera tal que todos puedan tener la expectativa de tener acceso a la
+Red Férrea Nacional si cumplen de manera satisfactoria con los
+requerimientos establecidos en la presente resolución.
+
+https://www.alcaldiabogota.gov.co/sisjur/normas/Norma1.jsp?i=185153&dt=S
+
+18/34
+
+19/3/26, 14:08
+
+Resolución 20243040046045 de 2024 Ministerio de Transporte
+
+Artículo 6°. Compatibilidad Exitosa. El acto administrativo mediante el
+cual se verifica la Compatibilidad Exitosa deberá relacionar la conformidad
+de la Entidad Ejecutora de la Infraestructura Ferroviaria Nacional frente a
+cada uno de los requerimientos establecidos en la lista de requerimientos
+técnicos del artículo 5° de la presente resolución, de tal manera que se
+acredite que las especificaciones técnicas del Material Rodante que operará
+el Solicitante son compatibles con la Infraestructura Ferroviaria sobre la
+cual circulará.
+Artículo 7°. Requisitos para la expedición del acto administrativo de
+asignación de Surcos Ferroviarios. A partir del día siguiente a la
+notificación del acto administrativo de Compatibilidad Exitosa, el Solicitante
+contará con tres (3) meses, prorrogables hasta por el mismo término, para
+acreditar los siguientes requisitos en una sola radicación y seguir con el
+Trámite de Asignación de Surcos Ferroviarios:
+1. De ser aplicable, presentación del Modelo Operacional Detallado de que
+trata el artículo 8° de esta resolución, el cual debe tener en cuenta los
+Surcos Ferroviarios solicitados.
+2. De ser aplicable, presentación de las garantías exigidas para la
+operación de los Surcos Ferroviarios solicitados de conformidad con lo
+establecido con el artículo 9° de la presente resolución.
+3. De ser aplicable, presentación de la constancia de la prueba satisfactoria
+del Material Rodante en la Infraestructura Ferroviaria solicitada o en una de
+similares condiciones bajo condiciones reales de operación, en cualquier
+caso, en los términos del artículo 10 de la presente resolución.
+Una vez presentada la documentación completa en una sola radicación, la
+Entidad Ejecutora de la Infraestructura Ferroviaria dispondrá en un término
+no superior a treinta (30) días hábiles para llevar a cabo la revisión y
+expedir el acto administrativo de asignación de Surcos Ferroviarios, en los
+términos del artículo 11 de esta resolución. En caso de que la
+documentación se encuentre incompleta o que el Solicitante deba realizar
+una gestión de trámite a su cargo, necesaria para adoptar una decisión de
+fondo, se requerirá al Solicitante dentro de los diez (10) días hábiles
+siguientes a la fecha de radicación, para que la complete en el término
+máximo de un (1) mes, prorrogable hasta por un término igual, conforme al
+artículo 17 de la Ley 1437 de 2011, sustituido por el artículo 1° de la Ley
+1755 de 2015.
+Vencido el plazo sin que el Solicitante aporte la información requerida, se
+configurará el desistimiento tácito y se aplicará el procedimiento establecido
+en el artículo 17 de la Ley 1437 de 2011, sustituido por el artículo 1° de la
+Ley 1755 de 2015 o la norma que lo modifique, adicione o sustituya. En
+este caso perderá la prelación en el Trámite de Asignación de Surcos
+
+https://www.alcaldiabogota.gov.co/sisjur/normas/Norma1.jsp?i=185153&dt=S
+
+19/34
+
+19/3/26, 14:08
+
+Resolución 20243040046045 de 2024 Ministerio de Transporte
+
+Ferroviarios de conformidad con lo dispuesto en el artículo 15 de esta
+resolución, sin perjuicio de que pueda presentar una nueva solicitud.
+Parágrafo 1°. La solicitud para la prórroga del plazo para de que trata este
+artículo para acreditar el cumplimiento de los requisitos antes mencionados
+y radicar la documentación para la asignación de Surcos Ferroviarios
+deberá presentarse con una antelación no inferior a treinta (30) días
+calendario, antes del vencimiento del término inicialmente otorgado, so
+pena de tenerse como no presentada.
+Parágrafo 2°. En caso de que el Material Rodante que será utilizado por el
+Solicitante deba fabricarse, es decir, cuando no corresponda a un Material
+Rodante existente al momento de radicar la solicitud de Compatibilidad
+Exitosa, el plazo para cumplir con estos requisitos y radicar la
+documentación para la asignación de Surcos Ferroviarios de que trata este
+artículo será de hasta veinticuatro (24) meses contados desde el día
+siguiente a la notificación del acto administrativo de Compatibilidad Exitosa.
+Parágrafo 3°. En caso de que el Solicitante no cumpla con los tiempos
+establecidos en este artículo, se entenderá que desiste de su solicitud. En
+este caso, la Entidad Ejecutora de la Infraestructura Ferroviaria Nacional
+procederá al archivo de la solicitud mediante acto administrativo sujeto al
+recurso de reposición, dando por concluido el Trámite de Asignación de
+Surcos Ferroviarios y perdiendo la prelación, sin perjuicio de que el
+Solicitante pueda presentar una nueva solicitud.
+Artículo 8°. Modelo Operacional Detallado. El Solicitante deberá
+presentar a la Entidad Ejecutora de la Infraestructura Ferroviaria Nacional
+para su aprobación el Modelo Operacional Detallado en versión editable en
+medio digital, debiendo garantizar el acceso a la herramienta computacional
+sobre la cual realizó dicho Modelo Operacional Detallado.
+Salvo por lo dispuesto en el parágrafo 2° del artículo 20 de esta resolución,
+el Modelo Operacional Detallado deberá estar en línea con las
+especificaciones técnicas exigidas en el artículo 5° de la presente
+resolución. A partir de una herramienta de simulación que considere las
+características y las especificaciones del Material Rodante y la
+Infraestructura Ferroviaria Nacional, el Solicitante deberá realizar las
+simulaciones que permitan identificar la malla de Trenes óptima, y entregar
+el historial de simulaciones realizadas e ilustrar los conflictos operacionales
+que fueron generados antes de identificar la solución óptima.
+Artículo 9°. Garantías y seguros que deberá otorgar el Solicitante. El
+Solicitante deberá cumplir con las siguientes disposiciones en materia de
+seguros y garantías:
+1. Constituir un seguro de responsabilidad civil extracontractual que cubra
+frente a daños (patrimoniales o extrapatrimoniales) que puedan afectar a
+
+https://www.alcaldiabogota.gov.co/sisjur/normas/Norma1.jsp?i=185153&dt=S
+
+20/34
+
+
