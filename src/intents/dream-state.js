@@ -72,7 +72,7 @@ module.exports = {
       try {
         const specFile   = path.join(BRAIN_DIR, 'SPECIALTIES', `${area}.md`);
         const specContent = fs.existsSync(specFile) ? fs.readFileSync(specFile, 'utf8') : '';
-        const lecciones  = [...specContent.matchAll(/\*\*Karpathy Dream Lesson \(([^)]+)\):\*\*\n> ([^\n]+)/g)]
+        const lecciones  = [...specContent.matchAll(/\*\*AUDIT_LESSON \(([^)]+)\):\*\*\n> ([^\n]+)/g)]
           .map(m => `• ${m[1].substring(0,19)}: ${m[2].substring(0,80)}`);
         const dtsArea    = fs.readdirSync(path.join(BRAIN_DIR,'dictamenes')).filter(f => f.includes(prefix) && f.endsWith('.md'));
         const dreamsArea = fs.existsSync(path.join(BRAIN_DIR,'DREAMS'))
@@ -92,7 +92,7 @@ module.exports = {
           estadoDT + `\n\n` +
           `📓 *Sueños del área:* ${dreamsArea.length || 0}\n` +
           (dreamsArea.length ? dreamsArea.map(f=>`• \`${f}\``).join('\n')+'\n\n' : '_(sin archivos en DREAMS/)_\n\n') +
-          `🧬 *Lecciones Karpathy (${lecciones.length} ciclos fallidos):*\n` +
+          `🧬 *Lecciones de Auditoría (${lecciones.length} ciclos fallidos):*\n` +
           (lecciones.length
             ? lecciones.slice(0,5).join('\n') + (lecciones.length>5 ? `\n  _...+${lecciones.length-5} más en brain/SPECIALTIES/${area}.md_` : '')
             : '_(sin lecciones — área sin ciclos aún)_') + `\n\n` +
@@ -120,7 +120,7 @@ module.exports = {
         (dreams.slice(0,4).map(f=>`  \`${f}\``).join('\n') || '  _(ninguno)_') + `\n\n` +
         `🔶 *Borradores pendientes revisión humana (${pending.length}):*\n` +
         (pending.length ? pending.map(f=>`• \`${f}\``).join('\n') : '_(ninguno)_') + `\n\n` +
-        `🧬 *Lecciones Karpathy por área:*\n` +
+        `🧬 *Lecciones de Auditoría por área:*\n` +
         specs.map(f=>`• ${f.replace('.md','')}`).join('  ') + `\n\n` +
         `Usa */dream [área]* para iniciar un nuevo ciclo.`
       );

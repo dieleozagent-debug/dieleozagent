@@ -105,3 +105,4 @@ Se prohíbe el uso de legacy tags: `Michelin Certified`, `Karpathy Loop`, `Peone
 - **Anexo patronal:** Mínimo **3.900 SMMLV**.
 - **Rechazo automático:** Cualquier DT de seguros que cite un "Artículo 12.1", que pida "revisar la cantidad de cobertura", o que asegure un "Tren LFC2".
 - **Nota:** Las garantías generales del Contrato están en Sección 18. Los seguros de operación ferroviaria los rige el Art. 9 de la Resolución de Surcos.
+

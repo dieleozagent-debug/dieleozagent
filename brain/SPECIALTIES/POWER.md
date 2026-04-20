@@ -77,15 +77,3 @@ Se prohíbe estrictamente el uso de legacy tags: `Michelin Certified`, `Karpathy
 > 1. **EL2 (Respaldo Crítico):** Se prohíbe el uso del umbral genérico del 99.0%. El indicador EL2 exige estrictamente la entrada de energía auxiliar en menos de 2 minutos en el 100% de los eventos.
 > 2. **Interoperabilidad:** Se prohíbe el uso de Gateways lógicos. El modelo oficial es **Stop & Switch (OBC Dual)** con conmutación física en la frontera de Chiriguaná.
 
-> [!WARNING] **Karpathy Dream Lesson (ALERTA ROJA DE SOBERANÍA - 2026-04-19):**
-> **RECHAZO ABSOLUTO:** El dictamen DT-ENRG-2026-001 previo era una alucinación técnica. 
-> 1. **R-HARD-06:** Se prohíbe citar Supabase, RAG u Oracle como validación. Solo el Contrato APP 001/2025 es autoridad.
-> 2. **Trampa del 99.0%:** El 99.0% es solo para software (E3). Para energía (EL2) el cumplimiento es por tiempo de entrada (< 2 min).
-> 3. **Interoperabilidad:** No existen Gateways. El modelo es **Stop & Switch** (OBC Dual en Chiriguaná).
-> **Mandato:** Cualquier propuesta que no use hardware dual o que relaje los tiempos de EL2 debe ser RECHAZADA.
-
-> [!WARNING] **Karpathy Dream Lesson (2026-04-20T00:33:14.851Z):**
-> Mantenimiento técnico: Desactivar módulos de procesamiento colectivo. Revisar criterios de evaluación para cumplir con estándares de precisión literal.
-
-> [!WARNING] **Karpathy Dream Lesson (2026-04-20T00:45:14.025Z):**
-> Se reconoce la necesidad de ajustar el enfoque en la evaluación del sueño sin desviar de los protocolos establecidos

@@ -133,7 +133,7 @@ bot.onText(/^\/dream(?:\s+(.+))?/, async (msg, match) => {
   );
 
   const scriptPath = path.join(__dirname, '../scripts/swarm-pilot.js');
-  exec(`node "${scriptPath}" "${target}"`, { maxBuffer: 10 * 1024 * 1024, timeout: 1800000 },
+  exec(`node "${scriptPath}" "${target}"`, { env: process.env, maxBuffer: 10 * 1024 * 1024, timeout: 1800000 },
     async (error, stdout) => {
       try {
         if (error) {

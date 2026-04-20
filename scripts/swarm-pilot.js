@@ -100,15 +100,15 @@ function guardarPendingDT(area, textoDT, ultimaLeccion) {
 
 const arg = process.argv[2] || "Señalización";
 
-async function updateKarpathySpecialty(specialty, leccion) {
+async function registrarLeccionAuditoria(specialty, leccion) {
     const filePath = path.join(__dirname, '..', 'brain', 'SPECIALTIES', `${specialty}.md`);
     if (fs.existsSync(filePath)) {
         const timestamp = new Date().toISOString();
-        const leccionText = `\n> [!WARNING] **Karpathy Dream Lesson (${timestamp}):**\n> ${leccion}\n`;
+        const leccionText = `\n> [!WARNING] **AUDIT_LESSON (SICC v12.8 - ${timestamp}):**\n> ${leccion}\n`;
         fs.appendFileSync(filePath, leccionText, 'utf8');
-        console.log(`\n⚖️ [Karpathy Loop] Aprendizaje registrado mecánicamente en ${specialty}.md`);
+        console.log(`\n⚖️ [SICC AUDIT] Aprendizaje registrado mecánicamente en ${specialty}.md`);
     } else {
-        console.error(`\n❌ [Karpathy Loop] Especialidad no encontrada: ${filePath}`);
+        console.error(`\n❌ [SICC AUDIT] Especialidad no encontrada: ${filePath}`);
     }
 }
 
@@ -291,7 +291,7 @@ ${borrador_DT}
                     targetSp = Object.entries(SPECIALTY_MAP).find(([k]) => lower.includes(k))?.[1] || 'COMMUNICATIONS';
                 }
                 
-                await updateKarpathySpecialty(targetSp, ultimaLeccion);
+                await registrarLeccionAuditoria(targetSp, ultimaLeccion);
                 console.log(`🛡️ ALUCINACIÓN DETECTADA. Re-inyectando lección y reiniciando decantación...`);
                 await sleep(3000);
             }

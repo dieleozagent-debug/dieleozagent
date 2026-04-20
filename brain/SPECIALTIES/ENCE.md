@@ -55,8 +55,3 @@ Se prohíbe el uso de legacy tags: `Michelin Certified`, `Karpathy Loop`, `Peone
 ## ENC-03 — DENSIDAD DE MOTORIZACIÓN (MÁXIMO 5)
 - **Regla N-1:** Cada estación ENCE SIL-4 podrá controlar un máximo de **cinco (5) motores de aguja**. Todo requerimiento superior se considera sobredimensionamiento y será rechazado.
 
-> [!WARNING] **Karpathy Dream Lesson (2026-04-19T01:41:32.841Z):**
-> El enjambre debe diferenciar obligaciones contractuales (cláusulas de contrato) de especificaciones técnicas (criterios de diseño, cálculos, tolerancias, interfaces). Un sueño de enjambre No debe ser una transcripción de contratos; debe incluir, como mínimo: (1) diagnóstico de peligros (R-HARD #1), (2) plan de mitigación cuantificado (R-HARD #2), (3) validación cruzada por al menos dos métodos independientes (R-HARD #3), y (4) trazabilidad hacia Normas Técnicas_oficiales (R-HARD #4). Siempre que el Oráculo externo falle, detener certificación hasta reintentar 2× y confirmar disponibilidad.
-
-> [!WARNING] **Karpathy Dream Lesson (2026-04-19T12:33:10.669Z):**
-> Es fundamental seguir la metodología de auditoría SICC y respetar la jerarquía de fuentes y la jerarquía de decisión. Se debe presentar una propuesta clara y concisa que cumpla con los axiomas de soberanía y las reglas de producción de DTs, y que esté basada en la base contractual y las reglas de producción establecidas. El Oráculo Externo falló tras 2 intentos, lo que sugiere que se debe mejorar la comunicación con el Oráculo y asegurarse de que la propuesta sea clara y concisa.

@@ -32,12 +32,12 @@ module.exports = {
       const areas = fs.existsSync(specDir) ? fs.readdirSync(specDir).filter(f => f.endsWith('.md')) : [];
       const totalLecciones = areas.reduce((acc, f) => {
         const c = fs.readFileSync(path.join(specDir, f), 'utf8');
-        return acc + (c.match(/\*\*Karpathy Dream Lesson/g) || []).length;
+        return acc + (c.match(/\*\*AUDIT_LESSON/g) || []).length;
       }, 0);
 
       await send(chatId,
         `🧬 *"El enjambre debe entender" — ¿qué significa?*\n\n` +
-        `Esa frase es una *lección Karpathy*: se escribe cuando el Juez rechaza una DT. ` +
+        `Esa frase es una *lección de auditoría*: se escribe cuando el Juez rechaza una DT. ` +
         `No es una queja — es una vacuna para el *próximo ciclo*.\n\n` +
         `*¿Ya entiende?* Sí — parcialmente:\n` +
         `• Las *${totalLecciones} lecciones* están en \`brain/SPECIALTIES/\`\n` +
@@ -62,7 +62,7 @@ module.exports = {
         `*1. SOUL.md (ética — estático):*\n\`\`\`\n${soul.substring(0, 400)}\n\`\`\`\n\n` +
         `*2. Memoria Genética (sicc_genetic_memory):*\n` +
         `buscarLecciones() inyecta vacunas por coseno >0.7 en cada dream/mensaje.\n\n` +
-        `*3. SPECIALTIES/* (Karpathy):*\n` +
+        `*3. SPECIALTIES/ (Auditoría):*\n` +
         specs.map(f => `• ${f.replace('.md','')}`).join('  ') + `\n` +
         `Cada rechazo del Juez hace append de la lección.\n\n` +
         `*4. brain/dictamenes/* (gold standards):*\nDTs aprobadas = referencia para futuros sueños.\n\n` +
