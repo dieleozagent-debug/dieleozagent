@@ -121,22 +121,24 @@ procesarMensaje(textoUsuario)
 
 ---
 
-## 🌪️ Bucle de Auditoría SICC — `/dream [área]`
+## 🌪️ Bucle de Auditoría Forense SICC v14.0 — `/audit [área]`
 
 ```
-/dream señalizacion
+/audit señalizacion
     │
-    ▼ index.js:bot.onText — exec(swarm-pilot.js, timeout 30 min)
+    ▼ index.js:bot.onText — exec(swarm-pilot.js "Señalización", timeout 30 min)
     │
-    ▼ ── hasta 3 ciclos ─────────────────────────────────────────
+    ▼ ── hasta 3 ciclos (STATE persistente) ─────────────────────
     │
-    ├─ FASE 1: buscarLecciones() → sicc_genetic_memory → vacunas
-    ├─ FASE 2: Auditor Forense genera borrador DT
-    ├─ FASE 3: validarInternaSupabase() + validarExternaNotebook()
-    ├─ FASE 4: Juez → { aprobado, razon, leccion_auditoria }
-    └─ FASE 5: Persistencia
+    ├─ FASE 0: Supabase RAG extrae contexto crudo.
+    ├─ FASE 0.5 (Oracle Fetcher): Destilación de Contexto → FICHA TÉCNICA OBLIGATORIA.
+    ├─ FASE 1: Auditor Forense genera borrador DT usando Citación Canónica de la Ficha.
+    ├─ FASE 2: validarInternaSupabase() + validarExternaNotebook(notebooklm-mcp-v12:3001)
+    ├─ FASE 3: Juez R-HARD-06 → Groq JSON_OBJECT evalúa 16 reglas.
+    │           🚨 Protocolo Rescate: Si Groq 429, desvía a openrouter/free (JSON).
+    └─ FASE 4: Persistencia
         ├─ APROBADO: brain/dictamenes/ + sicc_genetic_memory (DT_CERTIFICADA)
-        └─ RECHAZADO: brain/SPECIALTIES/{area}.md + brain/history/ + [tras 3: PENDING_DTS/]
+        └─ RECHAZADO: brain/SPECIALTIES/{area}.md + STATE-{area}.json
 ```
 
 **Hard-caps:** MAX_CICLOS=3 | exec timeout=1800s | Oracle timeout=90s

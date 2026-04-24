@@ -18,6 +18,11 @@
 - [x] **§7 CCO La Dorada PK 201+470:** Hardcoded en `R-HARD.md`, `CONTROL_CENTER.md`, `POWER.md`. Purga de "Santa Marta" legacy.
 - [x] **§8 PaN CWT:** 9 Tipo C / 15 Tipo B / 122 Tipo A — en `SIGNALIZATION.md` + R-HARD-10.
 - [x] **§9 Interoperabilidad FENOCO:** Stop & Switch, prohibición de gateways lógicos — en `CONTRACTUAL_NORMATIVE.md` §9.
+
+### ✅ INGENIERÍA DE RESILIENCIA SICC v14.0 (Completado hoy 24-Abr-2026):
+- [x] **Oracle Fetcher (Hidratación):** Inyección de "Fichas Técnicas" predigeridas (Map-Reduce) para blindar el contexto de la Fase 1 contra alucinaciones.
+- [x] **Protocolo Rescate de Juez:** Implementación de `openrouter/free` (JSON_OBJECT) como salvavidas cuando Groq 70B agota cuota (429), evitando el colapso del Swarm.
+- [x] **Oráculo Blindado (DNS):** Solución definitiva al `ECONNREFUSED` usando el hostname `notebooklm-mcp-v12:3001` en lugar de IPs estáticas de Docker.
 - [x] **§10 Energía:** 110V DC / 4h (vitales), 48V DC / 24-48h (TETRA ETSI 300.132-2), EL2 <2min — en `POWER.md`.
 - [x] **Purga karpathy_audit_*.log:** 4 logs legacy eliminados (runs fallidos 20-Abr-2026).
 

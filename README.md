@@ -54,10 +54,17 @@ src/
 
 | Comando | Función |
 |---|---|
-| `/dream [tema]` | Ciclo de Refinamiento Forense (5 fases) — Vacunación → RAG → Oracle → Juicio → Persistencia. |
+| `/audit [área]` | Bucle Forense SICC v14.0 (Fetcher → RAG → Oracle → Juez R-HARD-06 → Persistencia). |
 | `/swarm [pregunta]` | Enjambre secuencial: Auditor + Estratega SICC |
 | `/doctor` | Health report: score, CPU, telemetría 4xx |
 | `/learn` | Auto-mapeo recursivo LFC2 |
+
+---
+
+## 🏛️ Avances de Arquitectura (SICC v14.0)
+* **Oracle Fetcher (Fase 0.5):** Destilación de Supabase en Fichas Técnicas para evitar "amnesia de contexto" en los LLM locales.
+* **Rescate de Emergencia (OpenRouter):** Si la cuota de Groq se agota (429 Diario), el Juez salta automáticamente a `openrouter/free` (con `json_object` forzado) para proteger el registro de auditoría.
+* **Oráculo Blindado:** Conexión a NotebookLM mediante resolución DNS de Docker (`notebooklm-mcp-v12:3001`) para evitar errores de IP (ECONNREFUSED).
 | `/cerebro` | Verifica SOUL + R-HARD + IDENTITY + METHODOLOGY activos |
 | `/ingesta [ruta]` | Pipeline OCR: PDF → chunks 800c → embeddings → Supabase |
 | `/cmd [comando]` | Shell en el contenedor |
