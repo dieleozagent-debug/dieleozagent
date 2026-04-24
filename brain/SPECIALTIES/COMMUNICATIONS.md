@@ -205,3 +205,45 @@ Un output sin ruta de citación completa no pasa a firma jurídica.
 
 > [!WARNING] **AUDIT_LESSON (SICC v12.8 - 2026-04-20T03:38:58.737Z):**
 > El Juez respondió en lenguaje natural en lugar de JSON — ajustar instrucciones.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-24T16:48:17.908Z):**
+> El Juez respondió en lenguaje natural en lugar de JSON — ajustar instrucciones.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-24T16:48:28.382Z):**
+> El Juez respondió en lenguaje natural en lugar de JSON — ajustar instrucciones.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-24T16:49:08.375Z):**
+> El Juez respondió en lenguaje natural en lugar de JSON — ajustar instrucciones.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-24T16:53:27.536Z):**
+> Revisar y agregar la citación expresa de los 5 ENCE obligatorios y asegurarse de que todas las referencias a metodologías y versiones de documentos sean claras y se ajusten a los requerimientos contractuales.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-24T16:53:37.282Z):**
+> Se debe ajustar el término 'Infraestructura Zero' a 'Arquitectura Virtual V-Rail' y se deben incluir los 5 ENCE obligatorios (Zapatosa, García Cadena, Barrancabermeja, Pto. Berrío, La Dorada) de la Tabla 17 del AT1, así como citar la flota real GR12, U10 o U18
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-24T16:53:46.761Z):**
+> Reformular el dictamen eliminando referencias a normativas internas no citadas y enfocándose en la literalidad del Contrato APP 001/2025
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-24T16:54:23.684Z):**
+> Incluir la Sección CITACIÓN CANÓNICA con numerales reales del Contrato APP 001/2025 y una sección DECISIÓN vinculante clara en el dictamen.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-24T16:54:32.645Z):**
+> Deberá presentar una nueva propuesta que cumpla con todos los requisitos del protocolo de rechazo fulminante, incluyendo una citación canónica correcta y un análisis sustantivo.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-24T16:54:52.561Z):**
+> Deberá revisarse y citarse correctamente las cláusulas contractuales y normativas vigentes en el Contrato APP 001/2025, evitando cualquier referencia a reglas internas como si fueran cláusulas literales del contrato.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-24T16:59:08.899Z):**
+> Se debe revisar y corregir el dictamen para incluir los 5 ENCE obligatorios, utilizar el término correcto 'Arquitectura Virtual V-Rail' y mencionar la flota real, además de incluir el monto específico de CAPEX para la implementación del sistema de comunicaciones.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-24T16:59:17.886Z):**
+> Reemplazar 'Infraestructura Zero' por 'Arquitectura Virtual V-Rail' y eliminar cualquier mención a 'Soberanía' que no esté claramente definida en el Contrato APP 001/2025 o en las resoluciones del Ministerio de Transporte.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-24T16:59:27.075Z):**
+> Revisar y ajustar la metodología de auditoría para asegurar el cumplimiento literal del Contrato APP 001/2025 y citar la flota real.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-24T17:05:57.946Z):**
+> Deberá realizar una revisión exhaustiva del contrato APP 001/2025 y cumplir con los criterios técnicos y contractuales establecidos, incorporando una citación canónica clara y un análisis detallado de la solución propuesta para garantizar la seguridad y confiabilidad del sistema de comunicaciones del Proyecto SICC
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-24T17:06:17.337Z):**
+> Emitir dictamen con inclusión obligatoria de Sección CITACIÓN CANÓNICA que referencie numerales específicos del Contrato APP 001/2025 (Secciones 1.2(d), 3.9, 9.11, 18.7, etc.), junto con análisis técnico o jurídico sustantivo y decisión vinculante clara.

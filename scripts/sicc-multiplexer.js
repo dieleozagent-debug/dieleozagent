@@ -209,6 +209,22 @@ async function llamarGroq(mensajeUsuario, _, contextoRAG = '', systemPrompt = nu
   return respuesta.choices[0].message.content;
 }
 
+async function llamarGroqJSON(mensajeUsuario, systemPrompt) {
+  const groq = new Groq({ apiKey: config.ai.groq.apiKey });
+  const sp = systemPrompt ? inyectarIdioma(systemPrompt) : IDIOMA_SICC;
+  console.log(`[AGENTE] 🟠 [JUEZ-JSON] Invocando Groq con response_format json_object.`);
+  const respuesta = await groq.chat.completions.create({
+    model: config.ai.groq.model,
+    messages: [
+      { role: 'system', content: sp },
+      { role: 'user', content: mensajeUsuario },
+    ],
+    max_tokens: 1024,
+    response_format: { type: 'json_object' },
+  });
+  return respuesta.choices[0].message.content;
+}
+
 async function llamarOpenRouter(mensajeUsuario, _, contextoRAG = '', systemPrompt = null, modelOverride = null) {
   const client = new OpenAI({
     baseURL: 'https://openrouter.ai/api/v1',
@@ -428,6 +444,7 @@ module.exports = {
   setAgentContext,
   llamarGemini,
   llamarGroq,
+  llamarGroqJSON,
   llamarOpenRouter,
   llamarOllama,
   ordenProveedores,

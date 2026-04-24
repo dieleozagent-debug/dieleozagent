@@ -169,3 +169,9 @@ Se prohíbe el uso de legacy tags: `Michelin Certified`, `Karpathy Loop`, `Peone
 - **Cantidades Mandatorias**: 9 Tipo C (Barreras) | 15 Tipo B (SLA).
 - **Normativa**: **NTC 4741 (1999)**, Manual de Señalización Vial (2024) y **FRA 49 CFR Part 234**.
 - **Falla Segura**: Ante pérdida de comunicación con el PTC central o falla de energía, el PaN debe transicionar a su estado de mayor seguridad (Cierre/Advertencia).
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-24T16:52:18.309Z):**
+> Se debe diseñar e implementar el sistema de Control Center utilizando la 'Arquitectura Virtual V-Rail' y ajustarse a los estándares de disponibilidad y seguridad establecidos en la normativa FRA 49 CFR Parte 236 y AREMA, y cumplir con los requisitos técnicos y contractuales establecidos en el Contrato APP 001/2025.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-24T17:06:08.156Z):**
+> Se debe incluir una sección de citación canónica que haga referencia explícita a numerales del Contrato APP 001/2025 y se debe asegurar que la propuesta se ajuste a los criterios técnicos y legales del Proyecto, incluyendo la mención explícita a la flota real en el contexto de señalización

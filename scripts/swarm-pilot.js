@@ -7,7 +7,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { llamarMultiplexadorFree } = require('./sicc-multiplexer');
+const { llamarMultiplexadorFree, llamarGroqJSON } = require('./sicc-multiplexer');
 const { inicializarBrain } = require('../src/agent');
 const { validarExternaNotebook } = require('../src/sapi/notebooklm_mcp');
 const { validarInternaSupabase } = require('../src/sapi/supabase_rag');
@@ -142,6 +142,7 @@ async function runSwarmPilot() {
 
     const identitySicc = fs.readFileSync(path.join(__dirname, '..', 'brain', 'IDENTITY.md'), 'utf8');
     const methodologySicc = fs.readFileSync(path.join(__dirname, '..', 'brain', 'SICC_METHODOLOGY.md'), 'utf8');
+    const specialtyContext = getMultiplexedContext(arg);
 
     let ciclosRealizados = 0;
     const MAX_CICLOS = 3;
@@ -162,30 +163,48 @@ async function runSwarmPilot() {
                 lecciones.map(l => `- ${l.content}`).join('\n') + '\n\n';
         }
 
+        const dtFormatTemplate = `
+FORMATO OBLIGATORIO DE LA DT (debes seguir esta estructura exacta):
+
+## CITACIÓN CANONíCA
+Contrato APP 001/2025, [Sección X.Y.Z]: "[texto literal o parafraseado del contrato]"
+
+## ANÁLISIS TÉCNICO
+[Análisis sustantivo de la decisión, con referencia a la normativa aplicable (AREMA, FRA, ETSI, NSR-10, etc.)]
+
+## DECISIÓN VINCULANTE
+[Mandato claro, concreto e irreversible]
+
+## JUSTIFICACIÓN
+[Por qué esta decisión es la única alineada con el Contrato APP 001/2025]
+`;
         const promptFase1 = ciclosRealizados === 1 
-            ? `### TAREA DE INVESTIGACIÓN (DECANTACIÓN INICIAL)\n${contextoGenetico}Genera una Decisión Técnica (DT) vinculante sobre el área de ${arg} para el Proyecto SICC...`
-            : `### REFINAMIENTO POR FALLO PREVIO (PURA DE GRASA)\n${contextoGenetico}Tu propuesta anterior fue RECHAZADA por el Juez por contener alucinaciones o violar la R-HARD-06...`;
+            ? `### TAREA DE INVESTIGACIÓN (DECANTACIÓN INICIAL)\n${contextoGenetico}Genera una Decisión Técnica (DT) vinculante sobre el área de ${arg} para el Proyecto SICC. Usa OBLIGATORIAMENTE el formato siguiente:\n${dtFormatTemplate}`
+            : `### REFINAMIENTO POR FALLO PREVIO (PURA DE GRASA)\n${contextoGenetico}Tu propuesta anterior fue RECHAZADA. Genera una nueva DT corregida, respetando OBLIGATORIAMENTE el formato:\n${dtFormatTemplate}\nELIMINA: 'Infraestructura Zero', 'Soberanía', referencias a normativas internas. SOLO Contrato APP 001/2025 y normativa técnica externa.`;
 
         const agent1 = {
             name: "DIRECCIÓN TÉCNICA SICC",
-            prompt: `### MANDATO SUPERIOR SICC (SSoT)
+            prompt: `### CONTEXTO CONTRACTUAL Y NORMATIVO DEL PROYECTO (ESPECIALIDAD: ${arg.toUpperCase()})
+${specialtyContext.substring(0, 8000)}
+
+### IDENTIDAD Y METODOLOGÍA
 ${identitySicc}
 
-### METODOLOGÍA DE AUDITORÍA
 ${methodologySicc}
 
-🛡️ MURO DE FUEGO CONTRACTUAL (R-HARD-06) - PROHIBICIONES ABSOLUTAS:
+🛡️ PROHIBICIONES ABSOLUTAS (MURO CONTRACTUAL):
 1. PROHIBIDO citar herramientas de IA: "Supabase", "RAG", "NotebookLM", "Doble Ciego", "Algoritmo", "Script".
 2. PROHIBIDO personificar: "Diego", "Soberano", "Karpathy", "Peones", "Alma", "Enjambre".
 3. PROHIBIDO alucinar flotas: Solo existen locomotoras **GR12 y U10** (Nación) y **U18** (Calidad). El "Tren LFC2" es una alucinación.
 4. PROHIBIDO inventar cláusulas: La "Cláusula N-1" o "Deducción Radical" NO existen. Solo el Orden de Prelación 1.2(d).
-5. PROHIBIDO alucinar seguros: El Artículo 12.1 NO existe para seguros. Usar Resolución de Surcos (Art. 9): 11.300 SMMLV (RCE) y 3.900 SMMLV (Patronal).
+5. PROHIBIDO alucinar seguros: El Artículo 12.1 NO existe para seguros. Usar Art. 9: 11.300 SMMLV (RCE) y 3.900 SMMLV (Patronal).
 6. PROHIBIDO confundir conceptos: "Pasos a Nivel (PaN)" son cruces físicos, NO cantidades administrativas.
+7. PROHIBICIÓN DE AUTOCONTAMINACIÓN (CRÍTICO): PROHIBIDO escribir en tu respuesta: "R-HARD-06", "MURO DE FUEGO CONTRACTUAL", "MANDATO SUPERIOR SICC", "SSoT", "Protocolo de Soberanía", "Normativa Interna de Proyecto".
 
 ### TAREA:
 ${promptFase1}
 
-REGLA DE ORO: Tu lenguaje debe ser estrictamente institucional, legalista y técnico. Si el Juez detecta una sola palabra de la lista negra, el ciclo será abortado.`
+REGLA DE ORO: Tu lenguaje debe ser estrictamente institucional, legalista y técnico.`
         };
 
         try {
@@ -232,10 +251,10 @@ Tu única misión es RECHAZAR cualquier dictamen que contenga alucinaciones, per
 10. RECHAZAR si los Pasos a Nivel no coinciden con las cantidades cerradas: 9 Tipo C, 15 Tipo B, 122 Tipo A.
 11. RECHAZAR si asigna presupuestos irrisorios para Señalización (ej. $150M). El software CTC/PTC (Partida 1.1.103) cuesta más de **$88.000 Millones COP**.
 12. RECHAZAR si menciona "Infraestructura Zero". El término correcto es **Arquitectura Virtual V-Rail**.
-13. RECHAZAR si no cita los 5 ENCE obligatorios (Zapatosa, García Cadena, Barrancabermeja, Pto. Berrío, La Dorada) de la **Tabla 17 del AT1**.
+13. RECHAZAR (solo en dictámenes de SEÑALIZACIÓN o ENCE) si no cita los 5 ENCE obligatorios (Zapatosa, García Cadena, Barrancabermeja, Pto. Berrío, La Dorada) de la **Tabla 17 del AT1**.
 14. RECHAZAR si cita el "WBS v2.9" (el único válido es WBS v3.0).
 15. RECHAZAR si el dictamen usa excusas de "falta de claridad" (Sección 3.9(a)(v)).
-16. RECHAZAR si no cita la flota real: GR12, U10 o U18.
+16. RECHAZAR (solo en dictámenes de SEÑALIZACIÓN o ENCE) si no cita la flota real: GR12, U10 o U18.
 
 ### TEXTO A EVALUAR:
 ${borrador_DT}
@@ -249,8 +268,16 @@ ${borrador_DT}
 }
 `;
 
-            let responseJuez = await llamarMultiplexadorFree("Activa los agentes y evalúa la auditoría.", "", promptJuez);
-            let decisionRAW = typeof responseJuez === 'string' ? responseJuez : (responseObj.texto || responseObj.content || JSON.stringify(responseObj));
+            let decisionRAW;
+            try {
+                // Groq con json_object forzado — evita respuestas en lenguaje natural
+                decisionRAW = await llamarGroqJSON("Evalúa el dictamen y responde SOLO con el JSON solicitado.", promptJuez);
+                console.log(`[JUEZ] 🟠 Groq JSON OK.`);
+            } catch (juezErr) {
+                console.warn(`[JUEZ] ⚠️ Groq JSON falló (${juezErr.message}), fallback a multiplexer...`);
+                const responseJuez = await llamarMultiplexadorFree("Evalúa el dictamen y responde SOLO con el JSON solicitado.", "", promptJuez);
+                decisionRAW = typeof responseJuez === 'string' ? responseJuez : (responseJuez.texto || responseJuez.content || JSON.stringify(responseJuez));
+            }
             
             // Parsear respuesta del Juez: JSON limpio → code fence → extracción campo a campo
             function extraerCampoJuez(texto, campo) {
