@@ -321,20 +321,13 @@ ${borrador_DT}
                 console.log(`[JUEZ] 🟠 Groq JSON OK.`);
             } catch (juezErr) {
                 // Parche para evitar quemar ciclos por errores de red/cuota
-                if (juezErr.message.includes('429')) {
-                    try {
-                        console.warn(`[JUEZ] ⚠️ Cuota Groq agotada (429). Intentando rescate de emergencia con OpenRouter (Auto Free)...`);
-                        // Intentamos usar uno de los modelos gratuitos listados por ti que es de alta calidad
-                        decisionRAW = await llamarOpenRouterJSON("Evalúa el dictamen y responde SOLO con el JSON solicitado.", promptJuez, "openrouter/free");
-                        console.log(`[JUEZ] 🟣 OpenRouter JSON OK.`);
-                    } catch (rescueErr) {
-                        console.error(`\n[SICC CRITICAL] Rescate falló (${rescueErr.message}). Cuota agotada. Abortando Swarm para preservar ciclos de auditoría.`);
-                        process.exit(1); // Salida con error para que el Governor sepa que debe reintentar luego
-                    }
-                } else {
-                    console.warn(`[JUEZ] ⚠️ Groq JSON falló (${juezErr.message}), fallback a multiplexer...`);
-                    const responseJuez = await llamarMultiplexadorFree("Evalúa el dictamen y responde SOLO con el JSON solicitado.", "", promptJuez);
-                    decisionRAW = typeof responseJuez === 'string' ? responseJuez : (responseJuez.texto || responseJuez.content || JSON.stringify(responseJuez));
+                console.warn(`[JUEZ] ⚠️ Groq JSON falló (${juezErr.message}). Intentando rescate de emergencia con OpenRouter JSON...`);
+                try {
+                    decisionRAW = await llamarOpenRouterJSON("Evalúa el dictamen y responde SOLO con el JSON solicitado.", promptJuez, "openrouter/free");
+                    console.log(`[JUEZ] 🟣 OpenRouter JSON OK.`);
+                } catch (rescueErr) {
+                    console.error(`\n[SICC CRITICAL] Rescate OpenRouter JSON falló (${rescueErr.message}). Abortando Swarm para preservar ciclos de auditoría.`);
+                    process.exit(1);
                 }
             }
             
