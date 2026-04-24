@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * SICC SWARM PILOT v2.2 - MODO SUEÑO (DREAMER)
- * Simulador del comando /dream de Telegram.
+ * SICC SWARM PILOT v14.0 - MODO AUDITORÍA (AUDITOR)
+ * Simulador del comando /audit de Telegram.
  */
 
 const fs = require('fs');
@@ -51,19 +51,29 @@ function generarNombreDT(area, textoDT) {
 function guardarDTEnDisco(area, textoDT, razonJuez, idDT, filename) {
     const dictamenesDir = path.join(__dirname, '..', 'brain', 'dictamenes');
     const fecha = new Date().toISOString();
-    const contenido = `# ⚖️ DICTAMEN TÉCNICO VINCULANTE (SICC v13.0)\n\n**Documento:** ${idDT} (Validación Forense)\n**Área:** ${area}\n**Fecha:** ${fecha}\n**Validado por:** Dirección Técnica y Jurídica SICC - LFC\n**Razón Juez:** ${razonJuez}\n\n---\n\n${textoDT}`;
+    const contenido = `# ⚖️ DICTAMEN TÉCNICO VINCULANTE (SICC v14.0)\n\n**Documento:** ${idDT} (Validación Forense)\n**Área:** ${area}\n**Fecha:** ${fecha}\n**Validado por:** Dirección Técnica y Jurídica SICC - LFC\n**Razón Juez:** ${razonJuez}\n\n---\n\n${textoDT}`;
     fs.writeFileSync(path.join(dictamenesDir, filename), contenido, 'utf8');
     console.log(`\n📄 DT guardada en disco: brain/dictamenes/${filename}`);
 }
 
-function registrarEnDreams(area, textoDT, veredicto, razon, ciclos) {
-    const dreamsDir = path.join(__dirname, '..', 'brain', 'DREAMS');
+function ensureDirs() {
+    const dirs = [
+        path.join(__dirname, '..', 'brain', 'DREAMS'),
+        path.join(__dirname, '..', 'brain', 'history'),
+        path.join(__dirname, '..', 'brain', 'dictamenes'),
+        path.join(__dirname, '..', 'brain', 'PENDING_DTS'),
+    ];
+    dirs.forEach(d => { if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true }); });
+}
+
+function registrarAuditoria(area, textoDT, veredicto, razon, ciclos) {
+    const historyDir = path.join(__dirname, '..', 'brain', 'history');
     const fecha = new Date().toISOString();
     const slug = fecha.replace(/[:.]/g, '-');
-    const estado = veredicto ? 'CERTIFICADO' : 'RECHAZADO';
-    const filename = `DREAM-${area.toUpperCase().replace(/\s+/g, '_')}-${slug}.md`;
+    const estado = veredicto ? 'CERTIFICADA' : 'RECHAZADA';
+    const filename = `AUDIT-${area.toUpperCase().replace(/\s+/g, '_')}-${slug}.md`;
     const contenido = [
-        `# 💤 SUEÑO ${estado} — ${area.toUpperCase()}`,
+        `# ⚖️ AUDITORÍA ${estado} — ${area.toUpperCase()}`,
         `**Fecha:** ${fecha} | **Ciclos:** ${ciclos}/3 | **Estado:** ${estado}`,
         `**Veredicto Juez:** ${razon}`,
         ``,
@@ -71,8 +81,8 @@ function registrarEnDreams(area, textoDT, veredicto, razon, ciclos) {
         ``,
         textoDT,
     ].join('\n');
-    fs.writeFileSync(path.join(dreamsDir, filename), contenido, 'utf8');
-    console.log(`\n📓 Sueño registrado en DREAMS/${filename}`);
+    fs.writeFileSync(path.join(historyDir, filename), contenido, 'utf8');
+    console.log(`\n📓 Auditoría registrada en history/${filename}`);
 }
 
 function guardarPendingDT(area, textoDT, ultimaLeccion) {
@@ -82,7 +92,7 @@ function guardarPendingDT(area, textoDT, ultimaLeccion) {
     const areaSlug = area.toUpperCase().replace(/\s+/g, '_').substring(0, 20);
     const filename = `PENDING-${areaSlug}-${slug}.md`;
     const contenido = [
-        `# 🔶 PENDING DT — ${area.toUpperCase()} (Impureza Persistente)`,
+        `# 🔶 BORRADOR PENDIENTE — ${area.toUpperCase()} (Impureza Persistente)`,
         `**Fecha:** ${fecha}`,
         `**Estado:** RECHAZADO tras 3 ciclos — pendiente revisión humana`,
         `**Última lección de auditoría:** ${ultimaLeccion}`,
@@ -104,7 +114,7 @@ async function registrarLeccionAuditoria(specialty, leccion) {
     const filePath = path.join(__dirname, '..', 'brain', 'SPECIALTIES', `${specialty}.md`);
     if (fs.existsSync(filePath)) {
         const timestamp = new Date().toISOString();
-        const leccionText = `\n> [!WARNING] **AUDIT_LESSON (SICC v12.8 - ${timestamp}):**\n> ${leccion}\n`;
+        const leccionText = `\n> [!WARNING] **AUDIT_LESSON (SICC v14.0 - ${timestamp}):**\n> ${leccion}\n`;
         fs.appendFileSync(filePath, leccionText, 'utf8');
         console.log(`\n⚖️ [SICC AUDIT] Aprendizaje registrado mecánicamente en ${specialty}.md`);
     } else {
@@ -113,20 +123,21 @@ async function registrarLeccionAuditoria(specialty, leccion) {
 }
 
 async function runSwarmPilot() {
+    ensureDirs();
     console.log(`--------------------------------------------------`);
     console.log(`📡 [SICC] Inicializando Brain y Soberanía Técnica...`);
     
-    // --- CONTROL DE RECURSOS (Gobernador SICC v12.3) ---
-    const resourceCheck = checkYEncolar(`Sueño sobre ${arg}`, 'dreamer');
+    // --- CONTROL DE RECURSOS ---
+    const resourceCheck = checkYEncolar(`Auditoría sobre ${arg}`, 'auditor');
     if (!resourceCheck.ok) {
         console.error(`\n[GOVERNOR] 🚦 RECURSOS INSUFICIENTES (CPU: ${Math.round(resourceCheck.load * 100)}%)`);
-        console.error(`[GOVERNOR] El sueño ha sido ENCOLADO en AUDIT_QUEUE.md para ejecución diferida.`);
+        console.error(`[GOVERNOR] La auditoría ha sido ENCOLADA en AUDIT_QUEUE.md para ejecución diferida.`);
         process.exit(0);
     }
 
     inicializarBrain();
     
-    console.log(`🌪️ SICC SWARM PILOT - 💤 MODO SUEÑO (/dream ${arg})`);
+    console.log(`⚖️ SICC AUDITOR FORENSE - MODO AUDITORÍA (/audit ${arg})`);
     console.log(`--------------------------------------------------\n`);
 
     const identitySicc = fs.readFileSync(path.join(__dirname, '..', 'brain', 'IDENTITY.md'), 'utf8');
@@ -140,19 +151,19 @@ async function runSwarmPilot() {
 
     while (ciclosRealizados < MAX_CICLOS && !aprobado) {
         ciclosRealizados++;
-        console.log(`\n🔄 [CICLO DE DECANTACIÓN ${ciclosRealizados}/${MAX_CICLOS}]`);
+        console.log(`\n🔄 [CICLO DE AUDITORÍA ${ciclosRealizados}/${MAX_CICLOS}]`);
         
-        console.log(`🧬 [Fase 1] Consultando Memoria Genética (Auto-tuning)...`);
+        console.log(`🧬 [Fase 1] Consultando Memoria Histórica (Auto-tuning)...`);
         const lecciones = await buscarLecciones(arg, 3);
         let contextoGenetico = "";
         if (lecciones.length > 0) {
             console.log(`✅ [SICC OK] Inyectando ${lecciones.length} vacunas preventivas.`);
-            contextoGenetico = `### LECCIONES APRENDIDAS (SISTEMA INMUNE):\n` + 
+            contextoGenetico = `### LECCIONES APRENDIDAS (HISTORIAL):\\n` + 
                 lecciones.map(l => `- ${l.content}`).join('\n') + '\n\n';
         }
 
         const promptFase1 = ciclosRealizados === 1 
-            ? `### TAREA DE INVESTIGACIÓN (DECANTACIÓN INICIAL)\n${contextoGenetico}Genera una Decisión Técnica (DT) soberana sobre el área de ${arg} para el Proyecto SICC...`
+            ? `### TAREA DE INVESTIGACIÓN (DECANTACIÓN INICIAL)\n${contextoGenetico}Genera una Decisión Técnica (DT) vinculante sobre el área de ${arg} para el Proyecto SICC...`
             : `### REFINAMIENTO POR FALLO PREVIO (PURA DE GRASA)\n${contextoGenetico}Tu propuesta anterior fue RECHAZADA por el Juez por contener alucinaciones o violar la R-HARD-06...`;
 
         const agent1 = {
@@ -164,8 +175,8 @@ ${identitySicc}
 ${methodologySicc}
 
 🛡️ MURO DE FUEGO CONTRACTUAL (R-HARD-06) - PROHIBICIONES ABSOLUTAS:
-1. PROHIBIDO citar herramientas de IA: "Supabase", "RAG", "Oráculo", "NotebookLM", "Doble Ciego", "Algoritmo", "Script".
-2. PROHIBIDO personificar: "Diego", "Soberano", "Karpathy", "Peones".
+1. PROHIBIDO citar herramientas de IA: "Supabase", "RAG", "NotebookLM", "Doble Ciego", "Algoritmo", "Script".
+2. PROHIBIDO personificar: "Diego", "Soberano", "Karpathy", "Peones", "Alma", "Enjambre".
 3. PROHIBIDO alucinar flotas: Solo existen locomotoras **GR12 y U10** (Nación) y **U18** (Calidad). El "Tren LFC2" es una alucinación.
 4. PROHIBIDO inventar cláusulas: La "Cláusula N-1" o "Deducción Radical" NO existen. Solo el Orden de Prelación 1.2(d).
 5. PROHIBIDO alucinar seguros: El Artículo 12.1 NO existe para seguros. Usar Resolución de Surcos (Art. 9): 11.300 SMMLV (RCE) y 3.900 SMMLV (Patronal).
@@ -178,18 +189,18 @@ REGLA DE ORO: Tu lenguaje debe ser estrictamente institucional, legalista y téc
         };
 
         try {
-            console.log(`🐝 Disparando enjambre (Fase 1: Decantación Técnica)...`);
+            console.log(`⚖️ Activando agentes forenses (Fase 1: Decantación Técnica)...`);
             let responseObj = await llamarMultiplexadorFree(agent1.prompt, "", `Role: ${agent1.name}`);
             let borrador_DT = typeof responseObj === 'string' ? responseObj : (responseObj.texto || responseObj.content || JSON.stringify(responseObj));
             ultimoBorrador = borrador_DT;
             
             if (borrador_DT.includes("I need more information") || borrador_DT.includes("Could you please provide")) {
                 console.error(`🚨 [ALUCINACIÓN DETECTADA] Abortando ciclo por intento de meta-habla.`);
-                ultimaLeccion = "El agente intentó pedir información en lugar de dictaminar soberanamente.";
+                ultimaLeccion = "El agente intentó pedir información en lugar de dictaminar autónomamente.";
                 continue;
             }
 
-            console.log(`💤 BORRADOR GENERADO (Resumen): ${borrador_DT.substring(0,200)}...`);
+            console.log(`⚖️ BORRADOR GENERADO (Resumen): ${borrador_DT.substring(0,200)}...`);
             
             await sleep(2000); 
 
@@ -206,7 +217,7 @@ REGLA DE ORO: Tu lenguaje debe ser estrictamente institucional, legalista y téc
 Tu única misión es RECHAZAR cualquier dictamen que contenga alucinaciones, personificaciones o menciones a herramientas de IA.
 
 ### PROTOCOLO DE RECHAZO FULMINANTE:
-1. RECHAZAR si menciona: "Diego", "Soberano", "Karpathy", "RAG", "Supabase", "NotebookLM", "IA", "Algoritmo", "Tren LFC2", "Cláusula N-1" o "Protocolo de Soberanía".
+1. RECHAZAR si menciona: "Diego", "Soberano", "Karpathy", "RAG", "Supabase", "NotebookLM", "IA", "Algoritmo", "Tren LFC2", "Cláusula N-1", "Protocolo de Soberanía", "Enjambre", "Peones", "Alma".
 2. RECHAZAR si menciona fibra óptica asociada a material rodante o trenes (la fibra es exclusivamente BACKBONE SOTERRADO).
 3. RECHAZAR si menciona el "Artículo 12.1" para seguros o cláusulas inexistentes como "Capítulo 3 → Sección 2 → Literal 1".
 4. RECHAZAR si menciona componentes mecánicos de trenes (acoples, 1.200 unidades, etc.) en dictámenes de señalización o Pasos a Nivel.
@@ -233,13 +244,13 @@ ${borrador_DT}
 {
   "aprobado": boolean,
   "razon": "Justificación legalista citando el Contrato APP 001/2025 (Secciones 1.2(d), 3.9, 9.11, 18.7, etc.)",
-  "categoria_fallida": "SIGNALIZATION | POWER | COMMUNICATIONS | INTEGRATION | LEGAL",
-  "leccion_auditoria": "Mandato técnico para purgar el error en el siguiente ciclo"
+  "categoria_fallida": "SIGNALIZATION | POWER | COMMUNICATIONS | INTEGRATION | LEGAL | CONTRACTUAL",
+  "mandato_correctivo": "Mandato técnico para purgar el error en el siguiente ciclo"
 }
 `;
 
-            let responseJuez = await llamarMultiplexadorFree("Despierta al enjambre y evalúa el sueño.", "", promptJuez);
-            let decisionRAW = typeof responseJuez === 'string' ? responseJuez : (responseJuez.texto || responseJuez.content || JSON.stringify(responseJuez));
+            let responseJuez = await llamarMultiplexadorFree("Activa los agentes y evalúa la auditoría.", "", promptJuez);
+            let decisionRAW = typeof responseJuez === 'string' ? responseJuez : (responseObj.texto || responseObj.content || JSON.stringify(responseObj));
             
             // Parsear respuesta del Juez: JSON limpio → code fence → extracción campo a campo
             function extraerCampoJuez(texto, campo) {
@@ -261,7 +272,7 @@ ${borrador_DT}
                         aprobado: /\"aprobado\"\s*:\s*true/i.test(jsonMatch),
                         razon: extraerCampoJuez(jsonMatch, 'razon') || 'JSON malformado por el modelo',
                         categoria_fallida: extraerCampoJuez(jsonMatch, 'categoria_fallida') || 'Ninguna',
-                        leccion_auditoria: extraerCampoJuez(jsonMatch, 'leccion_auditoria') || 'Respuesta JSON malformada del Juez.',
+                        leccion_auditoria: extraerCampoJuez(jsonMatch, 'mandato_correctivo') || extraerCampoJuez(jsonMatch, 'leccion_auditoria') || 'Respuesta JSON malformada del Juez.',
                     };
                     console.warn(`⚠️ [JUEZ] JSON malformado — campos extraídos individualmente.`);
                 }
@@ -291,20 +302,21 @@ ${borrador_DT}
 
             if (decision.aprobado) {
                 aprobado = true;
-                console.log(`\n✅ SUEÑO CERTIFICADO TRAS ${ciclosRealizados} CICLOS.`);
+                console.log(`\n✅ AUDITORÍA CERTIFICADA TRAS ${ciclosRealizados} CICLOS.`);
                 console.log(`\n--- DT FINAL ---\n${borrador_DT}\n----------------`);
                 const { id: idDT, filename } = generarNombreDT(arg, borrador_DT);
                 guardarDTEnDisco(arg, borrador_DT, decision.razon || '', idDT, filename);
-                registrarEnDreams(arg, borrador_DT, true, decision.razon || '', ciclosRealizados);
+                registrarAuditoria(arg, borrador_DT, true, decision.razon || '', ciclosRealizados);
                 const idSupabase = await guardarDTCertificada(arg, borrador_DT, decision.razon || '');
                 if (idSupabase) console.log(`\n📦 DT vectorizada en Supabase: ${idSupabase}`);
             } else {
-                ultimaLeccion = decision.leccion_auditoria || decision.razon || "Alucinación de proceso detectada.";
-                const VALID_SPECIALTIES = ['COMMUNICATIONS', 'SIGNALIZATION', 'POWER', 'INTEGRATION', 'ENCE', 'CONTROL_CENTER'];
+                ultimaLeccion = decision.mandato_correctivo || decision.leccion_auditoria || decision.razon || "Alucinación de proceso detectada.";
+                const VALID_SPECIALTIES = ['COMMUNICATIONS', 'SIGNALIZATION', 'POWER', 'INTEGRATION', 'ENCE', 'CONTROL_CENTER', 'CONTRACTUAL_NORMATIVE'];
                 const SPECIALTY_MAP = {
                     'comunicaci': 'COMMUNICATIONS', 'telecom': 'COMMUNICATIONS', 'señaliz': 'SIGNALIZATION',
                     'señal': 'SIGNALIZATION', 'power': 'POWER', 'potencia': 'POWER', 'integr': 'INTEGRATION',
-                    'ence': 'ENCE', 'control': 'CONTROL_CENTER', 'centro': 'CONTROL_CENTER',
+                    'ence': 'ENCE', 'control': 'CONTROL_CENTER', 'centro': 'CONTROL_CENTER', 'norma': 'CONTRACTUAL_NORMATIVE',
+                    'contrato': 'CONTRACTUAL_NORMATIVE', 'jerar': 'CONTRACTUAL_NORMATIVE'
                 };
                 const rawCat = (decision.categoria_fallida || '').trim().toUpperCase();
                 let targetSp = VALID_SPECIALTIES.includes(rawCat) ? rawCat : null;
@@ -314,7 +326,7 @@ ${borrador_DT}
                 }
                 
                 await registrarLeccionAuditoria(targetSp, ultimaLeccion);
-                console.log(`🛡️ ALUCINACIÓN DETECTADA. Re-inyectando lección y reiniciando decantación...`);
+                console.log(`🛡️ ALUCINACIÓN DETECTADA. Re-inyectando lección y reiniciando auditoría...`);
                 await sleep(3000);
             }
 
@@ -325,17 +337,17 @@ ${borrador_DT}
     }
 
     if (!aprobado) {
-        console.log(`\n🛑 [SICC BLOCKER] El enjambre no logró decantar una DT pura tras ${MAX_CICLOS} ciclos.`);
+        console.log(`\n🛑 [SICC BLOCKER] Los agentes no lograron decantar una DT pura tras ${MAX_CICLOS} ciclos.`);
         console.log(`Gobernanza activa: El tema ha sido bloqueado por impureza persistente.`);
         if (ultimoBorrador) {
-            registrarEnDreams(arg, ultimoBorrador, false, ultimaLeccion, ciclosRealizados);
+            registrarAuditoria(arg, ultimoBorrador, false, ultimaLeccion, ciclosRealizados);
             guardarPendingDT(arg, ultimoBorrador, ultimaLeccion);
         }
     }
 
     console.log(`\n--------------------------------------------------`);
-    console.log(`⚖️ VEREDICTO FINAL AL DESPERTAR:`);
-    console.log(aprobado ? `✅ SUEÑO CERTIFICADO` : `❌ SUEÑO RECHAZADO\nBloqueado por impureza persistente. Última lección: ${ultimaLeccion}`);
+    console.log(`⚖️ VEREDICTO FINAL:`);
+    console.log(aprobado ? `✅ AUDITORÍA CERTIFICADA` : `❌ AUDITORÍA RECHAZADA\nBloqueada por impureza persistente. Última lección: ${ultimaLeccion}`);
     console.log(`--------------------------------------------------`);
 }
 

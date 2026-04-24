@@ -1,6 +1,6 @@
-# 🏛️ Arquitectura SICC v13.0 — "Intents Soberanos" (Saneada)
+# 🏛️ Arquitectura SICC v14.0 — "Intents SICC" (Saneada)
 
-SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agente soberano para auditoría técnica y jurídica del proyecto LFC2 (Línea Ferroviaria de Carga 2, Colombia).
+SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agente autónomo para auditoría técnica y jurídica del proyecto LFC2 (Línea Ferroviaria de Carga 2, Colombia).
 
 ---
 
@@ -8,11 +8,11 @@ SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agent
 
 | Servicio | Contenedor / Proceso | Puerto | Función |
 | :--- | :--- | :--- | :--- |
-| **Agente Core** | `dieleozagent-debug-dieleozagent-1` | — | Bot Telegram + orquestación de sueños |
+| **Agente Core** | `dieleozagent-debug-dieleozagent-1` | — | Bot Telegram + orquestación de ciclos de auditoría |
 | **Oracle NotebookLM** | `notebooklm-mcp-v12` | 3001 (SSE) | Verdad Externa — 108 fuentes "Contrato Ardanuy LFC" |
 | **Infra Oracle** | **Chrome + Xvfb + auth2.cjs** | — | Sesión Google persistente (Google Sign-In bypass) |
 | **Base de Datos** | `sicc-postgres` | 5432 | pgvector — LTM contractual + memoria genética |
-| **Ollama (Embeddings)** | **Nativo en Host** | 11434 | `nomic-embed-text` 768 dims, soberanía total |
+| **Ollama (Embeddings)** | **Nativo en Host** | 11434 | `nomic-embed-text` 768 dims, autonomía total |
 
 ### Conectividad
 - **Agente → Ollama:** alias `opengravity-ollama` → `172.20.0.1` (extra_hosts)
@@ -32,25 +32,25 @@ SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agent
 | 3 | OpenRouter paid | `gemini-2.0-flash-001` | ~$0.10/1M tokens — Último recurso |
 | 3 | OpenRouter paid | `llama-3.3-70b-instruct` | ~$0.12/1M tokens — Sin cuota diaria |
 
-**Muro de Fuego (Firewall):** Si fallan todos los niveles gratuitos/locales, el sistema **no escala a modelos premium** sin autorización. Registra un `[SICC BLOCKER]` y encola en `SICC_OPERATIONS.md`.
+**Muro de Fuego (Firewall):** Si fallan todos los niveles gratuitos/locales, el sistema **no escala a modelos premium** sin autorización. Registra un evento de contingencia y encola en `SICC_OPERATIONS.md`.
 
 **Skip 429:** `proveedorBloqueadoReciente()` saltea proveedores con 429 en los últimos 15 min.
 
 ---
 
-## 🗂️ Arquitectura de Código — v13.0
+## 🗂️ Arquitectura de Código — v14.0
 
 ```
 src/
-├── index.js          ← Bootstrap: dirs, brain init, IA check, bot, crons, dream launcher (~160 líneas)
+├── index.js          ← Bootstrap: dirs, brain init, IA check, bot, crons, scheduler (~160 líneas)
 ├── agent.js          ← Motor: pipeline FASE-0..5 (CPU→Vacunas→RAG→Oracle→Skills→LLM) (~450 líneas)
 ├── handlers.js       ← Router: /comandos slash + loop INTENTS[] (~390 líneas)
 ├── utils/
 │   └── send.js       ← safeSendMessage: chunking 3500c + fallback Markdown
 └── intents/          ← Intents de lenguaje natural (sin costo LLM)
     ├── navigation.js     "me pierdo / cómo empiezo"
-    ├── brain-state.js    soul / enjambre / lecciones de auditoría
-    ├── dream-state.js    sueños / DREAMS / historial área / roadmap
+    ├── brain-state.js    brain / agentes / lecciones de auditoría
+    ├── dream-state.js    auditorías / historial área / roadmap
     └── dt-ops.js         DTs aprobadas / bloqueadas / qué hacemos con X
 ```
 
@@ -111,8 +111,8 @@ procesarMensaje(textoUsuario)
     ├─ FASE-4: seleccionarSkills() → brain/skills/*.json|md
     │           → skillsContext
     │
-    ├─ FASE-5: getMultiplexedContext() → systemPromptSoberano
-    │                llamarMultiplexadorFree(texto, contextoFinal, systemPromptSoberano)
+    ├─ FASE-5: getMultiplexedContext() → systemPromptSICC
+    │                llamarMultiplexadorFree(texto, contextoFinal, systemPromptSICC)
     │                → { texto, proveedor }
     │                ─ Si falla → MURO-DE-FUEGO → registrarBloqueoSICC()
 ```
@@ -136,10 +136,25 @@ procesarMensaje(textoUsuario)
     ├─ FASE 4: Juez → { aprobado, razon, leccion_auditoria }
     └─ FASE 5: Persistencia
         ├─ APROBADO: brain/dictamenes/ + sicc_genetic_memory (DT_CERTIFICADA)
-        └─ RECHAZADO: brain/SPECIALTIES/{area}.md + brain/DREAMS/ + [tras 3: PENDING_DTS/]
+        └─ RECHAZADO: brain/SPECIALTIES/{area}.md + brain/history/ + [tras 3: PENDING_DTS/]
 ```
 
 **Hard-caps:** MAX_CICLOS=3 | exec timeout=1800s | Oracle timeout=90s
+
+---
+
+## 🏗️ Principio Fundamental de Diseño: Arquitectura PTC con Cantonamiento Virtual
+
+El principio fundamental de diseño del Sistema de Señalización del Corredor Férreo La Dorada–Chiriguaná es la implementación de una arquitectura de **Positive Train Control (PTC) con cantonamiento virtual**, complementada con **cantonamiento físico** en los puntos operativos definidos en el Apéndice Técnico 1 (La Dorada–México, Puerto Berrío–Grecia, Barrancabermeja, García Cadena y Zapatosa) que requieren control local seguro de rutas, señales y cambiavías.
+
+### Filosofía de Operación
+- **Vía Sencilla (Intermedios)**: Determinación y supervisión de autoridades de movimiento emitidas desde un sistema central (CCO), con soporte en equipos embarcados, posicionamiento GNSS, comunicaciones seguras y lógica de protección automática.
+- **Puntos Críticos (ENCE)**: Enclavamientos electrónicos SIL-4 para asegurar rutas, control de movimientos incompatibles y permitir la **operación local controlada** en condiciones degradadas o pérdida de comunicación.
+- **Desvíos Menores**: Los desvíos que no requieran enclavamiento completo se resuelven mediante **desvíos libres**.
+- **Redundancia de Comunicaciones**: Red troncal de **Fibra Óptica** enterrada + Subsistema **TETRA** + Red **Satelital** de respaldo.
+
+### Justificación Técnica
+La arquitectura PTC con cantonamiento virtual concentra la infraestructura física únicamente donde es técnica y operacionalmente necesaria, manteniendo en el resto del corredor una solución centralizada, escalable y compatible con la operación de carga de 914mm, de conformidad con **FRA 49 CFR Part 236 Subpart I (2026)** y **AREMA (2021)**.
 
 ---
 
@@ -149,12 +164,12 @@ procesarMensaje(textoUsuario)
 |---|---|---|
 | `hola` / `buenas` / `hi` | handlers.js | Menú de comandos |
 | `me pierdo / cómo empiezo / cómo me ayudas` | navigation.js | Guía rápida del flujo |
-| `como aprende tu soul / quien eres` | brain-state.js | SOUL.md + pipeline aprendizaje |
-| `el enjambre ya entiende / necesitas algo` | brain-state.js | Estado lecciones Karpathy |
-| `qué sueños tienes pendientes` | dream-state.js | DREAMS/ + PENDING_DTS/ |
+| `como aprende el sistema / quien eres` | brain-state.js | BRAIN.md + pipeline aprendizaje |
+| `los agentes ya entienden / necesitas algo` | brain-state.js | Estado lecciones de auditoría |
+| `qué auditorías tienes pendientes` | dream-state.js | history/ + PENDING_DTS/ |
 | `qué temas puedo proponer / roadmap` | dream-state.js | SPECIALTIES/ + ROADMAP.md |
 | `historial de comunicaciones / señalización` | dream-state.js | Lecciones + DTs + Vercel status |
-| `dónde están las DTs / dictamenes` | dt-ops.js | brain/dictamenes/ + DREAMS/ |
+| `dónde están las DTs / dictamenes` | dt-ops.js | brain/dictamenes/ + history/ |
 | `qué DT tengo bloqueadas / pendientes` | dt-ops.js | Aprobadas / sin promover / PENDING |
 | `qué hacemos con DT-ENRG-2026-004` | dt-ops.js | Resumen DT + pasos promote |
 
@@ -165,7 +180,7 @@ procesarMensaje(textoUsuario)
 | Directorio | Escrito por | Cuándo |
 |---|---|---|
 | `brain/dictamenes/` | `swarm-pilot.js` | Al **aprobar** el Juez — PROHIBIDO EDITAR MANUALMENTE |
-| `brain/DREAMS/` | `swarm-pilot.js` | Siempre — aprobado **y** rechazado |
+| `brain/history/` | `swarm-pilot.js` | Historial de auditorías (aprobadas y rechazadas) |
 | `brain/PENDING_DTS/` | `swarm-pilot.js` | Al **rechazar** tras 3 ciclos |
 | `brain/SPECIALTIES/*.md` | `swarm-pilot.js` | Al **rechazar** — lección auditoría append (Vacuna) |
 | `sicc_genetic_memory` | `supabase.js` | Al **completar** cada ciclo — veredicto + DT |
@@ -174,7 +189,7 @@ procesarMensaje(textoUsuario)
 ### Naming de archivos
 - **Dictamen aprobado:** `DT-{PREFIX}-{AÑO}-{SEQ}_{Descripcion}_APROBADO.md`
   - Prefijos: CTSC (señalización), COMS (telecom), ENRG (energía), INTG (integración), CTRL (control), ENCE
-- **Sueño (log):** `DREAM-{AREA}-{ISO_TIMESTAMP}.md`
+- **Log de Auditoría:** `AUDIT-{AREA}-{ISO_TIMESTAMP}.md`
 - **Pending:** `PENDING-{AREA}-{FECHA}.md`
 
 ---
@@ -219,11 +234,11 @@ git add . && git commit -m "feat: DT certificada SICC" && git push
 
 | Item | Estado |
 |---|---|
-| `ejecutarSondaForense()` en simulator.js | ROTO (OpenAI no importado). Requiere refactor a `llamarMultiplexadorFree()`. |
 | Comando `/promote` DT→LFC2 | Automatizar pipeline manual — usar `src/gitlocal.js`. |
 | Re-ingesta `contrato_documentos` | Fragmentos pre-fix oversized — re-ingestar con 800c/100c. |
 | Interrogación iterativa Oracle | Juez debe emitir ≥2 preguntas de seguimiento al Oracle por ciclo. |
-| `SICC_OPERATIONS.md` auto-actualización | Tras cada sueño — fecha, área, veredicto. |
+| `SICC_OPERATIONS.md` auto-actualización | Tras cada ciclo de auditoría — fecha, área, veredicto. |
+| `ejecutarSondaForense()` | **CORREGIDO** — Ahora usa `llamarMultiplexadorFree`. |
 
 ---
 
@@ -232,9 +247,9 @@ git add . && git commit -m "feat: DT certificada SICC" && git push
 1. **CAPEX Blindado:** $726.000.000 COP máx (WBS 6.1.100)
 2. **Normativa:** FRA 49 CFR Part 236 / AREMA / Manual Vial 2024
 3. **CPU:** >80% → encolar | >95% → bloquear inferencia local
-4. **Idioma:** Español obligatorio en toda salida del enjambre
-5. **Verdad:** Oracle prevalece sobre intuición de la IA generativa
-6. **Soberanía:** PROHIBIDA la edición manual de dictámenes. Todo cambio debe ser vía ajuste del BRAIN y re-ejecución del enjambre.
+4. **Idioma:** Español obligatorio en toda salida del agente
+5. **Verdad:** El Contrato APP 001/2025 y sus Apéndices prevalecen sobre cualquier inferencia de IA generativa
+6. **Autonomía:** PROHIBIDA la edición manual de dictámenes. Todo cambio debe ser vía ajuste del BRAIN y re-ejecución del ciclo de auditoría.
 
 ---
 
@@ -254,8 +269,8 @@ ls brain/dictamenes/
 docker exec sicc-postgres psql -U sicc_app -d postgres_sicc \
   -c "SELECT COUNT(*), COALESCE(metadata->>'tipo','sin_tipo') FROM sicc_genetic_memory GROUP BY 2;"
 
-# Sueños recientes
-ls brain/DREAMS/ | tail -5
+# Auditorías recientes
+ls brain/history/ | tail -5
 
 # Trazas de inferencia (últimas 5)
 tail -5 data/logs/sicc-traces.json | python3 -m json.tool
@@ -263,4 +278,4 @@ tail -5 data/logs/sicc-traces.json | python3 -m json.tool
 
 ---
 
-*Actualizado: 2026-04-18 | OpenGravity SICC v13.0*
+*Actualizado: 2026-04-24 | OpenGravity SICC v14.0*

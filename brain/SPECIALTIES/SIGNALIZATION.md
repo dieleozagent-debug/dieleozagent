@@ -1,9 +1,41 @@
-> [!IMPORTANT] **JERARQUÍA DOCUMENTAL ESTRICTA (ORDEN DE PRELACIÓN - CAP I, SEC 1.2d):**
-> 1. **NIVEL 1:** Contrato APP 001/2025 (Ley Máxima).
-> 2. **NIVEL 2:** AT1 (Alcance Técnico Absoluto - Manda FRA 236 para PTC).
-> 3. **NIVEL 3-11:** AT2 al AT10 (Orden numérico. AT3: AREMA > FRA > AAR > UIC).
-> 4. **REGLA DE DESEMPATE (SEC 9.11):** En caso de duda, prevalece la **MAYOR CALIDAD, MAYOR SERVICIO Y MAYOR SEGURIDAD**.
-> 5. **REGLA DE ORO:** Las respuestas a Q&A (Nivel 16) NO modifican obligaciones de niveles 1-10.
+> [!IMPORTANT] **REGLA DE GOBERNANZA TÉCNICA (JERARQUÍA NORMATIVA - SECCIÓN 1.2d + AT3):**
+> 1. **NIVEL 1:** Contrato APP 001/2025 (y documentos prevalentes).
+> 2. **NIVEL 2:** Apéndice Técnico 1 (AT1) — Alcance y Funcionalidad.
+> 3. **NIVEL 3:** Apéndice Técnico 3 (AT3) — Criterios de Diseño y Normativa.
+> 4. **NIVEL 4:** Documento de Bases y Criterios de Diseño (DBCD).
+> 5. **NIVEL 5:** Normas Adoptadas (Ver [CONTRACTUAL_NORMATIVE.md](file:///home/administrador/docker/agente/brain/SPECIALTIES/CONTRACTUAL_NORMATIVE.md)).
+> 
+> **REGLA DE DESEMPATE (AT3 Cap I, lit c):** **AREMA > FRA > AAR > UIC**.
+
+# ⚖️ REGLAS DE NEGOCIO: SIGNALIZATION (S-PTC) — v14.0
+
+## 1. INTRODUCCIÓN
+### 1.1. Propósito
+Establecer los criterios técnicos, funcionales y normativos que rigen el desarrollo del **diseño de detalle** del Sistema de Señalización, control de tráfico y comunicaciones del Corredor Férreo La Dorada – Chiriguaná (APP No. 001 de 2025). El alcance se limita a definir una base preliminar de diseño, arquitectura general, principios de operación y criterios de cumplimiento aplicables al subsistema de control de trenes, CCO, comunicaciones para señalización, protección de Pasos a Nivel (PaN) e interoperabilidad con FENOCO.
+
+### 1.2. Marco Normativo (Obligatorio)
+- **Internacional**: FRA 49 CFR Part 236, Subpart I (2026), FRA 49 CFR Part 213 (2026), AREMA Manual for Railway Engineering (2021) y AREMA Communications & Signals Manual (2021).
+- **Nacional (Colombia)**: RETIE 2024, NSR-10 (Decreto 926 de 2010), NTC 4741:1999 y Manual de Señalización Vial de Colombia (Res. 20243040045005 de 2024).
+
+### 1.3. Alcance del Sistema
+- **Corredor**: 526,133 km | **Trocha**: 914 mm (Carga, vía única con apartaderos).
+- **Arquitectura**: Positive Train Control (PTC) con **cantonamiento virtual** en tramos de vía sencilla y **cantonamiento físico** en las cinco (5) zonas ENCE.
+- **Equipo Embarcado (Mandatorio)**:
+    1. Computador PTC SIL-4.
+    2. Posicionamiento GNSS + Odometría.
+    3. DMI (Velocidad + MA).
+    4. Interfaz de Freno (Enforcement).
+    5. Radio TETRA + Redundancia Satelital.
+    6. Event Recorder + HOT-EOT (Integridad).
+    7. Onboard Track Database.
+- **Funciones de Seguridad Vitales (FRA 236-I)**:
+    1. Prevención de colisiones entre trenes.
+    2. Prevención de descarrilamientos por exceso de velocidad.
+    3. Prevención de incursión en zonas de trabajo protegidas.
+    4. Prevención de movimiento a través de cambios mal posicionados.
+- **Desvíos**: Motorizados en 5 zonas ENCE. **Desvíos Libres** en el resto del corredor (Tabla 17 AT1).
+
+---
 
 # R-HARD — RESTRICCIONES DURAS UNIVERSALES
 **Versión:** 2.0 | **Aplicación:** Toda la arquitectura SICC Simulator v12.0
@@ -112,11 +144,28 @@ Se prohíbe el uso de legacy tags: `Michelin Certified`, `Karpathy Loop`, `Peone
 - **Referencia CTC:** Tan solo la partida 1.1.103 (Software CTC Virtual + ETCS L2) tiene un valor asignado de **$88.112.090.432 COP**.
 - **Rechazo automático:** Cualquier DT que asigne presupuestos irrisorios (ej. $150.000.000 COP) para la señalización principal será RECHAZADO por inviabilidad técnica.
 
-## S-PTC-08 — MANDATO ENCE (5 ESTACIONES CRÍTICAS)
+## S-PTC-08 — MANDATO ENCE (5 ZONAS DE CANTONAMIENTO FÍSICO)
 
-- **Mandato:** El diseño DEBE incluir los cinco (5) Enclavamientos Electrónicos (ENCE) físicos exigidos por la **Tabla 17 del AT1**.
-- **Sitios Obligatorios:** Zapatosa, García Cadena, Barrancabermeja, Pto. Berrío–Grecia y La Dorada–México.
-- **Prohibición:** Se prohíbe el término "Infraestructura Zero". La arquitectura es **Virtual V-Rail** con componentes físicos ENCE en los nodos estratégicos.
+- **Mandato**: El diseño DEBE incluir los cinco (5) Enclavamientos Electrónicos (ENCE) físicos para las zonas operativas exigidas en AT1.
+- **Zonas de Control**: La Dorada–México, Puerto Berrío–Grecia, Barrancabermeja, García Cadena y Zapatosa.
+- **Funciones Vitales ENCE**:
+    1. Aseguramiento de rutas mediante lógica segura.
+    2. Verificación de liberación y ocupación de vía (Cantonamiento Físico).
+    3. Comando de señales luminosas y cambiavías motorizados.
+    4. Transferencia controlada a operación local (contingencia/mantenimiento).
+- **Prohibición**: Se prohíbe el término "Infraestructura Zero". La arquitectura es **Virtual V-Rail** con componentes físicos ENCE en los nodos estratégicos.
+
+## S-PTC-09 — REDES Y COMPATIBILIDAD ELECTRÓNICA (EMC)
+- **Mandato**: Toda la red de transmisión de datos del sistema de señalización debe cumplir con los estándares IEEE 802.x y protocolos IP establecidos en [CONTRACTUAL_NORMATIVE.md](file:///home/administrador/docker/agente/brain/SPECIALTIES/CONTRACTUAL_NORMATIVE.md).
+- **EMC**: El equipamiento activo debe certificar cumplimiento con CISPR 22/24.
+- **Seguridad**: Transmisión en redes inalámbricas (Satelital/LTE) protegida bajo EN 50159 Categoría 3.
 
 > [!WARNING] **AUDIT_LESSON (SICC v12.8 - 2026-04-20T03:35:09.064Z):**
 > Se debe eliminar cualquier referencia a 'Soberana' o 'Infraestructura Zero' y respetar estrictamente las terminologías contractuales establecidas (e.g., Arquitectura Virtual V‑Rail). El siguiente ciclo deberá incluir el uso correcto de términos técnicos y la evitación de conceptos ficticios.
+
+## S-PTC-10 — PROTECCIÓN DE PASOS A NIVEL (PaN)
+- **Control**: Los PaN en zonas ENCE se gobiernan por el enclavamiento. Los restantes PaN activos (B/C) se gobiernan mediante la lógica **PTC con cantonamiento virtual**.
+- **Lógica CWT**: Es mandatorio el uso de Tiempo de Advertencia Constante (**Constant Warning Time**) basado en el vector velocidad/posición del tren provisto por el sistema PTC.
+- **Cantidades Mandatorias**: 9 Tipo C (Barreras) | 15 Tipo B (SLA).
+- **Normativa**: **NTC 4741 (1999)**, Manual de Señalización Vial (2024) y **FRA 49 CFR Part 234**.
+- **Falla Segura**: Ante pérdida de comunicación con el PTC central o falla de energía, el PaN debe transicionar a su estado de mayor seguridad (Cierre/Advertencia).

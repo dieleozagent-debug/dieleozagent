@@ -1,9 +1,19 @@
-> [!IMPORTANT] **JERARQUÍA DOCUMENTAL ESTRICTA (ORDEN DE PRELACIÓN - CAP I, SEC 1.2d):**
-> 1. **NIVEL 1:** Contrato APP 001/2025 (Ley Máxima).
-> 2. **NIVEL 2:** AT1 (Alcance Técnico Absoluto - Manda FRA 236 para PTC).
-> 3. **NIVEL 3-11:** AT2 al AT10 (Orden numérico. AT3: AREMA > FRA > AAR > UIC).
-> 4. **REGLA DE DESEMPATE (SEC 9.11):** En caso de duda, prevalece la **MAYOR CALIDAD, MAYOR SERVICIO Y MAYOR SEGURIDAD**.
-> 5. **REGLA DE ORO:** Las respuestas a Q&A (Nivel 16) NO modifican obligaciones de niveles 1-10.
+> [!IMPORTANT] **REGLA DE GOBERNANZA TÉCNICA (JERARQUÍA NORMATIVA - SECCIÓN 1.2d + AT3):**
+> 1. **NIVEL 1:** Contrato APP 001/2025.
+> 2. **NIVEL 2:** Apéndice Técnico 1 (AT1).
+> 3. **NIVEL 3:** Apéndice Técnico 3 (AT3).
+> 4. **NIVEL 4:** Documento de Bases y Criterios de Diseño (DBCD).
+> 5. **NIVEL 5:** Normas Adoptadas (Ver [CONTRACTUAL_NORMATIVE.md](file:///home/administrador/docker/agente/brain/SPECIALTIES/CONTRACTUAL_NORMATIVE.md)).
+> 
+> **REGLA DE DESEMPATE (AT3 Cap I, lit c):** **AREMA > FRA > AAR > UIC**.
+
+# ⚖️ REGLAS DE NEGOCIO: CONTROL_CENTER (CCO) — v14.0
+
+## 1. INTRODUCCIÓN
+### 1.1. Propósito
+Establecer los criterios técnicos para el Centro de Control de Operaciones (CCO) del Corredor La Dorada – Chiriguaná, ubicado en Santa Marta (PK 0+000).
+
+---
 
 # R-HARD — RESTRICCIONES DURAS UNIVERSALES
 **Versión:** 2.0 | **Aplicación:** Toda la arquitectura SICC Simulator v12.0
@@ -44,15 +54,29 @@ Se prohíbe estrictamente el uso de legacy tags: `Michelin Certified`, `Karpathy
 - **Fuente:** DBCD V002, Sección 5.1 (Vendor-Neutral Design).
 
 ## CTC-01 — ARQUITECTURA MAESTRA (SIL-4)
-- **Mandato:** Servidores vitales con nivel de integridad **SIL-4**, bajo topología abierta definida por el integrador (Vendor-Neutral Design, DBCD V002 Sección 5.1).
+- **Componentes Mandatorios (Back Office)**:
+    1. Servidores PTC Centralizados (Redundantes/HA) bajo FRA 236-I.
+    2. Sistema de Gestión de Tráfico / Interfaz CTC.
+    3. Base de Datos de Vía (Track Database) con geometría y restricciones.
+    4. Motor de Cálculo y Gestión de Movement Authority (MA).
+    5. Sistema de Regulación de Tráfico Ferroviario.
+    6. Consolas de Operación y Supervisión.
+    7. Registrador Jurídico Central y Almacenamiento de Eventos.
+    8. Sistema de Comunicaciones (Interfaces de Fibra Óptica).
 - **Plataformas:** Servidores industriales COTS (Off-the-shelf) para evitar dependencia de hardware propietario.
 - **HMI:** Interfaz de despacho SIL-2 basada en Web-Client (Soberanía UX).
 
 ## CTC-02 — SEGURIDAD Y REDES (RED-NET)
 - **Aislamiento:** Separación física obligatoria entre la Red Vital IP y cualquier red administrativa o de terceros.
+- **Criptografía (Vital IP)**: El intercambio de información operativa y de control con los equipos embarcados DEBE garantizar la **autenticación e integridad criptográfica** de los mensajes conforme a la norma **FRA 49 CFR § 236.1033**.
 - **Ciberseguridad:** Cumplimiento de estándares de defensa de infraestructura crítica para el Nodo Maestro.
 
-## CTC-03 — NODO MAESTRO (SANTA MARTA)
-- **Ubicación:** CCO Santa Marta (**PK 0+000**).
-- **Alcance:** Control centralizado de los 526 km de vía central.
-- **Failover:** Redundancia local mediante servidores clusterizados con failover dentro del CCO Santa Marta, conforme a AT1 Tabla 17 y DBCD V002 Sección 8.3. No se requiere nodo secundario físico externo.
+## CTC-03 — NODO MAESTRO (LA DORADA, CALDAS)
+- **Ubicación:** CCO La Dorada (**PK 201+470**).
+- **Alcance:** Control centralizado de los 526 km de vía central (UF2).
+- **Redundancia Eléctrica:** UPS dimensionada para autonomía mínima de **cuatro (4) horas** + Generación de respaldo.
+- **Failover:** Arquitectura de servidores redundantes HA tolerante a fallos. Backup de datos en tiempo real.
+
+## CTC-04 — INTERFAZ HOMBRE-MÁQUINA (HMI)
+- **Normativa:** El diseño de la HMI debe cumplir con **FRA 49 CFR Part 236 Apéndice E** (Factores Humanos y mitigación de errores).
+- **Requerimientos**: Visualización sinóptica, gestión gráfica de rutas, priorización de alarmas y registro histórico.

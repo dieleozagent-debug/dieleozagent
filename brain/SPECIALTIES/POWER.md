@@ -1,9 +1,19 @@
-> [!IMPORTANT] **JERARQUÍA DOCUMENTAL ESTRICTA (ORDEN DE PRELACIÓN - CAP I, SEC 1.2d):**
-> 1. **NIVEL 1:** Contrato APP 001/2025 (Ley Máxima).
-> 2. **NIVEL 2:** AT1 (Alcance Técnico Absoluto - Manda FRA 236 para PTC).
-> 3. **NIVEL 3-11:** AT2 al AT10 (Orden numérico. AT3: AREMA > FRA > AAR > UIC).
-> 4. **REGLA DE DESEMPATE (SEC 9.11):** En caso de duda, prevalece la **MAYOR CALIDAD, MAYOR SERVICIO Y MAYOR SEGURIDAD**.
-> 5. **REGLA DE ORO:** Las respuestas a Q&A (Nivel 16) NO modifican obligaciones de niveles 1-10.
+> [!IMPORTANT] **REGLA DE GOBERNANZA TÉCNICA (JERARQUÍA NORMATIVA - SECCIÓN 1.2d + AT3):**
+> 1. **NIVEL 1:** Contrato APP 001/2025.
+> 2. **NIVEL 2:** Apéndice Técnico 1 (AT1).
+> 3. **NIVEL 3:** Apéndice Técnico 3 (AT3).
+> 4. **NIVEL 4:** Documento de Bases y Criterios de Diseño (DBCD).
+> 5. **NIVEL 5:** Normas Adoptadas (Ver [CONTRACTUAL_NORMATIVE.md](file:///home/administrador/docker/agente/brain/SPECIALTIES/CONTRACTUAL_NORMATIVE.md)).
+> 
+> **REGLA DE DESEMPATE (AT3 Cap I, lit c):** **AREMA > FRA > AAR > UIC**.
+
+# ⚖️ REGLAS DE NEGOCIO: POWER (ENERGÍA HÍBRIDA) — v14.0
+
+## 1. INTRODUCCIÓN
+### 1.1. Propósito
+Establecer los criterios técnicos y normativos que rigen el suministro de energía para los sistemas de señalización y comunicaciones del Corredor La Dorada – Chiriguaná (APP No. 001 de 2025), garantizando cumplimiento con RETIE y NSR-10.
+
+---
 
 # R-HARD — RESTRICCIONES DURAS UNIVERSALES
 **Versión:** 2.0 | **Aplicación:** Toda la arquitectura SICC Simulator v12.0
@@ -28,7 +38,7 @@
 ## R-HARD-03 — TECNOLOGÍAS Y CITAS PROHIBIDAS
 - **Redundancia:** No Microondas terrestres. No V-Block. No 2oo3 Propietario.
 - **Interoperabilidad:** Únicamente **Sección 2.209** (Stop & Switch). Se prohíbe citar "Sección 20-9" o estándares "FENOCO" cerrados.
-- **Ubicación CCO:** PK 0+000 (Santa Marta). Cualquier mención a Barrancabermeja o PK 211 como CCO es un error de sinapsis.
+- **Ubicación CCO:** La Dorada, Caldas (**PK 201+470**). Cualquier mención a Santa Marta, Barrancabermeja o PK 0+000 como CCO del Proyecto LFC2 es un error de sinapsis.
 
 ---
 
@@ -44,8 +54,9 @@ Se prohíbe estrictamente el uso de legacy tags: `Michelin Certified`, `Karpathy
 - **Fuente:** DBCD V002, Sección 5.1 (Vendor-Neutral Design).
 
 ## PWR-01 — RED VITAL DE POTENCIA (SIL-4)
-- **Mandato:** De conformidad con el **Apéndice Técnico 4** del Contrato APP No. 001/2025 (Capítulo I, Numeral 2.1) y en concordancia con el **DBCD-v002 (Sección 8.3)**, el sistema UPS debe garantizar integridad **SIL-4** y una autonomía mínima de **cuatro (4) horas** de operación continua.
-- **Fuentes:** Red comercial + Fotovoltaica (Paneles) + Generadores de respaldo (Transferencia < 2 min).
+- **Mandato (ENCE, PTC, PaN, CCO):** Tensión de **110V DC**. Autonomía mínima de UPS de **cuatro (4) horas**. Margen de diseño: +20% sobre carga pico.
+- **Mandato (TETRA):** Tensión de **48V DC** conforme a ETSI 300.132-2. Autonomía mínima de UPS de **24-48 horas**.
+- **Fuentes:** Red comercial + Fotovoltaica (Paneles) + Generadores de respaldo (Transferencia < 2 min - EL2).
 
 ## PWR-02 — GESTIÓN EFICIENTE Y PROTOCOLOS ABIERTOS
 - **Mandato:** Prohibición absoluta de sobredimensionamiento. Uso obligatorio de baterías de **Litio de alta densidad** para reducción de huella constructiva.
