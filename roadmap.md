@@ -33,28 +33,28 @@
 - [x] **Primera DT Certificada:** `DT-CTRL-2026-016` (Control Center) — 2 ciclos, aprobada, vectorizada en Supabase.
 
 ### 🌀 OPERACIÓN EN CURSO (Prioridad Alta):
-- [ ] **Ciclos de auditoría pendientes:** Señalización, ENCE, Comunicaciones, Energía, Integración.
+- [ ] **Ciclos de auditoría pendientes:** ENCE, Comunicaciones, Energía, Integración.
 - [ ] **Comando `/promote` (DT → LFC2):** Automatización de promoción de DTs certificadas vía `src/gitlocal.js`.
-- [ ] **Oracle (NotebookLM):** Contenedor `172.20.0.4:3001` caído — `ECONNREFUSED`. Requiere restart del stack notebook-mcp.
 - [ ] **GitHub `brain` repo:** No existe como repo independiente. Vive dentro de `dieleozagent`. Crear si se requiere separación.
 
 ### 📅 PENDIENTES (Roadmap de Ejecución):
 
 **Prioridad 1: Completar Ciclos de Auditoría**
-1. `/audit Señalización` — Validar PTC, ENCE, PaN, SIL-4.
-2. `/audit ENCE` — Validar 5 enclavamientos físicos (Tabla 17 AT1).
-3. `/audit Comunicaciones` — Validar TETRA, fibra, satelital.
-4. `/audit Energía` — Validar 110V/48V/EL2.
-5. `/audit Integración` — Validar FENOCO Stop & Switch.
+- [x] `/audit Señalización` — Validado (PTC, ENCE, PaN, SIL-4) con Juez fallback OpenRouter.
+1. `/audit ENCE` — Validar 5 enclavamientos físicos (Tabla 17 AT1).
+2. `/audit Comunicaciones` — Validar TETRA, fibra, satelital.
+3. `/audit Energía` — Validar 110V/48V/EL2.
+4. `/audit Integración` — Validar FENOCO Stop & Switch.
 
 **Prioridad 2: Infraestructura**
-6. **Levantar Oracle:** Restart `notebooklm-mcp` para validación externa en ciclos.
-7. **Re-ingesta `contrato_documentos`:** Re-procesar Biblia Legal con chunking 800c/100c.
-8. **Reparación `ejecutarSondaForense()`:** Corregir flujo de síntesis forense automática en `agent.js`.
+- [x] **Levantar Oracle:** Restart `notebooklm-mcp` completado, conectividad por DNS estable.
+- [x] **Ingesta PDF Criterios de Diseño:** `poppler-utils` y `tesseract-ocr` instalados, ingesta DBCD v001 completada.
+5. **Re-ingesta `contrato_documentos`:** Re-procesar Biblia Legal con chunking 800c/100c.
+6. **Reparación `ejecutarSondaForense()`:** Corregir flujo de síntesis forense automática en `agent.js`.
 
 **Prioridad 3: Automatización**
-9. **Auto-SICC Operations:** Actualización automática de `brain/SICC_OPERATIONS.md` post-auditoría.
-10. **Rotación automática API Keys 429:** Gestión de cuotas para Gemini/Groq.
+7. **Auto-SICC Operations:** Actualización automática de `brain/SICC_OPERATIONS.md` post-auditoría.
+8. **Rotación automática API Keys 429:** Gestión de cuotas para Gemini/Groq.
 
 ---
-*Actualizado: 2026-04-24T16:53 | SICC v14.0 — Primera DT Certificada. Motor operativo.*
+*Actualizado: 2026-04-24T14:02 | SICC v14.0 — Auditoría de Señalización certificada. Resiliencia de Juez y Oráculo validada.*

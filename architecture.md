@@ -131,11 +131,11 @@ procesarMensaje(textoUsuario)
     ▼ ── hasta 3 ciclos (STATE persistente) ─────────────────────
     │
     ├─ FASE 0: Supabase RAG extrae contexto crudo.
-    ├─ FASE 0.5 (Oracle Fetcher): Destilación de Contexto → FICHA TÉCNICA OBLIGATORIA.
+    ├─ FASE 0.5 (Oracle Fetcher): Destilación de Contexto (DBCD v001) → FICHA TÉCNICA OBLIGATORIA (vía distil-mandates.js).
     ├─ FASE 1: Auditor Forense genera borrador DT usando Citación Canónica de la Ficha.
     ├─ FASE 2: validarInternaSupabase() + validarExternaNotebook(notebooklm-mcp-v12:3001)
     ├─ FASE 3: Juez R-HARD-06 → Groq JSON_OBJECT evalúa 16 reglas.
-    │           🚨 Protocolo Rescate: Si Groq 429, desvía a openrouter/free (JSON).
+    │           🚨 Protocolo Rescate: Fallback INCONDICIONAL a openrouter/free (JSON) si Groq falla o no devuelve JSON válido.
     └─ FASE 4: Persistencia
         ├─ APROBADO: brain/dictamenes/ + sicc_genetic_memory (DT_CERTIFICADA)
         └─ RECHAZADO: brain/SPECIALTIES/{area}.md + STATE-{area}.json
