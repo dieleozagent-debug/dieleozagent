@@ -7,7 +7,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { llamarMultiplexadorFree, llamarGroqJSON } = require('./sicc-multiplexer');
+const { llamarMultiplexadorFree, llamarGroqJSON, extraerFichaTecnica } = require('./sicc-multiplexer');
 const { inicializarBrain } = require('../src/agent');
 const { validarExternaNotebook } = require('../src/sapi/notebooklm_mcp');
 const { validarInternaSupabase } = require('../src/sapi/supabase_rag');
@@ -142,7 +142,25 @@ async function runSwarmPilot() {
 
     const identitySicc = fs.readFileSync(path.join(__dirname, '..', 'brain', 'IDENTITY.md'), 'utf8');
     const methodologySicc = fs.readFileSync(path.join(__dirname, '..', 'brain', 'SICC_METHODOLOGY.md'), 'utf8');
-    const specialtyContext = getMultiplexedContext(arg);
+    let specialtyContext = getMultiplexedContext(arg);
+
+    // --- FASE 0 & 0.5: CAPA DE HIDRATACIÓN PROACTIVA (ORACLE FETCHER) ---
+    const fichaTecnicaPath = path.join(__dirname, '..', 'brain', 'DREAMS', `FICHA-${arg.toUpperCase().replace(/\s+/g, '_')}.md`);
+    let fichaTecnica = "";
+    if (fs.existsSync(fichaTecnicaPath)) {
+        console.log(`[ORACLE FETCHER] ♻️ Ficha Técnica existente encontrada (Modo Caché).`);
+        fichaTecnica = fs.readFileSync(fichaTecnicaPath, 'utf8');
+    } else {
+        console.log(`[ORACLE FETCHER] 🔍 Fase 0: Extrayendo contexto crudo del SSoT (Supabase) para ${arg}...`);
+        const chunksCrudos = await validarInternaSupabase(arg); 
+        console.log(`[ORACLE FETCHER] ⚗️ Fase 0.5: Destilando Ficha de Mandatos Innegociables...`);
+        fichaTecnica = await extraerFichaTecnica(arg, chunksCrudos);
+        fs.writeFileSync(fichaTecnicaPath, fichaTecnica, 'utf8');
+        console.log(`[ORACLE FETCHER] ✅ Ficha Técnica generada y guardada en ${fichaTecnicaPath}`);
+    }
+
+    // Inyectamos la Ficha Técnica directamente al inicio del contexto de la especialidad
+    specialtyContext = `### 📋 FICHA TÉCNICA OBLIGATORIA (EXTRACTO DEL SSoT)\n${fichaTecnica}\n\n${specialtyContext}`;
 
     const stateFile = path.join(__dirname, '..', 'brain', `STATE-${arg.replace(/\s+/g, '_')}.json`);
     let state = { ciclosTotalesHistoricos: 0, ultimaLeccion: "", status: 'PENDING', ultimoBorrador: "" };

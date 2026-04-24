@@ -438,6 +438,39 @@ async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt 
   throw new Error('[SICC BLOCKER] Todos los proveedores agotados. Reintenta en 1h.');
 }
 
+/**
+ * ORACLE FETCHER: Destilación de Contexto para Modelos con Ventana Limitada
+ * Objetivo: Transformar fragmentos contractuales en una Ficha de Mandatos Innegociables.
+ */
+async function extraerFichaTecnica(intencion, chunksCrudos) {
+    const promptDestilador = `
+ACTÚA COMO UN DIRECTOR DE INTEGRACIÓN TÉCNICA PARA EL PROYECTO LFC2.
+TU OBJETIVO ES RESUMIR ESTOS FRAGMENTOS DE CONTRATO (SSoT) EN UNA FICHA TÉCNICA ESTRICTA.
+
+REGLAS DE ORO PARA EL RESUMEN:
+1. NUNCA RESUMAS IDs O NÚMEROS DE CLÁUSULA: Mantén "Cláusula 3.9(a)(iv)" o los artículos de la FRA o AREMA exactamente como están en el texto.
+2. EXTRAE SOLO MANDATOS TÉCNICOS Y RESTRICCIONES: Busca y extrae obligaciones ("El concesionario debe...", "Se exige...", "El sistema operará bajo...").
+3. ELIMINA LA RETÓRICA LEGAL: Borra saludos, introducciones largas, "De conformidad con lo dispuesto..." y céntrate en el requerimiento duro.
+4. MANTÉN NOMBRES EXACTOS: Ej. "Fibra Óptica Soterrada", "SIL-4", "Locomotoras GR12, U10 y U18".
+
+Especialidad a analizar: ${intencion}
+
+CONTEXTO CRUDO (PROVENIENTE DEL CONTRATO APP 001/2025 Y NORMAS ASOCIADAS):
+${chunksCrudos}
+
+Genera la FICHA TÉCNICA DE RESTRICCIONES usando Markdown, en viñetas concisas.
+`;
+
+    console.log(`[ORACLE FETCHER] Destilando ${chunksCrudos.length} caracteres para la especialidad: ${intencion}...`);
+    try {
+        const respuesta = await llamarMultiplexadorFree(promptDestilador, "", "Rol: Destilador de Soberanía Técnica");
+        return typeof respuesta === 'string' ? respuesta : (respuesta.texto || respuesta.content || "Error en destilación");
+    } catch (error) {
+        console.error(`[ORACLE FETCHER] Falló la destilación: ${error.message}`);
+        return `## FICHA TÉCNICA BÁSICA\n- Cumplir estrictamente con el Contrato APP 001/2025 para el área de ${intencion}.\n- [Error destilando contexto: ${error.message}]`;
+    }
+}
+
 module.exports = { 
   detectSpecialty, 
   getMultiplexedContext,
@@ -452,7 +485,8 @@ module.exports = {
   registrarTrazaSICC,
   EstadoGlobalErrores,
   registrarError4xx,
-  extraerCodigoError
+  extraerCodigoError,
+  extraerFichaTecnica
 };
 
 if (require.main === module) {
