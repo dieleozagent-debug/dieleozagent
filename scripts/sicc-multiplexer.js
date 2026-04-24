@@ -250,6 +250,27 @@ async function llamarOpenRouter(mensajeUsuario, _, contextoRAG = '', systemPromp
   return respuesta.choices[0].message.content;
 }
 
+async function llamarOpenRouterJSON(mensajeUsuario, systemPrompt, modelOverride = null) {
+  const client = new OpenAI({
+    baseURL: 'https://openrouter.ai/api/v1',
+    apiKey: config.ai.openrouter.apiKey,
+    defaultHeaders: { 'HTTP-Referer': 'http://localhost', 'X-Title': config.agent.name },
+  });
+  
+  const sp = systemPrompt ? inyectarIdioma(systemPrompt) : IDIOMA_SICC;
+  console.log(`[AGENTE] 🟣 [JUEZ-JSON] Invocando OpenRouter. Modelo: ${modelOverride || 'openrouter/free'}`);
+  const respuesta = await client.chat.completions.create({
+    model: modelOverride || 'openrouter/free',
+    messages: [
+      { role: 'system', content: sp },
+      { role: 'user', content: mensajeUsuario },
+    ],
+    max_tokens: 1024,
+    response_format: { type: 'json_object' },
+  });
+  return respuesta.choices[0].message.content;
+}
+
 /**
  * Construye un prompt segmentado en 4 secciones para Ollama.
  * Los modelos locales procesan mejor contexto estructurado que un bloque largo.
@@ -479,6 +500,7 @@ module.exports = {
   llamarGroq,
   llamarGroqJSON,
   llamarOpenRouter,
+  llamarOpenRouterJSON,
   llamarOllama,
   ordenProveedores,
   llamarMultiplexadorFree,
