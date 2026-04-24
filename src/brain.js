@@ -11,7 +11,7 @@ const BRAIN_DIR = config.paths.brain;
 // AGENTS.md duplica R-HARD. SYNOPSIS/ROADMAP/OPERATIONS son meta, no behavior.
 // El aprendizaje real ocurre en: sicc_genetic_memory (Supabase) + SPECIALTIES/*.md (Karpathy)
 const BRAIN_FILES = [
-  { file: 'SOUL.md',             label: 'ALMA Y ÉTICA OPERACIONAL',       required: true  },
+  { file: 'BRAIN.md',            label: 'CEREBRO Y ÉTICA OPERACIONAL',    required: true  },
   { file: 'R-HARD.md',           label: 'RESTRICCIONES DURAS UNIVERSALES', required: true  },
   { file: 'IDENTITY.md',         label: 'IDENTIDAD SICC',                  required: true  },
   { file: 'SICC_METHODOLOGY.md', label: 'METODOLOGÍA DE AUDITORÍA N-1',    required: true  },

@@ -1,4 +1,4 @@
-// supabase.js — Módulo de Embeddings con Auto-Detección (v6.6.2)
+// supabase.js — Módulo de Embeddings con Auto-Detección (v14.0)
 'use strict';
 
 const { Pool } = require('pg');
@@ -12,26 +12,22 @@ const fs = require('fs');
 const isDocker = fs.existsSync('/.dockerenv');
 
 const dbConfig = {
-    host: process.env.DB_HOST || 'sicc-postgres', // Fallback al nombre real del contenedor
+    host: process.env.DB_HOST || 'sicc-postgres',
     port: parseInt(process.env.DB_PORT) || 5432,
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || 'postgres',
     database: process.env.DB_NAME || 'postgres'
 };
 
-// 🛰️ AJUSTE DE PRIORIDAD SOBERANA (v8.9.9 - Fixed)
-// Solo cambia a localhost si detectamos explícitamente que estamos en el host (sin .dockerenv)
-// Y si no se ha definido un DB_HOST específico en el .env
 if (!isDocker && !process.env.DB_HOST) {
     dbConfig.host = '127.0.0.1';
-    dbConfig.port = 54322; // Puerto expuesto en el host
+    dbConfig.port = 54322;
 }
 
 const pool = new Pool(dbConfig);
 
 /**
- * Obtener Vector Embedding de un texto usando Ollama LOCAL (Soberanía Total)
- * Modelo: nomic-embed-text (768 dimensiones, compatible con Supabase v6.5)
+ * Obtener Vector Embedding de un texto usando Ollama LOCAL
  */
 async function obtenerEmbedding(texto) {
     try {
@@ -79,11 +75,11 @@ async function buscarSimilares(preguntaTexto, limite = 3) {
 }
 
 async function guardarVeredictoJuez(area, veredicto) {
-    // Vectoriza el JSON completo del Juez para que futuros sueños sepan por qué se aprobó/rechazó
+    // Vectoriza el JSON completo del Juez para que futuros ciclos sepan por qué se aprobó/rechazó
     try {
-        const { aprobado, razon, categoria_fallida, leccion_karpathy } = veredicto;
+        const { aprobado, razon, categoria_fallida, leccion_auditoria } = veredicto;
         const estado = aprobado ? 'APROBADO' : 'RECHAZADO';
-        const contenido = `[VEREDICTO JUEZ ${estado}] Área: ${area}\nRazón: ${razon}\nCategoría: ${categoria_fallida || 'N/A'}\nLección: ${leccion_karpathy || 'N/A'}`;
+        const contenido = `[VEREDICTO JUEZ ${estado}] Área: ${area}\nRazón: ${razon}\nCategoría: ${categoria_fallida || 'N/A'}\nLección: ${leccion_auditoria || 'N/A'}`;
         const vector = await obtenerEmbedding(contenido);
         const metadata = { tipo: 'VEREDICTO_JUEZ', area, estado, fecha: new Date().toISOString() };
         await pool.query(
@@ -118,7 +114,6 @@ async function guardarDTCertificada(area, textoDT, razonJuez) {
 async function buscarLecciones(preguntaTexto, limite = 2) {
     try {
         const vectorQuery = await obtenerEmbedding(preguntaTexto);
-        // Usamos una función similar para la tabla de lecciones genéticas
         const query = `SELECT content, metadata, 1 - (embedding <=> $1::vector) as similitud 
                        FROM sicc_genetic_memory 
                        WHERE 1 - (embedding <=> $1::vector) > 0.7
@@ -126,7 +121,7 @@ async function buscarLecciones(preguntaTexto, limite = 2) {
         const result = await pool.query(query, [`[${vectorQuery.join(',')}]`, limite]);
         return result.rows;
     } catch (e) {
-        console.warn('[SUPABASE] [SICC WARN] Error buscando lecciones genéticas:', e.message);
+        console.warn('[SUPABASE] [SICC WARN] Error buscando lecciones contractuales:', e.message);
         return [];
     }
 }

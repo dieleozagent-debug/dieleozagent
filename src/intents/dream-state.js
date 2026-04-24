@@ -1,17 +1,16 @@
 /**
  * @file src/intents/dream-state.js
- * @what  Intents sobre el estado de los sueños: pendientes generales, historial
+ * @what  Intents sobre el estado de las auditorías: pendientes generales, historial
  *        por área específica, agenda/roadmap de trabajo.
  * @refs  handlers.js — loop de INTENTS
- *        brain/DREAMS/ — archivos de sueños registrados
+ *        brain/history/ — archivos de auditorías registradas
  *        brain/PENDING_DTS/ — borradores rechazados tras 3 ciclos
- *        brain/SPECIALTIES/[AREA].md — lecciones Karpathy por área
+ *        brain/SPECIALTIES/[AREA].md — lecciones de auditoría por área
  *        brain/ROADMAP.md — pendientes de trabajo
  * @agent-prompt  Tres intents en orden de especificidad:
  *                1. roadmap/agenda (más genérico)
  *                2. historial por área (requiere keyword de área)
- *                3. estado general de sueños
- *                Si el texto menciona un área conocida, siempre va al historial por área.
+ *                3. estado general de auditorías
  */
 'use strict';
 
@@ -35,14 +34,14 @@ const LFC2_DT_DIR = '/home/administrador/docker/LFC2/II_Apendices_Tecnicos/Decis
 module.exports = {
   matches(textLower) {
     return (
-      /temas?.*(proponer|dream|so[ñn]ar)|pendiente.*(trabajo|hacer|falta)|qu[eé] falta|qu[eé] tenemos|roadmap|agenda|backlog|prioridades/i.test(textLower) ||
-      /sue[ñn]|dream|pending|pendiente|borrador|karpathy.*(pendiente|queue)|ciclo.*(pendiente|sue[ñn]o)/i.test(textLower)
+      /temas?.*(proponer|audit|auditar)|pendiente.*(trabajo|hacer|falta)|qu[eé] falta|qu[eé] tenemos|roadmap|agenda|backlog|prioridades/i.test(textLower) ||
+      /audit|pending|pendiente|borrador|historial.*(pendiente|queue)|ciclo.*(pendiente|audit)/i.test(textLower)
     );
   },
 
   async handle(chatId, texto, textLower, send, BRAIN_DIR) {
     // Intent 1: roadmap/agenda/temas de trabajo
-    if (/temas?.*(proponer|dream|so[ñn]ar)|pendiente.*(trabajo|hacer|falta)|qu[eé] falta|qu[eé] tenemos|roadmap|agenda|backlog|prioridades/i.test(textLower)) {
+    if (/temas?.*(proponer|audit|auditar)|pendiente.*(trabajo|hacer|falta)|qu[eé] falta|qu[eé] tenemos|roadmap|agenda|backlog|prioridades/i.test(textLower)) {
       try {
         const roadmap = fs.readFileSync(path.join(BRAIN_DIR, 'ROADMAP.md'), 'utf8');
         const specDir = path.join(BRAIN_DIR, 'SPECIALTIES');
@@ -54,8 +53,8 @@ module.exports = {
 
         await send(chatId,
           `🗺️ *Agenda SICC — Qué trabajar*\n\n` +
-          `*Áreas disponibles para /dream:*\n` +
-          areas.map(a => `• \`/dream ${a.toLowerCase()}\``).join('\n') + `\n\n` +
+          `*Áreas disponibles para /audit:*\n` +
+          areas.map(a => `• \`/audit ${a.toLowerCase()}\``).join('\n') + `\n\n` +
           `*Alta prioridad (🔴):*\n\`\`\`\n${pendienteTexto.trim()}\n\`\`\`\n\n` +
           `*Media prioridad (🟡):*\n\`\`\`\n${pendienteMedText.trim()}\n\`\`\`\n\n` +
           `Ver roadmap completo: \`brain/ROADMAP.md\``
@@ -75,8 +74,8 @@ module.exports = {
         const lecciones  = [...specContent.matchAll(/\*\*AUDIT_LESSON \(([^)]+)\):\*\*\n> ([^\n]+)/g)]
           .map(m => `• ${m[1].substring(0,19)}: ${m[2].substring(0,80)}`);
         const dtsArea    = fs.readdirSync(path.join(BRAIN_DIR,'dictamenes')).filter(f => f.includes(prefix) && f.endsWith('.md'));
-        const dreamsArea = fs.existsSync(path.join(BRAIN_DIR,'DREAMS'))
-          ? fs.readdirSync(path.join(BRAIN_DIR,'DREAMS')).filter(f => f.toUpperCase().includes(area.split('_')[0]))
+        const auditsArea = fs.existsSync(path.join(BRAIN_DIR,'history'))
+          ? fs.readdirSync(path.join(BRAIN_DIR,'history')).filter(f => f.toUpperCase().includes(area.split('_')[0]))
           : [];
         const enLfc2     = fs.existsSync(LFC2_DT_DIR) ? fs.readdirSync(LFC2_DT_DIR).filter(f => f.includes(prefix)) : [];
 
@@ -90,8 +89,8 @@ module.exports = {
         await send(chatId,
           `🔍 *Historial SICC — Área: ${area}*\n\n` +
           estadoDT + `\n\n` +
-          `📓 *Sueños del área:* ${dreamsArea.length || 0}\n` +
-          (dreamsArea.length ? dreamsArea.map(f=>`• \`${f}\``).join('\n')+'\n\n' : '_(sin archivos en DREAMS/)_\n\n') +
+          `📓 *Auditorías del área:* ${auditsArea.length || 0}\n` +
+          (auditsArea.length ? auditsArea.map(f=>`• \`${f}\``).join('\n')+'\n\n' : '_(sin archivos en history/)_\n\n') +
           `🧬 *Lecciones de Auditoría (${lecciones.length} ciclos fallidos):*\n` +
           (lecciones.length
             ? lecciones.slice(0,5).join('\n') + (lecciones.length>5 ? `\n  _...+${lecciones.length-5} más en brain/SPECIALTIES/${area}.md_` : '')
@@ -102,27 +101,27 @@ module.exports = {
       } catch (_) { return false; }
     }
 
-    // Intent 3: estado general de sueños
+    // Intent 3: estado general de auditorías
     try {
-      const dreamsDir  = path.join(BRAIN_DIR, 'DREAMS');
+      const historyDir = path.join(BRAIN_DIR, 'history');
       const pendingDir = path.join(BRAIN_DIR, 'PENDING_DTS');
       const specDir    = path.join(BRAIN_DIR, 'SPECIALTIES');
-      const dreams  = fs.existsSync(dreamsDir)  ? fs.readdirSync(dreamsDir).filter(f=>f.endsWith('.md')).sort().reverse()  : [];
+      const audits  = fs.existsSync(historyDir) ? fs.readdirSync(historyDir).filter(f=>f.endsWith('.md')).sort().reverse()  : [];
       const pending = fs.existsSync(pendingDir) ? fs.readdirSync(pendingDir).filter(f=>f.endsWith('.md')).sort().reverse() : [];
       const specs   = fs.existsSync(specDir)    ? fs.readdirSync(specDir).filter(f=>f.endsWith('.md'))                     : [];
-      const aprobados  = dreams.filter(f=>f.includes('CERTIFICADO'));
-      const rechazados = dreams.filter(f=>f.includes('RECHAZADO'));
+      const aprobadas  = audits.filter(f=>f.includes('CERTIFICADA'));
+      const rechazadas = audits.filter(f=>f.includes('RECHAZADA'));
 
       await send(chatId,
-        `💤 *Estado del Dreamer SICC*\n\n` +
-        `📓 *Sueños registrados (${dreams.length} total):*\n` +
-        `• ${aprobados.length} CERTIFICADOS | ${rechazados.length} RECHAZADOS\n` +
-        (dreams.slice(0,4).map(f=>`  \`${f}\``).join('\n') || '  _(ninguno)_') + `\n\n` +
+        `⚖️ *Estado del Auditor SICC*\n\n` +
+        `📓 *Auditorías registradas (${audits.length} total):*\n` +
+        `• ${aprobadas.length} CERTIFICADAS | ${rechazadas.length} RECHAZADAS\n` +
+        (audits.slice(0,4).map(f=>`  \`${f}\``).join('\n') || '  _(ninguna)_') + `\n\n` +
         `🔶 *Borradores pendientes revisión humana (${pending.length}):*\n` +
         (pending.length ? pending.map(f=>`• \`${f}\``).join('\n') : '_(ninguno)_') + `\n\n` +
         `🧬 *Lecciones de Auditoría por área:*\n` +
         specs.map(f=>`• ${f.replace('.md','')}`).join('  ') + `\n\n` +
-        `Usa */dream [área]* para iniciar un nuevo ciclo.`
+        `Usa */audit [área]* para iniciar un nuevo ciclo.`
       );
       return true;
     } catch (_) { return false; }

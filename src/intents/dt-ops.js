@@ -5,13 +5,12 @@
  * @refs  handlers.js — loop de INTENTS
  *        brain/dictamenes/ — DTs aprobadas (certificadas)
  *        brain/PENDING_DTS/ — borradores rechazados en revisión humana
- *        brain/DREAMS/ — log de sueños
+ *        brain/history/ — log de auditorías
  *        LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/ — DTs promovidas a Vercel
  * @agent-prompt  Tres intents en orden de especificidad:
  *                1. DT específica por nombre (detecta patrón DT-XXXX en el mensaje)
  *                2. DTs bloqueadas/pendientes de review
  *                3. Ubicación general de DTs
- *                Agrega aquí todo lo relacionado con operaciones sobre DTs.
  */
 'use strict';
 
@@ -28,14 +27,14 @@ module.exports = {
       // DTs bloqueadas / pendientes de review
       /dt.*(bloqueada|pendiente|revisar|review|debo revisar|tengo pendiente)|bloqueada|pendiente.*dt|qu[eé].*dt.*(aprobad|revisar|pend)/i.test(textLower) ||
       // Ubicación general de DTs
-      /d[oó]nde|encuentro|dictamen|dt[- ]?aprobad|dt certificad|sue[ñn]o cert/i.test(textLower)
+      /d[oó]nde|encuentro|dictamen|dt[- ]?aprobad|dt certificad|audit.*cert/i.test(textLower)
     );
   },
 
   async handle(chatId, texto, textLower, send, BRAIN_DIR) {
     const dictDir  = path.join(BRAIN_DIR, 'dictamenes');
     const pendDir  = path.join(BRAIN_DIR, 'PENDING_DTS');
-    const dreamsDir = path.join(BRAIN_DIR, 'DREAMS');
+    const historyDir = path.join(BRAIN_DIR, 'history');
 
     // Intent 1: pregunta sobre una DT específica por nombre
     const dtMatch = texto.match(/\b(DT[-_][A-Z0-9][-A-Z0-9_]+)/i);
@@ -110,12 +109,12 @@ module.exports = {
     // Intent 3: ubicación general de DTs
     try {
       const dts    = fs.readdirSync(dictDir).filter(f=>f.endsWith('.md')).sort().reverse().slice(0,5);
-      const sueños = fs.existsSync(dreamsDir) ? fs.readdirSync(dreamsDir).filter(f=>f.endsWith('.md')).sort().reverse().slice(0,3) : [];
+      const audits = fs.existsSync(historyDir) ? fs.readdirSync(historyDir).filter(f=>f.endsWith('.md')).sort().reverse().slice(0,3) : [];
       await send(chatId,
         `📄 *DTs certificadas* (\`brain/dictamenes/\`):\n` +
         (dts.length ? dts.map(f=>`• \`${f}\``).join('\n') : '_(ninguna)_') + `\n\n` +
-        `💤 *Sueños recientes* (\`brain/DREAMS/\`):\n` +
-        (sueños.length ? sueños.map(f=>`• \`${f}\``).join('\n') : '_(ninguno)_') + `\n\n` +
+        `⚖️ *Auditorías recientes* (\`brain/history/\`):\n` +
+        (audits.length ? audits.map(f=>`• \`${f}\``).join('\n') : '_(ninguna)_') + `\n\n` +
         `Para promover a LFC2:\n\`\`\`\ncp brain/dictamenes/<DT>.md ${LFC2_DT_DIR}/\n\`\`\``
       );
       return true;

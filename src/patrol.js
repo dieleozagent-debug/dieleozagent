@@ -67,8 +67,7 @@ async function buclePatrulla(bot, chatId) {
   const cmd = `node scripts/forensic_auditor.js "${target}"`;
   
   exec(cmd, { cwd: path.join(__dirname, '..') }, (error, stdout, stderr) => {
-    // Registrar hallazgos (esto ya lo hace karpathy_audit mediante encolarHallazgo si lo configuramos, 
-    // pero por ahora capturamos salida básica en logs)
+    // Registrar hallazgos (los dictámenes se guardan en history/ si hay hallazgos críticos)
     const logPath = path.join(__dirname, '../data/logs/patrol.log');
     const entry = `\n--- [${new Date().toISOString()}] Audit: ${target} ---\n${stdout}\n${stderr}\n`;
     fs.appendFileSync(logPath, entry);

@@ -1,20 +1,19 @@
-# 🤖 OpenGravity SICC — Agente Soberano v13.0
+# 🤖 OpenGravity SICC — Agente Autónomo v14.0
 
-> **⚡ INICIO RÁPIDO:** Lee `architecture.md` para el diseño completo. `roadmap.md` para el estado exacto.
+> **⚡ INICIO RÁPIDO:** Lee `architecture.md` para el diseño completo. `roadmap.md` para el estado de ejecución y pendientes.
 
 **OpenGravity SICC** es un bot de Telegram + motor RAG para auditoría forense del
 **Contrato APP No. 001/2025** (Línea Ferroviaria de Carga — LFC2, Colombia).
 
 ---
 
-## 🚀 Estado Actual: v13.0 — Intents Soberanos
-
 | Sistema | Estado |
 |---|---|
 | Bot Telegram | 🟢 Operativo |
-| Oracle NotebookLM | 🟢 `notebooklm-mcp-v12` — Sesión persistente Chrome |
-| Learning pipeline | 🟢 DT_CERTIFICADA + VEREDICTO_JUEZ automáticos en `sicc_genetic_memory` |
-| Intents directos | 🟢 10 intents sin costo LLM — respuestas instantáneas |
+| Oracle NotebookLM | 🟢 `notebooklm-mcp-v12` — Sesión persistente |
+| Learning pipeline | 🟢 DT_CERTIFICADA + VEREDICTO_JUEZ en `sicc_genetic_memory` |
+| Auditoría SIL-4 | 🟢 Mandatos FRA 236 inyectados en SPECIALTIES/ |
+| Anclaje Financiero | 🟢 WBS v3.0 ($88.112 MM CTC / $726M Locomotora) |
 | CPU Governor | 🟢 Umbral 80%, throttling activo |
 | Ollama embeddings | 🟢 `nomic-embed-text` 768 dims |
 
@@ -30,14 +29,14 @@ src/
 ├── utils/send.js     safeSendMessage: chunking + fallback Markdown
 └── intents/          Lenguaje natural sin LLM
     ├── navigation.js     "me pierdo / cómo empiezo"
-    ├── brain-state.js    soul / enjambre / lecciones
+    ├── brain-state.js    soul / enjambre / lecciones de auditoría
     ├── dream-state.js    sueños / historial área / roadmap
-    └── dt-ops.js         DTs bloqueadas / promote / qué hacemos con X
+    └── dt-ops.js         DTs aprobadas / promote / flujo contractual
 ```
 
 ---
 
-## 🗺️ Rutas Soberanas
+## 🗺️ Rutas del Sistema SICC
 
 | Recurso | Ruta |
 | :--- | :--- |
@@ -55,7 +54,7 @@ src/
 
 | Comando | Función |
 |---|---|
-| `/dream [tema]` | Ciclo Karpathy 5 fases — Vacunación → RAG → Oracle → Juicio → Persistencia. Timeout 30 min. |
+| `/dream [tema]` | Ciclo de Refinamiento Forense (5 fases) — Vacunación → RAG → Oracle → Juicio → Persistencia. |
 | `/swarm [pregunta]` | Enjambre secuencial: Auditor + Estratega SICC |
 | `/doctor` | Health report: score, CPU, telemetría 4xx |
 | `/learn` | Auto-mapeo recursivo LFC2 |
@@ -74,7 +73,7 @@ El bot entiende preguntas directas sin necesidad de comandos slash:
 | `hola` / `buenas` / `hi` | Menú de comandos |
 | `me pierdo, cómo me ayudas` | Guía del flujo completo |
 | `como aprende tu soul` | SOUL.md + pipeline de aprendizaje |
-| `el enjambre ya entiende?` | Estado de lecciones Karpathy activas |
+| `el enjambre ya entiende?` | Estado de lecciones de auditoría activas |
 | `qué sueños tienes pendientes` | DREAMS/ + PENDING_DTS/ |
 | `qué temas puedo proponer` | Áreas disponibles + ROADMAP pendiente |
 | `historial de comunicaciones` | Lecciones + DTs + estado Vercel del área |
@@ -83,7 +82,7 @@ El bot entiende preguntas directas sin necesidad de comandos slash:
 
 ---
 
-## 🌪️ El Ciclo `/dream` — 5 Fases
+## 🌪️ El Ciclo `/dream` — Ciclo de Refinamiento Forense
 
 ```
 /dream [área]
@@ -99,7 +98,7 @@ El bot entiende preguntas directas sin necesidad de comandos slash:
     │   └─ validarExternaNotebook() → notebooklm-mcp-v12 → Chrome → NotebookLM
     │
     ├─ Fase 4: JUICIO
-    │   └─ Juez cruza borrador + feedback → { aprobado, razon, leccion_karpathy }
+    │   └─ Juez cruza borrador + feedback → { aprobado, razon, leccion_auditoria }
     │
     └─ Fase 5: PERSISTENCIA
         ├─ SIEMPRE: guardarVeredictoJuez() → sicc_genetic_memory
@@ -116,18 +115,18 @@ El bot entiende preguntas directas sin necesidad de comandos slash:
 | Mecanismo | Dónde | Cuándo |
 |---|---|---|
 | Vacunas genéticas | `sicc_genetic_memory` → inyectadas en FASE-1 | Cada `/dream` y cada mensaje |
-| Lecciones Karpathy | `brain/SPECIALTIES/{area}.md` → append | Cada rechazo del Juez |
+| Lecciones de Auditoría| `brain/SPECIALTIES/{area}.md` → append | Cada rechazo del Juez |
 | Gold standards | `brain/dictamenes/` → leídos por `simulator.js` | Futuros sueños del mismo área |
 | SOUL + R-HARD + IDENTITY | Estáticos — definen comportamiento base | Siempre en system prompt |
 
 ---
 
-## 🛡️ Gobernanza Muro de Fuego
+## 🛡️ Gobernanza de Inferencia (Firewall)
 
 El agente opera bajo un régimen de **Muro de Fuego (Firewall)**:
 - Prioriza proveedores gratuitos (Gemini, Groq, OpenRouter Free).
-- Usa modelos locales (Ollama) para soberanía total.
-- **BLOQUEO:** Si se agotan las vías gratuitas, el agente emite un `[SICC BLOCKER]` y requiere autorización manual para usar modelos premium.
+- Usa modelos locales (Ollama) para autonomía total.
+- **BLOQUEO:** Si se agotan las vías gratuitas, el agente emite un bloqueo de firma y requiere autorización manual para usar modelos premium.
 
 ---
 
@@ -162,3 +161,6 @@ docker compose logs -f | grep "\[AGENTE\]"
 # Oracle health
 curl http://localhost:3001/health
 ```
+
+---
+*Actualizado: 2026-04-24 | OpenGravity SICC v14.0*

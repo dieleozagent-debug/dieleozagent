@@ -1,7 +1,7 @@
 /**
  * @file src/index.js
  * @what  Punto de entrada del bot. Inicializa brain, bot Telegram, crons y el
- *        lanzador /dream. NO contiene lógica de comandos.
+ *        lanzador /audit. NO contiene lógica de comandos.
  * @how   Importa safeSendMessage (utils/send.js) y los handlers (handlers.js),
  *        crea el helper `send` ligado al bot, registra eventos bot.on/onText,
  *        y programa 3 crons (reporte 08:00, backup 06:00, health/hora).
@@ -9,17 +9,10 @@
  *        monolito de 790 líneas y facilita leer el flujo de arranque.
  * @refs  handlers.js — toda la lógica de comandos Telegram
  *        utils/send.js — safeSendMessage con chunking y fallback Markdown
- *        scripts/swarm-pilot.js — ejecutado por exec() para /dream
+ *        scripts/swarm-pilot.js — ejecutado por exec() para /audit
  *        scripts/sicc-harness.js — cron de auditoría (audit_run)
  *        agent.js — inicializarBrain(), generarReporteConsistencia()
  *        heartbeat.js — obtenerResumenForense() para cron matutino
- *
- * @agent-prompt
- *   NUNCA muevas lógica de comandos aquí; va en handlers.js.
- *   NUNCA reimplementes safeSendMessage; usa `send(chatId, text)`.
- *   Si agregas un cron nuevo ponlo en la sección "Crons" con comentario.
- *   El orden de arranque es: dirs → brain → IA-check → bot → crons → listeners.
- *   No toques el bloque `bot.onText(/^\/dream/)` sin actualizar swarm-pilot.js.
  */
 'use strict';
 
@@ -121,15 +114,15 @@ setInterval(async () => {
   }
 }, 30 * 60 * 1000);
 
-// ── Dream launcher ────────────────────────────────────────────────────────────
-bot.onText(/^\/dream(?:\s+(.+))?/, async (msg, match) => {
+// ── Audit launcher ────────────────────────────────────────────────────────────
+bot.onText(/^\/audit(?:\s+(.+))?/, async (msg, match) => {
   const chatId = msg.chat.id;
   const userId = String(msg.from.id);
   if (userId !== config.telegram.userId && userId !== '1567740382') return;
 
   const target = match[1] || 'LFC2 General';
   await send(chatId,
-    `🌪️ *Modo Sueño Iniciado*\n\nÁrea: *${target}*\nMetodología: Cámara de Doble Ciego\n\n_Est. 5-10 min..._`
+    `⚖️ *Auditoría Forense Iniciada*\n\nÁrea: *${target}*\nMetodología: Verificación Contractual\n\n_Est. 5-10 min..._`
   );
 
   const scriptPath = path.join(__dirname, '../scripts/swarm-pilot.js');
@@ -138,18 +131,18 @@ bot.onText(/^\/dream(?:\s+(.+))?/, async (msg, match) => {
       try {
         if (error) {
           for (let t = 0; t < 3; t++) {
-            try { await send(chatId, `❌ *Error en sueño:*\n${error.message}`); break; }
+            try { await send(chatId, `❌ *Error en auditoría:*\n${error.message}`); break; }
             catch (_) { await new Promise(r => setTimeout(r, 3000)); }
           }
           return;
         }
-        const veredicto = stdout.match(/⚖️ VEREDICTO FINAL AL DESPERTAR:[\s\S]*/);
-        const resumen   = veredicto ? veredicto[0].substring(0, 3000) : 'Decantación concluida — veredicto no parseado.';
+        const veredicto = stdout.match(/⚖️ VEREDICTO FINAL:[\s\S]*/);
+        const resumen   = veredicto ? veredicto[0].substring(0, 3000) : 'Proceso concluido — veredicto no parseado.';
         for (let t = 0; t < 3; t++) {
-          try { await send(chatId, `✨ *Sueño Finalizado (${target})*\n\n${resumen}`); break; }
+          try { await send(chatId, `✨ *Auditoría Finalizada (${target})*\n\n${resumen}`); break; }
           catch (_) { await new Promise(r => setTimeout(r, 3000)); }
         }
-      } catch (e) { console.error('[DREAM]', e.message); }
+      } catch (e) { console.error('[AUDIT]', e.message); }
     }
   );
 });

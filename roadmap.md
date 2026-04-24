@@ -1,20 +1,35 @@
 
 ---
 
-## 🌪️ ESTADO DE SOBERANÍA SICC v14.0 (20-Abr-2026)
+## 🌪️ ESTADO DE SOBERANÍA SICC v14.0 (24-Abr-2026)
 
 ### ✅ VICTORIAS FORENSES (Completado):
-- [x] **Sanitización Total SIL-4:** Erradicación de alucinaciones de "omisión de seguridad". El mandato SIL-4 (FRA 236) es ahora el eje innegociable de la señalización.
-- [x] **Anclaje Financiero CTC ($88.112 MM):** Se inyectó la realidad presupuestal del WBS v3.0, eliminando borradores con presupuestos irrisorios e inviables.
-- [x] **Consolidación ENCE (Tabla 17 AT1):** Los 5 enclavamientos electrónicos físicos (Zapatosa, G. Cadena, Barranca, Pto. Berrío, La Dorada) son ahora requisitos bloqueantes.
-- [x] **Escudos de Operación SICC:** Integración de las Secciones **2.156** (Notificación), **8.1** (Revisión), **9.12** (Equipos Complementarios) y **7.1** (Subcontratistas) como axiomas de defensa ante la Interventoría.
-- [x] **Purga Lingüística (R-HARD-05):** Bloqueo absoluto de idiomas extranjeros y jerga algorítmica ("Pureza", "Soberana", "Infraestructura Zero").
+- [x] **Institucionalización Marco Contractual:** Creación de la especialidad `CONTRACTUAL_NORMATIVE.md` con la jerarquía Sección 1.2(d) y regla de desempate AREMA > FRA.
+- [x] **Purga de Jargon Legacy v14.0:** Erradicación total de términos "Enjambre", "Sueño", "Peón" y "Karpathy" del código core y la base de conocimientos.
+- [x] **Saneamiento de Documentación:** `README.md`, `architecture.md` y `R-HARD.md` actualizados a estándares profesionales de auditoría forense.
+- [x] **Sanitización Total SIL-4:** El mandato SIL-4 (FRA 236) es ahora el eje innegociable de la señalización.
+- [x] **Anclaje Financiero CTC ($88.112 MM):** Realidad presupuestal del WBS v3.0 inyectada.
+- [x] **Consolidación ENCE (Tabla 17 AT1):** Los 5 enclavamientos electrónicos físicos son requisitos bloqueantes.
 
-### 🌀 OPERACIÓN EN CURSO (Auto-Corrección):
-- [/] **Decantación de Señalización V-Rail:** El enjambre está produciendo el primer dictamen bajo el régimen de los $88.000 millones.
-- [/] **Soberanía de Datos:** Sincronización final de la base de datos `sicc-postgres` con el entorno local de auditoría.
+### 🌀 OPERACIÓN EN CURSO (Prioridad Alta):
+- [/] **Migración `/audit` Global:** Asegurando que todos los disparadores internos usen el motor de auditoría forense en lugar del antiguo motor de sueños.
+- [/] **Comando `/promote` (DT → LFC2):** Automatización del flujo de promoción de dictámenes certificados al repositorio de producción mediante `src/gitlocal.js`.
+- [/] **Reparación de `ejecutarSondaForense()`:** Corrigiendo el flujo de síntesis forense automática en `src/agent.js`.
 
-### 📅 PRÓXIMOS PASOS:
-1.  **Auditoría de Comunicaciones (WBS Cap. 2):** Iniciar la validación de la redundancia TETRA + Satelital bajo los Escudos de Operación.
-2.  **Certificación de Puesta a Punto (WBS Cap. 6):** Validar el hardware dual en locomotoras GR12 y U10 sin alucinaciones mecánicas.
-3.  **Promoción a LFC2 Vercel:** Automatización del flujo de promoción de DTs certificadas al repositorio de producción.
+### 📅 PENDIENTES (Roadmap de Ejecución):
+
+**Prioridad 1: Estabilidad Core & RAG**
+1.  **Re-ingesta `contrato_documentos`:** Re-procesar la Biblia Legal con chunking optimizado (800c/100c).
+2.  **Validación `/audit telecomunicaciones`:** Prueba de estrés del pipeline v14.0 post-refactor.
+3.  **Gestión de Cuotas (429):** Rotación automática de API Keys.
+
+**Prioridad 2: Automatización Operativa**
+4.  **Auto-SICC Operations:** Actualización automática de `brain/SICC_OPERATIONS.md`.
+5.  **Integración `/audit` + `rag-match`:** Vincular auditoría de directorios con anclas en Supabase.
+
+**Prioridad 3: Capacidades Premium**
+6.  **OCR Ingesta Gemini:** Motor OCR para PDFs escaneados complejos.
+7.  **Interrogación Iterativa:** Configurar al Juez para emitir ≥2 preguntas de seguimiento por cada ciclo.
+
+---
+*Actualizado: 2026-04-24 | SICC v14.0 — Estado de Soberanía Validado*

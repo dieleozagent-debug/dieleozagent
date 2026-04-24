@@ -1,9 +1,23 @@
-> [!IMPORTANT] **JERARQUÍA DOCUMENTAL ESTRICTA (ORDEN DE PRELACIÓN - CAP I, SEC 1.2d):**
-> 1. **NIVEL 1:** Contrato APP 001/2025 (Ley Máxima).
-> 2. **NIVEL 2:** AT1 (Alcance Técnico Absoluto - Manda FRA 236 para PTC).
-> 3. **NIVEL 3-11:** AT2 al AT10 (Orden numérico. AT3: AREMA > FRA > AAR > UIC).
-> 4. **REGLA DE DESEMPATE (SEC 9.11):** En caso de duda, prevalece la **MAYOR CALIDAD, MAYOR SERVICIO Y MAYOR SEGURIDAD**.
-> 5. **REGLA DE ORO:** Las respuestas a Q&A (Nivel 16) NO modifican obligaciones de niveles 1-10.
+> [!IMPORTANT] **REGLA DE GOBERNANZA TÉCNICA (JERARQUÍA NORMATIVA - SECCIÓN 1.2d + AT3):**
+> 1. **NIVEL 1:** Contrato APP 001/2025.
+> 2. **NIVEL 2:** Apéndice Técnico 1 (AT1).
+> 3. **NIVEL 3:** Apéndice Técnico 3 (AT3).
+> 4. **NIVEL 4:** Documento de Bases y Criterios de Diseño (DBCD).
+> 5. **NIVEL 5:** Normas Adoptadas (Ver [CONTRACTUAL_NORMATIVE.md](file:///home/administrador/docker/agente/brain/SPECIALTIES/CONTRACTUAL_NORMATIVE.md)).
+> 
+> **REGLA DE DESEMPATE (AT3 Cap I, lit c):** **AREMA > FRA > AAR > UIC**.
+
+# ⚖️ REGLAS DE NEGOCIO: ENCE (ENCLAVAMIENTOS) — v14.0
+
+## 1. INTRODUCCIÓN
+### 1.1. Propósito
+Establecer los criterios técnicos para los cinco (5) Enclavamientos Electrónicos (ENCE) SIL-4 del Corredor La Dorada – Chiriguaná, garantizando cumplimiento con RETIE y NSR-10.
+
+### 1.2. Alcance Operativo (Cantonamiento Físico)
+- **Zonas ENCE**: Aseguramiento de rutas, verificación de ocupación, comando de señales y cambiavías motorizados.
+- **Operación Local**: Se permite la transferencia controlada a mando local en caso de contingencia, mantenimiento o pérdida de comunicación con el CCO.
+
+---
 
 # R-HARD — RESTRICCIONES DURAS UNIVERSALES
 **Versión:** 2.0 | **Aplicación:** Toda la arquitectura SICC Simulator v12.0

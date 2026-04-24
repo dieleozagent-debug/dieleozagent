@@ -12,8 +12,8 @@
  *        utils/send.js — `send` = safeSendMessage ligado al bot
  *        agent.js — procesarMensaje(), procesarMensajeSwarm(), limpiarHistorial()
  *        src/intents/navigation.js — "me pierdo / cómo empiezo"
- *        src/intents/brain-state.js — soul / identidad / enjambre / lecciones
- *        src/intents/dream-state.js — sueños / DREAMS / PENDING / historial área / roadmap
+ *        src/intents/brain-state.js — brain / identidad / agentes / lecciones
+ *        src/intents/dream-state.js — auditorías / historial área / roadmap
  *        src/intents/dt-ops.js — DTs aprobadas / bloqueadas / qué hacemos con X
  *
  * @agent-prompt
@@ -45,8 +45,6 @@ const DOWNLOADS_DIR = path.join(__dirname, '../data/downloads');
 const BRAIN_DIR     = path.join(__dirname, '../brain');
 
 // ── Intents de lenguaje natural ───────────────────────────────────────────────
-// Cada módulo expone { matches(textLower, texto), handle(chatId, texto, textLower, send, BRAIN_DIR) }
-// Orden importa: el primero que coincide responde.
 const INTENTS = [
   require('./intents/navigation'),
   require('./intents/brain-state'),
@@ -76,7 +74,7 @@ async function handleMessage(msg, bot, send) {
   const chatId = msg.chat.id;
   const userId = String(msg.from.id);
 
-  if (texto.startsWith('/dream') || texto === '/swarm') return;
+  if (texto.startsWith('/audit') || texto === '/swarm') return;
   if (!autorizado(userId)) {
     console.warn(`[BOT] Mensaje ignorado de: ${userId}`);
     return;
@@ -86,14 +84,12 @@ async function handleMessage(msg, bot, send) {
   // /start /hola
   if (texto === '/start' || /^\/?(hola|hello|hi|buenas?|buenos?\s*d[ií]as?|buenas?\s*tardes?|buenas?\s*noches?)$/i.test(texto)) {
     await send(chatId,
-      `👋 ¡Hola Diego! Soy *${config.agent.name}* (SICC v12.9).\n\n` +
-      `*/dream [tema]* · */swarm [pregunta]* · */doctor* · */learn*\n` +
-      `*/audit [ruta]* · */karpathy [tema]* · */audit_run*\n` +
-      `*/ollama [prompt]* · */cmd [shell]* · */ingesta [ruta]*\n` +
-      `*/cerebro* · */estado* · */memoria* · */limpiar*\n` +
-      `*/correos* · */email para|asunto|msg*\n` +
-      `*/git repo* · */git commits* · */git ls [ruta]* · */git cat archivo*\n` +
-      `*/dream_on* · */dream_off* · */dream_status*`
+      `👋 ¡Hola Diego! Soy *${config.agent.name}* (SICC v14.0).\n\n` +
+      `*/audit [área]* · */swarm [pregunta]* · */doctor* · */learn*\n` +
+      `*/karpathy [tema]* · */audit_run* · */ollama [prompt]*\n` +
+      `*/cmd [shell]* · */ingesta [ruta]* · */cerebro*\n` +
+      `*/estado* · */memoria* · */limpiar* · */correos*\n` +
+      `*/git [cmd]* · */patrol_on* · */patrol_off*`
     );
     return;
   }
@@ -127,17 +123,17 @@ async function handleMessage(msg, bot, send) {
     return;
   }
 
-  // /dream (sin área = estado del dreamer)
-  if (texto === '/dream') {
-    const dreamsDir = path.join(BRAIN_DIR, 'DREAMS');
+  // /audit (sin área = estado del auditor)
+  if (texto === '/audit') {
+    const historyDir = path.join(BRAIN_DIR, 'history');
     const pendingDir = path.join(BRAIN_DIR, 'PENDING_DTS');
-    const dreams  = fs.existsSync(dreamsDir)  ? fs.readdirSync(dreamsDir).filter(f => f.endsWith('.md')).length  : 0;
+    const audits  = fs.existsSync(historyDir) ? fs.readdirSync(historyDir).filter(f => f.endsWith('.md')).length  : 0;
     const pending = fs.existsSync(pendingDir) ? fs.readdirSync(pendingDir).filter(f => f.endsWith('.md')).length : 0;
     await send(chatId,
-      `💤 *SICC Dreamer — Estado*\n\n` +
-      `📓 *${dreams}* sueños registrados en \`brain/DREAMS/\`\n` +
+      `⚖️ *SICC Auditor — Estado*\n\n` +
+      `📓 *${audits}* auditorías registradas en \`brain/history/\`\n` +
       `🔶 *${pending}* borradores en \`brain/PENDING_DTS/\` (revisión humana)\n\n` +
-      `Usa */dream [área]* para iniciar un ciclo de decantación.`
+      `Usa */audit [área]* para iniciar un ciclo de decantación.`
     );
     return;
   }
@@ -160,7 +156,7 @@ async function handleMessage(msg, bot, send) {
   // /karpathy
   if (texto.startsWith('/karpathy ')) {
     const tema = texto.slice(10).trim();
-    await send(chatId, `🔬 *Karpathy — Auditando:* \`${tema}\`...`);
+    await send(chatId, `🔬 *Forense — Auditando:* \`${tema}\`...`);
     await bot.sendChatAction(chatId, 'typing');
     const keyword = tema.toLowerCase().includes('ingeniería') ? tema.split(' ').slice(1).join(' ') : tema;
     const norm = keyword.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -170,23 +166,8 @@ async function handleMessage(msg, bot, send) {
       if (!archivos) await send(chatId, `[SICC WARN] Sin archivos para \`${keyword}\`. Auditando raíz.`);
       else await send(chatId, `📂 *Archivos localizados:*\n\`\`\`\n${archivos}\n\`\`\``);
       const { lines } = captureLog(() => cmdAudit(ruta));
-      await send(chatId, `🔬 *Dictamen Karpathy:*\n\n\`\`\`\n${lines.join('\n').substring(0, 3000)}\n\`\`\``);
+      await send(chatId, `🔬 *Dictamen Forense:*\n\n\`\`\`\n${lines.join('\n').substring(0, 3000)}\n\`\`\``);
     });
-    return;
-  }
-
-  // /audit
-  if (texto.startsWith('/audit ')) {
-    const ruta = texto.slice(7).trim();
-    await send(chatId, `🔬 *Auditando:* \`${ruta}\`...`);
-    await bot.sendChatAction(chatId, 'typing');
-    try {
-      const { lines } = captureLog(() => cmdAudit(ruta));
-      guardar(texto, `Auditoría en ${ruta}`, 'SYSTEM');
-      await send(chatId, `🔬 *Resultados:*\n\n\`\`\`\n${lines.join('\n').substring(0, 3000)}\n\`\`\``);
-    } catch (err) {
-      await send(chatId, `[SICC FAIL] Audit: ${err.message}`);
-    }
     return;
   }
 
@@ -240,9 +221,9 @@ async function handleMessage(msg, bot, send) {
   }
 
   // patrol
-  if (texto === '/dream_on')     { await send(chatId, startPatrol(bot, chatId)); return; }
-  if (texto === '/dream_off')    { await send(chatId, stopPatrol()); return; }
-  if (texto === '/dream_status') {
+  if (texto === '/patrol_on')     { await send(chatId, startPatrol(bot, chatId)); return; }
+  if (texto === '/patrol_off')    { await send(chatId, stopPatrol()); return; }
+  if (texto === '/patrol_status') {
     const st = getPatrolStatus();
     await send(chatId,
       `${st.active ? '🛰️' : '🛑'} *Patrulla SICC*\n\n` +
@@ -335,8 +316,6 @@ async function handleMessage(msg, bot, send) {
   }
 
   // ── Intents de lenguaje natural (loop extensible) ────────────────────────
-  // Cada módulo en src/intents/ expone { matches(textLower, texto), handle(...) }.
-  // Para agregar un intent: crear el archivo y añadirlo al array INTENTS.
   const textLower = texto.toLowerCase();
   for (const intent of INTENTS) {
     try {
@@ -345,7 +324,7 @@ async function handleMessage(msg, bot, send) {
         if (handled) return;
       }
     } catch (e) {
-      console.warn(`[BOT] Intent ${intent._name || '?'} error: ${e.message}`);
+      console.warn(`[BOT] Intent error: ${e.message}`);
     }
   }
 

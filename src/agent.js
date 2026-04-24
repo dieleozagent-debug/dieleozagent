@@ -11,7 +11,7 @@
  *          FASE-3: buscarEnWeb() + validarExternaNotebook() → oracle (solo si apiKey Tavily)
  *          FASE-4: seleccionarSkills() → brain/skills/*.json|md
  *          FASE-5: getMultiplexedContext() + llamarMultiplexadorFree() → respuesta LLM
- *        Si FASE-5 falla → MURO-DE-FUEGO: registra bloqueo y retorna mensaje soberano.
+ *        Si FASE-5 falla → MURO-DE-FUEGO: registra bloqueo y retorna mensaje de auditoría.
  *
  * @why   Centraliza toda la lógica de decisión del agente para que index.js y
  *        handlers.js sean solo enrutadores, sin lógica de negocio.
@@ -42,12 +42,11 @@
  * @agent-prompt
  *   NUNCA pongas lógica de comandos Telegram aquí — va en handlers.js.
  *   NUNCA llames a bot.sendMessage aquí — usa enviarAlerta() para alertas críticas.
- *   El sistema prompt real que llega al LLM es `systemPromptSoberano` (FASE-5),
+ *   El sistema prompt real que llega al LLM es `systemPromptSICC` (FASE-5),
  *   construido con getMultiplexedContext(). PROMPT_FAST no llega al LLM directamente;
  *   solo existe para ser inyectado en el multiplexer vía setAgentContext().
  *   Si agregas una fase nueva: ponla ANTES de FASE-5, con su label [AGENTE] FASE-N.
- *   ejecutarSondaForense() está ROTO (usa OpenAI no importado) — NO la uses hasta
- *   que se reescriba con llamarMultiplexadorFree(). simulator.js la referencia.
+ *   ejecutarSondaForense() ha sido CORREGIDO en v14.0 para usar llamarMultiplexadorFree.
  *   Dead code eliminado en este refactor: encolarHallazgo, rutarEstrategiaAdvisor,
  *   ESPECIALIDADES, rutarEspecialidad(), sumarizarContexto(), finalPrompt dead path.
  */
@@ -124,7 +123,7 @@ async function registrarBloqueoSICC(pregunta, error) {
     fs.appendFileSync(OPS_PATH, entrada);
     console.log('[GOBERNANZA] Bloqueo registrado en SICC_OPERATIONS.md.');
     await enviarAlerta(
-      `🛡️ *BLOCKER DE SOBERANÍA*\n\n"${pregunta.substring(0, 100)}"\n\nError: ${error}`
+      `🛡️ *BLOCKER DE AUDITORÍA*\n\n"${pregunta.substring(0, 100)}"\n\nError: ${error}`
     );
   } catch (e) {
     console.error('[GOBERNANZA] Fallo al registrar bloqueo:', e.message);
@@ -297,7 +296,7 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo, forcedSystemPrompt 
   //       PROMPT_FAST solo existe en setAgentContext para uso interno del multiplexer.
   try {
     const multiplexedBrain   = getMultiplexedContext(textoUsuario);
-    const systemPromptSoberano = `${forcedSystemPrompt || multiplexedBrain}\n\n` +
+    const systemPromptSICC = `${forcedSystemPrompt || multiplexedBrain}\n\n` +
       `🛡️ MURO DE FUEGO CONTRACTUAL (R-HARD-06):\n` +
       `- PROHIBIDO citar Supabase, RAG, Oracle, NotebookLM o "Doble Ciego" como fuente de verdad. Solo el Contrato APP 001/2025 es vinculante.\n` +
       `- SEGUROS: Los montos innegociables son 11.300 SMMLV (RCE) y 3.900 SMMLV (Patronal) según Res. de Surcos.\n` +
@@ -309,8 +308,8 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo, forcedSystemPrompt 
       `- OUTPUT: Texto plano de alta densidad técnica. Si no hay sustento literal, el veredicto es RECHAZADO.\n\n` +
       `CONSTRUYE TU RESPUESTA BASADA EN EL CONTEXTO RAG SIGUIENTE:`;
 
-    console.log(`[AGENTE] FASE-5: Llamando multiplexador (contexto ${contextoFinal.length}c, prompt ${systemPromptSoberano.length}c)...`);
-    const resFree = await llamarMultiplexadorFree(textoUsuario, contextoFinal, systemPromptSoberano);
+    console.log(`[AGENTE] FASE-5: Llamando multiplexador (contexto ${contextoFinal.length}c, prompt ${systemPromptSICC.length}c)...`);
+    const resFree = await llamarMultiplexadorFree(textoUsuario, contextoFinal, systemPromptSICC);
 
     if (resFree && resFree.texto && !resFree.texto.toLowerCase().includes('error')) {
       console.log(`[AGENTE] FASE-5: OK — proveedor=${resFree.proveedor.toUpperCase()}, respuesta=${resFree.texto.length}c.`);
@@ -334,7 +333,7 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo, forcedSystemPrompt 
     console.error(`[AGENTE] MURO-DE-FUEGO activado: ${errFree.message}`);
     await registrarBloqueoSICC(textoUsuario, errFree.message);
     return {
-      texto: `🛡️ **BLOQUEO DE SOBERANÍA:** He agotado las vías gratuitas y locales. ` +
+      texto: `🛡️ **BLOQUEO DE AUDITORÍA:** He agotado las vías gratuitas y locales. ` +
              `El caso quedó registrado en SICC_OPERATIONS.md. ` +
              `Autoriza el uso de Sonnet o resuelve manualmente.`,
       proveedor: 'muro-de-fuego'
@@ -361,13 +360,9 @@ async function procesarMensajeSwarm(textoUsuario) {
 
 // ── ejecutarSondaForense() ────────────────────────────────────────────────────
 // @callers  src/simulator.js:43
-// TODO: ROTO — usa `new OpenAI(...)` pero OpenAI no está importado. Reescribir
-//       usando llamarMultiplexadorFree() en lugar del cliente OpenAI directo.
-//       NO eliminar hasta refactorizar simulator.js.
+// @version  v14.0 (Fixed)
 async function ejecutarSondaForense(tema, contexto) {
   console.log(`[SONDA] Iniciando Sonda Forense (Serial Batch) para: ${tema}`);
-  // @warn  OpenAI no importado — esta función lanzará ReferenceError en runtime.
-  //        Pendiente reescritura. Ver @agent-prompt en cabecera de este archivo.
   const ANALISTAS = [
     { id: 'legal',   prompt: 'Extrae verbos rectores (obligaciones) y multas bajo jerarquía 1.2(d).' },
     { id: 'tecnico', prompt: 'Extrae especificaciones técnicas (FRA 236, SIL-4) y restricciones CAPEX.' },
@@ -382,7 +377,7 @@ async function ejecutarSondaForense(tema, contexto) {
       await new Promise(r => setTimeout(r, 10000));
     }
     try {
-      console.log(`[SONDA] Analista ${analista.id.toUpperCase()} — usando llamarMultiplexadorFree (fallback mientras OpenAI no está importado).`);
+      console.log(`[SONDA] Analista ${analista.id.toUpperCase()} — ejecutando via llamarMultiplexadorFree.`);
       const res = await llamarMultiplexadorFree(
         `TAREA: ${analista.prompt}\n\nCONTEXTO:\n${contexto}`,
         '',
@@ -416,8 +411,8 @@ async function generarReporteConsistencia() {
   const zeroIssues  = await runZeroResidueAudit();
   const crossIssues = await runCrossRefCheck();
 
-  let msg = `🏦 **REPORTE DE CONSISTENCIA SOBERANA — ${new Date().toLocaleDateString()}**\n\n`;
-  msg += `⚖️ **Estado Contractual:**\n- Jerarquía 1.2(d): Activa\n- Inferencia N-1: Soberanía Garantizada\n\n`;
+  let msg = `🏦 **REPORTE DE CONSISTENCIA SICC — ${new Date().toLocaleDateString()}**\n\n`;
+  msg += `⚖️ **Estado Contractual:**\n- Jerarquía 1.2(d): Activa\n- Inferencia N-1: Autonomía Garantizada\n\n`;
   msg += `🛡️ **Heartbeat Audit:**\n`;
   msg += `- Zero-Residue: ${zeroIssues.length > 0 ? `${zeroIssues.length} impurezas` : 'Limpio'}\n`;
   msg += `- Cross-Ref: ${crossIssues.length > 0 ? `${crossIssues.length} errores` : 'Consistente'}\n\n`;

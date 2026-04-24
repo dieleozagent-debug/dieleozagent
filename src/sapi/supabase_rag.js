@@ -12,7 +12,7 @@ async function validarInternaSupabase(queryRaw) {
     const resultados = await buscarSimilares(query, 5); 
     
     if (!resultados || resultados.length === 0) {
-      return "[ALERTA] Sin contexto contractual encontrado. Posible vac?o legal o alucinaci?n del Enjambre.";
+      return "[ALERTA] Sin contexto contractual encontrado. Posible vacío legal o alucinación técnica.";
     }
 
     const contexto = resultados.map(r => r.contenido).join('\n\n');

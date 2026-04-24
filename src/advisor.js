@@ -48,12 +48,12 @@ RESPONDE ÚNICAMENTE CON ESTE JSON:
     
     console.log(`[ADVISOR] [SICC OK] Decisión: ${decision.especialista} (${decision.razonamiento})`);
     
-    // Registrar propuesta de aprendizaje soberano
-    const evolutionPath = path.join(__dirname, '../brain/EVOLUCION_SOBERANA.md');
+    // Registrar evolución técnica
+    const historyPath = path.join(__dirname, '../brain/HISTORY.md');
     const sugerencia = decision.propuesta_aprendizaje || 'Sin sugerencia específica.';
-    const entrada = `\n### 🧬 PROPUESTA DE EVOLUCIÓN SOBERANA (${new Date().toISOString()})\n- **Consulta:** ${pregunta}\n- **Sugerencia:** ${sugerencia}\n- **Ruteo:** ${decision.especialista}\n`;
+    const entrada = `\n### 🧬 REGISTRO DE EVOLUCIÓN TÉCNICA (${new Date().toISOString()})\n- **Consulta:** ${pregunta}\n- **Sugerencia:** ${sugerencia}\n- **Ruteo:** ${decision.especialista}\n`;
     
-    fs.appendFileSync(evolutionPath, entrada);
+    fs.appendFileSync(historyPath, entrada);
     
     return decision;
   } catch (err) {

@@ -1,9 +1,31 @@
-> [!IMPORTANT] **JERARQUÍA DOCUMENTAL ESTRICTA (ORDEN DE PRELACIÓN - CAP I, SEC 1.2d):**
-> 1. **NIVEL 1:** Contrato APP 001/2025 (Ley Máxima).
-> 2. **NIVEL 2:** AT1 (Alcance Técnico Absoluto - Manda FRA 236 para PTC).
-> 3. **NIVEL 3-11:** AT2 al AT10 (Orden numérico. AT3: AREMA > FRA > AAR > UIC).
-> 4. **REGLA DE DESEMPATE (SEC 9.11):** En caso de duda, prevalece la **MAYOR CALIDAD, MAYOR SERVICIO Y MAYOR SEGURIDAD**.
-> 5. **REGLA DE ORO:** Las respuestas a Q&A (Nivel 16) NO modifican obligaciones de niveles 1-10.
+> [!IMPORTANT] **REGLA DE GOBERNANZA TÉCNICA (JERARQUÍA NORMATIVA - SECCIÓN 1.2d + AT3):**
+> 1. **NIVEL 1:** Contrato APP 001/2025 (y documentos prevalentes).
+> 2. **NIVEL 2:** Apéndice Técnico 1 (AT1) — Alcance y Funcionalidad.
+> 3. **NIVEL 3:** Apéndice Técnico 3 (AT3) — Criterios de Diseño y Normativa.
+> 4. **NIVEL 4:** Documento de Bases y Criterios de Diseño (DBCD).
+> 5. **NIVEL 5:** Normas Adoptadas (Ver [CONTRACTUAL_NORMATIVE.md](file:///home/administrador/docker/agente/brain/SPECIALTIES/CONTRACTUAL_NORMATIVE.md)).
+> 
+> **REGLA DE DESEMPATE (AT3 Cap I, lit c):** **AREMA > FRA > AAR > UIC**.
+
+# ⚖️ REGLAS DE NEGOCIO: COMMUNICATIONS (COMMS) — v14.0
+
+## 1. INTRODUCCIÓN
+### 1.1. Propósito
+Establecer los criterios normativos para el diseño de detalle de las comunicaciones requeridas para la señalización del Corredor Férreo La Dorada – Chiriguaná (APP No. 001 de 2025), incluyendo la interoperabilidad con la red de FENOCO y la protección de pasos a nivel.
+
+### 1.2. Marco Normativo (Obligatorio)
+- **Internacional**: AREMA Communications & Signals Manual (2021), FRA 49 CFR Part 236 (2026).
+- **Nacional**: RETIE 2024 y NSR-10 (para infraestructura de telecomunicaciones).
+
+### 1.3. Componentes de Transmisión (Mandatorios)
+- **Red Lineal de Fibra Óptica**: Backbone soterrado de 526 km interconectando CCO y estaciones.
+- **Sistema de Radio TETRA**: Para voz operativa y transporte de datos secundarios.
+- **Torres y Sitios de Radio**: Infraestructura de cobertura continua en el corredor.
+- **Red de Transmisión de Datos**: Conectividad redundante CCO ↔ Onboard ↔ Wayside (Arquitectura Híbrida).
+- **Canales de Supervisión y Control**: Reporte de estado de elementos de vía y comandos vitales.
+- **Equipos de Red y Gestión**: Switches/Routers industriales y NMS centralizado.
+
+---
 
 # R-HARD — RESTRICCIONES DURAS UNIVERSALES
 **Versión:** 1.0 | **Aplicación:** Todos los Mini-Cerberos sin excepción
@@ -115,8 +137,11 @@ Un output sin ruta de citación completa no pasa a firma jurídica.
 - **Fuente:** DBCD V002, Sección 5.1 (Vendor-Neutral Design).
 
 ## COM-01 — BACKBONE DE FIBRA (G.652.D)
-- **Mandato:** Únicamente fibra mono-modo estándar **ITU-T G.652.D**.
-- **Prohibición:** No G.655, no amplificadores EDFA innecesarios.
+- **Mandato:** Cable de fibra monomodo de **cuarenta y ocho (48) hilos**, conforme a **ITU-T G.652.D**.
+- **Instalación**: Soterrada mediante ductos (AREMA 2021). Tendido aéreo solo vía ADSS en accesos o restricciones prediales.
+- **Prohibiciones Críticas (Seguridad Estructural)**:
+    1. Queda terminantemente prohibida la fijación mediante **soldaduras o perforaciones** en estructuras de puentes y viaductos.
+    2. Prohibida la fijación a elementos de reemplazo periódico de vía (traviesas/riel).
 - **Alcance:** Conectividad redundante para los cinco (5) sitios ENCE y los 526 km de vía central.
 
 ## COM-02 — PROTOCOLO VITAL IP (DATOS SICC)
@@ -124,12 +149,19 @@ Un output sin ruta de citación completa no pasa a firma jurídica.
 - **Seguridad:** Aislamiento físico (Air-gap lógico) entre la red de tráfico (SICC) y redes administrativas.
 - **Redundancia:** Failover transparente mediante tecnología **SD-WAN** combinando Fibra + GSM/LTE + Satelital.
 
-## COM-03 — HABILITACIÓN SATELITAL Y MÓVIL
-- **Mandato:** Uso de **constelaciones satelitales LEO/GEO** + Nodos LTE para activar tramos antes del tendido de fibra y como respaldo permanente (Arquitectura Híbrida).
-- **Latencia:** Jitter < 10ms requerido para paquetes de seguridad ferroviaria Vital IP, de conformidad con el **Apéndice Técnico 3 (AT3)**.
+## COM-03 — HABILITACIÓN SATELITAL Y MÓVIL (REDUNDANCIA)
+- **Mandato:** Red de contingencia independiente mediante comunicación satelital embarcada.
+- **Seguridad**: Debe garantizar integridad y autenticación criptográfica bajo **EN 50159 Categoría 3** y **FRA 49 CFR § 236.1033**.
+- **Latencia:** Jitter < 10ms requerido para paquetes de seguridad ferroviaria Vital IP (AT3).
 
-## COM-04 — COMUNICACIONES DE VOZ (TETRA)
-- **Restricción:** No se permite el uso de TETRA como backbone de transporte de datos del sistema PTC debido a limitaciones de ancho de banda y latencia.
+## COM-04 — COMUNICACIONES DE VOZ Y DATOS (TETRA)
+- **Estándares Mandatorios**:
+    1. Interfaz Aire: **ETSI EN 300 392-2**.
+    2. Cifrado y Autenticación: **ETSI EN 300 392-7**.
+    3. Modo Directo (DMO): **ETSI EN 300 396-3**.
+    4. Codec de Voz (ACELP): **ETSI EN 300 395-1**.
+    5. Interfaz PEI (Periféricos): **ETSI EN 300 392-5**.
+- **Restricción:** No se permite el uso de TETRA como backbone de transporte de datos del sistema PTC. Su uso es para voz operativa y datos secundarios (SDS).
 
 ## COM-05 — OBC: EQUIPO VITAL SIL-4, NO BASE DE DATOS
 
@@ -149,6 +181,11 @@ Un output sin ruta de citación completa no pasa a firma jurídica.
 - **Mandato AT4:** Si la pérdida de comunicaciones PTC en un evento dura 1 minuto o más → deducción automática.
 - **Implicación:** La redundancia TETRA + Satelital/LTE debe prevenir eventos de pérdida > 1 min.
 - **Rechazo automático:** DTs que usen "99.0%" o "99.9%" para justificar diseño de comunicaciones de campo.
+
+## COM-08 — ESTÁNDARES IEEE Y COMPATIBILIDAD ELECTRÓNICA (EMC)
+- **Redes IP**: Cumplimiento obligatorio de **IEEE 1100, 802.3 (z/u/an/x), 802.1 (Q/p/D/w/X)**.
+- **EMC**: Certificación bajo **CISPR 22:2008** y **CISPR 24:2010**.
+- **Seguridad**: Uso de **EN 50159 Categoría 3** para enlaces satelitales y móviles (LTE).
 
 
 > [!WARNING] **AUDIT_LESSON (SICC v12.8 - 2026-04-20T02:48:44.404Z):**
