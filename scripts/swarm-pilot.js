@@ -144,11 +144,39 @@ async function runSwarmPilot() {
     const methodologySicc = fs.readFileSync(path.join(__dirname, '..', 'brain', 'SICC_METHODOLOGY.md'), 'utf8');
     const specialtyContext = getMultiplexedContext(arg);
 
+    const stateFile = path.join(__dirname, '..', 'brain', `STATE-${arg.replace(/\s+/g, '_')}.json`);
+    let state = { ciclosTotalesHistoricos: 0, ultimaLeccion: "", status: 'PENDING', ultimoBorrador: "" };
+    if (fs.existsSync(stateFile)) {
+        try { state = JSON.parse(fs.readFileSync(stateFile, 'utf8')); } catch(e){}
+    }
+
+    const isOverride = process.argv.includes('--override');
+    if (isOverride) {
+        console.log('\n⚠️ OVERRIDE HUMANO activado. Veto del Director Técnico.');
+        const leccionVeto = {
+            causa: "Veto Manual del Director Técnico",
+            justificacion: "Excepción aprobada por la Dirección Técnica",
+            ajusteCriterio: "En el futuro, se debe considerar válida esta formulación bajo autoridad de la Dirección."
+        };
+        fs.appendFileSync(path.join(__dirname, '..', 'brain', 'LEARNING_CURVE.log'), JSON.stringify(leccionVeto) + '\n');
+        state.ultimaLeccion = leccionVeto.ajusteCriterio;
+        state.status = 'APPROVED_BY_DIRECTOR';
+        state.timestamp = new Date().toISOString();
+        fs.writeFileSync(stateFile, JSON.stringify(state, null, 2), 'utf8');
+        
+        // Registrar lección inversa en la especialidad si es posible
+        const validSpecialty = ["COMMUNICATIONS", "SIGNALIZATION", "POWER", "INTEGRATION", "ENCE", "CONTROL_CENTER"].find(s => s.toLowerCase().includes(arg.toLowerCase().substring(0,4))) || "INTEGRATION";
+        registrarLeccionAuditoria(validSpecialty, `EXCEPCIÓN APROBADA (OVERRIDE): ${leccionVeto.ajusteCriterio}`);
+        
+        console.log('✅ Estado actualizado a APPROVED_BY_DIRECTOR y lección inversa guardada.');
+        return;
+    }
+
     let ciclosRealizados = 0;
     const MAX_CICLOS = 3;
-    let aprobado = false;
-    let ultimaLeccion = "";
-    let ultimoBorrador = "";
+    let aprobado = state.status.includes('APPROVED');
+    let ultimaLeccion = state.ultimaLeccion || "";
+    let ultimoBorrador = state.ultimoBorrador || "";
 
     while (ciclosRealizados < MAX_CICLOS && !aprobado) {
         ciclosRealizados++;
@@ -376,6 +404,14 @@ ${borrador_DT}
     console.log(`⚖️ VEREDICTO FINAL:`);
     console.log(aprobado ? `✅ AUDITORÍA CERTIFICADA` : `❌ AUDITORÍA RECHAZADA\nBloqueada por impureza persistente. Última lección: ${ultimaLeccion}`);
     console.log(`--------------------------------------------------`);
+
+    // Serializar el estado final para persistencia entre ejecuciones de Docker
+    state.ciclosTotalesHistoricos += ciclosRealizados;
+    state.ultimaLeccion = ultimaLeccion;
+    state.ultimoBorrador = ultimoBorrador;
+    state.status = aprobado ? 'APPROVED' : 'REJECTED';
+    state.timestamp = new Date().toISOString();
+    fs.writeFileSync(stateFile, JSON.stringify(state, null, 2), 'utf8');
 }
 
 runSwarmPilot();
