@@ -266,7 +266,6 @@ async function llamarOpenRouterJSON(mensajeUsuario, systemPrompt, modelOverride 
       { role: 'user', content: mensajeUsuario },
     ],
     max_tokens: 1024,
-    response_format: { type: 'json_object' },
   });
   return respuesta.choices[0].message.content;
 }

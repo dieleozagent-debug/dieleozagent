@@ -31,3 +31,17 @@
 * RETILAP 2024 (Resolución 40150 de 2024) for public lighting
 * NSR-10 (2010) for seismic-resistant construction
 * IEC 62368-1:2024+A11:2024 for IT/communications equipment safety
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T19:52:20.418Z):**
+> Se debe revisar y completar el dictamen para que cumpla con los requisitos del Contrato APP 001/2025 y contenga una Sección CITACIÓN CANÓNICA, ANÁLISIS y DECISIÓN vinculante claras y relacionadas con el sistema de energía.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T19:53:06.502Z):**
+> Revisar y corregir el dictamen para incluir un análisis técnico y jurídico detallado, una decisión vinculante clara y citar las secciones del Contrato APP 001/2025 de manera específica.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T19:53:44.392Z):**
+> Revisar y eliminar cualquier referencia a conceptos de soberanía y alinearse estrictamente con el contrato y normativas técnicas aplicables
+
+> [!IMPORTANT] **MANDATO CORRECTIVO ANTI-SCOPE CREEP (VACUNA COMUNICACIONES):**
+> 1. Queda estrictamente PROHIBIDO exigir o sugerir nivel de seguridad SIL-4 para el hardware de la red de comunicaciones. El estándar exigido es estrictamente SIL-2, apalancado en defensas criptográficas lógicas (EN 50159 Categoría 3 y FRA 49 CFR §236.1033).
+> 2. La normativa NEMA rige ÚNICAMENTE para los encerramientos físicos y gabinetes. Bajo ninguna circunstancia NEMA debe figurar como el estándar principal de telecomunicaciones, el cual se rige por ITU-T G.652.D (Fibra) y ETSI EN 300 392 (TETRA).
+> 3. Es OBLIGATORIO incluir y validar la Arquitectura Híbrida Embarcada (Redundancia Satelital + LTE vía SD-WAN) en todo dictamen de comunicaciones para asegurar la continuidad de datos del PTC.
