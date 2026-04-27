@@ -469,7 +469,7 @@ async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt 
     try {
       console.log(`[GATEWAY-AHORRO] 💸 Intentando: ${p.id.toUpperCase()}...`);
       const respuesta = await p.fn(pregunta, null, contextoRAG, null, sp);
-      if (respuesta && respuesta.length > 20) {
+      if (respuesta && respuesta.length > 0) {
         registrarTrazaSICC(pregunta, p.id, contextoRAG);
         return { texto: respuesta, proveedor: p.id };
       }
