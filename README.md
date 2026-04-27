@@ -16,6 +16,7 @@
 | Anclaje Financiero | 🟢 WBS v3.0 ($88.112 MM CTC / $726M Locomotora) |
 | CPU Governor | 🟢 Umbral 80%, throttling activo |
 | Ollama embeddings | 🟢 `nomic-embed-text` 768 dims |
+| **Cerebro Superior** | 🔵 **DeepSeek v3 (chat) + R1 (reasoner)** integrado |
 
 ---
 
@@ -54,17 +55,18 @@ src/
 
 | Comando | Función |
 |---|---|
-| `/audit [área]` | Bucle Forense SICC v14.0 (Fetcher → RAG → Oracle → Juez R-HARD-06 → Persistencia). |
+| `/audit [área]` | Bucle Forense SICC v14.0 (Fetcher → RAG → Oracle → Juez DeepSeek R1 → Persistencia). |
+| `/promote [msg]` | **CI/CD:** Sincroniza DTs aprobadas con repo LFC2 y despliega a Vercel. |
 | `/swarm [pregunta]` | Enjambre secuencial: Auditor + Estratega SICC |
-| `/doctor` | Health report: score, CPU, telemetría 4xx |
+| `/doctor` | Health report: score, CPU, telemetría 4xx (Detecta 429) |
 | `/learn` | Auto-mapeo recursivo LFC2 |
 
 ---
 
 ## 🏛️ Avances de Arquitectura (SICC v14.0)
 * **Oracle Fetcher (Fase 0.5):** Destilación automática de Criterios de Diseño (DBCD v001) para inyectar Mandatos Técnicos (FRA 236, AREMA, SIL-4) y evitar "amnesia de contexto" en los LLM.
-* **Rescate de Juez Incondicional (OpenRouter):** Si el LLM primario (Groq/Gemini) falla o no retorna JSON válido, el Juez salta automáticamente a `openrouter/free` (con `json_object` forzado) para proteger el registro de auditoría.
-* **Oráculo Blindado (DNS):** Conexión a NotebookLM mediante resolución DNS de Docker (`notebooklm-mcp-v12:3001`) para evitar errores de IP (ECONNREFUSED).
+* **Cerebro Superior DeepSeek:** Integración nativa de `deepseek-chat` (v3) para resolver bloqueos de cuota y `deepseek-reasoner` (R1) para el juicio forense.
+* **Oráculo Blindado (DNS):** Conexión a NotebookLM mediante resolución DNS de Docker (`notebooklm-mcp-v12:3001`) para evitar errores de IP.
 | `/cerebro` | Verifica SOUL + R-HARD + IDENTITY + METHODOLOGY activos |
 | `/ingesta [ruta]` | Pipeline OCR: PDF → chunks 800c → embeddings → Supabase |
 | `/cmd [comando]` | Shell en el contenedor |

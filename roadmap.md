@@ -10,6 +10,8 @@
 - [x] **Sanitización Total SIL-4:** Mandato SIL-4 (FRA 236) eje innegociable de señalización.
 - [x] **Anclaje Financiero CTC ($88.112 MM):** Realidad presupuestal WBS v3.0 inyectada.
 - [x] **Consolidación ENCE (Tabla 17 AT1):** 5 enclavamientos físicos como requisitos bloqueantes.
+- [x] **Cerebro Superior (DeepSeek v3/R1):** Integración nativa para resolver 429s y juicios forenses de alta complejidad. (Completado 27-Abr).
+- [x] **CI/CD /promote:** Automatización de despliegue a Vercel vía GitHub. (Completado 27-Abr).
 
 ### ✅ INSTITUCIONALIZACIÓN DBCD v001 (Completado hoy 24-Abr-2026):
 - [x] **§1-4 PTC + Arquitectura:** Cantonamiento virtual, OBC dual, Back Office, Wayside — en `CONTRACTUAL_NORMATIVE.md` + `SIGNALIZATION.md`.
@@ -33,8 +35,7 @@
 - [x] **Primera DT Certificada:** `DT-CTRL-2026-016` (Control Center) — 2 ciclos, aprobada, vectorizada en Supabase.
 
 ### 🌀 OPERACIÓN EN CURSO (Prioridad Alta):
-- [ ] **Ciclos de auditoría pendientes:** ENCE, Comunicaciones, Energía, Integración.
-- [ ] **Comando `/promote` (DT → LFC2):** Automatización de promoción de DTs certificadas vía `src/gitlocal.js`.
+- [x] **Comando `/promote` (DT → LFC2):** Automatización de promoción de DTs certificadas vía `src/gitlocal.js`.
 - [ ] **GitHub `brain` repo:** No existe como repo independiente. Vive dentro de `dieleozagent`. Crear si se requiere separación.
 
 ### 📅 PENDIENTES (Roadmap de Ejecución):

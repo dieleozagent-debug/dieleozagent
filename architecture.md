@@ -27,14 +27,17 @@ SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agent
 |---|---|---|---|
 | 1 | Gemini | `gemini-2.0-flash` | Free tier (1500 req/día) |
 | 1 | Groq | `llama-3.3-70b-versatile` | Free tier (100K tokens/día) |
-| 1 | Ollama local | `gemma4-light:latest` | Sin límite, español forzado, prompt segmentado |
-| 2 | OpenRouter free | `openrouter/free` | Nemotron 70B, Trinity, gpt-oss-120b… |
-| 3 | OpenRouter paid | `gemini-2.0-flash-001` | ~$0.10/1M tokens — Último recurso |
-| 3 | OpenRouter paid | `llama-3.3-70b-instruct` | ~$0.12/1M tokens — Sin cuota diaria |
+| 1 | Ollama local | `gemma4-light:latest` | Sin límite, autonomía total |
+| 2 | OpenRouter free | `openrouter/free` | Fallback gratuito multi-modelo |
+| **3** | **DeepSeek 🔵** | `deepseek-chat` | **Blocker Final:** Resuelve cuando todo lo gratuito falla. |
 
-**Muro de Fuego (Firewall):** Si fallan todos los niveles gratuitos/locales, el sistema **no escala a modelos premium** sin autorización. Registra un evento de contingencia y encola en `SICC_OPERATIONS.md`.
+**Cerebro Superior (DeepSeek):** Se ha integrado la API nativa de DeepSeek para actuar como el último muro de contención contra el `SICC BLOCKER`. Es el proveedor con mayor razonamiento por costo del mercado.
 
-**Skip 429:** `proveedorBloqueadoReciente()` saltea proveedores con 429 en los últimos 15 min.
+**Selector de Modelos (Conmutación):**
+Para ajustar la prioridad o desactivar DeepSeek (si el consumo es alto), editar `.env`:
+- `AI_PRIMARY_PROVIDER=gemini`: (Default) Prioriza lo gratuito.
+- `AI_PRIMARY_PROVIDER=deepseek`: (Modo Auditoría Profunda) Usa DeepSeek de entrada.
+- El sistema siempre intentará la cascada: `Gemini → Groq → Ollama → OpenRouter → DeepSeek`.
 
 ---
 
@@ -134,10 +137,11 @@ procesarMensaje(textoUsuario)
     ├─ FASE 0.5 (Oracle Fetcher): Destilación de Contexto (DBCD v001) → FICHA TÉCNICA OBLIGATORIA (vía distil-mandates.js).
     ├─ FASE 1: Auditor Forense genera borrador DT usando Citación Canónica de la Ficha.
     ├─ FASE 2: validarInternaSupabase() + validarExternaNotebook(notebooklm-mcp-v12:3001)
-    ├─ FASE 3: Juez R-HARD-06 → Groq JSON_OBJECT evalúa 16 reglas.
-    │           🚨 Protocolo Rescate: Fallback INCONDICIONAL a openrouter/free (JSON) si Groq falla o no devuelve JSON válido.
-    └─ FASE 4: Persistencia
-        ├─ APROBADO: brain/dictamenes/ + sicc_genetic_memory (DT_CERTIFICADA)
+    ├─ FASE 3: Juez R-HARD-06 → **DeepSeek Reasoner (`deepseek-reasoner`)** evalúa 16 reglas.
+    │           🚨 Protocolo Rescate: Fallback a Groq JSON → OpenRouter Free JSON.
+    └─ FASE 4: Persistencia & CI/CD
+        ├─ APROBADO: brain/dictamenes/ + vectorización.
+        │           🚀 Comando `/promote`: Git push automático a repositorio LFC2 → Vercel.
         └─ RECHAZADO: brain/SPECIALTIES/{area}.md + STATE-{area}.json
 ```
 
@@ -236,11 +240,11 @@ git add . && git commit -m "feat: DT certificada SICC" && git push
 
 | Item | Estado |
 |---|---|
-| Comando `/promote` DT→LFC2 | Automatizar pipeline manual — usar `src/gitlocal.js`. |
+| Comando `/promote` DT→LFC2 | **COMPLETADO:** Automatización vía `src/gitlocal.js`. |
 | Re-ingesta `contrato_documentos` | Fragmentos pre-fix oversized — re-ingestar con 800c/100c. |
 | Interrogación iterativa Oracle | Juez debe emitir ≥2 preguntas de seguimiento al Oracle por ciclo. |
 | `SICC_OPERATIONS.md` auto-actualización | Tras cada ciclo de auditoría — fecha, área, veredicto. |
-| `ejecutarSondaForense()` | **CORREGIDO** — Ahora usa `llamarMultiplexadorFree`. |
+| Integración DeepSeek nativa | **COMPLETADO:** Blocker final y Juez Principal. |
 
 ---
 
