@@ -12,6 +12,7 @@
 - [x] **Consolidación ENCE (Tabla 17 AT1):** 5 enclavamientos físicos como requisitos bloqueantes.
 - [x] **Cerebro Superior (DeepSeek v3/R1):** Integración nativa para resolver 429s y juicios forenses de alta complejidad. (Completado 27-Abr).
 - [x] **CI/CD /promote:** Automatización de despliegue a Vercel vía GitHub. (Completado 27-Abr).
+- [x] **Saneamiento Masivo (Fases III, IV, V):** Erradicación de toxinas (99.999%, plomo, SIL ambiguo) mediante DT-SICC-2026-020. (Completado 27-Abr).
 
 ### ✅ INSTITUCIONALIZACIÓN DBCD v001 (Completado hoy 24-Abr-2026):
 - [x] **§1-4 PTC + Arquitectura:** Cantonamiento virtual, OBC dual, Back Office, Wayside — en `CONTRACTUAL_NORMATIVE.md` + `SIGNALIZATION.md`.

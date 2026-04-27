@@ -1,175 +1,39 @@
-# 🤖 OpenGravity SICC — Agente Autónomo v14.0
-
-> **⚡ INICIO RÁPIDO:** Lee `architecture.md` para el diseño completo. `roadmap.md` para el estado de ejecución y pendientes.
-
-**OpenGravity SICC** es un bot de Telegram + motor RAG para auditoría forense del
-**Contrato APP No. 001/2025** (Línea Ferroviaria de Carga — LFC2, Colombia).
+# 🌪️ SICC v14.1 — Sovereign Intelligent Contractual Control
+**Cerebro Forense para el Proyecto LFC2 (La Dorada–Chiriguaná)**
 
 ---
 
-| Sistema | Estado |
-|---|---|
-| Bot Telegram | 🟢 Operativo |
-| Oracle NotebookLM | 🟢 `notebooklm-mcp-v12` — Sesión persistente |
-| Learning pipeline | 🟢 DT_CERTIFICADA + VEREDICTO_JUEZ en `sicc_genetic_memory` |
-| Auditoría SIL-4 | 🟢 Mandatos FRA 236 inyectados en SPECIALTIES/ |
-| Anclaje Financiero | 🟢 WBS v3.0 ($88.112 MM CTC / $726M Locomotora) |
-| CPU Governor | 🟢 Umbral 80%, throttling activo |
-| Ollama embeddings | 🟢 `nomic-embed-text` 768 dims |
-| **Cerebro Superior** | 🔵 **DeepSeek v3 (chat) + R1 (reasoner)** integrado |
+## 🏛️ Filosofía del Sistema
+SICC no es un chatbot; es un **Muro de Fuego Técnico** diseñado para proteger el CAPEX y la integridad técnica del proyecto. Utiliza una arquitectura de **Cámara de Doble Ciego** donde un Auditor propone y un Juez (DeepSeek R1) sentencia basándose exclusivamente en el Contrato APP 001/2025 y las normas internacionales (FRA/AREMA).
 
 ---
 
-## 🗂️ Estructura de Código
-
-```
-src/
-├── index.js          Bootstrap: dirs, brain, bot, crons, /dream launcher
-├── agent.js          Motor: pipeline FASE-0..5 con trazas audit
-├── handlers.js       Router: /comandos + loop INTENTS[]
-├── utils/send.js     safeSendMessage: chunking + fallback Markdown
-└── intents/          Lenguaje natural sin LLM
-    ├── navigation.js     "me pierdo / cómo empiezo"
-    ├── brain-state.js    soul / enjambre / lecciones de auditoría
-    ├── dream-state.js    sueños / historial área / roadmap
-    └── dt-ops.js         DTs aprobadas / promote / flujo contractual
-```
-
----
-
-## 🗺️ Rutas del Sistema SICC
-
-| Recurso | Ruta |
-| :--- | :--- |
-| **Código** | `/home/administrador/docker/agente/src/` |
-| **Cerebro** | `/home/administrador/docker/agente/brain/` |
-| **DTs certificadas** | `brain/dictamenes/` |
-| **Sueños** | `brain/DREAMS/` |
-| **Borradores impuros** | `brain/PENDING_DTS/` |
-| **Base Legal LFC2** | `/home/administrador/docker/LFC2` |
-| **Oracle MCP** | `/home/administrador/docker/notebook-mcp` |
-
----
-
-## 💬 Comandos Telegram
+## 🛠️ Comandos de Misión Crítica
 
 | Comando | Función |
-|---|---|
-| `/audit [área]` | Bucle Forense SICC v14.0 (Fetcher → RAG → Oracle → Juez DeepSeek R1 → Persistencia). |
-| `/promote [msg]` | **CI/CD:** Sincroniza DTs aprobadas con repo LFC2 y despliega a Vercel. |
-| `/swarm [pregunta]` | Enjambre secuencial: Auditor + Estratega SICC |
-| `/doctor` | Health report: score, CPU, telemetría 4xx (Detecta 429) |
-| `/learn` | Auto-mapeo recursivo LFC2 |
+| :--- | :--- |
+| `/audit [área]` | Inicia el Bucle Forense: Fetcher → RAG → Oracle → Juez R1. |
+| `/promote [DT-ID]` | **CI/CD:** Sincroniza DTs aprobadas con LFC2 y despliega en Vercel. |
+| `/swarm [pregunta]` | Activa el enjambre secuencial para consultas complejas. |
+| `/doctor` | Informe de salud del sistema, telemetría y cuotas de IA. |
+| `/learn` | Auto-mapeo recursivo del repositorio LFC2. |
+| `/cerebro` | Verifica el estado de los Mandatos, Identidad y Metodología. |
 
 ---
 
-## 🏛️ Avances de Arquitectura (SICC v14.0)
-* **Oracle Fetcher (Fase 0.5):** Destilación automática de Criterios de Diseño (DBCD v001) para inyectar Mandatos Técnicos (FRA 236, AREMA, SIL-4) y evitar "amnesia de contexto" en los LLM.
-* **Cerebro Superior DeepSeek:** Integración nativa de `deepseek-chat` (v3) para resolver bloqueos de cuota y `deepseek-reasoner` (R1) para el juicio forense.
-* **Oráculo Blindado (DNS):** Conexión a NotebookLM mediante resolución DNS de Docker (`notebooklm-mcp-v12:3001`) para evitar errores de IP.
-| `/cerebro` | Verifica SOUL + R-HARD + IDENTITY + METHODOLOGY activos |
-| `/ingesta [ruta]` | Pipeline OCR: PDF → chunks 800c → embeddings → Supabase |
-| `/cmd [comando]` | Shell en el contenedor |
-| `/audit [ruta]` | Auditoría forense de un directorio LFC2 |
-| `/estado` | Proveedores IA y memoria activos |
-
-## 🤖 Lenguaje Natural (sin /comando)
-
-El bot entiende preguntas directas sin necesidad de comandos slash:
-
-| Pregunta | Responde con |
-|---|---|
-| `hola` / `buenas` / `hi` | Menú de comandos |
-| `me pierdo, cómo me ayudas` | Guía del flujo completo |
-| `como aprende tu soul` | SOUL.md + pipeline de aprendizaje |
-| `el enjambre ya entiende?` | Estado de lecciones de auditoría activas |
-| `qué sueños tienes pendientes` | DREAMS/ + PENDING_DTS/ |
-| `qué temas puedo proponer` | Áreas disponibles + ROADMAP pendiente |
-| `historial de comunicaciones` | Lecciones + DTs + estado Vercel del área |
-| `qué DT tengo bloqueadas` | Aprobadas, sin promover, pendientes revisión |
-| `qué hacemos con DT-ENRG-2026-004` | Resumen del archivo + pasos promote |
+## 🚀 Hitos Recientes (SICC v14.1)
+*   **DeepSeek Integration:** `deepseek-reasoner` (R1) actuando como Juez Forense innegociable.
+*   **Masterchef Pipeline:** Sincronización nativa con `lfc-cli.js` para parchear recetas de ingeniería automáticamente.
+*   **Saneamiento Masivo:** Purga total de toxinas (99.999%, plomo, SIL ambiguo) en Fases III, IV y V.
+*   **Oracle Blindado:** Conexión persistente a NotebookLM mediante resolución DNS interna.
 
 ---
 
-## 🌪️ El Ciclo `/dream` — Ciclo de Refinamiento Forense
-
-```
-/dream [área]
-    │
-    ├─ Fase 1: VACUNACIÓN GENÉTICA
-    │   └─ buscarLecciones() → sicc_genetic_memory (coseno >0.7) → vacunas anti-alucinación
-    │
-    ├─ Fase 2: GENERACIÓN
-    │   └─ Auditor Forense genera borrador DT completo
-    │
-    ├─ Fase 3: DOBLE CIEGO
-    │   ├─ validarInternaSupabase() → contrato_documentos (Biblia Legal)
-    │   └─ validarExternaNotebook() → notebooklm-mcp-v12 → Chrome → NotebookLM
-    │
-    ├─ Fase 4: JUICIO
-    │   └─ Juez cruza borrador + feedback → { aprobado, razon, leccion_auditoria }
-    │
-    └─ Fase 5: PERSISTENCIA
-        ├─ SIEMPRE: guardarVeredictoJuez() → sicc_genetic_memory
-        ├─ Si APROBADO: DT en brain/dictamenes/ + guardarDTCertificada() → sicc_genetic_memory
-        └─ Si RECHAZADO: lección → brain/SPECIALTIES/{área}.md | borrador → PENDING_DTS/
-```
-
-**Hard-caps:** 3 ciclos máx | 30 min exec | Oracle 90s timeout
+## 📁 Estructura del "Cerebro" (Brain)
+*   `brain/dictamenes/`: Decisiones Técnicas certificadas y listas para promover.
+*   `brain/SPECIALTIES/`: "Vacunas" técnicas contra alucinaciones por cada área.
+*   `brain/history/`: Trazabilidad completa de cada auditoría ejecutada.
 
 ---
 
-## 🧠 Cómo aprende el agente
-
-| Mecanismo | Dónde | Cuándo |
-|---|---|---|
-| Vacunas genéticas | `sicc_genetic_memory` → inyectadas en FASE-1 | Cada `/dream` y cada mensaje |
-| Lecciones de Auditoría| `brain/SPECIALTIES/{area}.md` → append | Cada rechazo del Juez |
-| Gold standards | `brain/dictamenes/` → leídos por `simulator.js` | Futuros sueños del mismo área |
-| SOUL + R-HARD + IDENTITY | Estáticos — definen comportamiento base | Siempre en system prompt |
-
----
-
-## 🛡️ Gobernanza de Inferencia (Firewall)
-
-El agente opera bajo un régimen de **Muro de Fuego (Firewall)**:
-- Prioriza proveedores gratuitos (Gemini, Groq, OpenRouter Free).
-- Usa modelos locales (Ollama) para autonomía total.
-- **BLOQUEO:** Si se agotan las vías gratuitas, el agente emite un bloqueo de firma y requiere autorización manual para usar modelos premium.
-
----
-
-## 📦 Pipeline DT → LFC2 → Vercel
-
-Las DTs certificadas se **promueven manualmente** (comando `/promote` pendiente):
-
-```bash
-# 1. Copiar DT aprobada a LFC2
-cp brain/dictamenes/DT-*_APROBADO.md \
-   /home/administrador/docker/LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/
-
-# 2. Publicar
-cd /home/administrador/docker/LFC2
-git add . && git commit -m "feat: DT certificada SICC" && git push
-```
-
-Vercel auto-deploya en `lfc-2.vercel.app` al detectar el push (~2 min).
-
----
-
-## 🚀 Arrancar / verificar
-
-```bash
-cd /home/administrador/docker/agente
-docker compose ps
-docker compose logs -f --tail=30
-
-# Solo pipeline de inferencia (sin ruido)
-docker compose logs -f | grep "\[AGENTE\]"
-
-# Oracle health
-curl http://localhost:3001/health
-```
-
----
-*Actualizado: 2026-04-24 | OpenGravity SICC v14.0*
+**© 2026 OpenGravity SICC System | SICC v14.1 — Sovereign Edition**

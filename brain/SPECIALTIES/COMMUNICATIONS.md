@@ -45,3 +45,12 @@
 > 1. Queda estrictamente PROHIBIDO exigir o sugerir nivel de seguridad SIL-4 para el hardware de la red de comunicaciones. El estándar exigido es estrictamente SIL-2, apalancado en defensas criptográficas lógicas (EN 50159 Categoría 3 y FRA 49 CFR §236.1033).
 > 2. La normativa NEMA rige ÚNICAMENTE para los encerramientos físicos y gabinetes. Bajo ninguna circunstancia NEMA debe figurar como el estándar principal de telecomunicaciones, el cual se rige por ITU-T G.652.D (Fibra) y ETSI EN 300 392 (TETRA).
 > 3. Es OBLIGATORIO incluir y validar la Arquitectura Híbrida Embarcada (Redundancia Satelital + LTE vía SD-WAN) en todo dictamen de comunicaciones para asegurar la continuidad de datos del PTC.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T21:55:15.966Z):**
+> El Juez respondió en lenguaje natural en lugar de JSON — ajustar instrucciones.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T21:55:49.400Z):**
+> El Juez respondió en lenguaje natural en lugar de JSON — ajustar instrucciones.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T21:56:23.559Z):**
+> El Juez respondió en lenguaje natural en lugar de JSON — ajustar instrucciones.

@@ -211,28 +211,22 @@ La arquitectura PTC con cantonamiento virtual concentra la infraestructura físi
 
 ---
 
-## 📦 Pipeline DT → LFC2 → Vercel (manual — /promote pendiente)
+## 📦 Pipeline DT → LFC2 → Vercel (CI/CD /promote)
 
-```
-brain/dictamenes/DT-*.md
-        │ (copia manual / promote automático PENDIENTE)
-        ▼
-LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/
-        │ node scripts/lfc-cli.js cook && serve
-        ▼
-X_ENTREGABLES_CONSOLIDADOS/8_DOCUMENTOS_SERVIDOS/HTML/
-        │ git push LFC2 origin main
-        ▼
-lfc-2.vercel.app (Vercel auto-deploy ~2 min)
+El flujo de promoción asegura que una verdad técnica certificada por el Juez se convierta en una realidad física en los documentos de ingeniería.
+
+```mermaid
+graph TD
+    A[Cerebro: swarm-pilot.js] -->|Genera| B(DT-SICC-2026-XXX.md)
+    B -->|Juez R1 Aprueba| C{Comando /promote}
+    C -->|gitlocal.js| D[Repo LFC2: Decisiones_Tecnicas/]
+    D -->|lfc-cli.js process-dts| E[Parcheo de Recetas .md]
+    E -->|lfc-cli.js sync| F[Regeneración de Menú .js]
+    F -->|lfc-cli.js cook| G[Plato Final .html]
+    G -->|git push| H[Vercel: lfc-2.vercel.app]
 ```
 
-```bash
-# Promote manual de una DT aprobada
-cp brain/dictamenes/DT-XXXX.md \
-   /home/administrador/docker/LFC2/II_Apendices_Tecnicos/Decisiones_Tecnicas/
-cd /home/administrador/docker/LFC2
-git add . && git commit -m "feat: DT certificada SICC" && git push
-```
+**Referencia Cruzada:** Para el detalle del motor de cocinado, consultar el mapa de ingeniería en [architectureLFC.md](file:///home/administrador/docker/LFC2/architectureLFC.md).
 
 ---
 
