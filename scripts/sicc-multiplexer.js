@@ -290,9 +290,11 @@ async function llamarDeepSeek(mensajeUsuario, _archivoTmp, contextoRAG = '', sys
       { role: 'user', content: mensajeUsuario },
     ],
     max_tokens: 2048,
-    temperature: 0.2, // Bajo — máxima precisión forense
+    temperature: 0.2,
   });
-  return respuesta.choices[0].message.content;
+  // Fallback: algunos modelos de razonamiento usan reasoning_content en lugar de content
+  const msg = respuesta.choices[0].message;
+  return msg.content || msg.reasoning_content || '';
 }
 
 async function llamarDeepSeekJSON(mensajeUsuario, systemPrompt) {
@@ -301,8 +303,8 @@ async function llamarDeepSeekJSON(mensajeUsuario, systemPrompt) {
     apiKey: config.ai.deepseek.apiKey,
   });
   const sp = systemPrompt ? inyectarIdioma(systemPrompt) : IDIOMA_SICC;
-  const modelo = config.ai.deepseek.modelPro || 'deepseek-v4-flash';
-  console.log(`[AGENTE] 🔵 [JUEZ-JSON] Invocando DeepSeek Pro. Modelo: ${modelo}`);
+  const modelo = config.ai.deepseek.modelPro || 'deepseek-chat';
+  console.log(`[AGENTE] 🔵 [JUEZ-JSON] Invocando DeepSeek Reasoner. Modelo: ${modelo}`);
   const respuesta = await client.chat.completions.create({
     model: modelo,
     messages: [
@@ -311,9 +313,10 @@ async function llamarDeepSeekJSON(mensajeUsuario, systemPrompt) {
     ],
     max_tokens: 1024,
     temperature: 0.1,
-    response_format: { type: 'json_object' }, // DeepSeek sí soporta json_object
+    response_format: { type: 'json_object' },
   });
-  return respuesta.choices[0].message.content;
+  const msg = respuesta.choices[0].message;
+  return msg.content || msg.reasoning_content || '';
 }
 
 

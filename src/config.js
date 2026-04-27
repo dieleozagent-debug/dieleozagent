@@ -84,18 +84,19 @@ const config = {
 };
 
 // Validación: al menos un proveedor de IA debe estar configurado
-const hasGemini = !!config.ai.gemini.apiKey;
-const hasGroq = !!config.ai.groq.apiKey;
-const hasOpenrouter = !!config.ai.openrouter.apiKey;
-const hasOllama = !!config.ai.ollama.host;
+const hasGemini    = !!config.ai.gemini.apiKey;
+const hasGroq      = !!config.ai.groq.apiKey;
+const hasOpenrouter= !!config.ai.openrouter.apiKey;
+const hasOllama    = !!config.ai.ollama.host;
+const hasDeepseek  = !!config.ai.deepseek.apiKey;
 
-if (!hasGemini && !hasGroq && !hasOpenrouter && !hasOllama) {
-  console.error('[CONFIG] [SICC FAIL] Debes configurar al menos una API de IA (Gemini, Groq, OpenRouter u Ollama)');
+if (!hasGemini && !hasGroq && !hasOpenrouter && !hasOllama && !hasDeepseek) {
+  console.error('[CONFIG] [SICC FAIL] Debes configurar al menos una API de IA (Gemini, Groq, OpenRouter, DeepSeek u Ollama)');
   process.exit(1);
 }
 
 console.log(`[CONFIG] [SICC OK] Agente: ${config.agent.name}`);
 console.log(`[CONFIG] [SICC OK] Proveedor primario: ${config.ai.primaryProvider}`);
-console.log(`[CONFIG] [SICC OK] Proveedores disponibles: ${[hasGemini && 'Gemini', hasGroq && 'Groq', hasOpenrouter && 'OpenRouter', hasOllama && 'Ollama'].filter(Boolean).join(', ')}`);
+console.log(`[CONFIG] [SICC OK] Proveedores disponibles: ${[hasGemini && 'Gemini', hasGroq && 'Groq', hasOpenrouter && 'OpenRouter', hasDeepseek && 'DeepSeek 🔵', hasOllama && 'Ollama'].filter(Boolean).join(', ')}`);
 
 module.exports = config;
