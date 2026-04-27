@@ -7,7 +7,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { llamarMultiplexadorFree, llamarGroqJSON, extraerFichaTecnica, getMultiplexedContext, llamarOpenRouterJSON } = require('./sicc-multiplexer');
+const { llamarMultiplexadorFree, llamarGroqJSON, llamarDeepSeekJSON, extraerFichaTecnica, getMultiplexedContext, llamarOpenRouterJSON } = require('./sicc-multiplexer');
 const { inicializarBrain } = require('../src/agent');
 const { validarExternaNotebook } = require('../src/sapi/notebooklm_mcp');
 const { validarInternaSupabase } = require('../src/sapi/supabase_rag');
@@ -316,18 +316,24 @@ ${borrador_DT}
 
             let decisionRAW;
             try {
-                // Groq con json_object forzado — evita respuestas en lenguaje natural
-                decisionRAW = await llamarGroqJSON("Evalúa el dictamen y responde SOLO con el JSON solicitado.", promptJuez);
-                console.log(`[JUEZ] 🟠 Groq JSON OK.`);
+                // DeepSeek v4-pro como Juez Principal — JSON nativo, razonamiento forense
+                decisionRAW = await llamarDeepSeekJSON("Evalúa el dictamen y responde SOLO con el JSON solicitado.", promptJuez);
+                console.log(`[JUEZ] 🔵 DeepSeek JSON OK.`);
             } catch (juezErr) {
-                // Parche para evitar quemar ciclos por errores de red/cuota
-                console.warn(`[JUEZ] ⚠️ Groq JSON falló (${juezErr.message}). Intentando rescate de emergencia con OpenRouter JSON...`);
+                console.warn(`[JUEZ] ⚠️ DeepSeek JSON falló (${juezErr.message}). Intentando Groq...`);
                 try {
-                    decisionRAW = await llamarOpenRouterJSON("Evalúa el dictamen y responde SOLO con el JSON solicitado.", promptJuez, "openrouter/free");
-                    console.log(`[JUEZ] 🟣 OpenRouter JSON OK.`);
-                } catch (rescueErr) {
-                    console.error(`\n[SICC CRITICAL] Rescate OpenRouter JSON falló (${rescueErr.message}). Abortando Swarm para preservar ciclos de auditoría.`);
-                    process.exit(1);
+                    decisionRAW = await llamarGroqJSON("Evalúa el dictamen y responde SOLO con el JSON solicitado.", promptJuez);
+                    console.log(`[JUEZ] 🟠 Groq JSON OK.`);
+                } catch (groqErr) {
+                    // Parche para evitar quemar ciclos por errores de red/cuota
+                    console.warn(`[JUEZ] ⚠️ Groq JSON falló (${groqErr.message}). Intentando rescate con OpenRouter JSON...`);
+                    try {
+                        decisionRAW = await llamarOpenRouterJSON("Evalúa el dictamen y responde SOLO con el JSON solicitado.", promptJuez, "openrouter/free");
+                        console.log(`[JUEZ] 🟣 OpenRouter JSON OK.`);
+                    } catch (rescueErr) {
+                        console.error(`\n[SICC CRITICAL] Todos los Jueces fallaron (${rescueErr.message}). Abortando Swarm.`);
+                        process.exit(1);
+                    }
                 }
             }
             

@@ -11,7 +11,7 @@
 
 ## 1. INTRODUCCIÓN
 ### 1.1. Propósito
-Establecer los criterios técnicos para el Centro de Control de Operaciones (CCO) del Corredor La Dorada – Chiriguaná, ubicado en Santa Marta (PK 0+000).
+Establecer los criterios técnicos para el Centro de Control de Operaciones (CCO) del Corredor La Dorada – Chiriguaná, ubicado en La Dorada, Caldas (PK 201+470).
 
 ---
 
@@ -38,7 +38,7 @@ Establecer los criterios técnicos para el Centro de Control de Operaciones (CCO
 ## R-HARD-03 — TECNOLOGÍAS Y CITAS PROHIBIDAS
 - **Redundancia:** No Microondas terrestres. No V-Block. No 2oo3 Propietario.
 - **Interoperabilidad:** Únicamente **Sección 2.209** (Stop & Switch). Se prohíbe citar "Sección 20-9" o estándares "FENOCO" cerrados.
-- **Ubicación CCO:** PK 0+000 (Santa Marta). Cualquier mención a Barrancabermeja o PK 211 como CCO es un error de sinapsis.
+- **Ubicación CCO:** La Dorada, Caldas (PK 201+470). Cualquier mención a Santa Marta, Barrancabermeja o PK 0+000 como CCO del Proyecto LFC2 es un error de sinapsis. Cualquier mención a Barrancabermeja o PK 211 como CCO es un error de sinapsis.
 
 ---
 

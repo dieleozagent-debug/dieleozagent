@@ -38,7 +38,14 @@ const config = {
 
     openrouter: {
       apiKey: env('OPENROUTER_API_KEY', false),
-      model: env('OPENROUTER_MODEL', false) || 'openai/gpt-4o-mini',
+      model: env('OPENROUTER_MODEL', false) || 'openrouter/free',
+    },
+
+    deepseek: {
+      apiKey: env('DEEPSEEK_API_KEY', false),
+      model: env('DEEPSEEK_MODEL', false) || 'deepseek-v4-flash',
+      modelPro: 'deepseek-v4-pro', // Para el Juez (razonamiento complejo)
+      baseUrl: 'https://api.deepseek.com',
     },
 
     ollama: {

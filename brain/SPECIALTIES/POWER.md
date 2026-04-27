@@ -88,3 +88,8 @@ Se prohíbe estrictamente el uso de legacy tags: `Michelin Certified`, `Karpathy
 > 1. **EL2 (Respaldo Crítico):** Se prohíbe el uso del umbral genérico del 99.0%. El indicador EL2 exige estrictamente la entrada de energía auxiliar en menos de 2 minutos en el 100% de los eventos.
 > 2. **Interoperabilidad:** Se prohíbe el uso de Gateways lógicos. El modelo oficial es **Stop & Switch (OBC Dual)** con conmutación física en la frontera de Chiriguaná.
 
+> [!WARNING] **MANDATO CORRECTIVO ANTI-SCOPE CREEP (VACUNA ENERGÍA):**
+> 1. **Acotación del RETIE:** Queda estrictamente PROHIBIDO aplicar el RETIE o RETILAP de manera genérica. El dictamen debe aclarar de forma taxativa que aplican de manera exclusiva a las instalaciones, redes y tableros NUEVOS del SICC. La infraestructura civil preexistente (estaciones, iluminación general, bombeo) NO es alcance del concesionario en UF2.
+> 2. **Regla N-1 y Baterías:** Es OBLIGATORIO dictaminar autonomías cerradas: exactamente 4 horas para UPS estándar y exactamente 48 horas exclusivas para sitios remotos fotovoltaicos.
+> 3. Queda prohibido sobredimensionar exigiendo plantas diésel en pasos a nivel aislados. Se exige el uso obligatorio de baterías Litio-Ferrofosfato (LiFePO4).
+

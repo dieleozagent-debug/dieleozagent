@@ -271,6 +271,53 @@ async function llamarOpenRouterJSON(mensajeUsuario, systemPrompt, modelOverride 
 }
 
 /**
+ * DEEPSEEK — Motor de Razonamiento Forense (v4-flash / v4-pro)
+ * 100% compatible con el SDK de OpenAI. Proveedor principal del sistema.
+ */
+async function llamarDeepSeek(mensajeUsuario, _archivoTmp, contextoRAG = '', systemPrompt = null) {
+  const client = new OpenAI({
+    baseURL: config.ai.deepseek.baseUrl,
+    apiKey: config.ai.deepseek.apiKey,
+  });
+  const sp = inyectarIdioma(systemPrompt || agentContext.getPromptFast());
+  const modelo = config.ai.deepseek.model;
+  console.log(`[AGENTE] 🔵 Invocando DeepSeek. Modelo: ${modelo}`);
+  const respuesta = await client.chat.completions.create({
+    model: modelo,
+    messages: [
+      { role: 'system', content: sp + (contextoRAG ? `\n\n---\nCONTEXTO CONTRACTUAL:\n${contextoRAG}` : '') },
+      ...agentContext.getHistorial().map(h => ({ role: h.role, content: h.content })),
+      { role: 'user', content: mensajeUsuario },
+    ],
+    max_tokens: 2048,
+    temperature: 0.2, // Bajo — máxima precisión forense
+  });
+  return respuesta.choices[0].message.content;
+}
+
+async function llamarDeepSeekJSON(mensajeUsuario, systemPrompt) {
+  const client = new OpenAI({
+    baseURL: config.ai.deepseek.baseUrl,
+    apiKey: config.ai.deepseek.apiKey,
+  });
+  const sp = systemPrompt ? inyectarIdioma(systemPrompt) : IDIOMA_SICC;
+  const modelo = config.ai.deepseek.modelPro || 'deepseek-v4-flash';
+  console.log(`[AGENTE] 🔵 [JUEZ-JSON] Invocando DeepSeek Pro. Modelo: ${modelo}`);
+  const respuesta = await client.chat.completions.create({
+    model: modelo,
+    messages: [
+      { role: 'system', content: sp },
+      { role: 'user', content: mensajeUsuario },
+    ],
+    max_tokens: 1024,
+    temperature: 0.1,
+    response_format: { type: 'json_object' }, // DeepSeek sí soporta json_object
+  });
+  return respuesta.choices[0].message.content;
+}
+
+
+/**
  * Construye un prompt segmentado en 4 secciones para Ollama.
  * Los modelos locales procesan mejor contexto estructurado que un bloque largo.
  * Total ~2500 chars vs los 15K del prompt completo.
@@ -390,72 +437,60 @@ async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt 
   const proveedoresFree = [
     { id: 'gemini',     fn: async (q, a, ctx, h, s) => llamarGemini(q, a, ctx, s) },
     { id: 'groq',       fn: async (q, a, ctx, h, s) => llamarGroq(q, a, ctx, s) },
+    { id: 'ollama',     fn: llamarOllama },
     { id: 'openrouter', fn: async (q, a, ctx, h, s) => llamarOpenRouter(q, a, ctx, s, 'openrouter/free') },
-    { id: 'ollama',     fn: llamarOllama }
+    { id: 'deepseek',   fn: async (q, a, ctx, h, s) => llamarDeepSeek(q, a, ctx, s) }, // 🔴 Blocker final
   ];
+
+  // Mapa de verificación de disponibilidad por proveedor
+  function proveedorDisponible(id) {
+    if (id === 'ollama')    return !!config.ai.ollama?.host;
+    if (id === 'deepseek')  return !!config.ai.deepseek?.apiKey;
+    return !!(config.ai[id]?.apiKey);
+  }
 
   let lastErr = null;
   for (const p of proveedoresFree) {
-    const status = !!(config.ai[p.id]?.apiKey || (p.id === 'ollama' && config.ai.ollama.host));
-    if (!status) continue;
+    // Skip si no tiene credenciales configuradas
+    if (!proveedorDisponible(p.id)) {
+      console.log(`[GATEWAY-AHORRO] ⏭️  Saltando ${p.id.toUpperCase()} (sin credenciales)`);
+      continue;
+    }
 
-    // Skip rápido si tuvo 429 reciente — no gastar los 5s de RTT para fallar de nuevo
+    // Skip si tuvo un 429 en los últimos 15 min — no gastar RTT para volver a fallar
     if (proveedorBloqueadoReciente(p.id)) {
       console.log(`[GATEWAY-AHORRO] ⏭️  Saltando ${p.id.toUpperCase()} (429 reciente <15min)`);
       continue;
     }
 
     try {
-      console.log(`[GATEWAY-AHORRO] 💸 Intentando vía gratuita: ${p.id.toUpperCase()}...`);
-      // Todos los proveedores ahora reciben consistentemente (pregunta, null, contextoRAG, null, systemPrompt)
+      console.log(`[GATEWAY-AHORRO] 💸 Intentando: ${p.id.toUpperCase()}...`);
       const respuesta = await p.fn(pregunta, null, contextoRAG, null, sp);
       if (respuesta && respuesta.length > 20) {
         registrarTrazaSICC(pregunta, p.id, contextoRAG);
         return { texto: respuesta, proveedor: p.id };
       }
+      // Respuesta vacía — tratar como fallo silencioso y continuar cascada
+      console.warn(`[GATEWAY-AHORRO] ⚠️  ${p.id.toUpperCase()} devolvió respuesta vacía. Continuando cascada...`);
     } catch (err) {
       lastErr = err;
       const code = extraerCodigoError(err);
       if (code) registrarError4xx(code, p.id, err.message);
-      console.warn(`[GATEWAY-AHORRO] [SICC WARN] Fallo en ${p.id}: ${err.message}`);
-    }
-  }
-
-  // Nivel 2: OpenRouter free routing
-  if (config.ai.openrouter.apiKey) {
-    try {
-      console.log('[GATEWAY-AHORRO] 🔄 Nivel 2: OpenRouter auto-free routing...');
-      const res = await llamarOpenRouter(pregunta, null, contextoRAG, sp, 'openrouter/free');
-      if (res && res.length > 20) {
-        registrarTrazaSICC(pregunta, 'openrouter/free', contextoRAG);
-        return { texto: res, proveedor: 'openrouter/free' };
-      }
-    } catch (e) {
-      console.warn(`[GATEWAY-AHORRO] [SICC WARN] Fallo openrouter/free: ${e.message}`);
-    }
-  }
-
-  // Nivel 3: modelos de pago en OpenRouter como último recurso absoluto
-  const paidFallbacks = [
-    'google/gemini-2.0-flash-001',
-    'meta-llama/llama-3.3-70b-instruct',
-  ];
-  if (config.ai.openrouter.apiKey) {
-    for (const model of paidFallbacks) {
-      try {
-        console.log(`[GATEWAY-AHORRO] 💳 Nivel 3 (pagado): ${model}...`);
-        const res = await llamarOpenRouter(pregunta, null, contextoRAG, sp, model);
-        if (res && res.length > 20) {
-          registrarTrazaSICC(pregunta, `openrouter-paid:${model}`, contextoRAG);
-          return { texto: res, proveedor: `openrouter-paid:${model}` };
-        }
-      } catch (e) {
-        console.warn(`[GATEWAY-AHORRO] [SICC WARN] Fallo ${model}: ${e.message}`);
+      // Log diferenciado: 429 = cuota agotada, otros = error técnico
+      if (code === 429) {
+        console.warn(`[GATEWAY-AHORRO] 🔴 ${p.id.toUpperCase()} cuota agotada (429). Saltando al siguiente proveedor.`);
+      } else {
+        console.warn(`[GATEWAY-AHORRO] [SICC WARN] Fallo en ${p.id} (${code || 'ERR'}): ${err.message}`);
       }
     }
   }
 
-  throw new Error('[SICC BLOCKER] Todos los proveedores agotados. Reintenta en 1h.');
+  // Todos los proveedores de la cascada fallaron
+  throw new Error(
+    `[SICC BLOCKER] Todos los proveedores agotaron su cuota o fallaron.` +
+    (lastErr ? ` Último error: ${lastErr.message}` : '') +
+    ` Reintenta en 1h o verifica las API Keys.`
+  );
 }
 
 /**
@@ -498,6 +533,8 @@ module.exports = {
   llamarGemini,
   llamarGroq,
   llamarGroqJSON,
+  llamarDeepSeek,
+  llamarDeepSeekJSON,
   llamarOpenRouter,
   llamarOpenRouterJSON,
   llamarOllama,

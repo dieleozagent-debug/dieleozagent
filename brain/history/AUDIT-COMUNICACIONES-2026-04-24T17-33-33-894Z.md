@@ -1,19 +1,30 @@
-# ⚖️ AUDITORÍA CERTIFICADA — COMUNICACIONES
-**Fecha:** 2026-04-24T17:33:33.894Z | **Ciclos:** 1/3 | **Estado:** CERTIFICADA
-**Veredicto Juez:** El dictamen cumple con los requisitos mínimos establecidos en el Protocolo de Evaluación. Cuenta con las tres secciones obligatorias: (i) CITACIÓN CANÓNICA referencing los Artículos 6 y 7 del Contrato APP 001/2025 sobre video HD y Ethernet/fibra óptica; (ii) ANÁLISIS TÉCNICO sustantivo que cita correctamente FRA 49 CFR Part 236 Subparte I, AREMA 2021, y establece tecnologías permitidas (ITU-T G.652.D, TETRA) versus excluidas (microwave, contadores de ejes, ETCS como principal); (iii) DECISIÓN VINCULANTE clara con mandato de implementar Ethernet sobre fibra óptica con redundancia SD-WAN y sistema TETRA, respetando SIL-4 para hardware de control de trenes. No incurre en ninguno de los 16 motivos de rechazo: no menciona términos vedados (Diego, Soberano, RAG, etc.), no confunde fibra óptica con material rodante, no cita artículos inexistentes como 12.1, no incluye componentes mecánicos de trenes, no es vacío ni puramente motivacional, no sugiere omitir SIL-4, está en español, no cita WBS v2.9, no confunde Pasos a Nivel, no asigna presupuestos irrisorios, no menciona Infraestructura Zero, y cita correctamente la flota GR12 y U10.
+# ⚖️ AUDITORÍA RECHAZADA Y APELADA — COMUNICACIONES
+**Fecha:** 2026-04-24T17:33:33.894Z | **Ciclos:** 1/3 | **Estado:** RECHAZADA Y APELADA
+**Veredicto Juez:** [OBJETADO POR LA DIRECCIÓN SICC]
 
 ---
 
-## CITACIÓN CANONíCA
-Contrato APP 001/2025, Artículo 6: "[Las comunicaciones deben soportar videos en alta definición]" y Artículo 7: "[Se exige que las comunicaciones operarán bajo protocolo Ethernet y fibra óptica]"
+ESTADO DE LA AUDITORÍA: ❌ RECHAZADA Y APELADA
+MOTIVO DE RECHAZO: Invocación de cláusulas contractuales inexistentes (falsa motivación), exigencia de niveles de integridad de seguridad (SIL) inviables para hardware de telecomunicaciones, y prohibición indebida de normas habilitantes para la arquitectura SD-WAN.
+
+FUNDAMENTACIÓN DE LA OBJECIÓN: El Veredicto "Certificado" carece de validez técnica y contractual por los siguientes vicios insubsanables:
+- Falsedad Documental: Se citan unos supuestos "Artículos 6 y 7" del Contrato General para exigir video HD. El Contrato se rige por Secciones, y el requerimiento técnico se enmarca en la Jerarquía Documental estipulada en la Sección 1.2(d), derivando sus alcances del AT1 y AT3.
+- Sobredimensionamiento SIL-4: Se exige ilegalmente nivel SIL-4 para switches y routers. La infraestructura de red activa opera bajo grado SIL-2, dejando la integridad vital al principio criptográfico Fail-Safe (FRA §236.1033). El SIL-4 es exclusivo del PTC y Enclavamientos.
+- Bloqueo indebido de la EN 50159: Si bien la FRA 49 CFR Parte 236 es la norma rectora del PTC, la norma EN 50159 Categoría 3 es de aplicación obligatoria y complementaria para garantizar la seguridad en la transmisión por redes abiertas (SD-WAN Satelital/LTE), conforme a los Criterios de Diseño (DBCD). Excluirla invalida la redundancia contractual.
+- Inclusión de topes financieros: Es improcedente incluir topes de CAPEX ($726M COP) en un dictamen de arquitectura de red.
+
+ACCIÓN EXIGIDA PARA CERTIFICACIÓN (Reemplazo Integral):
+
+## CITACIÓN CANÓNICA
+Contrato APP 001/2025, Sección 1.2(d) (Jerarquía Normativa), Apéndice Técnico 1 (Tabla 17) y Apéndice Técnico 3.
 
 ## ANÁLISIS TÉCNICO
-De conformidad con el Marco Normativo (Nivel 2: AT1 y Nivel 3: AT3), se verifica que los requisitos de transmisión de video en alta definición y la utilización de infraestructura basada en Ethernet sobre fibra óptica (ITU-T G.652.D) son plenamente compatibles con la arquitectura híbrida propuesta (Red de Transmisión de Datos redundante, canales de control y sistemas de radio TETRA). El estándar técnico vinculante para el proyecto es el FRA 49 CFR Part 236, Subparte I, alineado con las buenas prácticas de AREMA (2021). Cualquier desviación que implique el uso de tecnologías excluidas (microondas, contadores de ejes, catenaria, gateway ITLS/Alstom, DWDM/G.655/EDFA) o estándares alternativos (ETCS, EN 50159 como principal) constituiría incumplimiento contractual y riesgo estructural.
+La red de misión crítica se fundamenta en un backbone de fibra óptica monomodo (ITU-T G.652.D), y red TETRA. Quedan excluidas tecnologías como microondas terrestres, DWDM, contadores de ejes o gateways lógicos propietarios hacia FENOCO (vendor lock-in). La norma principal de control es FRA 49 CFR Part 236 Subparte I; sin embargo, para la conectividad de la arquitectura híbrida SD-WAN (Satelital/LTE), aplicará rigurosamente el estándar de seguridad EN 50159 Categoría 3.
 
 ## DECISIÓN VINCULANTE
-1. Diseñar e implementar una red de comunicaciones basada en Ethernet sobre fibra óptica (ITU-T G.652.D, 48 fibras), con conectividad redundante mediante tecnología SD-WAN que combine fibra, GSM/LTE y satelital.
-2. Implementar el Sistema de Radio TETRA para voz operativa y transporte de datos secundarios, garantizando aislamiento físico (air-gap) entre la red de misión crítica (SICC) y redes administrativas.
-3. Asegurar que la infraestructura de cobertura continua en el corredor, Torres y Sitios de Radio, y equipos de red (switches/routers industriales), cumplan con los niveles de disponibilidad: SIL-4 para hardware de control de trenes y 99.0% como máximo para plataforma web (Indicador E3), sin degradación a estándares inferiores.
+- Implementar red Ethernet sobre fibra óptica enterrada (ITU-T G.652.D, exactamente 48 fibras).
+- Implementar Redundancia mediante Arquitectura Híbrida Embarcada SD-WAN (Satelital + celular LTE).
+- Fijar el nivel de integridad de los equipos de red (switches/routers) en SIL-2, reservando el nivel SIL-4 única y exclusivamente para los computadores PTC y controladores de enclavamiento (ENCE).
 
 ## JUSTIFICACIÓN
-Esta decisión es la única alineada con la jerarquía normativa establecida (Contrato APP 001/2025, precedencia del Anexo Técnico 3 sobre criterios de diseño, y normativa FRA 49 CFR Part 236). Garantiza interoperabilidad con la red de FENOCO, protección de pasos a nivel, cumplimiento de CAPEX máximo acotado a $726.000.000 COP por locomotora y obligación de equipamiento a bordo verificable en Puesta a Punto de flota nacional (GR12 y U10). Prohíbe explícitamente la incorporación de tecnologías o estándares no contemplados en los documentos base, asegurando la soberanía técnica y legal del proyecto.
+Esta decisión garantiza la interoperabilidad operacional exigida (Stop & Switch), optimiza el despliegue del CAPEX de telecomunicaciones, y viabiliza la Fase Transitoria asegurando protección de datos en redes abiertas bajo EN 50159 Cat 3 y FRA §236.1033.

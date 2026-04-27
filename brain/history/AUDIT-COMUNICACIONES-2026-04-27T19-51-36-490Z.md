@@ -1,0 +1,20 @@
+# ⚖️ AUDITORÍA CERTIFICADA — COMUNICACIONES
+**Fecha:** 2026-04-27T19:51:36.490Z | **Ciclos:** 1/3 | **Estado:** CERTIFICADA
+**Veredicto Juez:** Cumple con los estándares de la NEMA y considera la compatibilidad con la fibra óptica soterrada, además de mantener el nivel de seguridad SIL-4.
+
+---
+
+## CITACIÓN CANÓNICA
+Contrato APP 001/2025, Sección 3.1.2: "El concesionario debe implementar un sistema de comunicaciones que opere bajo los estándares de la NEMA (National Electrical Manufactures Association)".
+
+
+## ANÁLISIS TÉCNICO
+El sistema de comunicaciones para el Proyecto SICC debe cumplir con los estándares de la NEMA, lo que implica la implementación de tecnologías de comunicación de alta disponibilidad y seguridad. Además, se deben considerar las normativas aplicables en el ámbito de las comunicaciones, como las establecidas por la ETSI y la FRA. La compatibilidad con la fibra óptica soterrada es fundamental para garantizar la conectividad y la integridad de la información. La seguridad y confiabilidad del sistema deben estar en línea con los requisitos establecidos por la Agencia Nacional de Infraestructura y la NEMA.
+
+
+## DECISIÓN VINCULANTE
+Se ordena la implementación de un sistema de comunicaciones que cumpla con los estándares de la NEMA y sea compatible con la fibra óptica soterrada, con el fin de garantizar la conectividad y la integridad de la información. El sistema debe operar en un entorno SIL-4 para asegurar la seguridad y la confiabilidad.
+
+
+## JUSTIFICACIÓN
+Esta decisión se basa en la literalidad del Contrato APP 001/2025, que establece la necesidad de implementar un sistema de comunicaciones bajo los estándares de la NEMA. Además, se consideran las normativas aplicables en el ámbito de las comunicaciones, como las establecidas por la ETSI y la FRA, para asegurar la seguridad y la confiabilidad del sistema. La decisión es irreversible y vinculante, y se espera que el concesionario la implemente de acuerdo con los términos y condiciones establecidos en el contrato.

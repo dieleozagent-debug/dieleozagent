@@ -147,6 +147,35 @@ bot.onText(/^\/audit(?:\s+(.+))?/, async (msg, match) => {
   );
 });
 
+// ── /promote — CI/CD: commit + push de LFC2 a GitHub → Vercel ────────────────
+bot.onText(/^\/promote(?:\s+(.+))?/, async (msg, match) => {
+  const chatId = msg.chat.id;
+  const userId = String(msg.from.id);
+  if (userId !== config.telegram.userId && userId !== '1567740382') return;
+
+  const mensaje = match[1] || `DT aprobada — despliegue automático ${new Date().toLocaleDateString('es-CO')}`;
+  await send(chatId, `🚀 *Iniciando despliegue LFC2...*\n_Commit: "${mensaje}"_`);
+
+  try {
+    const git = require('./gitlocal');
+    const statusOut = git.status();
+    if (!statusOut) {
+      await send(chatId, `ℹ️ *Repositorio LFC2 sin cambios pendientes.* Vercel ya está al día.`);
+      return;
+    }
+    const { commit, push } = git.commitYPush(mensaje);
+    await send(chatId,
+      `✅ *Despliegue Completado*\n\n` +
+      `📦 *Commit:* \`${commit.split('\n')[0]}\`\n` +
+      `☁️ *Push:* ${push || 'OK'}\n\n` +
+      `🔗 Vercel iniciará el build en ~30s.`
+    );
+  } catch (err) {
+    console.error('[PROMOTE]', err.message);
+    await send(chatId, `❌ *Error en /promote:*\n${err.message}`);
+  }
+});
+
 // ── Message & file routing ────────────────────────────────────────────────────
 bot.on('message',  (msg) => handleMessage(msg, bot, send));
 bot.on('document', (msg) => handleFile(msg, 'document', bot, send));
