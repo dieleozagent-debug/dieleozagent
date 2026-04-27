@@ -81,3 +81,7 @@ Se prohíbe el uso de legacy tags: `Michelin Certified`, `Karpathy Loop`, `Peone
 ## ENC-03 — DENSIDAD DE MOTORIZACIÓN (MÁXIMO 5)
 - **Regla N-1:** Cada estación ENCE SIL-4 podrá controlar un máximo de **cinco (5) motores de aguja**. Todo requerimiento superior se considera sobredimensionamiento y será rechazado.
 
+## ENC-04 — MANDATO CORRECTIVO ANTI-SCOPE CREEP (VACUNA)
+- **Carga Exclusiva:** El diseño y operación es solo para trenes de carga (64 km/h). Prohibido estándares de pasajeros.
+- **Jerarquía:** NEMA/RETIE rigen solo envolventes físicas, NO lógica vital. FRA y AREMA son los únicos rectores de la lógica SIL-4.
+

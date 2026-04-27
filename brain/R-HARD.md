@@ -126,6 +126,13 @@ La instalación de equipos a bordo del Material Rodante es una obligación princ
 
 ---
 
+## R-HARD-13 — ALCANCE ESTRICTO Y ANTI-SCOPE CREEP
+- **Mandato Carga:** El alcance del Proyecto LFC2 es exclusivamente para **transporte de carga** (64 km/h, 914mm). Está estrictamente PROHIBIDO justificar diseños, parámetros o tolerancias basándose en estándares de trenes de pasajeros (ej. 96 km/h).
+- **Mandato Jerarquía:** La normativa NEMA y el reglamento RETIE aplican exclusivamente a **envolventes y protección electromecánica** (tableros, gabinetes). NUNCA deben igualarse en jerarquía a FRA 49 CFR Part 236 ni AREMA para la lógica vital de control de trenes y enclavamientos.
+- **Penalidad:** Cualquier Output que viole este alcance será rechazado de inmediato y marcado como Impureza (Scope Creep).
+
+---
+
 ## R-HARD-11 — REDES Y COMPATIBILIDAD ELECTRÓNICA (EMC)
 
 **Fuente:** Apéndice Técnico 3 (AT3)

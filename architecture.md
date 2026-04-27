@@ -251,7 +251,19 @@ git add . && git commit -m "feat: DT certificada SICC" && git push
 3. **CPU:** >80% → encolar | >95% → bloquear inferencia local
 4. **Idioma:** Español obligatorio en toda salida del agente
 5. **Verdad:** El Contrato APP 001/2025 y sus Apéndices prevalecen sobre cualquier inferencia de IA generativa
-6. **Autonomía:** PROHIBIDA la edición manual de dictámenes. Todo cambio debe ser vía ajuste del BRAIN y re-ejecución del ciclo de auditoría.
+6. **Autonomía:** PROHIBIDA la edición manual de dictámenes. Todo cambio debe ser vía ajuste del BRAIN y re-ejecución del ciclo de auditoría. *(Excepción: Protocolo de Saneamiento por Falsos Positivos).*
+
+---
+
+## ⚕️ Protocolo de Saneamiento (Falsos Positivos del Juez)
+
+La arquitectura delega el aprendizaje en el Juez (`swarm-pilot.js`). Sin embargo, si el Juez falla y **aprueba una alucinación (Falso Positivo)**, el sistema inyecta ese error en la base de datos vectorial (`sicc_genetic_memory`) como un Gold Standard, envenenando las futuras auditorías. Para corregir este "Punto Ciego", se debe ejecutar el siguiente protocolo manual:
+
+1. **Purga Vectorial (LTM):** Eliminar el registro contaminado en Postgres para evitar que el RAG lo propague.
+   `docker exec sicc-postgres psql -U sicc_app -d postgres_sicc -c "DELETE FROM sicc_genetic_memory WHERE metadata->>'documento' = 'DT-XXX';"`
+2. **Vacuna Genética Preventiva:** Inyectar un mandato correctivo explícito en el archivo de especialidad correspondiente (`brain/SPECIALTIES/{area}.md`) para que en la Fase 1 el Auditor Forense lo lea antes de generar.
+3. **Evolución del Juez (R-HARD):** Agregar una nueva restricción universal en `brain/R-HARD.md` para que el Juez penalice y rechace ese *Scope Creep* específico en el futuro.
+4. **Sanitización del Documento:** Solo bajo este escenario excepcional de Falso Positivo se permite la edición manual correctiva del dictamen en `brain/dictamenes/`.
 
 ---
 
