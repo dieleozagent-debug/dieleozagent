@@ -54,3 +54,27 @@
 
 > [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T21:56:23.559Z):**
 > El Juez respondió en lenguaje natural en lugar de JSON — ajustar instrucciones.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T22:42:14.902Z):**
+> Revisar mandatos de especialidad y re-intentar.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T22:44:33.254Z):**
+> Recuperar íntegramente la información del Contrato APP 001/2025 y sus Apéndices, y emitir un dictamen técnico sustantivo con citaciones canónicas, análisis y decisión vinculante, sin excusas de falta de información.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T22:44:47.026Z):**
+> El Juez respondió en lenguaje natural en lugar de JSON — ajustar instrucciones.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T22:45:06.539Z):**
+> Revisar mandatos de especialidad y re-intentar.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T22:47:36.890Z):**
+> Reformular el dictamen incluyendo citación canónica precisa, análisis sustantivo respaldado por cláusulas contractuales o normas técnicas, y una decisión vinculante explícita. No se aceptarán expresiones genéricas sin contenido.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T22:48:12.257Z):**
+> Revisar mandatos de especialidad y re-intentar.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T22:51:04.334Z):**
+> El Juez respondió en lenguaje natural en lugar de JSON — ajustar instrucciones.
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T22:52:12.733Z):**
+> Revisar mandatos de especialidad y re-intentar.

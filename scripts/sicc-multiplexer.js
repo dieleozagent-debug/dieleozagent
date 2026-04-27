@@ -429,9 +429,11 @@ function inyectarIdioma(sp) {
 // Retorna true si el proveedor tuvo 429 en los últimos 15 minutos — skip rápido para no gastar budget de tiempo
 function proveedorBloqueadoReciente(id) {
   const cutoff = Date.now() - 15 * 60 * 1000;
-  return EstadoGlobalErrores.ultimos4xx.some(
+  const bloqueado = EstadoGlobalErrores.ultimos4xx.some(
     e => e.proveedor === id && e.code === 429 && new Date(e.ts).getTime() > cutoff
   );
+  if (bloqueado) console.log(`[TELEMETRY] 🛡️  Proveedor ${id.toUpperCase()} bloqueado por cuota (429) hasta ${new Date(cutoff + 15 * 60 * 1000).toLocaleTimeString()}`);
+  return bloqueado;
 }
 
 async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt = null) {
@@ -469,19 +471,20 @@ async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt 
     try {
       console.log(`[GATEWAY-AHORRO] 💸 Intentando: ${p.id.toUpperCase()}...`);
       const respuesta = await p.fn(pregunta, null, contextoRAG, null, sp);
-      if (respuesta && respuesta.length > 0) {
+      if (respuesta && respuesta.length > 10) { // Validar respuesta mínima sustantiva
         registrarTrazaSICC(pregunta, p.id, contextoRAG);
         return { texto: respuesta, proveedor: p.id };
       }
-      // Respuesta vacía — tratar como fallo silencioso y continuar cascada
-      console.warn(`[GATEWAY-AHORRO] ⚠️  ${p.id.toUpperCase()} devolvió respuesta vacía. Continuando cascada...`);
+      console.warn(`[GATEWAY-AHORRO] ⚠️  ${p.id.toUpperCase()} devolvió respuesta vacía o insuficiente. Continuando...`);
     } catch (err) {
       lastErr = err;
       const code = extraerCodigoError(err);
       if (code) registrarError4xx(code, p.id, err.message);
-      // Log diferenciado: 429 = cuota agotada, otros = error técnico
+      
       if (code === 429) {
-        console.warn(`[GATEWAY-AHORRO] 🔴 ${p.id.toUpperCase()} cuota agotada (429). Saltando al siguiente proveedor.`);
+        console.warn(`[GATEWAY-AHORRO] 🔴 ${p.id.toUpperCase()} cuota agotada (429). MARCANDO BLOQUEO TEMPORAL.`);
+        // Forzar registro inmediato para que el siguiente intento lo salte
+        registrarError4xx(429, p.id, "Auto-bloqueo preventivo");
       } else {
         console.warn(`[GATEWAY-AHORRO] [SICC WARN] Fallo en ${p.id} (${code || 'ERR'}): ${err.message}`);
       }

@@ -1,6 +1,6 @@
-# 🏛️ Arquitectura SICC v14.0 — "Intents SICC" (Saneada)
+# 🏛️ Arquitectura SICC v14.5 — "Soberanía de Red y Texto"
 
-SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agente autónomo para auditoría técnica y jurídica del proyecto LFC2 (Línea Ferroviaria de Carga 2, Colombia).
+SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agente autónomo para auditoría técnica y jurídica del proyecto LFC2 (Colombia).
 
 ---
 
@@ -8,16 +8,41 @@ SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agent
 
 | Servicio | Contenedor / Proceso | Puerto | Función |
 | :--- | :--- | :--- | :--- |
-| **Agente Core** | `dieleozagent-debug-dieleozagent-1` | — | Bot Telegram + orquestación de ciclos de auditoría |
+| **Agente Core** | `node src/index.js` (Host) | — | Bot Telegram + orquestación de ciclos de auditoría |
 | **Oracle NotebookLM** | `notebooklm-mcp-v12` | 3001 (SSE) | Verdad Externa — 108 fuentes "Contrato Ardanuy LFC" |
-| **Infra Oracle** | **Chrome + Xvfb + auth2.cjs** | — | Sesión Google persistente (Google Sign-In bypass) |
-| **Base de Datos** | `sicc-postgres` | 5432 | pgvector — LTM contractual + memoria genética |
+| **Base de Datos** | `sicc-postgres` | 5432 | pgvector — 10.358 fragmentos del Contrato APP 001/2025 |
 | **Ollama (Embeddings)** | **Nativo en Host** | 11434 | `nomic-embed-text` 768 dims, autonomía total |
 
-### Conectividad
-- **Agente → Ollama:** alias `opengravity-ollama` → `172.20.0.1` (extra_hosts)
-- **Agente → Oracle:** `http://notebooklm-mcp-v12:3001/sse` (red `docker_sicc_net`)
-- **Agente → Postgres:** `sicc-postgres:5432`
+### Conectividad (v14.1 - Bridge Soberano)
+- **Agente → Postgres:** `127.0.0.1:5432` (Mapeo directo Host-to-Container).
+- **DNS Local:** Mapeado `127.0.0.1 sicc-postgres` en `/etc/hosts` para compatibilidad legacy.
+- **Fragmentación:** 100% de integridad con 10.358 fragmentos contractuales inyectados.
+
+---
+
+## 🤖 Interfaz de Telegram & Control de Instancias
+
+El sistema utiliza la API de Telegram como interfaz de mando soberano (HMI). Para garantizar la estabilidad, se aplican las siguientes reglas arquitectónicas:
+
+### 1. Mecanismo de Comunicación
+- **Modo:** Long Polling (configurado en `src/index.js`).
+- **Librería:** `node-telegram-bot-api`.
+- **Ventaja:** No requiere exposición de puertos (Webhooks) ni certificados SSL en el host, manteniendo el nodo oculto y seguro.
+
+### 2. Política de Instancia Única (Anti-409)
+Telegram prohíbe dos procesos usando el mismo Token simultáneamente.
+- **Detección de Conflicto:** El log `ETEGRAM: 409 Conflict` indica que existe una instancia duplicada (proceso zombi, contenedor paralelo o script `.sh` resucitador).
+- **Protocolo de Reinicio:** Se debe ejecutar `killall node` antes de levantar una nueva versión para asegurar la "limpieza" del canal de polling.
+
+### 3. Mensajería Segura (`safeSendMessage`)
+- **Chunking:** Los mensajes >3500 caracteres se dividen automáticamente para evitar el rechazo de Telegram.
+- **Retry Logic:** Se implementan hasta 3 reintentos con delay de 3s en caso de fallos de red o *rate limiting* de Telegram.
+- **Formato:** MarkdownV2/HTML con fallback a texto plano en caso de error de parseo.
+
+### 4. Dualidad Funcional: Oído vs Boca
+El sistema opera con dos instancias lógicas del bot para evitar bloqueos:
+- **El Oído (Reactivo - `src/index.js`):** Utiliza *Long Polling* activo. Es el único componente autorizado para procesar comandos (`/audit`, etc.). Solo debe existir UNA instancia activa de este proceso para evitar conflictos 409.
+- **La Boca (Proactivo - `src/notifications.js`):** No utiliza polling. Se instancia bajo demanda por otros módulos o scripts de cron para enviar alertas y reportes sin escuchar al usuario.
 
 ---
 
@@ -137,12 +162,12 @@ procesarMensaje(textoUsuario)
     ├─ FASE 0.5 (Oracle Fetcher): Destilación de Contexto (DBCD v001) → FICHA TÉCNICA OBLIGATORIA (vía distil-mandates.js).
     ├─ FASE 1: Auditor Forense genera borrador DT usando Citación Canónica de la Ficha.
     ├─ FASE 2: validarInternaSupabase() + validarExternaNotebook(notebooklm-mcp-v12:3001)
-    ├─ FASE 3: Juez R-HARD-06 → **DeepSeek Reasoner (`deepseek-reasoner`)** evalúa 16 reglas.
-    │           🚨 Protocolo Rescate: Fallback a Groq JSON → OpenRouter Free JSON.
+    ├─ FASE 3: Juez SICC v14.5 (Selector de Texto Crudo)
+    │           🚨 Protocolo Rescate: Heurística Forense de Señales (SÍ/NO) agnóstica a JSON.
     └─ FASE 4: Persistencia & CI/CD
         ├─ APROBADO: brain/dictamenes/ + vectorización.
-        │           🚀 Comando `/promote`: Git push automático a repositorio LFC2 → Vercel.
-        └─ RECHAZADO: brain/SPECIALTIES/{area}.md + STATE-{area}.json
+        │           🚀 Comando `/promote`: Git push automático a repositorio LFC2.
+        └─ RECHAZADO: brain/SPECIALTIES/{area}.md (Vacuna Genética).
 ```
 
 **Hard-caps:** MAX_CICLOS=3 | exec timeout=1800s | Oracle timeout=90s
@@ -211,22 +236,18 @@ La arquitectura PTC con cantonamiento virtual concentra la infraestructura físi
 
 ---
 
-## 📦 Pipeline DT → LFC2 → Vercel (CI/CD /promote)
+### 📋 El Algoritmo de Soberanía (6 Pasos)
 
-El flujo de promoción asegura que una verdad técnica certificada por el Juez se convierta en una realidad física en los documentos de ingeniería.
+| Paso | Actor | Acción Técnica | Output |
+| :--- | :--- | :--- | :--- |
+| **1. Análisis** | Agente (Brain) | Escaneo forense de archivos `.md` en LFC2 vs Mandatos R-HARD. | Detección de Toxinas |
+| **2. Dictamen** | Agente (Brain) | Redacción de DT en `brain/dictamenes/` con bloque YAML (Sec. 10). | DT-SICC-2026-XXX.md |
+| **3. Promoción** | Comando `/promote` | Copia de la DT certificada al root de LFC2 vía `gitlocal.js`. | DT en `Decisiones_Tecnicas/` |
+| **4. Cirugía** | `lfc-cli process-dts` | El motor Node.js lee el YAML y aplica `replace` físico en los `.md`. | Recetas (.md) Saneadas |
+| **5. Sincro** | `lfc-cli sync` | Regenera `datos_wbs.js` para actualizar métricas y el Menú. | Dashboard Actualizado |
+| **6. Servicio** | `lfc-cli cook` | Convierte MD a HTML e inyecta la insignia Michelin SICC v7.0. | lfc-2.vercel.app (Live) |
 
-```mermaid
-graph TD
-    A[Cerebro: swarm-pilot.js] -->|Genera| B(DT-SICC-2026-XXX.md)
-    B -->|Juez R1 Aprueba| C{Comando /promote}
-    C -->|gitlocal.js| D[Repo LFC2: Decisiones_Tecnicas/]
-    D -->|lfc-cli.js process-dts| E[Parcheo de Recetas .md]
-    E -->|lfc-cli.js sync| F[Regeneración de Menú .js]
-    F -->|lfc-cli.js cook| G[Plato Final .html]
-    G -->|git push| H[Vercel: lfc-2.vercel.app]
-```
-
-**Referencia Cruzada:** Para el detalle del motor de cocinado, consultar el mapa de ingeniería en [architectureLFC.md](file:///home/administrador/docker/LFC2/architectureLFC.md).
+**Referencia Cruzada:** Para el detalle del motor de cocinado y scripts de servicio, consultar [architectureLFC.md](file:///home/administrador/docker/LFC2/architectureLFC.md).
 
 ---
 
@@ -246,10 +267,10 @@ graph TD
 
 1. **CAPEX Blindado:** $726.000.000 COP máx (WBS 6.1.100)
 2. **Normativa:** FRA 49 CFR Part 236 / AREMA / Manual Vial 2024
-3. **CPU:** >80% → encolar | >95% → bloquear inferencia local
-4. **Idioma:** Español obligatorio en toda salida del agente
-5. **Verdad:** El Contrato APP 001/2025 y sus Apéndices prevalecen sobre cualquier inferencia de IA generativa
-6. **Autonomía:** PROHIBIDA la edición manual de dictámenes. Todo cambio debe ser vía ajuste del BRAIN y re-ejecución del ciclo de auditoría. *(Excepción: Protocolo de Saneamiento por Falsos Positivos).*
+3. **CPU:** >80% → Encolar (Bot informa estado de cola) | >95% → Bloqueo total.
+4. **Idioma:** Español obligatorio en toda salida del agente.
+5. **Verdad:** El Contrato APP 001/2025 (10.358 fragmentos) prevalece sobre cualquier inferencia.
+6. **Autonomía:** PROHIBIDA la edición manual de dictámenes. Todo cambio vía ajuste del BRAIN.
 
 ---
 
@@ -290,4 +311,4 @@ tail -5 data/logs/sicc-traces.json | python3 -m json.tool
 
 ---
 
-*Actualizado: 2026-04-24 | OpenGravity SICC v14.0*
+*Actualizado: 2026-04-27 | OpenGravity SICC v14.5 — "Gran Sueño Saneado"*

@@ -16,7 +16,7 @@
  */
 'use strict';
 
-const fs   = require('fs');
+const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
 const cron = require('node-cron');
@@ -32,9 +32,9 @@ const { handleMessage, handleFile } = require('./handlers');
 
 // ── Dirs ──────────────────────────────────────────────────────────────────────
 const DOWNLOADS_DIR = path.join(__dirname, '../data/downloads');
-const LOGS_DIR      = path.join(__dirname, '../data/logs');
+const LOGS_DIR = path.join(__dirname, '../data/logs');
 if (!fs.existsSync(DOWNLOADS_DIR)) fs.mkdirSync(DOWNLOADS_DIR, { recursive: true });
-if (!fs.existsSync(LOGS_DIR))      fs.mkdirSync(LOGS_DIR,      { recursive: true });
+if (!fs.existsSync(LOGS_DIR)) fs.mkdirSync(LOGS_DIR, { recursive: true });
 
 // ── Brain init ────────────────────────────────────────────────────────────────
 inicializarBrain();
@@ -52,7 +52,7 @@ inicializarBrain();
 })();
 
 // ── Bot ───────────────────────────────────────────────────────────────────────
-const bot  = new TelegramBot(config.telegram.token, { polling: true });
+const bot = new TelegramBot(config.telegram.token, { polling: true });
 const send = (chatId, text, opts) => safeSendMessage(bot, chatId, text, opts);
 
 console.log(`[BOT] ${config.agent.name} iniciado. Usuario autorizado: ${config.telegram.userId}`);
@@ -64,13 +64,13 @@ const TZ = 'America/Bogota';
 cron.schedule('0 8 * * *', async () => {
   console.log('[CRON] Reporte matutino 08:00...');
   try {
-    const { pool }   = require('./supabase');
+    const { pool } = require('./supabase');
     const { execSync } = require('child_process');
     let clima = '—';
-    try { clima = execSync('curl -s "https://wttr.in/Bogota?format=3"', { encoding: 'utf8' }).trim(); } catch (_) {}
+    try { clima = execSync('curl -s "https://wttr.in/Bogota?format=3"', { encoding: 'utf8' }).trim(); } catch (_) { }
     let frags = '?';
-    try { frags = (await pool.query('SELECT count(*) FROM contrato_documentos')).rows[0].count; } catch (_) {}
-    const forense    = await obtenerResumenForense();
+    try { frags = (await pool.query('SELECT count(*) FROM contrato_documentos')).rows[0].count; } catch (_) { }
+    const forense = await obtenerResumenForense();
     const consistencia = await generarReporteConsistencia();
     await send(config.telegram.userId,
       `*REPORTE MATUTINO SICC — ${new Date().toLocaleDateString()}*\n\n` +
@@ -97,7 +97,7 @@ cron.schedule('0 6 * * *', () => {
 cron.schedule('0 * * * *', async () => {
   try {
     const forense = await obtenerResumenForense();
-    const err4xx  = Object.entries(EstadoGlobalErrores.conteos)
+    const err4xx = Object.entries(EstadoGlobalErrores.conteos)
       .map(([c, n]) => `[${c}]:${n}`).join(',') || 'none';
     const entry = `[${new Date().toISOString()}] STATUS:${forense.statusGeneral} | 4xx:${err4xx} | ${forense.crossRefReporte.trim().replace(/\n/g, ' ')}\n`;
     fs.appendFileSync(path.join(LOGS_DIR, 'health.log'), entry);
@@ -136,10 +136,21 @@ bot.onText(/^\/audit(?:\s+(.+))?/, async (msg, match) => {
           }
           return;
         }
-        const veredicto = stdout.match(/⚖️ VEREDICTO FINAL:[\s\S]*/);
-        const resumen   = veredicto ? veredicto[0].substring(0, 3000) : 'Proceso concluido — veredicto no parseado.';
+        // Intentar capturar desde el marcador de SICC o desde el final del stdout
+        const veredictoMatch = stdout.match(/--------------------------------------------------[\s\S]*⚖️ VEREDICTO FINAL:[\s\S]*/i)
+          || stdout.match(/⚖️ VEREDICTO FINAL:[\s\S]*/i);
+
+        let resumen = 'Proceso concluido — veredicto no parseado.';
+        if (veredictoMatch) {
+          resumen = veredictoMatch[0].trim();
+        } else {
+          // Si no hay marcador, capturar las últimas 20 líneas (donde suele estar el resumen)
+          const lines = stdout.trim().split('\n');
+          resumen = lines.slice(-20).join('\n');
+        }
+
         for (let t = 0; t < 3; t++) {
-          try { await send(chatId, `✨ *Auditoría Finalizada (${target})*\n\n${resumen}`); break; }
+          try { await send(chatId, `✨ *Auditoría Finalizada (${target})*\n\n${resumen.substring(0, 3500)}`); break; }
           catch (_) { await new Promise(r => setTimeout(r, 3000)); }
         }
       } catch (e) { console.error('[AUDIT]', e.message); }
@@ -177,10 +188,10 @@ bot.onText(/^\/promote(?:\s+(.+))?/, async (msg, match) => {
 });
 
 // ── Message & file routing ────────────────────────────────────────────────────
-bot.on('message',  (msg) => handleMessage(msg, bot, send));
+bot.on('message', (msg) => handleMessage(msg, bot, send));
 bot.on('document', (msg) => handleFile(msg, 'document', bot, send));
-bot.on('photo',    (msg) => handleFile(msg, 'photo',    bot, send));
+bot.on('photo', (msg) => handleFile(msg, 'photo', bot, send));
 
 bot.on('polling_error', (err) => console.error(`[BOT] Polling: ${err.message}`));
 process.on('SIGTERM', () => { bot.stopPolling(); process.exit(0); });
-process.on('SIGINT',  () => { bot.stopPolling(); process.exit(0); });
+process.on('SIGINT', () => { bot.stopPolling(); process.exit(0); });

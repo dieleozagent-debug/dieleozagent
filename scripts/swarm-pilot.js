@@ -316,68 +316,37 @@ ${borrador_DT}
 
             let decisionRAW;
             try {
-                // DeepSeek v4-pro como Juez Principal — JSON nativo, razonamiento forense
-                decisionRAW = await llamarDeepSeekJSON("Evalúa el dictamen y responde SOLO con el JSON solicitado.", promptJuez);
-                console.log(`[JUEZ] 🔵 DeepSeek JSON OK.`);
-            } catch (juezErr) {
-                console.warn(`[JUEZ] ⚠️ DeepSeek JSON falló (${juezErr.message}). Intentando Groq...`);
-                try {
-                    decisionRAW = await llamarGroqJSON("Evalúa el dictamen y responde SOLO con el JSON solicitado.", promptJuez);
-                    console.log(`[JUEZ] 🟠 Groq JSON OK.`);
-                } catch (groqErr) {
-                    // Parche para evitar quemar ciclos por errores de red/cuota
-                    console.warn(`[JUEZ] ⚠️ Groq JSON falló (${groqErr.message}). Intentando rescate con OpenRouter JSON...`);
-                    try {
-                        decisionRAW = await llamarOpenRouterJSON("Evalúa el dictamen y responde SOLO con el JSON solicitado.", promptJuez, "openrouter/free");
-                        console.log(`[JUEZ] 🟣 OpenRouter JSON OK.`);
-                    } catch (rescueErr) {
-                        console.error(`\n[SICC CRITICAL] Todos los Jueces fallaron (${rescueErr.message}). Abortando Swarm.`);
-                        process.exit(1);
-                    }
-                }
+                // SICC v14.5: Juez en modo "Texto Crudo" — Máxima tolerancia
+                const resJuez = await llamarMultiplexadorFree(promptJuez, "", "Rol: Dirección Técnica Forense");
+                decisionRAW = resJuez.texto;
+                console.log(`[JUEZ] 🔵 Respuesta recibida de ${resJuez.proveedor.toUpperCase()}. Analizando veredicto...`);
+            } catch (err) {
+                console.error(`\n[SICC CRITICAL] Fallo total del Juez: ${err.message}`);
+                process.exit(1);
             }
             
-            // Parsear respuesta del Juez: JSON limpio → code fence → extracción campo a campo
-            function extraerCampoJuez(texto, campo) {
-                const m = texto.match(new RegExp(`"${campo}"\\s*:\\s*"([^"]*)"`, 'i'))
-                         || texto.match(new RegExp(`"${campo}"\\s*:\\s*(true|false)`, 'i'));
-                return m ? m[1] : null;
-            }
-
-            let decision;
-            const fenceMatch = decisionRAW.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
-            const jsonMatch = fenceMatch ? fenceMatch[1] : (decisionRAW.match(/\{[\s\S]*\}/) || [null])[0];
-
-            if (jsonMatch) {
-                try {
-                    decision = JSON.parse(jsonMatch);
-                } catch (_) {
-                    // JSON malformado — extraer campos individualmente
-                    decision = {
-                        aprobado: /\"aprobado\"\s*:\s*true/i.test(jsonMatch),
-                        razon: extraerCampoJuez(jsonMatch, 'razon') || 'JSON malformado por el modelo',
-                        categoria_fallida: extraerCampoJuez(jsonMatch, 'categoria_fallida') || 'Ninguna',
-                        leccion_auditoria: extraerCampoJuez(jsonMatch, 'mandato_correctivo') || extraerCampoJuez(jsonMatch, 'leccion_auditoria') || 'Respuesta JSON malformada del Juez.',
-                    };
-                    console.warn(`⚠️ [JUEZ] JSON malformado — campos extraídos individualmente.`);
-                }
+            // --- PARSER DE TEXTO CRUDO (Heurística de Soberanía) ---
+            let decision = { aprobado: false, razon: decisionRAW.substring(0, 500), mandato_correctivo: "Revisar mandatos." };
+            
+            const rawUpper = decisionRAW.toUpperCase();
+            
+            // 1. Detección de Aprobación (SÍ)
+            const señalesAprobado = ['APROBADO', 'APROBAR', 'VALIDO', 'CERTIFICADA', '✅', '"APROBADO": TRUE', 'TRUE'];
+            const señalesRechazo = ['RECHAZADO', 'RECHAZAR', 'IMPUREZA', 'ALUCINACIÓN', '❌', '"APROBADO": FALSE', 'FALSE', 'ERROR', 'INCONSISTENTE'];
+            
+            // Lógica: Debe tener señales de aprobación y NO tener señales de rechazo
+            const tieneSi = señalesAprobado.some(s => rawUpper.includes(s));
+            const tieneNo = señalesRechazo.some(s => rawUpper.includes(s));
+            
+            if (tieneSi && !tieneNo) {
+                decision.aprobado = true;
+                console.log(`[JUEZ] ✅ Veredicto detectado: APROBADO.`);
             } else {
-                // Sin llaves: el modelo respondió en lenguaje natural — inferir por palabras clave
-                const textoUpper = decisionRAW.toUpperCase();
-                const aprobadoInferido = textoUpper.includes('APROBADO') && 
-                                         !textoUpper.includes('NO APROBADO') && 
-                                         !textoUpper.includes('RECHAZO') && 
-                                         !textoUpper.includes('RECHAZADO') && 
-                                         !textoUpper.includes('RECHAZAR') && 
-                                         !textoUpper.includes('BLOCKER') && 
-                                         !textoUpper.includes('IMPUREZA');
-                decision = {
-                    aprobado: aprobadoInferido,
-                    razon: decisionRAW.substring(0, 300),
-                    categoria_fallida: 'Ninguna',
-                    leccion_auditoria: 'El Juez respondió en lenguaje natural en lugar de JSON — ajustar instrucciones.',
-                };
-                console.warn(`⚠️ [JUEZ] Sin JSON — respuesta inferida por palabras clave. Aprobado: ${aprobadoInferido}`);
+                decision.aprobado = false;
+                console.log(`[JUEZ] ❌ Veredicto detectado: RECHAZADO (o ambiguo).`);
+                // Intentar capturar la razón del rechazo (si existe un mandato correctivo)
+                const correctivoMatch = decisionRAW.match(/MANDATO CORRECTIVO:\s*([\s\S]*)/i);
+                if (correctivoMatch) decision.mandato_correctivo = correctivoMatch[1].substring(0, 500).trim();
             }
             console.log(`⚖️ VEREDICTO: ${decision.aprobado ? '✅ APROBADO' : '❌ RECHAZADO'}`);
             console.log(`   Razón: ${decision.razon || 'No especificada'}`);
