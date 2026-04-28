@@ -11,8 +11,9 @@ SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agent
 | **Agente Core** | `node src/index.js` (Host) | — | Bot Telegram + orquestación de ciclos de auditoría |
 | **Oracle NotebookLM** | `notebooklm-mcp-v12` | 3001 (SSE) | Verdad Externa — 108 fuentes "Contrato Ardanuy LFC" |
 | **Base de Datos** | `sicc-postgres` | 5432 | pgvector — 10.358 fragmentos del Contrato APP 001/2025 |
-| **Embeddings v2.0** | **Multiplexador Híbrido** | — | **Primario:** Gemini `text-embedding-004` (Cloud) / **Fallback:** Ollama `nomic-embed-text` (Local) |
-| **Inferencia** | **Tridente NVIDIA NIM** | — | Nemotron (Legal), DeepSeek (Técnico), Llama 70B (Auditoría) |
+| **Embeddings v2.1** | **Multiplexador Híbrido** | — | **Primario:** Gemini `embedding-001` (SICC Stable) / **Fallback:** Ollama `nomic-embed-text` (Local) |
+| **Inferencia** | **Tridente NVIDIA NIM** | — | **DeepSeek-v4-pro** (Lead Reasoning), Nemotron (Legal), Llama 3.3 70B (Auditoría) |
+| **Capa de Consenso** | **Multi-Agente SICC** | — | **Doble Ciego:** Técnico + Legal + Coordinador (Consenso Obligatorio) |
 
 ### Conectividad (v14.1 - Bridge Soberano)
 - **Agente → Postgres:** `127.0.0.1:5432` (Mapeo directo Host-to-Container).
@@ -21,7 +22,16 @@ SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agent
 
 ---
 
-## 🤖 Interfaz de Telegram & Control de Instancias
+## 🦅 Soberanía Técnica: Consenso Multi-Agente (Doble Ciego)
+
+Para garantizar que el sistema no alucine ni comprometa el CAPEX del proyecto, se ha implementado una capa de validación triple:
+
+*   **Donde:** La lógica reside en `scripts/punto42-pilot.js`, orquestada por el `dream-orchestrator.sh`.
+*   **Como:** Cada documento de ingeniería es procesado secuencialmente por tres modelos de alto nivel:
+    1.  **Agente Técnico (DeepSeek-v4-pro):** Filtra ingeniería y mandatos.
+    2.  **Agente Legal (Nemotron):** Valida citación canónica del AT1/AT3.
+    3.  **Agente Coordinador (Llama 70B):** Cruza ambos resultados. Solo si hay consenso absoluto, el archivo se actualiza.
+*   **Por qué:** Para eliminar el "Factor Humano" de error en la revisión masiva de 189 documentos y asegurar que ninguna "bomba de tiempo" financiera (como la motorización excesiva) se filtre en los entregables finales.
 
 El sistema utiliza la API de Telegram como interfaz de mando soberano (HMI). Para garantizar la estabilidad, se aplican las siguientes reglas arquitectónicas:
 
