@@ -19,10 +19,7 @@ const dbConfig = {
     database: process.env.DB_NAME || 'postgres'
 };
 
-if (!isDocker && !process.env.DB_HOST) {
-    dbConfig.host = '127.0.0.1';
-    dbConfig.port = 5432;
-}
+// dbConfig ya toma DB_HOST de las variables de entorno
 
 const pool = new Pool(dbConfig);
 
@@ -30,36 +27,33 @@ const pool = new Pool(dbConfig);
  * Obtener Vector Embedding de un texto usando Ollama LOCAL
  */
 async function obtenerEmbedding(texto) {
+    // 1. Intentar Cloud Gemini (Calidad Forense)
+    try {
+        const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
+        const result = await model.embedContent(texto);
+        const vector = result.embedding.values;
+        if (vector.length === 768) {
+            return vector;
+        }
+        console.warn(`[SUPABASE] [SICC WARN] Gemini devolvió ${vector.length} dimensiones.`);
+    } catch (e) {
+        console.warn(`[SUPABASE] ⚠️ Cloud Gemini falló (${e.message}). Rebotando a Ollama Local...`);
+    }
+
+    // 2. Fallback a Ollama Local (Soberanía Local)
     try {
         const host = config.ai.ollama.host;
-        
-        console.log(`[SUPABASE] 🤖 Obteniendo embedding vía ${host} (Modelo: nomic-embed-text:latest)...`);
         const response = await axios.post(`${host}/api/embeddings`, {
             model: "nomic-embed-text:latest",
             prompt: texto
-        }, { timeout: 60000 });
+        }, { timeout: 15000 }); // Timeout más corto para no bloquear
         
-        const vector = response.data.embedding;
-    if (vector.length !== 768) {
-        console.warn(`[SUPABASE] [SICC WARN] Ollama devolvió ${vector.length} dimensiones, se esperaba 768.`);
+        return response.data.embedding;
+    } catch (localErr) {
+        console.error(`[SUPABASE] [SICC FAIL] Error final en Embeddings: ${localErr.message}`);
     }
-    return vector;
-  } catch (localErr) {
-    console.warn(`[SUPABASE] ⚠️ Ollama Local falló (${localErr.message}). Intentando Cloud Gemini...`);
-    try {
-      const model = genAI.getGenerativeModel({ model: "embedding-001" });
-      const result = await model.embedContent(texto);
-      const vector = result.embedding.values;
-      if (vector.length !== 768) {
-          console.warn(`[SUPABASE] [SICC WARN] Gemini devolvió ${vector.length} dimensiones, se esperaba 768.`);
-      }
-      return vector;
-    } catch (e) {
-      console.error(`[SUPABASE] [SICC FAIL] Error final en Embeddings: ${e.message}`);
-    }
-  }
 
-  throw new Error("Ningún modelo de embeddings respondió satisfactoriamente.");
+    throw new Error("Ningún modelo de embeddings respondió satisfactoriamente.");
 }
 
 async function insertarFragmento(archivoNombre, contenido, vector) {

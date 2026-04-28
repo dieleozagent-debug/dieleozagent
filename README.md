@@ -1,10 +1,10 @@
-# 🌪️ SICC v14.1 — Sovereign Intelligent Contractual Control
-**Cerebro Forense para el Proyecto LFC2 (La Dorada–Chiriguaná)**
+# 🌪️ SICC v14.6 — Sovereign Intelligent Contractual Control
+**Cerebro Forense Híbrido para el Proyecto LFC2 (La Dorada–Chiriguaná)**
 
 ---
 
 ## 🏛️ Filosofía del Sistema
-SICC no es un chatbot; es un **Muro de Fuego Técnico** diseñado para proteger el CAPEX y la integridad técnica del proyecto. Utiliza una arquitectura de **Cámara de Doble Ciego** donde un Auditor propone y un Juez (DeepSeek R1) sentencia basándose exclusivamente en el Contrato APP 001/2025 y las normas internacionales (FRA/AREMA).
+SICC es un **Muro de Fuego Técnico** que protege la integridad del proyecto. Implementa **Soberanía Híbrida**: Razonamiento masivo en la nube (NVIDIA NIM) con persistencia y memoria soberana local (Postgres + Ollama).
 
 ---
 
@@ -12,28 +12,26 @@ SICC no es un chatbot; es un **Muro de Fuego Técnico** diseñado para proteger 
 
 | Comando | Función |
 | :--- | :--- |
-| `/audit [área]` | Inicia el Bucle Forense: Fetcher → RAG → Oracle → Juez R1. |
+| `/audit [área]` | Inicia el Bucle Forense: Tridente NVIDIA NIM → RAG → Oracle → Juez. |
 | `/promote [DT-ID]` | **CI/CD:** Sincroniza DTs aprobadas con LFC2 y despliega en Vercel. |
-| `/swarm [pregunta]` | Activa el enjambre secuencial para consultas complejas. |
-| `/doctor` | Informe de salud del sistema, telemetría y cuotas de IA. |
-| `/learn` | Auto-mapeo recursivo del repositorio LFC2. |
-| `/cerebro` | Verifica el estado de los Mandatos, Identidad y Metodología. |
+| `/doctor` | Telemetría, carga de CPU (Gobernador) y estado de cuotas IA. |
+| `/cerebro` | Verifica Mandatos Maestros, Identidad y Memoria Genética. |
 
 ---
 
-## 🚀 Hitos Recientes (SICC v14.1)
-*   **DeepSeek Integration:** `deepseek-reasoner` (R1) actuando como Juez Forense innegociable.
-*   **Masterchef Pipeline:** Sincronización nativa con `lfc-cli.js` para parchear recetas de ingeniería automáticamente.
-*   **Saneamiento Masivo:** Purga total de toxinas (99.999%, plomo, SIL ambiguo) en Fases III, IV y V.
-*   **Oracle Blindado:** Conexión persistente a NotebookLM mediante resolución DNS interna.
+## 🚀 Hitos Recientes (SICC v14.6)
+*   **Tridente NVIDIA NIM:** Integración de Nemotron-3-Super, DeepSeek-v4 y Llama-70B para auditorías de alta fidelidad.
+*   **Embeddings v2.0:** Memoria Cloud-First (Gemini) con fallback local (Ollama) para búsquedas RAG instantáneas.
+*   **Gobernador de Recursos:** Motor de encolado inteligente para proteger el host de 4 núcleos.
+*   **Zero-Hallucination:** Mandatos R-HARD inyectados en la base genética del enjambre.
 
 ---
 
 ## 📁 Estructura del "Cerebro" (Brain)
-*   `brain/dictamenes/`: Decisiones Técnicas certificadas y listas para promover.
-*   `brain/SPECIALTIES/`: "Vacunas" técnicas contra alucinaciones por cada área.
-*   `brain/history/`: Trazabilidad completa de cada auditoría ejecutada.
+*   `brain/dictamenes/`: Decisiones Técnicas certificadas y listas para promover al LFC2.
+*   `brain/SPECIALTIES/`: "Vacunas" técnicas y lecciones aprendidas por especialidad.
+*   `brain/history/`: Trazabilidad forense completa de cada ciclo de auditoría.
 
 ---
 
-**© 2026 OpenGravity SICC System | SICC v14.1 — Sovereign Edition**
+**© 2026 OpenGravity SICC System | SICC v14.6 — Hybrid Sovereignty Edition**

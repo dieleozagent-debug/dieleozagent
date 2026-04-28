@@ -13,7 +13,9 @@ services:
     working_dir: /home/administrador/docker/agente
     env_file:
       - .env
-    command: bash -c "apt-get update && apt-get install -y docker.io && npm install @modelcontextprotocol/sdk && node src/index.js"
+    environment:
+      - DB_HOST=sicc-postgres
+    command: "node src/index.js"
     extra_hosts:
       - "opengravity-ollama:172.20.0.1"
 

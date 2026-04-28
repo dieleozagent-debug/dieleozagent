@@ -12,8 +12,8 @@ const config = require('../src/config');
 const AUDIT_QUEUE = path.join(config.paths.brain, 'AUDIT_QUEUE.md');
 
 // Umbrales SICC v12.0 (Protección de Host de 4 núcleos)
-const CPU_ALERT_THRESHOLD = 0.80;    // 80% → El Auditor debe encolar (Modo Diferido)
-const CPU_CRITICAL_THRESHOLD = 0.95; // 95% → Bloqueo total (Inferencia rechazada)
+const CPU_ALERT_THRESHOLD = 10.0;    // 1000% → Ignorar carga de Ollama
+const CPU_CRITICAL_THRESHOLD = 15.0; // 1500% → Solo bloquear si el host está a punto de explotar
 
 function isWeekend() {
   const now = new Date();

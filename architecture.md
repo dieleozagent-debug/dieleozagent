@@ -11,7 +11,8 @@ SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agent
 | **Agente Core** | `node src/index.js` (Host) | — | Bot Telegram + orquestación de ciclos de auditoría |
 | **Oracle NotebookLM** | `notebooklm-mcp-v12` | 3001 (SSE) | Verdad Externa — 108 fuentes "Contrato Ardanuy LFC" |
 | **Base de Datos** | `sicc-postgres` | 5432 | pgvector — 10.358 fragmentos del Contrato APP 001/2025 |
-| **Ollama (Embeddings)** | **Nativo en Host** | 11434 | `nomic-embed-text` 768 dims, autonomía total |
+| **Embeddings v2.0** | **Multiplexador Híbrido** | — | **Primario:** Gemini `text-embedding-004` (Cloud) / **Fallback:** Ollama `nomic-embed-text` (Local) |
+| **Inferencia** | **Tridente NVIDIA NIM** | — | Nemotron (Legal), DeepSeek (Técnico), Llama 70B (Auditoría) |
 
 ### Conectividad (v14.1 - Bridge Soberano)
 - **Agente → Postgres:** `127.0.0.1:5432` (Mapeo directo Host-to-Container).
@@ -50,11 +51,12 @@ El sistema opera con dos instancias lógicas del bot para evitar bloqueos:
 
 | Nivel | Proveedor | Modelo | Nota |
 |---|---|---|---|
-| 1 | Gemini | `gemini-2.0-flash` | Free tier (1500 req/día) |
-| 1 | Groq | `llama-3.3-70b-versatile` | Free tier (100K tokens/día) |
-| 1 | Ollama local | `gemma4-light:latest` | Sin límite, autonomía total |
-| 2 | OpenRouter free | `openrouter/free` | Fallback gratuito multi-modelo |
-| **3** | **DeepSeek 🔵** | `deepseek-chat` | **Blocker Final:** Resuelve cuando todo lo gratuito falla. |
+| 1 | **NVIDIA NIM** 🟢 | `nemotron-3-super-120b` | **Tridente Principal:** Razonamiento superior gratuito |
+| 1 | **DeepSeek 🔵** | `deepseek-v4-pro` | Razonamiento técnico y lógico puro |
+| 1 | Gemini | `gemini-2.0-flash` | Alta velocidad y cuota generosa |
+| 2 | Groq | `llama-3.3-70b` | Baja latencia, auditoría rápida |
+| 2 | OpenRouter | `openrouter/free` | Rescate multi-modelo |
+| **3** | **Ollama local** | `gemma2:9b` | **Soberanía Total:** Fallback offline y masivo |
 
 **Cerebro Superior (DeepSeek):** Se ha integrado la API nativa de DeepSeek para actuar como el último muro de contención contra el `SICC BLOCKER`. Es el proveedor con mayor razonamiento por costo del mercado.
 
@@ -252,7 +254,7 @@ Para garantizar la viabilidad técnica y financiera del proyecto, el sistema ope
 | `contrato_documentos` | Biblia Legal — Contrato LFC2 + normas técnicas (OCR chunking 800c/100c) |
 | `sicc_genetic_memory` | 59 lecciones manuales + DT_CERTIFICADA + VEREDICTO_JUEZ automáticos |
 
-**Embeddings:** `nomic-embed-text` (Ollama, 768 dims) → fallback `text-embedding-004` (Gemini)
+**Embeddings:** `text-embedding-004` (Gemini Cloud - Calidad Forense) → fallback `nomic-embed-text` (Ollama Local - Soberanía)
 
 ---
 
