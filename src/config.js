@@ -60,7 +60,8 @@ const config = {
     nvidia: {
       apiKey: env('NVIDIA_API_KEY', false),
       baseUrl: 'https://integrate.api.nvidia.com/v1',
-      model: 'deepseek-ai/deepseek-v4-pro'
+      model: 'deepseek-ai/deepseek-v4-pro',
+      modelFallback: 'nvidia/nemotron-3-super-120b-a12b'
     },
 
     // ── Swarm de Alta Velocidad (Hybrid Mode) ──────────────────────────────

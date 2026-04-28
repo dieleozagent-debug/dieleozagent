@@ -1,0 +1,10 @@
+[CONFIG] [SICC OK] Agente: OpenGravity
+[CONFIG] [SICC OK] Proveedor primario: deepseek
+[CONFIG] [SICC OK] Proveedores disponibles: Gemini, Groq, OpenRouter, DeepSeek 🔵, NVIDIA 🟢, Ollama
+🤖 Enviando saludo al Segundo Cerebro (Nemotron-3-Super-120b)...
+[AGENTE] 🟢 Invocando NVIDIA NEMOTRON. Modelo: nvidia/nemotron-3-super-120b-a12b
+
+--- RESPUESTA DE NEMOTRON ---
+¡Hola! Como Nemotron, Segundo Cerebro del sistema SICC v14.6, confirmo mi plena disponibilidad para tareas de planificación y lógica compleja bajo la infraestructura de NVIDIA NIM. Estoy listo para abordar desafíos analíticos de alto nivel, integrar razonamiento estructurado y generar soluciones alineadas con los requisitos operativos del entorno SICC, aprovechando la optimización y escalabilidad de NVIDIA NIM para garantizar precisión y eficiencia en cada proceso. ¿En qué具体idad deseas que comencemos?
+-----------------------------
+

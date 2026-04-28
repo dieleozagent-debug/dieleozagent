@@ -7,6 +7,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { GoogleAIFileManager } = require('@google/generative-ai/server');
 const Groq = require('groq-sdk');
 const OpenAI = require('openai');
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 const config = require('../src/config');
 
 let agentContext = {
@@ -307,6 +308,7 @@ async function llamarNvidia(mensajeUsuario, _archivoTmp, contextoRAG = '', syste
   });
   const sp = inyectarIdioma(systemPrompt || agentContext.getPromptFast());
   const modelo = config.ai.nvidia.model;
+  await sleep(1500);
   console.log(`[AGENTE] 🟢 Invocando NVIDIA NIM. Modelo: ${modelo}`);
   
   const completion = await client.chat.completions.create({
@@ -320,6 +322,33 @@ async function llamarNvidia(mensajeUsuario, _archivoTmp, contextoRAG = '', syste
     top_p: 0.95,
     max_tokens: 4096, 
     extra_body: { "chat_template_kwargs": { "thinking": true } }
+  });
+
+  return completion.choices[0].message.content;
+}
+
+/**
+ * NVIDIA NEMOTRON — Segundo Cerebro (Planning/Logic)
+ */
+async function llamarNemotron(mensajeUsuario, _archivoTmp, contextoRAG = '', systemPrompt = null) {
+  const client = new OpenAI({
+    baseURL: config.ai.nvidia.baseUrl,
+    apiKey: config.ai.nvidia.apiKey,
+  });
+  const sp = inyectarIdioma(systemPrompt || agentContext.getPromptFast());
+  const modelo = config.ai.nvidia.modelFallback;
+  await sleep(1500);
+  console.log(`[AGENTE] 🟢 Invocando NVIDIA NEMOTRON. Modelo: ${modelo}`);
+  
+  const completion = await client.chat.completions.create({
+    model: modelo,
+    messages: [
+      { role: 'system', content: sp + (contextoRAG ? `\n\n---\nCONTEXTO CONTRACTUAL:\n${contextoRAG}` : '') },
+      ...agentContext.getHistorial().map(h => ({ role: h.role, content: h.content })),
+      { role: 'user', content: mensajeUsuario },
+    ],
+    temperature: 0.1,
+    max_tokens: 4096
   });
 
   return completion.choices[0].message.content;
@@ -468,8 +497,9 @@ async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt 
   const sp = inyectarIdioma(systemPrompt);
 
   const proveedoresFree = [
+    { id: 'nvidia',     fn: async (q, a, ctx, h, s) => llamarNvidia(q, a, ctx, s) }, // DeepSeek Pro
+    { id: 'nemotron',   fn: async (q, a, ctx, h, s) => llamarNemotron(q, a, ctx, s) }, // Nemotron Fallback
     { id: 'gemini',     fn: async (q, a, ctx, h, s) => llamarGemini(q, a, ctx, s) },
-    { id: 'nvidia',     fn: async (q, a, ctx, h, s) => llamarNvidia(q, a, ctx, s) }, // 🟢 Alta prioridad
     { id: 'groq',       fn: async (q, a, ctx, h, s) => llamarGroq(q, a, ctx, s) },
     { id: 'ollama',     fn: llamarOllama },
     { id: 'openrouter', fn: async (q, a, ctx, h, s) => llamarOpenRouter(q, a, ctx, s, 'openrouter/free') },
@@ -571,6 +601,7 @@ module.exports = {
   llamarDeepSeek,
   llamarDeepSeekJSON,
   llamarNvidia,
+  llamarNemotron,
   llamarOpenRouter,
   llamarOpenRouterJSON,
   llamarOllama,
