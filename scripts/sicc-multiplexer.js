@@ -3,6 +3,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const axios = require('axios');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { GoogleAIFileManager } = require('@google/generative-ai/server');
 const Groq = require('groq-sdk');
@@ -299,59 +300,55 @@ async function llamarDeepSeek(mensajeUsuario, _archivoTmp, contextoRAG = '', sys
 }
 
 /**
- * NVIDIA NIM — DeepSeek-v4-pro (Razonamiento de Alta Densidad)
+ * NVIDIA NIM — Motor Genérico (DeepSeek, Nemotron, Llama, etc.)
+ * Implementación robusta vía Axios para evitar bloqueos de SDK.
  */
-async function llamarNvidia(mensajeUsuario, _archivoTmp, contextoRAG = '', systemPrompt = null) {
-  const client = new OpenAI({
-    baseURL: config.ai.nvidia.baseUrl,
-    apiKey: config.ai.nvidia.apiKey,
-  });
-  const sp = inyectarIdioma(systemPrompt || agentContext.getPromptFast());
-  const modelo = config.ai.nvidia.model;
-  await sleep(1500);
-  console.log(`[AGENTE] 🟢 Invocando NVIDIA NIM. Modelo: ${modelo}`);
+async function llamarNvidiaModel(modelo, mensajeUsuario, _archivoTmp, contextoRAG = '', systemPrompt = null) {
+  const url = `${config.ai.nvidia.baseUrl}/chat/completions`;
   
-  const completion = await client.chat.completions.create({
-    model: modelo,
-    messages: [
-      { role: 'system', content: sp + (contextoRAG ? `\n\n---\nCONTEXTO CONTRACTUAL:\n${contextoRAG}` : '') },
-      ...agentContext.getHistorial().map(h => ({ role: h.role, content: h.content })),
-      { role: 'user', content: mensajeUsuario },
-    ],
-    temperature: 0.1,
-    top_p: 0.95,
-    max_tokens: 4096, 
-    extra_body: { "chat_template_kwargs": { "thinking": true } }
-  });
+  // Prompt Destilado para NVIDIA NIM (Free Tier Payload Limit)
+  const spBase = systemPrompt || agentContext.getPromptFast();
+  const spDestilado = spBase.length > 5000 
+    ? spBase.substring(0, 5000) + "\n[TRUNCADO PARA NVIDIA NIM]"
+    : spBase;
+    
+  const sp = inyectarIdioma(spDestilado);
+  
+  console.log(`[AGENTE] 🟢 Invocando NVIDIA NIM (Axios). Modelo: ${modelo}`);
+  
+  try {
+    const response = await axios.post(url, {
+      model: modelo,
+      messages: [
+        { role: 'system', content: sp + (contextoRAG ? `\n\n---\nCONTEXTO CONTRACTUAL:\n${contextoRAG}` : '') },
+        ...agentContext.getHistorial().map(h => ({ role: h.role, content: h.content })),
+        { role: 'user', content: mensajeUsuario },
+      ],
+      temperature: 0.1,
+      max_tokens: 4096
+    }, {
+      headers: {
+        'Authorization': `Bearer ${config.ai.nvidia.apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      timeout: 120000 // 2 minutos de gracia
+    });
 
-  return completion.choices[0].message.content;
+    return response.data.choices[0].message.content;
+  } catch (err) {
+    const status = err.response ? err.response.status : 'ECONN';
+    const detail = err.response ? JSON.stringify(err.response.data) : err.message;
+    console.error(`[AGENTE] 🔴 Fallo NVIDIA (${status}): ${detail}`);
+    throw new Error(`NVIDIA Error ${status}: ${detail}`);
+  }
 }
 
-/**
- * NVIDIA NEMOTRON — Segundo Cerebro (Planning/Logic)
- */
-async function llamarNemotron(mensajeUsuario, _archivoTmp, contextoRAG = '', systemPrompt = null) {
-  const client = new OpenAI({
-    baseURL: config.ai.nvidia.baseUrl,
-    apiKey: config.ai.nvidia.apiKey,
-  });
-  const sp = inyectarIdioma(systemPrompt || agentContext.getPromptFast());
-  const modelo = config.ai.nvidia.modelFallback;
-  await sleep(1500);
-  console.log(`[AGENTE] 🟢 Invocando NVIDIA NEMOTRON. Modelo: ${modelo}`);
-  
-  const completion = await client.chat.completions.create({
-    model: modelo,
-    messages: [
-      { role: 'system', content: sp + (contextoRAG ? `\n\n---\nCONTEXTO CONTRACTUAL:\n${contextoRAG}` : '') },
-      ...agentContext.getHistorial().map(h => ({ role: h.role, content: h.content })),
-      { role: 'user', content: mensajeUsuario },
-    ],
-    temperature: 0.1,
-    max_tokens: 4096
-  });
+async function llamarNvidia(mensajeUsuario, a, ctx, s) {
+    return llamarNvidiaModel(config.ai.nvidia.model, mensajeUsuario, a, ctx, s);
+}
 
-  return completion.choices[0].message.content;
+async function llamarNemotron(mensajeUsuario, a, ctx, s) {
+    return llamarNvidiaModel(config.ai.nvidia.modelFallback, mensajeUsuario, a, ctx, s);
 }
 
 async function llamarDeepSeekJSON(mensajeUsuario, systemPrompt) {
@@ -602,6 +599,7 @@ module.exports = {
   llamarDeepSeekJSON,
   llamarNvidia,
   llamarNemotron,
+  llamarNvidiaModel,
   llamarOpenRouter,
   llamarOpenRouterJSON,
   llamarOllama,

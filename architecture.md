@@ -304,6 +304,23 @@ La arquitectura delega el aprendizaje en el Juez (`swarm-pilot.js`). Sin embargo
 3. **Evolución del Juez (R-HARD):** Agregar una nueva restricción universal en `brain/R-HARD.md` para que el Juez penalice y rechace ese *Scope Creep* específico en el futuro.
 4. **Sanitización del Documento:** Solo bajo este escenario excepcional de Falso Positivo se permite la edición manual correctiva del dictamen en `brain/dictamenes/`.
 
+### 4. Capa de Inferencia Híbrida (Hybrid Sovereignty)
+
+SICC v14.6 implementa una arquitectura de inferencia de dos niveles para maximizar el rendimiento sin sacrificar la soberanía:
+
+- **Tier 1: Cloud-Free Power (NVIDIA NIM)**
+  - **Uso:** Razonamiento complejo, auditorías forenses y generación de Dictámenes Técnicos (DT).
+  - **Modelos:** Nemotron-3-Super (Planning), DeepSeek-v4-pro (Reasoning), Llama-3.1-70B (Pureza).
+  - **Ventaja:** Acceso gratuito a modelos de +100B parámetros con 1M de contexto.
+
+- **Tier 2: Sovereign Fallback (Ollama Local)**
+  - **Uso:** Ingesta masiva (Barrido Karpathy), operaciones offline y procesamiento de datos ultra-sensibles.
+  - **Modelos:** Llama-3.1-8B, Gemma-2-9B.
+  - **Ventaja:** Garantiza la operatividad del Agente si hay caídas de red o bloqueos de cuotas en proveedores cloud.
+
+- **Mecanismo de Throttling:**
+  - Todas las llamadas a NVIDIA NIM incluyen un retardo (sleep) de 1.5s y un **Prompt Destilado (<5000 chars)** para evitar saturación de la API Free y asegurar la continuidad del servicio.
+
 ---
 
 ## 🛠️ Diagnóstico Rápido

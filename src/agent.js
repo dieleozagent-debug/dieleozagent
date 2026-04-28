@@ -68,6 +68,7 @@ const {
   llamarGroq,
   llamarOpenRouter,
   llamarOllama,
+  llamarNvidiaModel,
   ordenProveedores,
   llamarMultiplexadorFree
 } = multiplexer;
@@ -364,9 +365,9 @@ async function procesarMensajeSwarm(textoUsuario) {
 async function ejecutarSondaForense(tema, contexto) {
   console.log(`[SONDA] Iniciando Sonda Forense (Serial Batch) para: ${tema}`);
   const ANALISTAS = [
-    { id: 'legal',   prompt: 'Extrae verbos rectores (obligaciones) y multas bajo jerarquía 1.2(d).' },
-    { id: 'tecnico', prompt: 'Extrae especificaciones técnicas (FRA 236, SIL-4) y restricciones CAPEX.' },
-    { id: 'purity',  prompt: 'Identifica ADN legacy: V-Block, 2oo3, Starlink o hardware propietario.' }
+    { id: 'legal',   modelo: 'nvidia/nemotron-3-super-120b-a12b', prompt: 'Extrae verbos rectores (obligaciones) y multas bajo jerarquía 1.2(d).' },
+    { id: 'tecnico', modelo: 'deepseek-ai/deepseek-v4-pro', prompt: 'Extrae especificaciones técnicas (FRA 236, SIL-4) y restricciones CAPEX.' },
+    { id: 'purity',  modelo: 'meta/llama-3.1-70b-instruct', prompt: 'Identifica ADN legacy: ADIF, OSHA, V-Block o hardware propietario.' }
   ];
 
   const resultados = [];
@@ -378,7 +379,8 @@ async function ejecutarSondaForense(tema, contexto) {
     }
     try {
       console.log(`[SONDA] Analista ${analista.id.toUpperCase()} — ejecutando via llamarMultiplexadorFree.`);
-      const res = await llamarMultiplexadorFree(
+      const res = await llamarNvidiaModel(
+        analista.modelo,
         `TAREA: ${analista.prompt}\n\nCONTEXTO:\n${contexto}`,
         '',
         'Eres un Auditor Forense especializado. Proyecto: APP 001/2025. CAPEX_MAX=$726M COP.'
