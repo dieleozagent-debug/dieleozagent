@@ -1,29 +1,62 @@
-# ⚖️ DICTAMEN TÉCNICO VINCULANTE (SICC v14.0)
+# DIRECTRIZ TÉCNICA DE DISEÑO
 
-**Documento:** DT-ENCE-2026-004 (Validación Forense)
-**Área:** ENCE
-**Fecha:** 2026-04-28T22:01:58.700Z
-**Validado por:** Dirección Técnica y Jurídica SICC - LFC
-**Razón Juez:** ### EVALUACIÓN DEL DICTAMEN
+**Código:** DT-ENCE-2026-004
+**Fecha:** 28 de abril de 2026
+**Para:** Ardanuy Colombia S.A.S. — Att. Sr. Mauricio Mora / Sr. Oscar Andrés Rico Gómez
+**Copia:** Sr. Jaime Coronado, Director EPC – Consorcio Constructor Línea Férrea Central
+**De:** Dirección Técnica SICC – UF2 – LFC
+**Referencia:** Contrato CCLF 00013-2026; Apéndice Técnico 1 (AT1) del Contrato APP No. 001 de 2025; Informe de Rechazo del Presupuesto V001 (LFC-UF2-CTSC-ED-QTO-CO-0001); Checklist V3.5; DBCD V003 (en elaboración).
 
-Después de revisar detenidamente el texto proporcionado, se ha determinado que el dictamen cumple con los requisitos establecidos en el protocolo de rechazo fulminante.
-
-### RESULTADO DE LA EVALUACIÓN
-
-* El dictamen no menciona ninguna de las palabras o términos prohibidos en el protocolo de rechazo fulminante.
-* El dictamen tiene una sección de citación canónica que se refiere a la Sección 5.2.1 del Contrato APP 001/2025.
-* El dictamen tiene una sección de análisis 
+**Asunto:** Régimen de motorización de cambiavías y alcance del enclavamiento electrónico aplicable al DBCD V003, Capítulo 10, y al BoQ asociado.
 
 ---
 
-## CITACIÓN CANONíCA
-Contrato APP 001/2025, Sección 5.2.1: "Los Enclavamientos Electrónicos (ENCE) de nivel SIL-4 se instalarán exclusivamente en las cinco (5) estaciones operativas definidas: Zapatosa, García Cadena, Barrancabermeja, Puerto Berrío–Grecia y La Dorada–México, y su lógica vital será la única responsable del control de los cambiavías motorizados dentro de dicho perímetro."
+## 1. Instrucción
 
-## ANÁLISIS TÉCNICO
-Según la Ficha Técnica Obligatoria (v14.6) y el Apéndice Técnico 1 (Tabla 17), la arquitectura PTC virtual elimina la señalización física tradicional en los tramos intermedios, reservando los ENCE SIL-4 para el aseguramiento de rutas, verificación de ocupación y comando de señales y cambiavías motorizados únicamente dentro de esas estaciones. La norma FRA 49 CFR Parte 236, Subparte I, exige que los sistemas de control de trenes vitales alcancen SIL-4 y operen bajo principio Fail-Safe. Asimismo, el AREMA Communications & Signals Manual respalda el uso de protocolos abiertos IP para la comunicación vital entre el ENCE y los motores de aguja, prohibiendo soluciones propietarias o micro-enclavamientos wayside que comprometerían la integridad SIL-4. La restricción de motorización a un máximo de cinco (5) cambiavías por estación (ENC-03) se deriva directamente del límite de capacidad de los controladores SIL-4 especificados en el DBCD V002, Sección 5.1.
+En los entregables del DBCD V003, en los planos de señalización, en las memorias técnicas y en el BoQ asociado del Sistema de Señalización, Control de Tráfico y Comunicaciones, Ardanuy diseñará el régimen de cambiavías del corredor bajo dos categorías exclusivas:
 
-## DECISIÓN VINCULANTE
-Se mandatea que los Enclavamientos Electrónicos (ENCE) SIL-4 del proyecto se implementen de forma exclusiva y estricta en las cinco estaciones maestras antes mencionadas, sin permitir micro-enclavamientos wayside ni dispositivos de autotalonamiento en desvíos externos a dicho perímetro. La lógica vital de los ENCE será la única responsable del control de los motores de aguja mediante Red Vital IP con retroalimentación redundante SIL-4, respetando el límite de cinco (5) cambiavías motorizados por estación y garantizando operación Fail-Safe ante cualquier pérdida de energía o comunicación.
+a) **Cambiavías motorizados gobernados por enclavamiento electrónico (ENCE):** únicamente dentro del perímetro operativo de las cinco (5) estaciones definidas en la Tabla 17 del AT1 (Zapatosa, García Cadena, Barrancabermeja, Pto Berrio – Grecia, La Dorada – México).
 
-## JUSTIFICACIÓN
-Esta decisión es la única alineada con el Contrato APP 001/2025 porque respeta literalmente la cláusula que limita los ENCE SIL-4 a las cinco estaciones operativas (Citación Canónica), cumple con los requisitos de integridad funcional SIL-4 y Fail-Safe establecidos por la norma FRA 49 CFR Parte 236 y el AREMA Manual, y evita la introducción de elementos no autorizados (autotalonamiento, micro-enclavamientos) que serían considerados Ultra Vires según la jerarquía normativa y la regla de desempate AREMA > FRA > AAR > UIC. Asimismo, se ajusta al límite de CAPEX y a la especificación de neutralidad tecnológica (ENC-00) al no especificar marcas o modelos propietarios, sino únicamente parámetros de desempeño.
+b) **Cambiavías autotalonables con comprobación de posición:** en la totalidad de apartaderos, desvíos y vías secundarias situados fuera del perímetro de los cinco nodos ENCE.
+
+Esta es la única configuración admisible para los entregables de Ardanuy en el alcance contractual vigente.
+
+## 2. Fundamento contractual
+
+El Apéndice Técnico 1, Capítulo IV, establece que la operatividad en las estaciones de la Vía Férrea se define *“bien mediante enclavamiento electrónico o aplicación de desvíos libres o con dispositivo de autotalonamiento”*, y precisa que *“para efectos de las inversiones, las estaciones que deberán tener enclavamiento electrónico son las relacionadas en la Tabla 17”*.
+
+La Tabla 17 del mismo Apéndice acota la obligación de inversión a *“Cinco (5) enclavamientos y bloqueo automáticos electrónico estructurado (ENCE) uno en cada una de las estaciones operativas: Zapatosa, García Cadena, Barrancabermeja, Pto Berrio – Grecia, La Dorada – México”*.
+
+En consecuencia, la arquitectura PTC con cantonamiento virtual adoptada en el DBCD aprovecha la habilitación contractual de los desvíos libres y autotalonables para los tramos situados fuera de las cinco zonas ENCE, manteniendo el cumplimiento íntegro del alcance del AT1 y optimizando la inversión asociada al sistema.
+
+## 3. Reglas de diseño aplicables al DBCD V003, Capítulo 10
+
+3.1. **Motorización:** se admite exclusivamente dentro del perímetro de los cinco nodos ENCE. Toda motorización propuesta fuera de dicho perímetro deberá ser retirada de planos, memorias y BoQ.
+
+3.2. **Cambiavías fuera de ENCE:** se especificarán como autotalonables con comprobación de posición. La comprobación deberá reportar la condición real del cambiavía al sistema PTC central por los canales de comunicación previstos en la arquitectura del corredor.
+
+3.3. **Hardware vital wayside fuera de ENCE:** no se incluirán micro-enclavamientos, controladores de objetos distribuidos, circuitos de vía de detección continua ni gabinetes de potencia para motorización en los tramos intermedios. La lógica vital queda concentrada en los cinco ENCE conforme a la arquitectura aprobada.
+
+3.4. **Coherencia con la arquitectura aprobada:** la asignación motorizado/autotalonable deberá quedar reflejada en la Tabla 2 del DBCD (Arquitectura Funcional del Sistema) y en los componentes de la sección Wayside, en consistencia con las versiones precedentes ya aprobadas del documento rector.
+
+3.5. **Neutralidad tecnológica:** la especificación de los autotalonables y de su comprobación se redactará en términos de desempeño funcional, sin marcas, modelos ni protocolos propietarios.
+
+## 4. Entregables y trazabilidad
+
+Los siguientes entregables deberán reflejar las reglas de la sección 3:
+
+a) Planos de distribución de cambiavías diferenciando, mediante simbología explícita, los gobernados por ENCE y los autotalonables con comprobación.
+
+b) BoQ con líneas separadas para motorizaciones (limitadas a las cinco zonas ENCE) y para cambiavías autotalonables, sin partidas de motorización en tramos intermedios.
+
+c) Memorias de cálculo eléctrico, de comunicaciones y de potencia ajustadas al hardware efectivamente requerido por la arquitectura, sin sobredimensionamientos asociados a equipamiento wayside no previsto.
+
+d) Trazabilidad explícita en el DBCD V003, Capítulo 10, hacia el AT1 Capítulo IV y la Tabla 17.
+
+## 5. Encaje con observaciones previas
+
+La presente directriz materializa, en términos de instrucción de diseño, las observaciones formuladas a Ardanuy en el Informe de Rechazo del Presupuesto V001 (LFC-UF2-CTSC-ED-QTO-CO-0001) y en el Checklist V3.5 sobre los Criterios de Diseño V001. No las sustituye ni las modifica: las complementa al precisar la regla de diseño que debe aplicarse en la siguiente revisión de los entregables.
+
+## 6. Vigencia y consultas
+
+Esta directriz aplica a partir de la fecha de su emisión a todos los entregables en curso y subsecuentes del alcance CCLF 00013-2026. Las consultas técnicas se canalizarán a la Dirección Técnica SICC – UF2.
