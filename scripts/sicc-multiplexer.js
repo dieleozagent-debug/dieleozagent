@@ -297,6 +297,34 @@ async function llamarDeepSeek(mensajeUsuario, _archivoTmp, contextoRAG = '', sys
   return msg.content || msg.reasoning_content || '';
 }
 
+/**
+ * NVIDIA NIM — DeepSeek-v4-pro (Razonamiento de Alta Densidad)
+ */
+async function llamarNvidia(mensajeUsuario, _archivoTmp, contextoRAG = '', systemPrompt = null) {
+  const client = new OpenAI({
+    baseURL: config.ai.nvidia.baseUrl,
+    apiKey: config.ai.nvidia.apiKey,
+  });
+  const sp = inyectarIdioma(systemPrompt || agentContext.getPromptFast());
+  const modelo = config.ai.nvidia.model;
+  console.log(`[AGENTE] 🟢 Invocando NVIDIA NIM. Modelo: ${modelo}`);
+  
+  const completion = await client.chat.completions.create({
+    model: modelo,
+    messages: [
+      { role: 'system', content: sp + (contextoRAG ? `\n\n---\nCONTEXTO CONTRACTUAL:\n${contextoRAG}` : '') },
+      ...agentContext.getHistorial().map(h => ({ role: h.role, content: h.content })),
+      { role: 'user', content: mensajeUsuario },
+    ],
+    temperature: 0.1,
+    top_p: 0.95,
+    max_tokens: 4096, 
+    extra_body: { "chat_template_kwargs": { "thinking": true } }
+  });
+
+  return completion.choices[0].message.content;
+}
+
 async function llamarDeepSeekJSON(mensajeUsuario, systemPrompt) {
   const client = new OpenAI({
     baseURL: config.ai.deepseek.baseUrl,
@@ -441,6 +469,7 @@ async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt 
 
   const proveedoresFree = [
     { id: 'gemini',     fn: async (q, a, ctx, h, s) => llamarGemini(q, a, ctx, s) },
+    { id: 'nvidia',     fn: async (q, a, ctx, h, s) => llamarNvidia(q, a, ctx, s) }, // 🟢 Alta prioridad
     { id: 'groq',       fn: async (q, a, ctx, h, s) => llamarGroq(q, a, ctx, s) },
     { id: 'ollama',     fn: llamarOllama },
     { id: 'openrouter', fn: async (q, a, ctx, h, s) => llamarOpenRouter(q, a, ctx, s, 'openrouter/free') },
@@ -541,6 +570,7 @@ module.exports = {
   llamarGroqJSON,
   llamarDeepSeek,
   llamarDeepSeekJSON,
+  llamarNvidia,
   llamarOpenRouter,
   llamarOpenRouterJSON,
   llamarOllama,

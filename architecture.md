@@ -1,4 +1,4 @@
-# 🏛️ Arquitectura SICC v14.5 — "Soberanía de Red y Texto"
+# 🏛️ Arquitectura SICC v14.6 — "Blindaje Táctico y Soberanía"
 
 SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agente autónomo para auditoría técnica y jurídica del proyecto LFC2 (Colombia).
 
@@ -189,6 +189,26 @@ La arquitectura PTC con cantonamiento virtual concentra la infraestructura físi
 
 ---
 
+## ⚖️ Mandatos de Soberanía Técnica (Blindaje Anti-Scope Creep)
+
+Para garantizar la viabilidad técnica y financiera del proyecto, el sistema opera bajo los siguientes mandatos innegociables:
+
+### 1. Segregación de Integridad (SIL-4 / SIL-2)
+- **Mandato:** Queda estrictamente PROHIBIDO exigir nivel de integridad SIL-4 para equipos de telecomunicaciones comerciales (COTS) como módems Satelitales, routers LTE o SD-WAN.
+- **Regla:** El nivel **SIL-4** aplica única y exclusivamente al Computador de Procesamiento PTC (OBC). Los sistemas de transmisión de datos operan bajo **SIL-2** asegurados mediante lógica EN 50159 Cat 3.
+
+### 2. Soberanía Geográfica (Resiliencia CCO)
+- **Mandato:** Todo diseño de control debe integrar obligatoriamente el **Nodo Secundario de Respaldo (Failover) en Barrancabermeja**.
+- **Regla:** No se aceptará ninguna arquitectura que limite el control únicamente a La Dorada, Caldas, para evitar Puntos Únicos de Falla (SPOF).
+
+### 3. Delimitación de Flota (Material Rodante Tractivo)
+- **Mandato:** La obligación de instalación tecnológica de equipos PTC se acota exclusivamente al **Material Rodante Tractivo** (Locomotoras GR12, U10, U18).
+- **Regla:** Se debe salvaguardar la "Puesta a Punto" general de la flota remolcada (góndolas, plataformas), pero sin exigirles hardware de control redundante.
+
+---
+
+---
+
 ## 🤖 Intents Directos Activos (sin costo LLM)
 
 | Trigger (lenguaje natural) | Intent | Responde con |
@@ -311,4 +331,4 @@ tail -5 data/logs/sicc-traces.json | python3 -m json.tool
 
 ---
 
-*Actualizado: 2026-04-27 | OpenGravity SICC v14.5 — "Gran Sueño Saneado"*
+*Actualizado: 2026-04-28 | OpenGravity SICC v14.6 — "Blindaje Táctico Saneado"*

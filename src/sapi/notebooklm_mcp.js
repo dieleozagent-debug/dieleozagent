@@ -29,7 +29,7 @@ async function resetOracle() {
 async function initMCP() {
   if (mcpClient) return mcpClient;
   // Usamos el hostname del contenedor en lugar de una IP estática frágil
-  const transport = new SSEClientTransport(new URL('http://notebooklm-mcp-v12:3001/sse'));
+  const transport = new SSEClientTransport(new URL('http://notebooklm-mcp:3001/sse'));
   const client = new Client({ name: 'SICC_Agent', version: '12.2.0' }, { capabilities: { tools: {} } });
   await withTimeout(client.connect(transport), MCP_CONNECT_TIMEOUT_MS, 'initMCP connect');
   mcpClient = client;

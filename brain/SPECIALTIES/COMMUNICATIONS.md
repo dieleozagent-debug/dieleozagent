@@ -32,49 +32,8 @@
 * NSR-10 (2010) for seismic-resistant construction
 * IEC 62368-1:2024+A11:2024 for IT/communications equipment safety
 
-> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T19:52:20.418Z):**
-> Se debe revisar y completar el dictamen para que cumpla con los requisitos del Contrato APP 001/2025 y contenga una Sección CITACIÓN CANÓNICA, ANÁLISIS y DECISIÓN vinculante claras y relacionadas con el sistema de energía.
-
-> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T19:53:06.502Z):**
-> Revisar y corregir el dictamen para incluir un análisis técnico y jurídico detallado, una decisión vinculante clara y citar las secciones del Contrato APP 001/2025 de manera específica.
-
-> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T19:53:44.392Z):**
-> Revisar y eliminar cualquier referencia a conceptos de soberanía y alinearse estrictamente con el contrato y normativas técnicas aplicables
-
-> [!IMPORTANT] **MANDATO CORRECTIVO ANTI-SCOPE CREEP (VACUNA COMUNICACIONES):**
-> 1. Queda estrictamente PROHIBIDO exigir o sugerir nivel de seguridad SIL-4 para el hardware de la red de comunicaciones. El estándar exigido es estrictamente SIL-2, apalancado en defensas criptográficas lógicas (EN 50159 Categoría 3 y FRA 49 CFR §236.1033).
-> 2. La normativa NEMA rige ÚNICAMENTE para los encerramientos físicos y gabinetes. Bajo ninguna circunstancia NEMA debe figurar como el estándar principal de telecomunicaciones, el cual se rige por ITU-T G.652.D (Fibra) y ETSI EN 300 392 (TETRA).
-> 3. Es OBLIGATORIO incluir y validar la Arquitectura Híbrida Embarcada (Redundancia Satelital + LTE vía SD-WAN) en todo dictamen de comunicaciones para asegurar la continuidad de datos del PTC.
-
-> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T21:55:15.966Z):**
-> El Juez respondió en lenguaje natural en lugar de JSON — ajustar instrucciones.
-
-> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T21:55:49.400Z):**
-> El Juez respondió en lenguaje natural en lugar de JSON — ajustar instrucciones.
-
-> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T21:56:23.559Z):**
-> El Juez respondió en lenguaje natural en lugar de JSON — ajustar instrucciones.
-
-> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T22:42:14.902Z):**
-> Revisar mandatos de especialidad y re-intentar.
-
-> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T22:44:33.254Z):**
-> Recuperar íntegramente la información del Contrato APP 001/2025 y sus Apéndices, y emitir un dictamen técnico sustantivo con citaciones canónicas, análisis y decisión vinculante, sin excusas de falta de información.
-
-> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T22:44:47.026Z):**
-> El Juez respondió en lenguaje natural en lugar de JSON — ajustar instrucciones.
-
-> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T22:45:06.539Z):**
-> Revisar mandatos de especialidad y re-intentar.
-
-> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T22:47:36.890Z):**
-> Reformular el dictamen incluyendo citación canónica precisa, análisis sustantivo respaldado por cláusulas contractuales o normas técnicas, y una decisión vinculante explícita. No se aceptarán expresiones genéricas sin contenido.
-
-> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T22:48:12.257Z):**
-> Revisar mandatos de especialidad y re-intentar.
-
-> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T22:51:04.334Z):**
-> El Juez respondió en lenguaje natural en lugar de JSON — ajustar instrucciones.
-
-> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-04-27T22:52:12.733Z):**
-> Revisar mandatos de especialidad y re-intentar.
+> [!IMPORTANT] **MANDATOS SOBERANOS DE COMUNICACIONES (SICC v14.6):**
+> 1. **Nivel de Integridad (SIL):** Queda estrictamente PROHIBIDO exigir SIL-4 para el hardware de red de comunicaciones (modems, switches, radios). El estándar obligatorio es **SIL-2** (EN 50159 Cat 3). El nivel SIL-4 aplica ÚNICAMENTE al Computador OBC del PTC.
+> 2. **Soberanía Geográfica:** Toda integración de comunicaciones debe incluir obligatoriamente el **Centro de Control (CCO) en La Dorada** Y el **Nodo Secundario de Respaldo (Failover) en Barrancabermeja**. Omitir Barrancabermeja se considera un Punto Único de Falla (SPOF) inaceptable.
+> 3. **Alcance de Flota (TRACTIVO):** La instalación de computadores PTC se limita exclusivamente al **Material Rodante Tractivo** (GR12, U10, U18). No se debe extender esta obligación tecnológica al material remolcado (góndolas/plataformas), salvaguardando la "Puesta a Punto" general de la flota.
+> 4. **Arquitectura Híbrida:** Es obligatorio el uso de Satelital + LTE vía SD-WAN para asegurar la disponibilidad del sistema FRA 49 CFR Part 236.

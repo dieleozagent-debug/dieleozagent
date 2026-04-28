@@ -21,7 +21,7 @@ const dbConfig = {
 
 if (!isDocker && !process.env.DB_HOST) {
     dbConfig.host = '127.0.0.1';
-    dbConfig.port = 54322;
+    dbConfig.port = 5432;
 }
 
 const pool = new Pool(dbConfig);
@@ -37,7 +37,7 @@ async function obtenerEmbedding(texto) {
         const response = await axios.post(`${host}/api/embeddings`, {
             model: "nomic-embed-text:latest",
             prompt: texto
-        }, { timeout: 15000 });
+        }, { timeout: 60000 });
         
         const vector = response.data.embedding;
     if (vector.length !== 768) {
@@ -47,7 +47,7 @@ async function obtenerEmbedding(texto) {
   } catch (localErr) {
     console.warn(`[SUPABASE] ⚠️ Ollama Local falló (${localErr.message}). Intentando Cloud Gemini...`);
     try {
-      const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
+      const model = genAI.getGenerativeModel({ model: "embedding-001" });
       const result = await model.embedContent(texto);
       const vector = result.embedding.values;
       if (vector.length !== 768) {

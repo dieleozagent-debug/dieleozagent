@@ -57,6 +57,12 @@ const config = {
       model: env('OLLAMA_MODEL', false) || 'gemma4-light:latest',
     },
 
+    nvidia: {
+      apiKey: env('NVIDIA_API_KEY', false),
+      baseUrl: 'https://integrate.api.nvidia.com/v1',
+      model: 'deepseek-ai/deepseek-v4-pro'
+    },
+
     // ── Swarm de Alta Velocidad (Hybrid Mode) ──────────────────────────────
     swarm: {
       auditor: env('SWARM_MODEL_AUDITOR', false) || 'google/gemini-2.0-flash-lite-preview-02-05:free',
@@ -89,14 +95,15 @@ const hasGroq      = !!config.ai.groq.apiKey;
 const hasOpenrouter= !!config.ai.openrouter.apiKey;
 const hasOllama    = !!config.ai.ollama.host;
 const hasDeepseek  = !!config.ai.deepseek.apiKey;
+const hasNvidia    = !!config.ai.nvidia.apiKey;
 
-if (!hasGemini && !hasGroq && !hasOpenrouter && !hasOllama && !hasDeepseek) {
-  console.error('[CONFIG] [SICC FAIL] Debes configurar al menos una API de IA (Gemini, Groq, OpenRouter, DeepSeek u Ollama)');
+if (!hasGemini && !hasGroq && !hasOpenrouter && !hasOllama && !hasDeepseek && !hasNvidia) {
+  console.error('[CONFIG] [SICC FAIL] Debes configurar al menos una API de IA (Gemini, Groq, OpenRouter, DeepSeek, Ollama o NVIDIA)');
   process.exit(1);
 }
 
 console.log(`[CONFIG] [SICC OK] Agente: ${config.agent.name}`);
 console.log(`[CONFIG] [SICC OK] Proveedor primario: ${config.ai.primaryProvider}`);
-console.log(`[CONFIG] [SICC OK] Proveedores disponibles: ${[hasGemini && 'Gemini', hasGroq && 'Groq', hasOpenrouter && 'OpenRouter', hasDeepseek && 'DeepSeek 🔵', hasOllama && 'Ollama'].filter(Boolean).join(', ')}`);
+console.log(`[CONFIG] [SICC OK] Proveedores disponibles: ${[hasGemini && 'Gemini', hasGroq && 'Groq', hasOpenrouter && 'OpenRouter', hasDeepseek && 'DeepSeek 🔵', hasNvidia && 'NVIDIA 🟢', hasOllama && 'Ollama'].filter(Boolean).join(', ')}`);
 
 module.exports = config;

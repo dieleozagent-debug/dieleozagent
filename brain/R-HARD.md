@@ -1,5 +1,5 @@
 # R-HARD — RESTRICCIONES DURAS UNIVERSALES
-**Versión:** 1.2 | **Aplicación:** Todos los Agentes e Inferencia SICC
+**Versión:** 1.3 | **Aplicación:** Todos los Agentes e Inferencia SICC (SICC v14.6)
 **Jerarquía:** Estas reglas prevalecen sobre cualquier hipótesis, auditoría o contexto de especialidad.
 
 ---
@@ -60,9 +60,10 @@ Cualquier output que contenga los siguientes elementos es rechazado automáticam
 **Contratos, normas y entidades inexistentes:**
 `Contrato L1` | `TECNOPARTE 2001` | `Cláusula N-1` | `Protocolo N-1` | `Deducción N-1` | `Supabase vinculante` | `RAG-First` | `Tren LFC2` | `WBS v2.9` (usar v3.0)
 
-**Ubicación CCO:**
-- **Válida:** La Dorada, Caldas (**PK 201+470**).
-- **Prohibida:** Cualquier mención a Santa Marta (PK 0+000) o Barrancabermeja como ubicación del CCO del Proyecto LFC2 es causa de rechazo por impureza/legacy.
+**Ubicación CCO y Resiliencia:**
+- **Válida (Principal):** La Dorada, Caldas (**PK 201+470**).
+- **Válida (Respaldo/Failover):** **Barrancabermeja**. (Mandato de Soberanía Geográfica para evitar SPOF).
+- **Prohibida:** Cualquier mención a Santa Marta (PK 0+000) o a la ausencia de nodo de respaldo.
 
 ---
 
@@ -104,10 +105,11 @@ La instalación de equipos a bordo del Material Rodante es una obligación princ
 
 ## R-HARD-09 — FLOTA REAL DEL PROYECTO
 
-**Flota válida:**
+**Flota válida para instalación PTC (TRACTIVA):**
 - Locomotoras **GR12** (Nación)
 - Locomotoras **U10** (Nación)
-- Locomotora **U18** (Factor de Calidad - Concesionario)
+- Locomotora **U18** o su equivalente (Factor de Calidad - Concesionario)
+**Regla:** Queda prohibido extender la obligación de hardware PTC al material remolcado (góndolas/plataformas).
 
 ---
 
@@ -140,6 +142,14 @@ La instalación de equipos a bordo del Material Rodante es una obligación princ
 **Seguridad de Red**: **EN 50159 Categoría 3** para transmisión en redes abiertas (Satelital/Celular).
 **EMC**: **CISPR 22:2008** y **CISPR 24:2010**.
 **Fibra**: Únicamente **ITU-T G.652.D**.
+
+---
+
+## R-HARD-14 — SEGREGACIÓN DE INTEGRIDAD DE SEGURIDAD (SIL)
+
+- **Mandato SIL-4:** Única y exclusivamente para el **Computador Embarcado PTC (OBC)** y Enclavamientos Electrónicos en puntos ENCE.
+- **Mandato SIL-2:** Para hardware de comunicaciones comercial (COTS), modems Satelitales, routers LTE y SD-WAN, amparados en EN 50159 Categoría 3.
+- **Prohibición:** Se prohíbe el rechazo de diseños por falta de certificación SIL-4 en equipos de telecomunicaciones.
 
 ---
 
