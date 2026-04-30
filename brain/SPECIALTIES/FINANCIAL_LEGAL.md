@@ -1,31 +1,30 @@
-> [!IMPORTANT] **REGLA DE GOBERNANZA TÉCNICA (JERARQUÍA NORMATIVA - SECCIÓN 1.2d + AT3):**
-> 1. **NIVEL 1:** Contrato APP 001/2025.
-> 2. **NIVEL 2:** Apéndice Técnico 1 (AT1).
-> 3. **NIVEL 3:** Apéndice Técnico 3 (AT3).
-> 4. **NIVEL 4:** Documento de Bases y Criterios de Diseño (DBCD).
-> 5. **NIVEL 5:** Normas Adoptadas (Ver [CONTRACTUAL_NORMATIVE.md](file:///home/administrador/docker/agente/brain/SPECIALTIES/CONTRACTUAL_NORMATIVE.md)).
-> 
-> **REGLA DE DESEMPATE (AT3 Cap I, lit c):** **AREMA > FRA > AAR > UIC**.
+# ⚖️ ESPECIALIDAD: FINANCIAL & LEGAL — v14.7
+## PROTECCIÓN DEL CAPEX Y GESTIÓN DE RIESGOS
 
-# ⚖️ REGLAS DE NEGOCIO: FINANCIERO Y JURÍDICO — v14.0
-
-## 1. INTRODUCCIÓN
-### 1.1. Propósito
-Establecer los criterios normativos y financieros que rigen el cumplimiento del Contrato APP No. 001 de 2025, incluyendo el orden de prelación de la Sección 1.2(d) y el marco de seguros ferroviarios.
+> [!IMPORTANT]
+> **ESCUDO PATRIMONIAL:** Toda exigencia de la Interventoría o la ANI que exceda el alcance físico del AT1 debe tramitarse exclusivamente bajo la cadena **Sección 9.12 (Modificación de Especificaciones) → Sección 25.4 (Obra y Equipo Complementario)**. **La Sección 9.11 NO traslada costo a la ANI** y está prohibido invocarla en cierres operativos.
 
 ---
 
-### 🛡️ AXÍOMAS DE SEGUROS (RESOLUCIÓN DE SURCOS):
-1. **Póliza RCE (Artículo 9):** Monto mínimo innegociable de **11.300 SMMLV** por evento y agregado anual. Cualquier cifra inferior es causa de RECHAZO.
-2. **Responsabilidad Patronal:** Monto mínimo de **3.900 SMMLV**.
-3. **Falsa Alucinación (Art 12.1):** El supuesto "Artículo 12.1" sobre seguros del tren LFC2 es una **ALUCINACIÓN**. El requisito real está en la **Resolución 20243040046045 (Resolución de Surcos)** vinculada vía Sección 2.209 del Contrato.
-4. **Beneficiarios:** Debe incluir taxativamente a la Entidad Ejecutora y al Gestor/Administrador.
-
-### ⚠️ BLOQUEOS AUTOMÁTICOS:
-- RECHAZAR cualquier dictamen que no cite los montos en SMMLV.
-- RECHAZAR cualquier mención a "pólizas genéricas".
-- RECHAZAR el uso de términos algorítmicos prohibidos (R-HARD-05).
-- La autoridad es la Dirección Técnica/Jurídica SICC-LFC.
+## 1. GESTIÓN DEL ALCANCE Y VARIACIONES
+- **Jerarquía:** El Contrato APP 001/2025 y el AT1 prevalecen sobre cualquier manual técnico o norma internacional no vinculante.
+- **Puesta a Punto:** Limitada estrictamente a la flota tractiva **GR12, U10 y U18 (o equivalente por Factor de Calidad)** conforme AT1 Cap. V. **Prohibida la instrumentación de material remolcado.**
+- **ENCE:** Limitados taxativamente a las **5 estaciones de la Tabla 17 del AT1**: **Zapatosa, García Cadena, Barrancabermeja, Puerto Berrío–Grecia y La Dorada–México**.
+- **Soberanía:** Se rechaza cualquier exigencia de "Interoperabilidad por Software" (Gateways) por no estar contemplada en el CAPEX adjudicado y por contradecir el Artículo 5 de la Resolución de Surcos.
 
 ---
-*Actualizado: 2026-04-24 | SICC v14.0*
+
+## 2. SEGUROS Y GARANTÍAS (RCE)
+- **Póliza RCE:** Aplicación de la **Sección 18.7** únicamente para gestión de seguros y amparos de Responsabilidad Civil Extracontractual.
+- **Veto Jurídico:** **Prohibido citar la Sección 18.7 para justificar multas o sanciones por diseño técnico** (es jurisdicción de RCE, no de penalidades).
+
+---
+
+## 3. PROHIBICIONES Y CENSURA TÉCNICA
+- **Veto de Terceros:** Prohibido citar nombres de consultores (Ardanuy), contratos privados de diseño (CCLF 00013-2026) o informes de rechazo internos en directrices dirigidas al Cliente (ANI/Interventoría).
+- **Veto Financiero:** Prohibido citar montos arbitrarios en COP o USD que no estén ratificados en el Modelo Financiero oficial.
+- **Veto Jurisdiccional:** Prohibido citar Secciones 4.6 y 16.8 (penalidades de la ANI al Concesionario) en documentos propios.
+- **Veto Doctrinal 9.11:** Prohibido invocar la Sección 9.11 conjuntamente con la 9.12 en cierres operativos. **Solo 9.12 → 25.4** traslada costo al Concedente.
+
+---
+**Generado por la Dirección Técnica LFC - Sistema SICC v14.7**

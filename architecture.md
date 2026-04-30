@@ -1,4 +1,4 @@
-# 🏛️ Arquitectura SICC v14.6 — "Blindaje Táctico y Soberanía"
+# 🏛️ Arquitectura SICC v14.7 — "Doctrina Canónica FRA + Blindaje Táctico"
 
 SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agente autónomo para auditoría técnica y jurídica del proyecto LFC2 (Colombia).
 
@@ -17,12 +17,22 @@ SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agent
 
 ### Conectividad (v14.1 - Bridge Soberano)
 - **Agente → Postgres:** `127.0.0.1:5432` (Mapeo directo Host-to-Container).
-- **DNS Local:** Mapeado `127.0.0.1 sicc-postgres` en `/etc/hosts` para compatibilidad legacy.
-- **Fragmentación:** 100% de integridad con 10.358 fragmentos contractuales inyectados.
+### 🛰️ Directrices Técnicas de Diseño (SSoT v14.7 — canónicas post-cirugía 2026-04-30)
+- **ENCE:** Motorización limitada a 5 estaciones (Zapatosa, García Cadena, Barrancabermeja, Puerto Berrío–Grecia, La Dorada–México). Autotalonables en vía general bajo §236.1005(e)(2)(ii). Prohibido "Moving Block" — solo Virtual Fixed Block.
+- **COMMUNICATIONS:** Fibra lineal 64 hilos G.652.D. TETRA primario. SD-WAN satélite+LTE redundancia embarcada. Latencia admisible ≤ 3 s. OTDR en 3 ventanas (1310/1550/1625 nm). Prohibidas microondas terrestres.
+- **CONTROL_CENTER:** CCO La Dorada (principal) + Barrancabermeja (failover). Flota: GR12, U10 y U18 (o equivalente por Factor de Calidad). Prohibido Gateway lógico con FENOCO.
+- **SIGNALIZATION:** FRA 49 CFR Part 236 Subpart I absoluta. PaN Tipo C con SIL-3. Prohibido §236.202 como veto — cita correcta §236.1005(e).
+- **POWER:** UPS autonomía 4 horas (MTTR). Eliminada mención de 24 h (over-engineering CAPEX).
+- **CONTRACTUAL_NORMATIVE:** Doctrina 9.12 → 25.4 ÚNICA. Prohibido invocar 9.11+9.12 conjuntamente.
+- **INTEGRATION:** Stop & Switch en Chiriguaná. Hardware dual OBC LFC + OBC FENOCO. Prohibido Gateway de software.
+- **FINANCIAL_LEGAL:** Sección 18.7 solo RCE. Prohibido citar Ardanuy, CCLF 00013-2026, montos no ratificados.
+
+### 📜 Marcos Maestros Contractuales
+- **OBLIGACIONES_TI_GESTION_DATOS_v1.0.md:** Límites de CDE, BIM y SICC frente a la ANI.
+- **LINEA_BASE_CONTRACTUAL_SICC_v1.0.md:** Definición pura de alcance, flota e interoperabilidad (Stop & Switch).
+- **ESTRATEGIA_INTEROPERABILIDAD_CHIRIGUANA_v1.0.md:** No Gateway. Integración a bordo del tren. Protección de riesgo extracontractual.
 
 ---
-
-## 🦅 Soberanía Técnica: Consenso Multi-Agente (Doble Ciego)
 
 Para garantizar que el sistema no alucine ni comprometa el CAPEX del proyecto, se ha implementado una capa de validación triple:
 
@@ -32,6 +42,22 @@ Para garantizar que el sistema no alucine ni comprometa el CAPEX del proyecto, s
     2.  **Agente Legal (Nemotron):** Valida citación canónica del AT1/AT3.
     3.  **Agente Coordinador (Llama 70B):** Cruza ambos resultados. Solo si hay consenso absoluto, el archivo se actualiza.
 *   **Por qué:** Para eliminar el "Factor Humano" de error en la revisión masiva de 189 documentos y asegurar que ninguna "bomba de tiempo" financiera (como la motorización excesiva) se filtre en los entregables finales.
+
+---
+
+## 🧬 El Bucle de Aprendizaje Forense (Learning Loop)
+
+El sistema SICC no es estático; evoluciona mediante un ciclo de **Saneamiento y Refinamiento** continuo:
+
+1.  **Detección de Impureza (Fase 1):** El enjambre genera un borrador (DT). Si el borrador contiene alucinaciones (cifras falsas, normas equivocadas), el Auditor (o el usuario) lo declara como **"Dictamen Suicida"** o **"Impureza de Consenso"**.
+2.  **RCA (Root Cause Analysis):** Se analiza por qué el sistema alucinó (ej: solapamiento de nombres de secciones, ruido de datos legacy).
+3.  **Saneamiento del Cerebro:** Las lecciones aprendidas se inyectan en los archivos de **Especialidad** (`brain/SPECIALTIES/*.md`). Estos archivos actúan como el Neocórtex del sistema, prevaleciendo sobre el RAG.
+4.  **Vacunación:** Las reglas de veto se inyectan en el orquestador (`punto42-pilot.js`) para prohibir taxativamente la repetición del error.
+5.  **Persistencia Genética:** Se ejecuta una **Reingesta SSOT** hacia la base de datos `pgvector`, sincronizando la memoria histórica (RAG) con la nueva verdad técnica consolidada.
+
+Este proceso garantiza que el sistema "aprenda" a no repetir errores de over-engineering y a defender el CAPEX con mayor precisión en cada ciclo de sueño (`/dream`).
+
+---
 
 El sistema utiliza la API de Telegram como interfaz de mando soberano (HMI). Para garantizar la estabilidad, se aplican las siguientes reglas arquitectónicas:
 
@@ -197,7 +223,7 @@ El principio fundamental de diseño del Sistema de Señalización del Corredor F
 - **Redundancia de Comunicaciones**: Red troncal de **Fibra Óptica** enterrada + Subsistema **TETRA** + Red **Satelital** de respaldo.
 
 ### Justificación Técnica
-La arquitectura PTC con cantonamiento virtual concentra la infraestructura física únicamente donde es técnica y operacionalmente necesaria, manteniendo en el resto del corredor una solución centralizada, escalable y compatible con la operación de carga de 914mm, de conformidad con **FRA 49 CFR Part 236 Subpart I (2026)** y **AREMA (2021)**.
+La arquitectura PTC con cantonamiento virtual concentra la infraestructura física únicamente donde es técnica y operacionalmente necesaria, manteniendo en el resto del corredor una solución centralizada, escalable y compatible con la operación de carga de 914mm, de conformidad con **FRA 49 CFR Part 236 Subpart I** (Subpart I prevalece sobre Subparts A–G conforme §236.0(c)(2)). Prohibido aplicar AREMA, ETCS, CENELEC o UIC a la lógica vital.
 
 ---
 
@@ -262,7 +288,7 @@ Para garantizar la viabilidad técnica y financiera del proyecto, el sistema ope
 | Tabla Postgres | Función |
 |---|---|
 | `contrato_documentos` | Biblia Legal — Contrato LFC2 + normas técnicas (OCR chunking 800c/100c) |
-| `sicc_genetic_memory` | 59 lecciones manuales + DT_CERTIFICADA + VEREDICTO_JUEZ automáticos |
+| `sicc_genetic_memory` | **0 filas** — purgada 2026-04-30 (cirugía v14.7). Re-ingesta pendiente con doctrina v14.7. Tipos: DT_CERTIFICADA + VEREDICTO_JUEZ. |
 
 **Embeddings:** `text-embedding-004` (Gemini Cloud - Calidad Forense) → fallback `nomic-embed-text` (Ollama Local - Soberanía)
 
@@ -360,4 +386,4 @@ tail -5 data/logs/sicc-traces.json | python3 -m json.tool
 
 ---
 
-*Actualizado: 2026-04-28 | OpenGravity SICC v14.6 — "Blindaje Táctico Saneado"*
+*Actualizado: 2026-04-30 | OpenGravity SICC v14.7 — "Doctrina Canónica FRA + Blindaje Táctico"*

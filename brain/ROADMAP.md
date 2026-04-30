@@ -23,6 +23,7 @@
 | Retry Telegram en ECONNRESET | ✅ |
 | Arquitectura DT → LFC2 → Vercel documentada | ✅ |
 | Primera `DT_CERTIFICADA` + `VEREDICTO_JUEZ` real en `sicc_genetic_memory` (dream ENCE 2026-04-18) | ✅ |
+| **Cirugía v14.7 (2026-04-30):** SPECIALTIES canonizadas (13 ajustes FRA), RAG purgado (77 filas), dictámenes v14.6 eliminados, memoria limpia | ✅ |
 | **Refactor `src/index.js`** 790→142 líneas (handlers.js + utils/send.js) | ✅ |
 | **Dead code eliminado en `agent.js`** (rutarEspecialidad, ESPECIALIDADES, encolarHallazgo, sumarizarContexto) | ✅ |
 | **Trazas FASE-0..5** en `procesarMensaje()` para audit de flujo | ✅ |
@@ -45,10 +46,18 @@
 
 | Ítem | Descripción |
 |---|---|
+| **Validación en producción v14.7** | Emitir primer DT con enjambre post-cirugía y validar contra los 13 ajustes de v14.7. |
 | **`/promote` DT→LFC2** | Comando que copia DT de `brain/dictamenes/` → LFC2 + git commit automático. Usa `src/gitlocal.js`. |
-| **Validar `/dream telecomunicaciones`** | Primer dream post-refactor con todas las vacunas activas — validar Oracle, parser, persistencia. |
 | **Re-ingesta `contrato_documentos`** | Fragmentos pre-fix oversized — re-ingestar con max 800c + overlap 100c. |
 | **Probar `ejecutarSondaForense` en simulator.js** | Corregida con `llamarMultiplexadorFree`, pendiente prueba real con simulator.js. |
+
+## 🟡 PENDIENTE — v14.8 (doctrina)
+
+| Ítem | Descripción |
+|---|---|
+| **Textos literales §236.1003, §236.1029, §236.1015** | Suministrados por el otro agente — incrustar en INTEGRATION.md, COMMUNICATIONS.md, CONTROL_CENTER.md. |
+| **Verificar literalidad Sección 1.2(d)** | Contrastar Orden de Prelación en CONTRACTUAL_NORMATIVE.md contra cuerpo del Contrato antes de citar a Interventoría. |
+| **Especialidad LEVEL_CROSSINGS.md** | Extraer PaN de SIGNALIZATION.md a especialidad propia. |
 
 ## 🟡 PENDIENTE — Media prioridad
 
@@ -107,4 +116,4 @@ lfc-2.vercel.app (auto-deploy ~2 min)
 
 ---
 
-*Actualizado: 2026-04-18 | OpenGravity SICC v13.0*
+*Actualizado: 2026-04-30 | OpenGravity SICC v14.7*

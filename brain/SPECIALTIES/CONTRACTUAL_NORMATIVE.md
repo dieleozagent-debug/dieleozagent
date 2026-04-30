@@ -1,53 +1,48 @@
-# ESPECIALIDAD: NORMATIVA CONTRACTUAL Y GOBERNANZA TÉCNICA
-**Versión:** 14.0 (Institutionalized)
-**SSoT:** Contrato APP 001/2025 + AT1 + AT3
+# ⚖️ ESPECIALIDAD: CONTRACTUAL & NORMATIVA — v14.7
+## JERARQUÍA DE LEY Y BLINDAJE DEL CONCESIONARIO
 
-## 1. PROPÓSITO
-Establecer el orden de aplicación para la ingeniería de detalle del Sistema de Señalización del Corredor Férreo La Dorada – Chiriguaná.
+> [!IMPORTANT]
+> **ORDEN DE PRELACIÓN (Contrato APP 001/2025, Sección 1.2):**
+> 1. Cuerpo del Contrato APP 001/2025.
+> 2. Apéndice Técnico 1 (AT1) — Alcance Físico.
+> 3. Apéndice Técnico 3 (AT3) — Criterios de Diseño.
+> 4. Resto de Apéndices (AT2, AT4, AT5, AT6, AT7, etc.).
 
-## 2. MARCO CONTRACTUAL Y JERARQUÍA NORMATIVA
-1. Contrato APP 001/2025 | 2. AT1 | 3. AT3 | 4. DBCD | 5. Normas Adoptadas (AREMA > FRA > AAR > UIC).
+> [!NOTE]
+> La literalidad del numeral del Orden de Prelación dentro de la Sección 1.2 debe verificarse contra el cuerpo del Contrato antes de citarlo a Interventoría. Esta especialidad la utiliza como guía interna; **no debe transcribirse como cita literal sin verificación previa**.
 
-## 3. DESCRIPCIÓN DEL PROYECTO: CORREDOR LA DORADA – CHIRIGUANÁ
-Unidad Funcional 2 (UF2): 526,133 km (PK 201+470 a 722+683).
+---
 
-## 4. FILOSOFÍA DE DISEÑO: ARQUITECTURA PTC CON CANTONAMIENTO VIRTUAL
-Arquitectura basada en **FRA 49 CFR Part 236, Subpart I (2026)**.
+## 1. MECANISMOS DE DEFENSA (EL ESCUDO PATRIMONIAL)
+- **Sección 9.12 (Modificación de Especificaciones Técnicas):** Se invoca cuando ANI o Interventoría exigen hardware o lógica superior al alcance del AT1 (motorizar más de 5 estaciones, exigir Gateway lógico hacia FENOCO, instrumentar material remolcado, exigir Moving Block / ETCS L3, etc.).
+- **Sección 25.4 (Obra y Equipo Complementario):** Establece que cualquier aumento de alcance fuera del CAPEX adjudicado debe ser asumido al **100% por la ANI** mediante adición contractual previa.
+- **Sección 9.11 (Ajuste de Especificaciones):** **Solo aplica a corrección de errores u omisiones de diseño que NO alteren el alcance físico del AT1.** No traslada costo a la ANI: la 9.11(b)(ii) asigna riesgo de costo de ajuste técnico al Concesionario.
 
-## 5. CRITERIOS DEL SISTEMA DE CONTROL DE TRENES PTC
-- Funcionalidades FRA 236-I. Lógica central en CCO La Dorada (§ 236.1033).
+> [!WARNING]
+> **DOCTRINA OBLIGATORIA 9.12:** La cadena **9.12 → 25.4 es la ÚNICA ruta válida** para trasladar sobrecostos al Concedente. **Está prohibido invocar 9.11+9.12 conjuntamente** en documentos de cierre operativo, porque la sola mención de 9.11 abre puerta a que la Interventoría argumente que el ajuste cabe en 9.11(b)(ii) y por tanto el costo lo asume LFC.
 
-## 6. CRITERIOS DEL SISTEMA DE TELECOMUNICACIONES
-- Fibra 48 hilos G.652.D. Radio TETRA (ETSI). Redundancia Satelital.
+---
 
-## 7. CRITERIOS DEL CENTRO DE CONTROL DE OPERACIONES (CCO)
-- Ubicación: La Dorada, Caldas. UPS 4h. HMI FRA 236 App E.
+## 2. NORMAS RECTORAS POR ESPECIALIDAD
+- **Señalización (PTC):** **FRA 49 CFR Part 236 Subpart I** (jerarquía absoluta sobre Subparts B–G del mismo Part 236).
+- **Sustitución del Block Signal System:** **§236.0(c)(2)** — el PTC aprobado por FRA exime de instalar block signal system.
+- **Protección de Cambiavías:** **§236.1005(e)** — habilita autotalonables con comprobación monitoreada por PTC.
+- **Comunicaciones PTC:** **§236.1033** — habilita redes inalámbricas abiertas (satélite, celular SD-WAN) bajo integridad criptográfica y plan de mitigación priorizado.
+- **PTC Safety Plan:** **§236.1015** — vía de certificación de arquitectura virtual como sistema seguro equivalente.
+- **Vía Clase 3:** **FRA 49 CFR §213.9** (velocidad máxima 64 km/h para carga).
+- **Interoperabilidad:** **Resolución de Surcos Art. 5** — compatibilidad evaluada exclusivamente sobre dispositivos a bordo del Material Rodante.
+- **Ciberseguridad en Vía:** **EN 50159 Categoría 3** para transmisión vital sobre redes abiertas.
+- **Prohibido aplicar AREMA, ETCS, CENELEC o normas UIC** a la lógica vital del sistema.
 
-## 8. CRITERIOS DE PASOS A NIVEL (PaN)
-- Lógica CWT. 9 Tipo C | 15 Tipo B. Normas NTC 4741, FRA 234.
+---
 
-## 9. INTEROPERABILIDAD CON FENOCO (PUNTO NORTE)
-- Modelo **Stop & Switch** (Chiriguaná). OBC Dual. Prohibición de integración técnica.
+## 3. PROHIBICIONES DE JURISDICCIÓN
+- **Prohibido citar Secciones 4.6 y 16.8** en directrices técnicas (son penalidades aplicables al Concesionario por la ANI, no herramientas de diseño).
+- **Prohibido citar Sección 18.7 para sanciones técnicas** (regula exclusivamente Pólizas de Responsabilidad Civil Extracontractual, no penalidades por diseño).
+- **Prohibido citar §236.202** (Subpart B) como veto de señalización lateral — la cita correcta es §236.1005(e) de Subpart I.
+- **Prohibido citar nombres de consultores externos** (Ardanuy, etc.) en líneas base contractuales dirigidas a ANI/Interventoría.
+- **Prohibido citar contratos privados** (CCLF 00013-2026, etc.) en documentos hacia el Cliente.
+- **Prohibido citar montos en COP o USD** que no estén ratificados en el Modelo Financiero oficial.
 
-## 10. ALIMENTACIÓN ELÉCTRICA (POWER)
-
-### 10.1 Sistemas Vitales (ENCE, PTC, PaN, CCO)
-- **Tensión de Alimentación:** 110V DC (AREMA / FRA 236 / FRA 234).
-- **Autonomía UPS:** Mínimo **cuatro (4) horas**.
-- **Margen de Diseño:** +20% sobre carga pico.
-- **Respaldo:** Generación local con transferencia < 2 min (EL2).
-
-### 10.2 Sistema de Radio TETRA
-- **Tensión de Alimentación:** 48V DC (ETSI 300.132-2).
-- **Autonomía UPS:** Mínimo **24-48 horas** de operación continua.
-
-### 10.3 Servicios Auxiliares (CCTV, SCADA, Alarmas)
-- **Tensión de Alimentación:** 120V AC (Solo para circuitos no vitales).
-- **Caída de Tensión Máxima:** 3% (RETIE 2024).
-- **Uso de AC:** Limitado a entrada de UPS o rectificadores para sistemas de respaldo. Se requieren protecciones EMC y filtrado.
-
-## 11. RELACIÓN DE NORMAS EXPRESAMENTE ADOPTADAS
-- FRA 236-I, FRA 234, AREMA, ETSI 300.132-2, EN 50159, ITU-T G.652.D, RETIE 2024, NSR-10, NTC 4741.
-
-## 12. GOBERNANZA TÉCNICA DEL DISEÑO
-La jerarquía normativa asegura la trazabilidad contractual del Proyecto.
+---
+**Generado por la Dirección Técnica LFC - Sistema SICC v14.7**

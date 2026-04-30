@@ -1,4 +1,4 @@
-# 🌪️ SICC v14.6 — Sovereign Intelligent Contractual Control
+# 🌪️ SICC v14.7 — Sovereign Intelligent Contractual Control
 **Cerebro Forense Híbrido para el Proyecto LFC2 (La Dorada–Chiriguaná)**
 
 ---
@@ -19,11 +19,11 @@ SICC es un **Muro de Fuego Técnico** que protege la integridad del proyecto. Im
 
 ---
 
-## 🚀 Hitos Recientes (SICC v14.6)
-*   **Tridente NVIDIA NIM:** Integración de Nemotron-3-Super, DeepSeek-v4 y Llama-70B para auditorías de alta fidelidad.
-*   **Embeddings v2.0:** Memoria Cloud-First (Gemini) con fallback local (Ollama) para búsquedas RAG instantáneas.
-*   **Gobernador de Recursos:** Motor de encolado inteligente para proteger el host de 4 núcleos.
-*   **Zero-Hallucination:** Mandatos R-HARD inyectados en la base genética del enjambre.
+## 🚀 Hitos Recientes (SICC v14.7 — 2026-04-30)
+*   **Cirugía Doctrinal v14.7:** 13 ajustes FRA canónicos — retractación §236.202, prohibición Moving Block, UPS 4 h, latencia ≤ 3 s, 64 hilos, OTDR 3 ventanas, SIL-3 PaN Tipo C, doctrina 9.12 pura.
+*   **RAG Purgado + Reiniciado:** `sicc_genetic_memory` en 0 filas. Dictámenes v14.6 eliminados. Los nuevos DTs se generan con doctrina v14.7 desde cero.
+*   **Memoria Limpia:** `data/memory/` vaciada. El enjambre arranca sin arrastre de razonamientos con doctrina vieja.
+*   **SPECIALTIES Canonizadas:** 8 especialidades + CHANGELOG instalados. Textos literales FRA §236.1005(e)(2)(ii), §236.0(c)(2), §236.1033(a/f) incorporados.
 
 ---
 
@@ -34,4 +34,4 @@ SICC es un **Muro de Fuego Técnico** que protege la integridad del proyecto. Im
 
 ---
 
-**© 2026 OpenGravity SICC System | SICC v14.6 — Hybrid Sovereignty Edition**
+**© 2026 OpenGravity SICC System | SICC v14.7 — Hybrid Sovereignty Edition**

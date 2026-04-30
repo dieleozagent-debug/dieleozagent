@@ -1,39 +1,59 @@
-# ESPECIALIDAD: COMMUNICATIONS
+# 📡 ESPECIALIDAD: COMUNICACIONES — v14.7
+## RED TRONCAL Y REDUNDANCIA SATELITAL
 
-## 📜 MANDATOS INNEGOCIABLES DE DISEÑO (Extracción Automática de DBCD v001)
+> [!IMPORTANT]
+> **MANDATO DE INFRAESTRUCTURA:** La red troncal es estrictamente **lineal de fibra óptica (64 hilos G.652.D)**. Prohibida la topología de anillo redundante (G.8031). Las microondas terrestres están proscritas como medio primario o secundario. La redundancia tren-tierra se resuelve mediante arquitectura híbrida embarcada (satélite + celular SD-WAN), legalmente habilitada por **FRA 49 CFR §236.1033**.
 
-* ETSI EN 300 392-2 V3.8.1 (2016-08) for TETRA V+D Air Interface
-* ETSI EN 300 396-3 V1.3.1 (2006-08) for TETRA DMO MS-MS
-* ETSI EN 300 395-1 V1.2.0 (2004-09) for TETRA speech codec
-* ETSI EN 300 392-5 V2.7.1 (2020-04) for TETRA Peripheral Equipment Interface
-* ETSI EN 300 392-7 V3.5.1 (2019-07) for TETRA Security
-* EN 50159 Categoría 3 for secure telecommunications
-* ITU-T G.652 (08/2024) subcategory G.652.D for fiber optics
-* Telcordia GR-20-CORE Issue 2 for fiber and OSP
-* ANSI/TIA-598-D-2014 for color coding of cables and fibers
-* ADIF NAT 405 (2021) for operational telephone systems
-* ADIF NAT 716 (1976) for overhead line installation
-* ADIF ET 03.366.780.9 (2022) for single-mode multifiber cables
-* ADIF ET 03.366.752.8 (2024) for optical connection kits
-* IEEE 802.3z-1998 for Gigabit Ethernet over Fiber
-* IEEE 802.3u-1995 for Fast Ethernet Protocol
-* IEEE 802.3af-2003 for Power over Ethernet (PoE)
-* IEEE 802.3an-2006 for 10G BASE-T
-* IEEE 802.3x-1997 for Ethernet flow control
-* IEEE 802.1Q-2022 for VLAN Ethernet
-* IEEE 802.1p-1998 for QoS
-* IEEE 802.1D-2004 for Spanning-Tree Protocol
-* IEEE 802.1w-2001 for Rapid Spanning-Tree Protocol
-* IEEE 802.1X-2020 for Port-Based Network Access Control
-* CISPR 22:2008 for radio interference limits
-* CISPR 24:2010 for immunity characteristics
-* RETIE 2024 (Resolución 40117 de 2024) for electrical installations
-* RETILAP 2024 (Resolución 40150 de 2024) for public lighting
-* NSR-10 (2010) for seismic-resistant construction
-* IEC 62368-1:2024+A11:2024 for IT/communications equipment safety
+---
 
-> [!IMPORTANT] **MANDATOS SOBERANOS DE COMUNICACIONES (SICC v14.6):**
-> 1. **Nivel de Integridad (SIL):** Queda estrictamente PROHIBIDO exigir SIL-4 para el hardware de red de comunicaciones (modems, switches, radios). El estándar obligatorio es **SIL-2** (EN 50159 Cat 3). El nivel SIL-4 aplica ÚNICAMENTE al Computador OBC del PTC.
-> 2. **Soberanía Geográfica:** Toda integración de comunicaciones debe incluir obligatoriamente el **Centro de Control (CCO) en La Dorada** Y el **Nodo Secundario de Respaldo (Failover) en Barrancabermeja**. Omitir Barrancabermeja se considera un Punto Único de Falla (SPOF) inaceptable.
-> 3. **Alcance de Flota (TRACTIVO):** La instalación de computadores PTC se limita exclusivamente al **Material Rodante Tractivo** (GR12, U10, U18). No se debe extender esta obligación tecnológica al material remolcado (góndolas/plataformas), salvaguardando la "Puesta a Punto" general de la flota.
-> 4. **Arquitectura Híbrida:** Es obligatorio el uso de Satelital + LTE vía SD-WAN para asegurar la disponibilidad del sistema FRA 49 CFR Part 236.
+## 1. MEDIOS DE TRANSMISIÓN (TRIPLE CAPA)
+- **Capa Primaria (Backbone):** Red troncal lineal enterrada de **exactamente sesenta y cuatro (64) hilos monomodo G.652.D**. Soporta CCTV, SCADA y datos vitales.
+- **Capa Inalámbrica (Voz/Datos):** Sistema **TETRA** (estándar ETSI). Torres dimensionadas exclusivamente para antenas TETRA.
+- **Capa de Redundancia Embarcada:** Enlace híbrido **satelital LEO/GEO + GSM/LTE** mediante ruteo SD-WAN. **Latencia round-trip admisible: hasta tres (3) segundos**, conforme principio Fail-Safe del PTC.
+- **Prohibición:** Queda prohibido el diseño de torres de microondas terrestres (MW) para redundancia tren-tierra. La FRA no exige determinismo terrestre; ampara expresamente las redes inalámbricas abiertas bajo §236.1033.
+
+---
+
+## 2. ESTÁNDARES DE SEGURIDAD Y CIBERSEGURIDAD
+- **Habilitación legal de redes abiertas (texto literal §236.1033(a)):**
+  > *"All wireless communications between the office, wayside, and onboard components in a PTC system shall provide cryptographic message integrity and authentication."*
+
+  La FRA permite **todas** las comunicaciones inalámbricas bajo condición única de integridad criptográfica y autenticación.
+
+- **Plan de mitigación obligatorio (texto literal §236.1033(f)):**
+  > *"Each railroad, or its vendor or supplier, shall have a prioritized service restoration and mitigation plan for scheduled and unscheduled interruptions of service."*
+
+  La FRA prevé expresamente las **interrupciones no programadas** y exige plan de mitigación priorizado, **no enlaces infalibles de 99.999%**. La mitigación de LFC: principio Fail-Safe (frenado del tren ante pérdida de señal) + arquitectura SD-WAN (conmutación automática satélite ↔ celular).
+
+- **Transmisión Vital:** **EN 50159 Categoría 3** para medios de transmisión abiertos.
+- **Norma Rectora PTC:** **FRA 49 CFR §236.1033** para enlaces de datos PTC.
+- **Cifrado:** Algoritmos aprobados por **NIST** conforme §236.1033(b)(1).
+- **Gestión de claves:** Distribución manual o automatizada (§236.1033(b)(2)); revocación obligatoria por compromiso o caducidad del algoritmo (§236.1033(b)(3)).
+
+---
+
+## 3. MECANISMOS DE DEFENSA PATRIMONIAL
+- **Over-engineering:** Cualquier exigencia de redundancia física adicional (anillos dobles, microondas terrestres, capacidad superior a 64 hilos, latencia inferior a 3 segundos garantizada por enlaces terrestres) activa la **Sección 9.12** y se tramita exclusivamente como **Obra y Equipo Complementario (Sección 25.4)**.
+- **Argumento del determinismo:** Cualquier argumento de Ardanuy o Interventoría que exija canales terrestres "deterministas" se destruye con el literal §236.1033(a) — la FRA permite redes inalámbricas bajo integridad criptográfica, sin imponer determinismo terrestre.
+- **Jurisdicción:** Prohibido citar contratos de consultoría externos en líneas base hacia ANI/Interventoría.
+
+---
+
+## 🏗️ INFRAESTRUCTURA FÍSICA (OSP) — v14.7
+- **Capacidad Troncal:** Exactamente **64 hilos G.652.D**. Prohibido el uso de "como mínimo" o redacción que abra a sobredimensionamiento.
+- **Protección Civil:** Soterramiento con **placa de concreto antivandálica** (Mandato AT1).
+- **Estándares de Pruebas:** **ANSI/ICEA S-87-640** y **Telcordia GR-20-CORE Issue 2**.
+- **OTDR/OLTS obligatorio:** Pruebas en las **tres ventanas: 1310 nm, 1550 nm y 1625 nm** (la última es indispensable para detección de macrocurvaturas; las dos primeras certifican operación normal).
+- **Atenuación máxima por empalme:** **0.1 dB bidireccional**.
+- **Shield:** Exigencias de anillos físicos, mayores hilos o capa de microondas activan la Sección 25.4.
+
+---
+
+## 📹 SEGREGACIÓN CCTV — v14.7
+- **Mandato:** Tráfico de video **exclusivo por Fibra Óptica**.
+- **Prohibición:** Prohibido transmitir video por la capa satelital/celular (red reservada para mensajería PTC).
+- **Almacenamiento:** Máximo **30 días**.
+- **Alimentación:** PoE conforme `POWER.md`.
+
+---
+**Generado por la Dirección Técnica LFC - Sistema SICC v14.7**
