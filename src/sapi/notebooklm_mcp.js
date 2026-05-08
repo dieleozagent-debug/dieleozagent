@@ -142,11 +142,24 @@ async function llamarOracle(query) {
  *    de oferta, Líneas Base internas — son pre-contractuales.
  * 4. Citar SOLO archivos verificables del notebook; NO inventar nombres de DTs.
  */
-// v14.8.4: anclaje conciso al contrato + apéndices + bases de diseño internas.
-// Limita el espacio de búsqueda del Oráculo a las fuentes vinculantes y dirige
-// hacia el documento principal de diseño LFC. Si hay conflicto entre fuentes,
-// NotebookLM ya conoce la jerarquía (Contrato > Apéndices > Bases).
-const ANCLAJE_CONTRACTUAL = `Responde según el Contrato APP 001/2025, sus Apéndices Técnicos y el documento "Bases de Diseño - CTSC (2)". Pregunta: `;
+// v14.8.7 (2026-05-08): anclaje pide DETALLAR POR SEPARADO cada nivel.
+// Razón: en DT-FIB-2026-001 el agente mezcló "AT1 §6.1.1 (BCD)" — §6.1.1 es del
+// BCD, no del AT1. Cada documento tiene numeración propia, no transferible. El
+// anclaje obliga a NotebookLM a citar por nivel separadamente, lo cual el agente
+// arrastra a sus DTs y evita la mezcla de citas.
+//
+// Cobertura: validarExternaNotebook es el único entry point exportado al MCP.
+// Lo invocan agent.js (mensajes libres, /swarm, /karpathy) y swarm-pilot.js
+// (/audit, /dream). No hay bypass posible — llamarOracle no se exporta.
+const ANCLAJE_CONTRACTUAL = `Revisa la pregunta contra los tres niveles vinculantes y respóndelos POR SEPARADO con su numeración propia, sin mezclarlos:
+
+(1) Cuerpo del Contrato APP No. 001 de 2025 (secciones del Contrato, ej. §1.2(d), §3.1(a)(ii), §9.11(b)(ii), §9.12, §25.4).
+(2) Apéndices Técnicos (AT1-AT10) o Financieros (AF1-AF4) — cada uno con su numeración interna (ej. AT1 Tabla 17, AT3 §6.4, AT4 RAMS).
+(3) Documento "Bases de Diseño - CTSC (2)" (BCD V001 abril 2026) — numeración propia (ej. BCD §6.1.1 fibra, BCD §10.5 TETRA).
+
+REGLA DE CITA: cada respuesta debe identificar de qué documento viene la sección (Contrato, AT, BCD) y NO transferir números entre documentos. Si un mandato aparece solo en uno, decirlo explícitamente. Si aparece en varios, listarlos como ítems separados.
+
+Pregunta: `;
 
 /**
  * Validar tecnología global (Verdad Externa) usando NotebookLM.
