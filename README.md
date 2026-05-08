@@ -38,8 +38,9 @@ SICC es un **Muro de Fuego Técnico** que protege la integridad del proyecto. Im
 ---
 
 ## 📁 Estructura del "Cerebro" (Brain)
-*   `brain/dictamenes/`: Decisiones Técnicas certificadas y listas para promover al LFC2. **⚠️ Estado 2026-05-08:** los DTs publicados actualmente en `lfc-2.vercel.app/dictamenes` son v8 pre-purga (D2 arriba). Los nuevos DTs (post-v14.7) deben generarse con BCD v001.
-*   `brain/SPECIALTIES/`: "Vacunas" técnicas y lecciones aprendidas por especialidad.
+*   `brain/dictamenes/`: Decisiones Técnicas certificadas y listas para promover al LFC2. **⚠️ Estado 2026-05-08:** vaciado. Los 3 DTs aprobados que tenía (`DT-SICC-2026-002`, `DT-ENRG-2025-001`, `DT-EMBARCADO-2026-001`) fueron auditados manualmente por el Director Técnico UF2 y rechazados por contener alucinaciones del LLM (loop literal, "100% ANI", "detección de isla", "Checklist V3.5", paráfrasis Resolución de Surcos, mezcla SIL/FRA). Movidos a `brain/REJECTED_DTS/`.
+*   `brain/REJECTED_DTS/`: **🆕 2026-05-08** — DTs rechazados con manifest forense (`_INDEX.md`) detallando categorías de error y vacunas inyectadas. Sirven de evidencia para próximos ciclos `/audit`.
+*   `brain/SPECIALTIES/`: "Vacunas" técnicas y lecciones aprendidas por especialidad. **v14.8 (2026-05-08):** `_LOOP_GUARD.md` (transversal — anti-loop, anti-scratchpad, anti-firma versionada, lista de alucinaciones catalogadas), `EMBARCADO.md` reescrito, `POWER.md` reescrito, `SIGNALIZATION.md` corregido, `CONTRACTUAL_NORMATIVE.md` con secciones §4.1-§4.8 (AF4 literal, doctrina DT, doble candado §25.4, §9.11 escenario FENOCO, Resolución de Surcos Art. 5° literal, Sección 2.x = definición, marcos normativos por subsistema).
 *   `brain/history/`: Trazabilidad forense completa de cada ciclo de auditoría.
 
 ---
