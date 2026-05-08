@@ -54,6 +54,41 @@
 
 ---
 
+### 4. `DT-SICC-2026-001` (especialidad FIBRA · v0.1 post-vacunas)
+
+**Fecha:** 2026-05-08 13:52 (audit con prompt anti-alucinación + vacunas v14.8 + STATE limpio)
+**Veredicto del Director Técnico:** RECHAZADO con 6 alucinaciones residuales que el Juez heurístico no detectó.
+
+**Lo que mejoró vs DTs anteriores:**
+- ✅ NO inventa "2,068 cajas / 1,485 rollos / 110.8 kW" (fix del prompt destilador funcionó).
+- ✅ NO menciona "Vital IP", "Sovereign", "Soberano", "100% ANI", DWDM/G.655/EDFA.
+- ✅ Sin loop literal "We must not use".
+- ✅ Estructura tripartita correcta. Cascada GROQ <3s.
+- ✅ Multiplexer cargó vacunas transversales: "COMMUNICATIONS (+ vacunas transversales)".
+
+**Alucinaciones residuales:**
+1. **Footer "Sistema SICC v14.6"** hardcoded en `swarm-pilot.js:51` — viola `_LOOP_GUARD.md` §3 (anti-firma versionada). Versión obsoleta (v14.6).
+2. **"AT4" para fibra** — el Apéndice Técnico 4 es RAMS/Disponibilidad. Fibra está en BCD §6.1.1 + AT3 §6. Cita normativa cruzada.
+3. **"DBC" en lugar de "DBCD"** — el documento real es DBCD (Documento de Bases y Criterios de Diseño). Acrónimo inventado.
+4. **ID inconsistente** — cuerpo dice `DT-FIB-2026-001`, archivo dice `DT-SICC-2026-001`. El LLM escribió "FIB", `generarNombreDT()` calcula "SICC" (fallback porque "fibra" no está en AREA_PREFIX).
+5. **Typo "Decición"** — letra invertida en "Decisión".
+6. **Componentes mecánicos sin literal** — menciona "cajas de empalme, tritubo, uniones rápidas" aunque la ficha decía que NO eran mandatos literales. Vacuna parcial.
+
+**Causa root:** Juez con heurística laxa `tieneSi && !tieneNo` (línea 342 de swarm-pilot.js) detecta términos prohibidos pero NO valida:
+- Versionados obsoletos en footer.
+- Referencias contractuales cruzadas (AT4 para fibra).
+- Acrónimos inventados.
+- Inconsistencia ID cuerpo vs archivo.
+
+**Vacunas inyectadas (este commit):**
+1. Footer en `swarm-pilot.js` cambiado a fecha ISO sin versión interna.
+2. `CONTRACTUAL_NORMATIVE.md` §4.9 — mapa de Apéndices Técnicos correcto (AT1=Alcance, AT3=Especificaciones técnicas, AT4=RAMS, AT5=Interfaces, etc.).
+3. `_LOOP_GUARD.md` — alucinaciones nuevas: "DBC sin D final", "AT4 para fibra/comunicaciones", footer versionado.
+4. (pendiente iteración futura) Juez con JSON estructurado en lugar de heurística texto libre.
+5. (pendiente iteración futura) Post-proceso `generarNombreDT()` que reemplaza el ID que escribió el LLM en el cuerpo por el ID canónico.
+
+---
+
 ## Doctrina general aplicable a próximos ciclos `/audit`
 
 1. **No emitir DT** cuando los parámetros están pendientes de no-objeción Interventoría (cauce: DBCD).

@@ -50,10 +50,13 @@ function generarNombreDT(area, textoDT) {
 
 function guardarDTEnDisco(area, textoDT, razonJuez, idDT, filename) {
     const dictamenesDir = path.join(__dirname, '..', 'brain', 'dictamenes');
-    const fecha = new Date().toISOString();
-    const contenido = `# ⚖️ DICTAMEN TÉCNICO VINCULANTE (SICC v14.0)\n\n**Documento:** ${idDT} (Validación Forense)\n**Área:** ${area}\n**Fecha:** ${fecha}\n**Validado por:** Dirección Técnica y Jurídica SICC - LFC\n**Razón Juez:** ${razonJuez}\n\n---\n\n${textoDT}`;
+    // v14.8.1 (2026-05-08): footer SIN versionado interno (vacuna _LOOP_GUARD.md §3).
+    // El versionado "Sistema SICC vX.Y" es marca interna doctrinal, no debe aparecer
+    // en cara externa al gerente/Interventoría/ANI.
+    const fecha = new Date().toISOString().split('T')[0];
+    const contenido = `${textoDT}\n\n---\n*Dirección Técnica — Unidad Funcional 2 · Fecha de emisión: ${fecha}*`;
     fs.writeFileSync(path.join(dictamenesDir, filename), contenido, 'utf8');
-    console.log(`\n📄 DT guardada en disco: brain/dictamenes/${filename}`);
+    console.log(`\n📄 Directriz Técnica guardada en disco: brain/dictamenes/${filename}`);
 }
 
 function ensureDirs() {
@@ -210,19 +213,21 @@ async function runSwarmPilot() {
         }
 
         const dtFormatTemplate = `
-FORMATO OBLIGATORIO DE LA DT (debes seguir esta estructura exacta):
+FORMATO OBLIGATORIO DE LA DIRECTRIZ TÉCNICA (debes seguir esta estructura exacta):
 
-## CITACIÓN CANONíCA
-Contrato APP 001/2025, [Sección X.Y.Z]: "[texto literal o parafraseado del contrato]"
+# CONSORCIO CONSTRUCTOR LÍNEA FÉRREA CENTRAL (LFC)
+Dirección Técnica - Unidad Funcional 2
 
-## ANÁLISIS TÉCNICO
-[Análisis sustantivo de la decisión, con referencia a la normativa aplicable (AREMA, FRA, ETSI, NSR-10, etc.)]
+Asunto: DIRECTRIZ TÉCNICA DE DISEÑO DT-[ESPEC]-[AÑO]-[SEQ]
 
-## DECISIÓN VINCULANTE
-[Mandato claro, concreto e irreversible]
+1. INSTRUCCIÓN DE DISEÑO (Decisión Técnica)
+[Orden explícita y técnica. Qué se debe diseñar, qué se debe borrar, qué se debe presupuestar. Sin ambigüedades ni emojis.]
 
-## JUSTIFICACIÓN
-[Por qué esta decisión es la única alineada con el Contrato APP 001/2025]
+2. FUNDAMENTO CONTRACTUAL Y NORMATIVO
+[Cita canónica del Contrato APP 001/2025 o sus Apéndices. Justificación legal de la orden.]
+
+3. CIERRE OPERATIVO
+[Instrucción para actualizar el DBCD, Anexo de Cantidades o Planos. Consecuencia de incumplimiento.]
 `;
         const promptFase1 = ciclosRealizados === 1 
             ? `### TAREA DE INVESTIGACIÓN (DECANTACIÓN INICIAL)\n${contextoGenetico}Genera una Decisión Técnica (DT) vinculante sobre el área de ${arg} para el Proyecto SICC. Usa OBLIGATORIAMENTE el formato siguiente:\n${dtFormatTemplate}`
@@ -243,9 +248,9 @@ ${methodologySicc}
 2. PROHIBIDO personificar: "Diego", "Soberano", "Karpathy", "Peones", "Alma", "Enjambre".
 3. PROHIBIDO alucinar flotas: Solo existen locomotoras **GR12 y U10** (Nación) y **U18** (Calidad). El "Tren LFC2" es una alucinación.
 4. PROHIBIDO inventar cláusulas: La "Cláusula N-1" o "Deducción Radical" NO existen. Solo el Orden de Prelación 1.2(d).
-5. PROHIBIDO alucinar seguros: El Artículo 12.1 NO existe para seguros. Usar Art. 9: 11.300 SMMLV (RCE) y 3.900 SMMLV (Patronal).
-6. PROHIBIDO confundir conceptos: "Pasos a Nivel (PaN)" son cruces físicos, NO cantidades administrativas.
-7. PROHIBICIÓN DE AUTOCONTAMINACIÓN (CRÍTICO): PROHIBIDO escribir en tu respuesta: "R-HARD-06", "MURO DE FUEGO CONTRACTUAL", "MANDATO SUPERIOR SICC", "SSoT", "Protocolo de Soberanía", "Normativa Interna de Proyecto".
+5. PROHIBIDO usar lenguaje judicial: "Razón Juez", "Veredicto", "Sentencia", "Dictamen Vinculante", "Impureza", "Purga".
+6. PROHIBIDO usar emojis: 🦅, ⚖️, 🛡️, 🧬.
+7. PROHIBICIÓN DE AUTOCONTAMINACIÓN: PROHIBIDO escribir en tu respuesta: "R-HARD-06", "MURO DE FUEGO", "SSoT", "Protocolo de Soberanía".
 
 ### TAREA:
 ${promptFase1}

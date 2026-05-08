@@ -150,7 +150,40 @@
 > ❌ **PROHIBIDO:** *"Resolución de Surcos: Vinculante vía Sección 2.209"*
 > ✅ **Correcto:** *"Resolución 20243040046045 (Min. Transporte), incorporada al Contrato vía Sección 2.209 (definición) y operativizada vía Sección 12.4 (Asignación de Surcos) y demás secciones operativas que la invocan."*
 
-### 4.8 Marcos normativos por subsistema (corregir mezclas)
+### 4.8 Mapa de Apéndices Técnicos del Contrato APP 001/2025 (NO mezclar)
+
+> [!CAUTION]
+> **Mapa canónico verificado** del orden y contenido de cada Apéndice Técnico. **Citar el equivocado en una DT es alucinación catalogada.**
+
+| Apéndice | Contenido | NO usar para |
+|---|---|---|
+| **AT1** | Alcance del Proyecto · Tabla 17 (5 ENCE nominados) · Cap. V Material Rodante · §4.5 Pasos a Nivel | Especificaciones técnicas detalladas (eso es AT3). Disponibilidad/RAMS (eso es AT4). |
+| **AT3** | **Especificaciones técnicas** del SCC: PTC, fibra óptica, TETRA, energía, CCO, pasos a nivel. **Cap. I literal c**: jerarquía AREMA > FRA > AAR > UIC. Catálogos IEEE, EMC, ETSI, ITU-T. | Alcance (AT1). RAMS (AT4). |
+| **AT4** | **RAMS / Disponibilidad / KPIs** contractuales · MTBF · MTTR · sanciones por SLA | **NO** especificaciones técnicas de fibra/PTC/TETRA. Esas están en AT3. |
+| **AT5** | Interfaces · puntos de demarcación · interoperabilidad técnica con concesiones adyacentes (FENOCO) | |
+| **AT6** | Ambiental | |
+| **AT7** | Predios · servidumbres · adquisición de terrenos | |
+| **Apéndice Financiero 4 (AF4)** | "Amortización Material Rodante del Proyecto" (mecanismo de retribución) | **NO** obligaciones técnicas de diseño. |
+
+> [!WARNING]
+> **Alucinaciones recurrentes a bloquear:**
+>
+> - ❌ *"Apéndice Técnico 4 (AT4) establece los requisitos para la infraestructura de comunicaciones"* — FALSO. Comunicaciones está en **AT3**, no AT4.
+> - ❌ *"AT4 fibra"*, *"AT4 telecom"*, *"AT4 PTC"*, *"AT4 TETRA"* — TODAS falsas. AT4 es RAMS.
+> - ❌ *"AT3 disponibilidad"*, *"AT3 RAMS"*, *"AT3 KPIs"* — FALSAS. AT3 es especificaciones técnicas, no RAMS.
+> - ❌ Mezclar la **Sección 3.1(a)(ii)** (que está en el cuerpo del Contrato, objeto contractual) con **un Apéndice Técnico** — son niveles distintos de la jerarquía.
+
+### 4.9 Documento de Bases y Criterios de Diseño
+
+> [!CAUTION]
+> **Sigla canónica:** **DBCD** (Documento de Bases y Criterios de Diseño). Versión vigente: **V001 (Ardanuy abril 2026)** salvo que esté V002/V003 en circulación.
+>
+> **PROHIBIDO** abreviar a:
+> - "DBC" — letra final faltante. Es alucinación catalogada (la "D" final es de "Diseño").
+> - "Documento de Bases y Condiciones del Contrato" — confunde con cláusulas contractuales generales. El DBCD es técnico, no de condiciones generales.
+> - "Bases de Diseño" sin más — ambiguo.
+
+### 4.10 Marcos normativos por subsistema (corregir mezclas)
 
 | Subsistema | Marco rector | SIL / nivel funcional | EMC |
 |---|---|---|---|
