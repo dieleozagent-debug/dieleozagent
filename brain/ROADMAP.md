@@ -1,4 +1,17 @@
-# 🗺️ Roadmap OpenGravity SICC — v13.0 (Estado real 2026-04-18)
+# 🗺️ Roadmap OpenGravity Agente — v14.7 (Estado real 2026-05-08)
+
+> **Sigla en cara externa:** los DTs publicados en LFC2 deben usar **SCC** (Sistema de Comunicación, Control de Tráfico y Señalización — sigla del BCD v001). La marca interna del agente "SICC" se reserva para metadata interna y NO debe aparecer en títulos/cifras visibles al gerente o Interventoría (colisión con SICC del AT4 = Sistema de Indicadores).
+
+---
+
+## 🚨 DEUDA CRÍTICA (bloquea regeneración de DTs)
+
+| # | Ítem | Detalle | Acción |
+|---|---|---|---|
+| **D1** | **`agente/architecture.md` saneado parcial 2026-05-08** | Header corregido: 48h G.652.D, UPS 4h+24-48h diferenciada, Stop & Switch operacional FENOCO. Pendiente: revisar código/strings en `src/` que aún citen "64 hilos" o "UPS 24h eliminada". | Grep recursivo `src/`, `brain/SPECIALTIES/`, `data/` por terminología pre-BCD v001. |
+| **D2** | **DTs legacy en LFC2 eliminados 2026-05-08** | `LFC2/II_A_Analisis_Contractual/dictamenes/` vaciado (57 archivos v8 producto de pruebas tempranas `/promote`: "Bus Vital 110V DC", "Red Vital IP", "DT-SICC-V8-*", cifras "CAPEX Protegido $X" sin trazabilidad). Conservados como histórico forense en `agente/brain/dictamenes/`. | Cuando D1+D0 cierren, ejecutar `/audit [especialidad]` por especialidad → `/promote` repuebla LFC2 con DTs alineados a BCD v001 + sigla SCC. |
+| **D0** | **YAML Sección 10 ejecutable en DTs** (deuda histórica del LFC2 roadmap) | Las DTs generadas por el agente omiten la Sección 10 YAML requerida por la metodología `.42`. Sin YAML, `/promote` no puede propagar cambios al WBS ni a los HTML automáticamente. | Ajustar prompt del Auditor Forense para forzar emisión estricta de Sección 10 YAML. |
+| **D3** | **Re-ingesta `contrato_documentos`** | pgvector contiene fragmentos pre-BCD v001. | `docker exec sicc-postgres ...` con BCD v001 como L4 vinculante. No disparar sin Vo.Bo. del Director Técnico UF2. |
 
 ---
 
@@ -46,6 +59,7 @@
 
 | Ítem | Descripción |
 |---|---|
+| **Falta YAML EJECUTABLE en DTs (Sección 10)** | Las DTs generadas (ej. `DT-ENRG-2026-001`) se emiten sin el bloque YAML (Sección 10) requerido por la metodología `.42` de LFC2. Esto bloquea que la DT interactúe con el repositorio y el comando `/promote` queda desconectado del WBS. Requiere ajuste urgente en el prompt del Agente. **Cruzado con `LFC2/roadmap.md` (Deuda D0).** |
 | **Validación en producción v14.7** | Emitir primer DT con enjambre post-cirugía y validar contra los 13 ajustes de v14.7. |
 | **`/promote` DT→LFC2** | Comando que copia DT de `brain/dictamenes/` → LFC2 + git commit automático. Usa `src/gitlocal.js`. |
 | **Re-ingesta `contrato_documentos`** | Fragmentos pre-fix oversized — re-ingestar con max 800c + overlap 100c. |

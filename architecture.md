@@ -1,6 +1,24 @@
-# 🏛️ Arquitectura SICC v14.7 — "Doctrina Canónica FRA + Blindaje Táctico"
+# 🏛️ Arquitectura del Agente — Auditor Forense LFC2
 
-SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agente autónomo para auditoría técnica y jurídica del proyecto LFC2 (Colombia).
+El **Agente** es un sistema autónomo de auditoría técnica y jurídica del proyecto LFC2. Ejecuta el bucle `/audit [área]` → genera DT (Decisión Técnica) → `/promote` la sincroniza al repo LFC2 y la despliega en Vercel.
+
+> **Nota terminológica (2026-05-08):** este documento usa la sigla **SCC** (Sistema de Comunicación, Control de Tráfico y Señalización) tal como la define el **BCD v001** del contrato — alcance contractual UF2. Cualquier referencia residual a "SICC" en código/strings internos del agente es marca interna doctrinal del proyecto OpenGravity (no confundir con el SICC del AT4, que es el Sistema de Indicadores de Calidad/Cumplimiento).
+
+---
+
+## 🏛️ FUENTE DE VERDAD SUPREMA (SSoT)
+Desde el 2026-05-05, el sistema se rige por el **BCD v001 (Abril 2026)**. La verdad técnica es innegociable frente a alucinaciones o normas obsoletas.
+
+### 🛰️ Directrices Técnicas de Diseño (SSoT v14.7 · BCD-aligned)
+- **TROCHA:** Vía única de **914 mm** (yarda).
+- **FIBRA ÓPTICA:** Backbone de **48 hilos** G.652.D soterrado (BCD §6.1.1, NO 64h). OTDR en 1310/1550/1625 nm.
+- **PASOS A NIVEL:** **24 Protegidos** (9 Tipo C + 15 Tipo B). Los 122 PaN básicos restantes están **fuera del alcance SCC** (BCD §8.2).
+- **ENCE:** 5 estaciones nominadas (Zapatosa, García Cadena, Barrancabermeja, Pto Berrío–Grecia, La Dorada–México). Tabla 17 AT1.
+- **PTC:** Virtual Fixed Block §236.1005. Prohibido "Moving Block".
+- **COMMS:** TETRA primario + Satelital LEO/GEO redundante.
+- **POWER:** UPS diferenciada por bloque BCD §10 — **4h** señalización/CCO/PaN (110V DC) y **24-48h** TETRA (48V DC). NO homogeneizar.
+- **CCO:** La Dorada (Principal) + Barrancabermeja (Failover, deuda LFC, no exigido por BCD).
+- **INTEROPERABILIDAD:** **Stop & Switch** operacional en Chiriguaná (BCD §9.2). NO integración técnica con sistemas FENOCO.
 
 ---
 
@@ -8,382 +26,63 @@ SICC (**Sistema Integrado de Control Contractual**) es una arquitectura de agent
 
 | Servicio | Contenedor / Proceso | Puerto | Función |
 | :--- | :--- | :--- | :--- |
-| **Agente Core** | `node src/index.js` (Host) | — | Bot Telegram + orquestación de ciclos de auditoría |
-| **Oracle NotebookLM** | `notebooklm-mcp-v12` | 3001 (SSE) | Verdad Externa — 108 fuentes "Contrato Ardanuy LFC" |
-| **Base de Datos** | `sicc-postgres` | 5432 | pgvector — 10.358 fragmentos del Contrato APP 001/2025 |
-| **Embeddings v2.1** | **Multiplexador Híbrido** | — | **Primario:** Gemini `embedding-001` (SICC Stable) / **Fallback:** Ollama `nomic-embed-text` (Local) |
-| **Inferencia** | **Tridente NVIDIA NIM** | — | **DeepSeek-v4-pro** (Lead Reasoning), Nemotron (Legal), Llama 3.3 70B (Auditoría) |
-| **Capa de Consenso** | **Multi-Agente SICC** | — | **Doble Ciego:** Técnico + Legal + Coordinador (Consenso Obligatorio) |
-
-### Conectividad (v14.1 - Bridge Soberano)
-- **Agente → Postgres:** `127.0.0.1:5432` (Mapeo directo Host-to-Container).
-### 🛰️ Directrices Técnicas de Diseño (SSoT v14.7 — canónicas post-cirugía 2026-04-30)
-- **ENCE:** Motorización limitada a 5 estaciones (Zapatosa, García Cadena, Barrancabermeja, Puerto Berrío–Grecia, La Dorada–México). Autotalonables en vía general bajo §236.1005(e)(2)(ii). Prohibido "Moving Block" — solo Virtual Fixed Block.
-- **COMMUNICATIONS:** Fibra lineal 64 hilos G.652.D. TETRA primario. SD-WAN satélite+LTE redundancia embarcada. Latencia admisible ≤ 3 s. OTDR en 3 ventanas (1310/1550/1625 nm). Prohibidas microondas terrestres.
-- **CONTROL_CENTER:** CCO La Dorada (principal) + Barrancabermeja (failover). Flota: GR12, U10 y U18 (o equivalente por Factor de Calidad). Prohibido Gateway lógico con FENOCO.
-- **SIGNALIZATION:** FRA 49 CFR Part 236 Subpart I absoluta. PaN Tipo C con SIL-3. Prohibido §236.202 como veto — cita correcta §236.1005(e).
-- **POWER:** UPS autonomía 4 horas (MTTR). Eliminada mención de 24 h (over-engineering CAPEX).
-- **CONTRACTUAL_NORMATIVE:** Doctrina 9.12 → 25.4 ÚNICA. Prohibido invocar 9.11+9.12 conjuntamente.
-- **INTEGRATION:** Stop & Switch en Chiriguaná. Hardware dual OBC LFC + OBC FENOCO. Prohibido Gateway de software.
-- **FINANCIAL_LEGAL:** Sección 18.7 solo RCE. Prohibido citar Ardanuy, CCLF 00013-2026, montos no ratificados.
-
-### 📜 Marcos Maestros Contractuales
-- **OBLIGACIONES_TI_GESTION_DATOS_v1.0.md:** Límites de CDE, BIM y SICC frente a la ANI.
-- **LINEA_BASE_CONTRACTUAL_SICC_v1.0.md:** Definición pura de alcance, flota e interoperabilidad (Stop & Switch).
-- **ESTRATEGIA_INTEROPERABILIDAD_CHIRIGUANA_v1.0.md:** No Gateway. Integración a bordo del tren. Protección de riesgo extracontractual.
+| **Agente Core** | `node src/index.js` | — | Orquestación SICC |
+| **Oracle NotebookLM** | `notebooklm-mcp-v12` | 3001 (SSE) | Verdad Externa (DBCD v001) |
+| **Base de Datos** | `sicc-postgres` | 5432 | pgvector (10.358 fragmentos) |
+| **Embeddings** | Gemini `embedding-001` | — | Vectorización forense |
 
 ---
 
-Para garantizar que el sistema no alucine ni comprometa el CAPEX del proyecto, se ha implementado una capa de validación triple:
-
-*   **Donde:** La lógica reside en `scripts/punto42-pilot.js`, orquestada por el `dream-orchestrator.sh`.
-*   **Como:** Cada documento de ingeniería es procesado secuencialmente por tres modelos de alto nivel:
-    1.  **Agente Técnico (DeepSeek-v4-pro):** Filtra ingeniería y mandatos.
-    2.  **Agente Legal (Nemotron):** Valida citación canónica del AT1/AT3.
-    3.  **Agente Coordinador (Llama 70B):** Cruza ambos resultados. Solo si hay consenso absoluto, el archivo se actualiza.
-*   **Por qué:** Para eliminar el "Factor Humano" de error en la revisión masiva de 189 documentos y asegurar que ninguna "bomba de tiempo" financiera (como la motorización excesiva) se filtre en los entregables finales.
-
----
-
-## 🧬 El Bucle de Aprendizaje Forense (Learning Loop)
-
-El sistema SICC no es estático; evoluciona mediante un ciclo de **Saneamiento y Refinamiento** continuo:
-
-1.  **Detección de Impureza (Fase 1):** El enjambre genera un borrador (DT). Si el borrador contiene alucinaciones (cifras falsas, normas equivocadas), el Auditor (o el usuario) lo declara como **"Dictamen Suicida"** o **"Impureza de Consenso"**.
-2.  **RCA (Root Cause Analysis):** Se analiza por qué el sistema alucinó (ej: solapamiento de nombres de secciones, ruido de datos legacy).
-3.  **Saneamiento del Cerebro:** Las lecciones aprendidas se inyectan en los archivos de **Especialidad** (`brain/SPECIALTIES/*.md`). Estos archivos actúan como el Neocórtex del sistema, prevaleciendo sobre el RAG.
-4.  **Vacunación:** Las reglas de veto se inyectan en el orquestador (`punto42-pilot.js`) para prohibir taxativamente la repetición del error.
-5.  **Persistencia Genética:** Se ejecuta una **Reingesta SSOT** hacia la base de datos `pgvector`, sincronizando la memoria histórica (RAG) con la nueva verdad técnica consolidada.
-
-Este proceso garantiza que el sistema "aprenda" a no repetir errores de over-engineering y a defender el CAPEX con mayor precisión en cada ciclo de sueño (`/dream`).
-
----
-
-El sistema utiliza la API de Telegram como interfaz de mando soberano (HMI). Para garantizar la estabilidad, se aplican las siguientes reglas arquitectónicas:
-
-### 1. Mecanismo de Comunicación
-- **Modo:** Long Polling (configurado en `src/index.js`).
-- **Librería:** `node-telegram-bot-api`.
-- **Ventaja:** No requiere exposición de puertos (Webhooks) ni certificados SSL en el host, manteniendo el nodo oculto y seguro.
-
-### 2. Política de Instancia Única (Anti-409)
-Telegram prohíbe dos procesos usando el mismo Token simultáneamente.
-- **Detección de Conflicto:** El log `ETEGRAM: 409 Conflict` indica que existe una instancia duplicada (proceso zombi, contenedor paralelo o script `.sh` resucitador).
-- **Protocolo de Reinicio:** Se debe ejecutar `killall node` antes de levantar una nueva versión para asegurar la "limpieza" del canal de polling.
-
-### 3. Mensajería Segura (`safeSendMessage`)
-- **Chunking:** Los mensajes >3500 caracteres se dividen automáticamente para evitar el rechazo de Telegram.
-- **Retry Logic:** Se implementan hasta 3 reintentos con delay de 3s en caso de fallos de red o *rate limiting* de Telegram.
-- **Formato:** MarkdownV2/HTML con fallback a texto plano en caso de error de parseo.
-
-### 4. Dualidad Funcional: Oído vs Boca
-El sistema opera con dos instancias lógicas del bot para evitar bloqueos:
-- **El Oído (Reactivo - `src/index.js`):** Utiliza *Long Polling* activo. Es el único componente autorizado para procesar comandos (`/audit`, etc.). Solo debe existir UNA instancia activa de este proceso para evitar conflictos 409.
-- **La Boca (Proactivo - `src/notifications.js`):** No utiliza polling. Se instancia bajo demanda por otros módulos o scripts de cron para enviar alertas y reportes sin escuchar al usuario.
-
----
-
-## 📡 Multiplexador de Proveedores IA — Cascada v12.9
-
-| Nivel | Proveedor | Modelo | Nota |
-|---|---|---|---|
-| 1 | **NVIDIA NIM** 🟢 | `nemotron-3-super-120b` | **Tridente Principal:** Razonamiento superior gratuito |
-| 1 | **DeepSeek 🔵** | `deepseek-v4-pro` | Razonamiento técnico y lógico puro |
-| 1 | Gemini | `gemini-2.0-flash` | Alta velocidad y cuota generosa |
-| 2 | Groq | `llama-3.3-70b` | Baja latencia, auditoría rápida |
-| 2 | OpenRouter | `openrouter/free` | Rescate multi-modelo |
-| **3** | **Ollama local** | `gemma2:9b` | **Soberanía Total:** Fallback offline y masivo |
-
-**Cerebro Superior (DeepSeek):** Se ha integrado la API nativa de DeepSeek para actuar como el último muro de contención contra el `SICC BLOCKER`. Es el proveedor con mayor razonamiento por costo del mercado.
-
-**Selector de Modelos (Conmutación):**
-Para ajustar la prioridad o desactivar DeepSeek (si el consumo es alto), editar `.env`:
-- `AI_PRIMARY_PROVIDER=gemini`: (Default) Prioriza lo gratuito.
-- `AI_PRIMARY_PROVIDER=deepseek`: (Modo Auditoría Profunda) Usa DeepSeek de entrada.
-- El sistema siempre intentará la cascada: `Gemini → Groq → Ollama → OpenRouter → DeepSeek`.
-
----
-
-## 🗂️ Arquitectura de Código — v14.0
-
-```
-src/
-├── index.js          ← Bootstrap: dirs, brain init, IA check, bot, crons, scheduler (~160 líneas)
-├── agent.js          ← Motor: pipeline FASE-0..5 (CPU→Vacunas→RAG→Oracle→Skills→LLM) (~450 líneas)
-├── handlers.js       ← Router: /comandos slash + loop INTENTS[] (~390 líneas)
-├── utils/
-│   └── send.js       ← safeSendMessage: chunking 3500c + fallback Markdown
-└── intents/          ← Intents de lenguaje natural (sin costo LLM)
-    ├── navigation.js     "me pierdo / cómo empiezo"
-    ├── brain-state.js    brain / agentes / lecciones de auditoría
-    ├── dream-state.js    auditorías / historial área / roadmap
-    └── dt-ops.js         DTs aprobadas / bloqueadas / qué hacemos con X
-```
-
-### Flujo de un mensaje Telegram
-
-```
-Telegram msg
-    │
-    ▼ index.js:bot.on('message')
-    │
-    ▼ handlers.js:handleMessage()
-    │
-    ├─ ¿Es /comando slash? → handler exacto → send() → return
-    │
-    ├─ ¿Lenguaje natural? → loop INTENTS[]
-    │   ├─ intent.matches(textLower) ?
-    │   │   └─ intent.handle() → send() → return
-    │   └─ (siguiente intent)
-    │
-    └─ Fallback IA → agent.js:procesarMensaje() → send()
-```
-
-### Cómo agregar un intent nuevo
-```bash
-# 1. Crear archivo
-cat > src/intents/mi-intent.js << 'EOF'
-module.exports = {
-  matches(textLower, texto) { return /mi regex/i.test(textLower); },
-  async handle(chatId, texto, textLower, send, BRAIN_DIR) {
-    await send(chatId, 'respuesta directa');
-    return true;
-  }
-};
-EOF
-
-# 2. Registrar en handlers.js
-# En el array INTENTS: require('./intents/mi-intent')
-```
-
----
-
-## 🌪️ Pipeline de Inferencia — `procesarMensaje()` (agent.js)
-
-```
-procesarMensaje(textoUsuario)
-    │
-    ├─ FASE-0: evaluarRecursos() → CPU check
-    │
-    ├─ FASE-1: buscarLecciones() → sicc_genetic_memory (coseno >0.7)
-    │           → contextoGenetico (vacunas anti-alucinación)
-    │
-    ├─ FASE-2: buscarSimilares() → contrato_documentos (top-3 fragmentos)
-    │           → contextoRAG (Biblia Legal)
-    │
-    ├─ FASE-3: buscarEnWeb() + validarExternaNotebook() [solo si Tavily+técnica]
-    │           → contextoWeb + contextoOracle
-    │
-    ├─ FASE-4: seleccionarSkills() → brain/skills/*.json|md
-    │           → skillsContext
-    │
-    ├─ FASE-5: getMultiplexedContext() → systemPromptSICC
-    │                llamarMultiplexadorFree(texto, contextoFinal, systemPromptSICC)
-    │                → { texto, proveedor }
-    │                ─ Si falla → MURO-DE-FUEGO → registrarBloqueoSICC()
-```
-
-**Audit logs:** `data/logs/sicc-traces.json` (últimas 100) · `data/logs/flow-resilience.json`
-
----
-
-## 🌪️ Bucle de Auditoría Forense SICC v14.0 — `/audit [área]`
+## 🌪️ Bucle de Auditoría Forense SICC v14.7 — `/audit [área]`
 
 ```
 /audit señalizacion
     │
-    ▼ index.js:bot.onText — exec(swarm-pilot.js "Señalización", timeout 30 min)
+    ▼ FASE 0: Extracción RAG (Supabase + NotebookLM)
     │
-    ▼ ── hasta 3 ciclos (STATE persistente) ─────────────────────
+    ▼ FASE 0.5: Destilación BCD v001 (Mandatos Innegociables)
     │
-    ├─ FASE 0: Supabase RAG extrae contexto crudo.
-    ├─ FASE 0.5 (Oracle Fetcher): Destilación de Contexto (DBCD v001) → FICHA TÉCNICA OBLIGATORIA (vía distil-mandates.js).
-    ├─ FASE 1: Auditor Forense genera borrador DT usando Citación Canónica de la Ficha.
-    ├─ FASE 2: validarInternaSupabase() + validarExternaNotebook(notebooklm-mcp-v12:3001)
-    ├─ FASE 3: Juez SICC v14.5 (Selector de Texto Crudo)
-    │           🚨 Protocolo Rescate: Heurística Forense de Señales (SÍ/NO) agnóstica a JSON.
-    └─ FASE 4: Persistencia & CI/CD
-        ├─ APROBADO: brain/dictamenes/ + vectorización.
-        │           🚀 Comando `/promote`: Git push automático a repositorio LFC2.
-        └─ RECHAZADO: brain/SPECIALTIES/{area}.md (Vacuna Genética).
-```
-
-**Hard-caps:** MAX_CICLOS=3 | exec timeout=1800s | Oracle timeout=90s
-
----
-
-## 🏗️ Principio Fundamental de Diseño: Arquitectura PTC con Cantonamiento Virtual
-
-El principio fundamental de diseño del Sistema de Señalización del Corredor Férreo La Dorada–Chiriguaná es la implementación de una arquitectura de **Positive Train Control (PTC) con cantonamiento virtual**, complementada con **cantonamiento físico** en los puntos operativos definidos en el Apéndice Técnico 1 (La Dorada–México, Puerto Berrío–Grecia, Barrancabermeja, García Cadena y Zapatosa) que requieren control local seguro de rutas, señales y cambiavías.
-
-### Filosofía de Operación
-- **Vía Sencilla (Intermedios)**: Determinación y supervisión de autoridades de movimiento emitidas desde un sistema central (CCO), con soporte en equipos embarcados, posicionamiento GNSS, comunicaciones seguras y lógica de protección automática.
-- **Puntos Críticos (ENCE)**: Enclavamientos electrónicos SIL-4 para asegurar rutas, control de movimientos incompatibles y permitir la **operación local controlada** en condiciones degradadas o pérdida de comunicación.
-- **Desvíos Menores**: Los desvíos que no requieran enclavamiento completo se resuelven mediante **desvíos libres**.
-- **Redundancia de Comunicaciones**: Red troncal de **Fibra Óptica** enterrada + Subsistema **TETRA** + Red **Satelital** de respaldo.
-
-### Justificación Técnica
-La arquitectura PTC con cantonamiento virtual concentra la infraestructura física únicamente donde es técnica y operacionalmente necesaria, manteniendo en el resto del corredor una solución centralizada, escalable y compatible con la operación de carga de 914mm, de conformidad con **FRA 49 CFR Part 236 Subpart I** (Subpart I prevalece sobre Subparts A–G conforme §236.0(c)(2)). Prohibido aplicar AREMA, ETCS, CENELEC o UIC a la lógica vital.
-
----
-
-## ⚖️ Mandatos de Soberanía Técnica (Blindaje Anti-Scope Creep)
-
-Para garantizar la viabilidad técnica y financiera del proyecto, el sistema opera bajo los siguientes mandatos innegociables:
-
-### 1. Segregación de Integridad (SIL-4 / SIL-2)
-- **Mandato:** Queda estrictamente PROHIBIDO exigir nivel de integridad SIL-4 para equipos de telecomunicaciones comerciales (COTS) como módems Satelitales, routers LTE o SD-WAN.
-- **Regla:** El nivel **SIL-4** aplica única y exclusivamente al Computador de Procesamiento PTC (OBC). Los sistemas de transmisión de datos operan bajo **SIL-2** asegurados mediante lógica EN 50159 Cat 3.
-
-### 2. Soberanía Geográfica (Resiliencia CCO)
-- **Mandato:** Todo diseño de control debe integrar obligatoriamente el **Nodo Secundario de Respaldo (Failover) en Barrancabermeja**.
-- **Regla:** No se aceptará ninguna arquitectura que limite el control únicamente a La Dorada, Caldas, para evitar Puntos Únicos de Falla (SPOF).
-
-### 3. Delimitación de Flota (Material Rodante Tractivo)
-- **Mandato:** La obligación de instalación tecnológica de equipos PTC se acota exclusivamente al **Material Rodante Tractivo** (Locomotoras GR12, U10, U18).
-- **Regla:** Se debe salvaguardar la "Puesta a Punto" general de la flota remolcada (góndolas, plataformas), pero sin exigirles hardware de control redundante.
-
----
-
----
-
-## 🤖 Intents Directos Activos (sin costo LLM)
-
-| Trigger (lenguaje natural) | Intent | Responde con |
-|---|---|---|
-| `hola` / `buenas` / `hi` | handlers.js | Menú de comandos |
-| `me pierdo / cómo empiezo / cómo me ayudas` | navigation.js | Guía rápida del flujo |
-| `como aprende el sistema / quien eres` | brain-state.js | BRAIN.md + pipeline aprendizaje |
-| `los agentes ya entienden / necesitas algo` | brain-state.js | Estado lecciones de auditoría |
-| `qué auditorías tienes pendientes` | dream-state.js | history/ + PENDING_DTS/ |
-| `qué temas puedo proponer / roadmap` | dream-state.js | SPECIALTIES/ + ROADMAP.md |
-| `historial de comunicaciones / señalización` | dream-state.js | Lecciones + DTs + Vercel status |
-| `dónde están las DTs / dictamenes` | dt-ops.js | brain/dictamenes/ + history/ |
-| `qué DT tengo bloqueadas / pendientes` | dt-ops.js | Aprobadas / sin promover / PENDING |
-| `qué hacemos con DT-ENRG-2026-004` | dt-ops.js | Resumen DT + pasos promote |
-
----
-
-## 🗄️ Brain — Jerarquía de Directorios
-
-| Directorio | Escrito por | Cuándo |
-|---|---|---|
-| `brain/dictamenes/` | `swarm-pilot.js` | Al **aprobar** el Juez — PROHIBIDO EDITAR MANUALMENTE |
-| `brain/history/` | `swarm-pilot.js` | Historial de auditorías (aprobadas y rechazadas) |
-| `brain/PENDING_DTS/` | `swarm-pilot.js` | Al **rechazar** tras 3 ciclos |
-| `brain/SPECIALTIES/*.md` | `swarm-pilot.js` | Al **rechazar** — lección auditoría append (Vacuna) |
-| `sicc_genetic_memory` | `supabase.js` | Al **completar** cada ciclo — veredicto + DT |
-| `brain/AUDIT_QUEUE.md` | `resource-governor.js` | CPU >80% |
-
-### Naming de archivos
-- **Dictamen aprobado:** `DT-{PREFIX}-{AÑO}-{SEQ}_{Descripcion}_APROBADO.md`
-  - Prefijos: CTSC (señalización), COMS (telecom), ENRG (energía), INTG (integración), CTRL (control), ENCE
-- **Log de Auditoría:** `AUDIT-{AREA}-{ISO_TIMESTAMP}.md`
-- **Pending:** `PENDING-{AREA}-{FECHA}.md`
-
----
-
-## 🗃️ Infraestructura Vectorial (LTM)
-
-| Tabla Postgres | Función |
-|---|---|
-| `contrato_documentos` | Biblia Legal — Contrato LFC2 + normas técnicas (OCR chunking 800c/100c) |
-| `sicc_genetic_memory` | **0 filas** — purgada 2026-04-30 (cirugía v14.7). Re-ingesta pendiente con doctrina v14.7. Tipos: DT_CERTIFICADA + VEREDICTO_JUEZ. |
-
-**Embeddings:** `text-embedding-004` (Gemini Cloud - Calidad Forense) → fallback `nomic-embed-text` (Ollama Local - Soberanía)
-
----
-
-### 📋 El Algoritmo de Soberanía (6 Pasos)
-
-| Paso | Actor | Acción Técnica | Output |
-| :--- | :--- | :--- | :--- |
-| **1. Análisis** | Agente (Brain) | Escaneo forense de archivos `.md` en LFC2 vs Mandatos R-HARD. | Detección de Toxinas |
-| **2. Dictamen** | Agente (Brain) | Redacción de DT en `brain/dictamenes/` con bloque YAML (Sec. 10). | DT-SICC-2026-XXX.md |
-| **3. Promoción** | Comando `/promote` | Copia de la DT certificada al root de LFC2 vía `gitlocal.js`. | DT en `Decisiones_Tecnicas/` |
-| **4. Cirugía** | `lfc-cli process-dts` | El motor Node.js lee el YAML y aplica `replace` físico en los `.md`. | Recetas (.md) Saneadas |
-| **5. Sincro** | `lfc-cli sync` | Regenera `datos_wbs.js` para actualizar métricas y el Menú. | Dashboard Actualizado |
-| **6. Servicio** | `lfc-cli cook` | Convierte MD a HTML e inyecta la insignia Michelin SICC v7.0. | lfc-2.vercel.app (Live) |
-
-**Referencia Cruzada:** Para el detalle del motor de cocinado y scripts de servicio, consultar [architectureLFC.md](file:///home/administrador/docker/LFC2/architectureLFC.md).
-
----
-
-## ⚠️ Deuda Técnica Activa
-
-| Item | Estado |
-|---|---|
-| Comando `/promote` DT→LFC2 | **COMPLETADO:** Automatización vía `src/gitlocal.js`. |
-| Re-ingesta `contrato_documentos` | Fragmentos pre-fix oversized — re-ingestar con 800c/100c. |
-| Interrogación iterativa Oracle | Juez debe emitir ≥2 preguntas de seguimiento al Oracle por ciclo. |
-| `SICC_OPERATIONS.md` auto-actualización | Tras cada ciclo de auditoría — fecha, área, veredicto. |
-| Integración DeepSeek nativa | **COMPLETADO:** Blocker final y Juez Principal. |
-
----
-
-## 🛡️ Gobernanza R-HARD
-
-1. **CAPEX Blindado:** $726.000.000 COP máx (WBS 6.1.100)
-2. **Normativa:** FRA 49 CFR Part 236 / AREMA / Manual Vial 2024
-3. **CPU:** >80% → Encolar (Bot informa estado de cola) | >95% → Bloqueo total.
-4. **Idioma:** Español obligatorio en toda salida del agente.
-5. **Verdad:** El Contrato APP 001/2025 (10.358 fragmentos) prevalece sobre cualquier inferencia.
-6. **Autonomía:** PROHIBIDA la edición manual de dictámenes. Todo cambio vía ajuste del BRAIN.
-
----
-
-## ⚕️ Protocolo de Saneamiento (Falsos Positivos del Juez)
-
-La arquitectura delega el aprendizaje en el Juez (`swarm-pilot.js`). Sin embargo, si el Juez falla y **aprueba una alucinación (Falso Positivo)**, el sistema inyecta ese error en la base de datos vectorial (`sicc_genetic_memory`) como un Gold Standard, envenenando las futuras auditorías. Para corregir este "Punto Ciego", se debe ejecutar el siguiente protocolo manual:
-
-1. **Purga Vectorial (LTM):** Eliminar el registro contaminado en Postgres para evitar que el RAG lo propague.
-   `docker exec sicc-postgres psql -U sicc_app -d postgres_sicc -c "DELETE FROM sicc_genetic_memory WHERE metadata->>'documento' = 'DT-XXX';"`
-2. **Vacuna Genética Preventiva:** Inyectar un mandato correctivo explícito en el archivo de especialidad correspondiente (`brain/SPECIALTIES/{area}.md`) para que en la Fase 1 el Auditor Forense lo lea antes de generar.
-3. **Evolución del Juez (R-HARD):** Agregar una nueva restricción universal en `brain/R-HARD.md` para que el Juez penalice y rechace ese *Scope Creep* específico en el futuro.
-4. **Sanitización del Documento:** Solo bajo este escenario excepcional de Falso Positivo se permite la edición manual correctiva del dictamen en `brain/dictamenes/`.
-
-### 4. Capa de Inferencia Híbrida (Hybrid Sovereignty)
-
-SICC v14.6 implementa una arquitectura de inferencia de dos niveles para maximizar el rendimiento sin sacrificar la soberanía:
-
-- **Tier 1: Cloud-Free Power (NVIDIA NIM)**
-  - **Uso:** Razonamiento complejo, auditorías forenses y generación de Dictámenes Técnicos (DT).
-  - **Modelos:** Nemotron-3-Super (Planning), DeepSeek-v4-pro (Reasoning), Llama-3.1-70B (Pureza).
-  - **Ventaja:** Acceso gratuito a modelos de +100B parámetros con 1M de contexto.
-
-- **Tier 2: Sovereign Fallback (Ollama Local)**
-  - **Uso:** Ingesta masiva (Barrido Karpathy), operaciones offline y procesamiento de datos ultra-sensibles.
-  - **Modelos:** Llama-3.1-8B, Gemma-2-9B.
-  - **Ventaja:** Garantiza la operatividad del Agente si hay caídas de red o bloqueos de cuotas en proveedores cloud.
-
-- **Mecanismo de Throttling:**
-  - Todas las llamadas a NVIDIA NIM incluyen un retardo (sleep) de 1.5s y un **Prompt Destilado (<5000 chars)** para evitar saturación de la API Free y asegurar la continuidad del servicio.
-
----
-
-## 🛠️ Diagnóstico Rápido
-
-```bash
-# Estado contenedores
-docker ps --format "table {{.Names}}\t{{.Status}}"
-
-# Logs del agente (solo pipeline de inferencia)
-docker compose -f docker-compose.yaml logs -f | grep "\[AGENTE\]"
-
-# DTs certificadas
-ls brain/dictamenes/
-
-# Estado learning pipeline
-docker exec sicc-postgres psql -U sicc_app -d postgres_sicc \
-  -c "SELECT COUNT(*), COALESCE(metadata->>'tipo','sin_tipo') FROM sicc_genetic_memory GROUP BY 2;"
-
-# Auditorías recientes
-ls brain/history/ | tail -5
-
-# Trazas de inferencia (últimas 5)
-tail -5 data/logs/sicc-traces.json | python3 -m json.tool
+    ▼ FASE 1: Generación de DT con Citación Canónica
+    │
+    ▼ FASE 2: Validación Triple (Técnico / Legal / Coordinador)
+    │
+    ▼ FASE 3: Juez SICC v14.7 (Consenso Soberano)
+    │
+    ▼ FASE 4: Persistencia & CI/CD (/promote)
 ```
 
 ---
 
-*Actualizado: 2026-04-30 | OpenGravity SICC v14.7 — "Doctrina Canónica FRA + Blindaje Táctico"*
+## ⚖️ Mandatos del Agente (Blindaje Anti-Scope Creep)
+
+1. **CAPEX Blindado:** Ningún dictamen puede proponer over-engineering (ej: 24h UPS en señalización donde BCD §10 dice 4h, o 64h fibra donde BCD §6.1.1 dice 48h) sin DT de justificación costo-beneficio.
+2. **Normativa:** FRA 49 CFR Part 236 Subpart I prevalece sobre CENELEC/UIC para señalización; AREMA > FRA > AAR > UIC para infraestructura.
+3. **TRM Risk:** Presupuesto calculado a **4.400 COP/USD** (techo cobertura cambiaria).
+4. **Sigla del sistema:** los DTs nuevos deben usar **SCC** (sigla contractual BCD v001) en cara externa al gerente/Interventoría/ANI. La marca interna "SICC" se reserva para metadata interna del agente.
+
+---
+
+## 🚨 Estado de los DTs publicados en LFC2 (2026-05-08)
+
+Los DTs actualmente publicados en `https://lfc-2.vercel.app/II_A_Analisis_Contractual/dictamenes/` son **producto v8 pre-purga** generados durante pruebas tempranas de `/promote` (antes de la cirugía v14.7 del 2026-04-30). Su contenido tiene terminología obsoleta:
+
+- "Bus Vital 110V DC" (vs BCD §10 que diferencia 110V DC señalización + 48V DC TETRA)
+- "Red Vital IP" (terminología purgada)
+- "PTC Virtual (SICC) L2" (mezcla SICC con SCC)
+- "Soberanía Integral", "Sovereign", "Soberano" (lenguaje doctrinal interno, no contractual)
+- "[REDACTADO_SICC]" (placeholders incompletos)
+- "DT-SICC-V8-*" (naming legacy)
+- Cifras "CAPEX Protegido $X M USD" sin trazabilidad WBS
+
+**Estos DTs son alucinaciones legacy** del agente operando con doctrina pre-BCD v001. No representan la línea base actual del proyecto.
+
+**Plan de saneamiento:**
+1. Cerrar deuda D1 (alinear architecture.md y código a BCD v001).
+2. Ejecutar `/audit` por especialidad con SSoT v14.7.
+3. `/promote` regenera DTs con cita literal BCD v001 + sigla SCC + cifras trazables al WBS.
+4. Reescribir `dictamenes/index.html` en LFC2 con lenguaje corporativo.
+5. Restaurar al sidebar gerencial de LFC2 (hoy quitado, commit `c7dcd19`).
+
+---
+
+*Actualizado: 2026-05-08 | OpenGravity Agente v14.7 — BCD-aligned Edition*
