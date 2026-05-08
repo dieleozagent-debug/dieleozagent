@@ -629,21 +629,62 @@ async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt 
  */
 async function extraerFichaTecnica(intencion, chunksCrudos) {
     const promptDestilador = `
-ACTÚA COMO UN DIRECTOR DE INTEGRACIÓN TÉCNICA PARA EL PROYECTO LFC2.
-TU OBJETIVO ES RESUMIR ESTOS FRAGMENTOS DE CONTRATO (SSoT) EN UNA FICHA TÉCNICA ESTRICTA.
+Eres un asistente DESTILADOR DE LITERALIDAD. Tu única función es extraer mandatos
+técnicos verificables del CONTEXTO CRUDO que se te provee. NO eres un experto que
+infiere — eres un transcriptor estricto.
 
-REGLAS DE ORO PARA EL RESUMEN:
-1. NUNCA RESUMAS IDs O NÚMEROS DE CLÁUSULA: Mantén "Cláusula 3.9(a)(iv)" o los artículos de la FRA o AREMA exactamente como están en el texto.
-2. EXTRAE SOLO MANDATOS TÉCNICOS Y RESTRICCIONES: Busca y extrae obligaciones ("El concesionario debe...", "Se exige...", "El sistema operará bajo...").
-3. ELIMINA LA RETÓRICA LEGAL: Borra saludos, introducciones largas, "De conformidad con lo dispuesto..." y céntrate en el requerimiento duro.
-4. MANTÉN NOMBRES EXACTOS: Ej. "Fibra Óptica Soterrada", "SIL-4", "Locomotoras GR12, U10 y U18".
+REGLAS INQUEBRANTABLES (cualquier violación = ficha rechazada por el Juez):
 
-Especialidad a analizar: ${intencion}
+1. **PROHIBIDO INVENTAR CIFRAS.** Si en el CONTEXTO CRUDO no aparece literalmente
+   un número (cantidad, kW, km, hilos, %, kg, etc.), NO lo incluyas en la ficha.
+   - PROHIBIDO escribir cosas como "85 kW (34 regeneradores × 2.5 kW)" si las
+     cifras 85, 34, 2.5 no están literales en el contexto crudo.
+   - PROHIBIDO calcular, redondear, "razonar" cantidades plausibles.
+   - Si una cifra no está literal, escribe: "Cantidad pendiente — Ardanuy debe
+     proponer y justificar bajo EN 50126" o "No especificado en el SSoT".
 
-CONTEXTO CRUDO (PROVENIENTE DEL CONTRATO APP 001/2025 Y NORMAS ASOCIADAS):
+2. **CITAR ENTRE COMILLAS** cuando extraigas mandatos. Ejemplo:
+   - ✅ Correcto: La fibra debe ser "monomodo G.652.D, soterrada" (BCD §6.1.1).
+   - ❌ Incorrecto: "Se requiere una red de fibra óptica principal de 526 km."
+     (si los 526 km no están literales en este chunk, no los inventes — aunque
+     sepas que el corredor mide 526 km por contexto general).
+
+3. **MANTENER REFERENCIAS EXACTAS.** "Cláusula 3.9(a)(iv)", "AT1 Tabla 17",
+   "FRA 49 CFR §236.1005", "BCD §6.1.1" — copiarlos verbatim. NUNCA reformular.
+
+4. **EXTRAER SOLO MANDATOS PRESENTES EN EL CHUNK.** Busca verbos imperativos:
+   "deberá", "debe", "se exige", "queda prohibido", "se establece", "se limita
+   a". Si no hay mandato literal en el chunk, escribe en la ficha: "No se
+   identificaron mandatos literales para esta especialidad en el SSoT
+   recuperado." — NO inventes mandatos para llenar.
+
+5. **ELIMINAR RETÓRICA LEGAL.** Borrar "De conformidad con", "El presente
+   documento establece que", "Por lo tanto", introducciones largas.
+
+6. **NO COMPONENTES MECÁNICOS si no están literales.** Para fibra óptica:
+   prohibido inventar "cajas 80x80", "tritubo 40mm", "uniones rápidas",
+   "regeneradores", "switches", "kW de potencia" si no están en el chunk.
+   La fibra es BACKBONE SOTERRADO según BCD §6.1.1; los componentes los
+   propone Ardanuy en su ingeniería de detalle bajo EN 50126.
+
+7. **NO SISTEMAS PROHIBIDOS.** Si el chunk menciona DWDM, G.655, EDFA, ITCS,
+   gateway lógico FENOCO, balizas en línea — NO los reproduzcas en la ficha;
+   son tecnologías excluidas (BCD).
+
+ESPECIALIDAD: ${intencion}
+
+CONTEXTO CRUDO (verbatim del Contrato APP 001/2025 + BCD v001 + AT1 + AT3 +
+normativa asociada). Sólo usa lo que aparece aquí. NO completes con conocimiento
+externo:
+
+----- INICIO CONTEXTO -----
 ${chunksCrudos}
+----- FIN CONTEXTO -----
 
-Genera la FICHA TÉCNICA DE RESTRICCIONES usando Markdown, en viñetas concisas.
+Genera la FICHA TÉCNICA DE MANDATOS LITERALES en Markdown con viñetas concisas.
+Cada viñeta debe contener: (a) el mandato citado entre comillas o claramente
+parafraseado del literal, y (b) la referencia exacta a la sección del documento
+fuente. Si no hay literal verificable, así indícalo. NO inventes para completar.
 `;
 
     console.log(`[ORACLE FETCHER] Destilando ${chunksCrudos.length} caracteres para la especialidad: ${intencion}...`);
