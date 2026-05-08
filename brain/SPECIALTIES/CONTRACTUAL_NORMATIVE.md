@@ -183,7 +183,32 @@
 > - "Documento de Bases y Condiciones del Contrato" — confunde con cláusulas contractuales generales. El DBCD es técnico, no de condiciones generales.
 > - "Bases de Diseño" sin más — ambiguo.
 
-### 4.10 Marcos normativos por subsistema (corregir mezclas)
+### 4.10 Regla de Prelación Documental — pre-contractual vs contractual
+
+> [!IMPORTANT]
+> **Doctrina §1.2.d del Contrato APP 001/2025:** ante conflicto entre documentos del proyecto, prevalece el de mayor jerarquía contractual. **Los Apéndices Técnicos del Contrato (AT1, AT3, AT4...) prevalecen SIEMPRE sobre documentos pre-contractuales** (TDR de licitación, Adendas del proceso de selección, Bases de licitación, propuestas técnicas).
+
+**Caso paradigmático verificado por escaneo forense del notebook (2026-05-08):**
+
+Sobre la cantidad de hilos de fibra óptica para el corredor LFC2 (526 km):
+
+| Fuente | Cita literal | Jerarquía |
+|---|---|---|
+| **AT3 §6.4 (`AT3.pdf`)** | *"La fibra óptica a instalar con el objetivo de realizar la Infraestructura central de Telecomunicaciones debe cumplir con la recomendación ITU-T G.652d, con un mínimo de cuarenta y ocho (48) hilos"* | **CONTRACTUAL ✅ VINCULANTE** |
+| Bases de Diseño CTSC (`Bases de diseño - CTSC (2).docx`) | *"Cable de fibra óptica monomodo de cuarenta y ocho (48) hilos"* | Diseño LFC ✅ |
+| LFC-U2-CTSC-ED-SNL-IN-0001 (`.docx`) | *"backbone óptico de 48 fibras monomodo"* | Ingeniería LFC ✅ |
+| Análisis Knorr-Bremse (`0.1 Analisis de la propuesta KB.docx`) | *"Mínimo 48 hilos según ITU-T G.652d"* | Oferta KB ✅ |
+| **TDR Fase III (`250902_TDR EYD FASE III Lote 3 LFC-V1.pdf`)** | *"Red Troncal de Fibra Óptica (522 km) será monomodo G652D con 64 hilos como mínimo"* | **PRE-CONTRACTUAL ⚠️ NO VINCULANTE** |
+| **Adenda 02 (`ADE02_PROCESO_LFC-007-2025.docx`) Anexo 14** | *"Tipo: Monomodo G652D, mínimo 64 hilos"* | **PRE-CONTRACTUAL ⚠️ NO VINCULANTE** |
+
+**Defensa legal cuando Interventoría/ANI exige 64 hilos:**
+
+> *"El alcance contractual vinculante es de 48 hilos según AT3 §6.4. Por la Regla de Prelación Documental (Sección 1.2.d del Contrato APP 001/2025), el Apéndice Técnico 3 prevalece jurídicamente sobre los TDR Fase III y la Adenda 02 del Proceso de Selección, por ser documentos pre-contractuales del proceso licitatorio. La rectificación a 48 hilos en el AT3 anula la exigencia preliminar de 64 hilos."*
+
+> [!WARNING]
+> **Cuando el Oráculo NotebookLM responde con cifras pre-contractuales como mandato:** verificar SIEMPRE contra el AT3 + Bases de Diseño antes de incorporarlo a una DT. NotebookLM puede citar TDR/Adendas como si fueran vinculantes — el agente debe aplicar §1.2.d y prevalecer la cifra del AT3.
+
+### 4.11 Marcos normativos por subsistema (corregir mezclas)
 
 | Subsistema | Marco rector | SIL / nivel funcional | EMC |
 |---|---|---|---|
