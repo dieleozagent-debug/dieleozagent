@@ -89,6 +89,45 @@
 
 ---
 
+### 5. `DT-FIBRA_v0.4` (especialidad FIBRA · post-Juez JSON v14.8.5, RAG aún sucio)
+
+**Fecha:** 2026-05-08 15:08 (audit con Juez JSON v14.8.5 + Multiplexer JSON nativo, ANTES de purgar `contrato_documentos`).
+**Veredicto del Director Técnico:** RECHAZADO con causa de alta calidad pero contenido alucinado por RAG contaminado.
+
+**Lo que mejoró notablemente vs v0.3:**
+- ✅ Juez JSON v14.8.5 funcionó: NO false positive por substring (cierra D5).
+- ✅ Estructura tripartita refinada con sub-numerales (a, b, c, d, e, f).
+- ✅ Cita §1.2 prelación de Apéndices.
+- ✅ Cita §9.12 + §25.4 con precondiciones (§25.4(b) adenda, §25.4(f) fondos).
+- ✅ Cita §9.11(b)(ii) escenario incompatibilidad terceros.
+- ✅ DBCD V003 mencionado correctamente.
+- ✅ Footer "Dirección Técnica — UF2 · Fecha de emisión: 2026-05-08" sin versionado.
+- ✅ Lenguaje legalista, técnico, sin emojis ni términos prohibidos.
+- ✅ Sin loop literal "We must not use".
+
+**Causa del rechazo (alucinación contractual):**
+
+El DT cita textualmente:
+> *"Apéndice Técnico 1 (AT1) → Sección 'Componentes' → Red de fibra óptica principal (526 km)... Cajas de empalme 80x80 (2,068 unidades)... Tritubo 40mm (1,485 rollos)... Uniones rápidas (6,204 unidades)..."*
+> *"Apéndice Técnico 1 (AT1) → Sección 'Total Sistema Fibra' → Potencia total 110.8 kW"*
+
+**Estas citas son FALSAS.** El AT1 NO tiene secciones "Componentes" ni "Total Sistema Fibra". Esos chunks venían del archivo `III_Ingenieria_conceptual/27_1_Estimacion_Cantidades_TETRA_v5_0.md` (estimaciones de cantidades de ingeniería conceptual interna LFC, NO Apéndice contractual). El RAG `contrato_documentos` los tenía mezclados con los Apéndices reales y el LLM los interpretó como mandatos contractuales.
+
+**Causa root: contaminación del RAG.** No es alucinación del LLM, es procedencia incorrecta de los chunks crudos. El destilador honestamente cita "literales del contexto crudo" pero el contexto crudo era contenido conceptual interno presentado al LLM como si fuera contrato.
+
+**Acción tomada (este commit):**
+- Purga RAG `contrato_documentos`: 9.839 → 7.192 chunks (eliminados 2.647).
+- Eliminados directorios completos del RAG: `III_Ingenieria_conceptual/*` (2.458 chunks), `00_Gobernanza_PMO/*` (164), `brain/DREAMS/*` (25 fichas auto-generadas que se ingirieron por error).
+- RAG queda con SOLO Contrato (2.356) + Apéndices Técnicos (4.836). Cero chunks con cifras alucinadas (2,068 / 110.8 kW / 1,485 / 6,204).
+
+**Vacunas inyectadas (acumuladas):**
+- Las anteriores (1-3 del v0.3 + Juez JSON del v0.4).
+- Purga estructural del RAG `contrato_documentos`: solo fuentes vinculantes contractuales.
+
+**Próximo /audit fibra:** ya con RAG limpio. El destilador solo encontrará chunks de AT1+AT3+Cuerpo del Contrato. La ficha debe citar "AT3 §6.4: 48 hilos G.652.D" como mandato vinculante real.
+
+---
+
 ## Doctrina general aplicable a próximos ciclos `/audit`
 
 1. **No emitir DT** cuando los parámetros están pendientes de no-objeción Interventoría (cauce: DBCD).
