@@ -7,7 +7,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { llamarMultiplexadorFree, llamarGroqJSON, llamarDeepSeekJSON, extraerFichaTecnica, getMultiplexedContext, llamarOpenRouterJSON } = require('./sicc-multiplexer');
+const { llamarMultiplexadorFree, llamarMultiplexadorFreeJSON, llamarGroqJSON, llamarDeepSeekJSON, extraerFichaTecnica, getMultiplexedContext, llamarOpenRouterJSON } = require('./sicc-multiplexer');
 const { inicializarBrain } = require('../src/agent');
 const { validarExternaNotebook } = require('../src/sapi/notebooklm_mcp');
 const { validarInternaSupabase } = require('../src/sapi/supabase_rag');
@@ -329,44 +329,64 @@ ${borrador_DT}
 `;
 
             let decisionRAW;
+            let resJuez;
             try {
-                // SICC v14.5: Juez en modo "Texto Crudo" — Máxima tolerancia
-                const resJuez = await llamarMultiplexadorFree(promptJuez, "", "Rol: Dirección Técnica Forense");
+                // v14.8.5 (2026-05-08): Juez con JSON estructurado.
+                // Usa cascada con response_format json_object nativo (Groq/DeepSeek/OpenRouter)
+                // o instrucción explícita (Gemini/NVIDIA/Nemotron). Devuelve { texto, parseado }.
+                // Razón: la heurística vieja "tieneSi && !tieneNo" producía false positives al
+                // detectar substring de palabras del prompt mismo (ej. "RECHAZO" en "protocolo
+                // de rechazo fulminante" del propio promptJuez → marcaba RECHAZADO aunque el
+                // LLM aprobara). Ver deuda D5 cerrada en v14.8.5.
+                resJuez = await llamarMultiplexadorFreeJSON(promptJuez, "", "Rol: Dirección Técnica Forense");
                 decisionRAW = resJuez.texto;
-                console.log(`[JUEZ] 🔵 Respuesta recibida de ${resJuez.proveedor.toUpperCase()}. Analizando veredicto...`);
+                console.log(`[JUEZ] 🔵 Respuesta recibida de ${resJuez.proveedor.toUpperCase()}. ${resJuez.parseado ? 'JSON parseado OK.' : 'JSON inválido — fallback heurística.'}`);
             } catch (err) {
                 console.error(`\n[SICC CRITICAL] Fallo total del Juez: ${err.message}`);
                 process.exit(1);
             }
-            
-            // --- PARSER DE TEXTO CRUDO (Heurística de Soberanía) ---
-            // v14.8.2 (2026-05-08): razón truncada a 2000 chars (antes 500).
-            // Razón: con 500, perdíamos el detalle del veredicto del Juez, lo que
-            // hacía que la lección que se inyectaba al ciclo siguiente fuera vaga
-            // ("Revisar mandatos."). Con 2000, el ciclo 2 y 3 reciben razones
-            // detalladas y pueden corregir errores específicos.
+
+            // Inicialización default (rechazado por seguridad si falla parser)
             let decision = { aprobado: false, razon: decisionRAW.substring(0, 2000), mandato_correctivo: "Revisar mandatos." };
-            
-            const rawUpper = decisionRAW.toUpperCase();
-            
-            // 1. Detección de Aprobación (SÍ)
-            const señalesAprobado = ['APROBADO', 'APROBAR', 'VALIDO', 'CERTIFICADA', '✅', '"APROBADO": TRUE', 'TRUE'];
-            const señalesRechazo = ['RECHAZADO', 'RECHAZAR', 'IMPUREZA', 'ALUCINACIÓN', '❌', '"APROBADO": FALSE', 'FALSE', 'ERROR', 'INCONSISTENTE'];
-            
-            // Lógica: Debe tener señales de aprobación y NO tener señales de rechazo
-            const tieneSi = señalesAprobado.some(s => rawUpper.includes(s));
-            const tieneNo = señalesRechazo.some(s => rawUpper.includes(s));
-            
-            if (tieneSi && !tieneNo) {
-                decision.aprobado = true;
-                console.log(`[JUEZ] ✅ Veredicto detectado: APROBADO.`);
+
+            if (resJuez.parseado && typeof resJuez.parseado === 'object') {
+                // ✅ Camino normal: el LLM respetó el formato JSON
+                const p = resJuez.parseado;
+                if (typeof p.aprobado === 'boolean') {
+                    decision.aprobado = p.aprobado;
+                } else if (typeof p.aprobado === 'string') {
+                    // Algunos LLMs devuelven 'true'/'false' como string
+                    decision.aprobado = p.aprobado.toLowerCase() === 'true';
+                }
+                if (p.razon) decision.razon = String(p.razon).substring(0, 2000);
+                if (p.mandato_correctivo) decision.mandato_correctivo = String(p.mandato_correctivo).substring(0, 2000);
+                if (p.categoria_fallida) decision.categoria_fallida = String(p.categoria_fallida).substring(0, 100);
+
+                console.log(`[JUEZ] ${decision.aprobado ? '✅' : '❌'} Veredicto JSON: ${decision.aprobado ? 'APROBADO' : 'RECHAZADO'}`);
             } else {
-                decision.aprobado = false;
-                console.log(`[JUEZ] ❌ Veredicto detectado: RECHAZADO (o ambiguo).`);
-                // Intentar capturar la razón del rechazo (si existe un mandato correctivo)
-                const correctivoMatch = decisionRAW.match(/MANDATO CORRECTIVO:\s*([\s\S]*)/i);
-                // v14.8.2: cap del mandato correctivo aumentado 500 → 2000 chars
-                // (igual razón que decision.razon — más detalle al ciclo siguiente)
+                // 🟡 Fallback: el LLM no devolvió JSON. Aplicar heurística vieja COMO ÚLTIMO RECURSO.
+                // OJO: esta heurística es laxa (false positives). Si llegamos acá, marcar log
+                // explícito para investigar por qué el LLM ignoró el formato.
+                console.warn(`[JUEZ] ⚠️  Fallback heurística por JSON inválido. Texto recibido: "${decisionRAW.substring(0, 200)}..."`);
+
+                // Buscar específicamente "aprobado": true/false dentro del texto (más estricto)
+                const matchAprobadoTrue = /"aprobado"\s*:\s*true/i.test(decisionRAW);
+                const matchAprobadoFalse = /"aprobado"\s*:\s*false/i.test(decisionRAW);
+
+                if (matchAprobadoTrue && !matchAprobadoFalse) {
+                    decision.aprobado = true;
+                    console.log(`[JUEZ] ✅ Heurística estricta detectó "aprobado":true`);
+                } else if (matchAprobadoFalse) {
+                    decision.aprobado = false;
+                    console.log(`[JUEZ] ❌ Heurística estricta detectó "aprobado":false`);
+                } else {
+                    // Sin marcador explícito → rechazar por seguridad (era el comportamiento anterior cuando ambiguo)
+                    decision.aprobado = false;
+                    console.log(`[JUEZ] ❌ Veredicto AMBIGUO sin "aprobado": → rechazar por seguridad`);
+                }
+
+                // Intentar extraer mandato correctivo del texto crudo
+                const correctivoMatch = decisionRAW.match(/(?:MANDATO CORRECTIVO|mandato_correctivo)\s*[:"]\s*"?([^"\}]*)/i);
                 if (correctivoMatch) decision.mandato_correctivo = correctivoMatch[1].substring(0, 2000).trim();
             }
             console.log(`⚖️ VEREDICTO: ${decision.aprobado ? '✅ APROBADO' : '❌ RECHAZADO'}`);

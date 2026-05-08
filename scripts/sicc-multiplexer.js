@@ -631,6 +631,115 @@ async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt 
 }
 
 /**
+ * v14.8.5 (2026-05-08): Cascada con JSON output nativo para el Juez.
+ *
+ * Razón: el Juez heurístico (parser de texto crudo en swarm-pilot.js:342) producía
+ * false positives al detectar substring de palabras del prompt mismo (ej. "RECHAZO"
+ * en "protocolo de rechazo fulminante" → marcaba RECHAZADO aunque el LLM aprobara).
+ *
+ * Esta función envuelve el promptJuez en un wrapper que fuerza salida JSON, usa
+ * `response_format: { type: 'json_object' }` cuando el SDK lo soporta (Groq, OpenAI,
+ * DeepSeek, OpenRouter), y para los que no lo soportan (NVIDIA Nemotron, Ollama,
+ * Gemini básico) prepende instrucciones explícitas y el caller hace JSON.parse con
+ * fallback regex.
+ *
+ * Devuelve { texto: <string JSON>, proveedor: <id>, parseado: <object|null> }.
+ * Si el proveedor responde con JSON válido, parseado contiene el objeto. Si no,
+ * el caller debe parsearlo a su responsabilidad.
+ */
+async function llamarMultiplexadorFreeJSON(pregunta, contextoRAG = '', systemPrompt = null) {
+  const sp = inyectarIdioma(systemPrompt);
+
+  // Cascada que prioriza proveedores con response_format JSON nativo.
+  // Groq y DeepSeek tienen variantes JSON dedicadas (llamarGroqJSON, llamarDeepSeekJSON)
+  // que ya pasan response_format al SDK. Para los demás, instruimos al modelo
+  // explícitamente y dejamos que el caller parsee.
+  const proveedoresJSON = [
+    { id: 'groq',       fn: async (q, sp) => llamarGroqJSON(q, sp), nativo: true },
+    { id: 'deepseek',   fn: async (q, sp) => llamarDeepSeekJSON(q, sp), nativo: true },
+    { id: 'openrouter', fn: async (q, sp) => llamarOpenRouterJSON(q, sp, 'openrouter/free'), nativo: true },
+    { id: 'gemini',     fn: async (q, sp) => llamarGemini(q, null, '', sp), nativo: false },
+    { id: 'nvidia',     fn: async (q, sp) => llamarNvidia(q, null, '', sp), nativo: false },
+    { id: 'nemotron',   fn: async (q, sp) => llamarNemotron(q, null, '', sp), nativo: false },
+  ];
+
+  function proveedorDisponible(id) {
+    if (id === 'deepseek') return !!config.ai.deepseek?.apiKey;
+    return !!(config.ai[id]?.apiKey);
+  }
+
+  // Para los proveedores no-nativos, prepender instrucción explícita de JSON.
+  const preguntaJSON = pregunta + '\n\n⚠️ RESPONDE ÚNICAMENTE CON UN OBJETO JSON VÁLIDO. Sin texto antes ni después del JSON. Sin bloques de código markdown. Solo el objeto JSON literal.';
+
+  let lastErr = null;
+  let intentosReales = 0;
+  for (const p of proveedoresJSON) {
+    if (!proveedorDisponible(p.id)) {
+      console.log(`[GATEWAY-JSON] ⏭️  Saltando ${p.id.toUpperCase()} (sin credenciales)`);
+      continue;
+    }
+    if (proveedorBloqueadoReciente(p.id)) {
+      console.log(`[GATEWAY-JSON] ⏭️  Saltando ${p.id.toUpperCase()} (429 reciente)`);
+      continue;
+    }
+    if (intentosReales > 0) await sleep(CASCADE_THROTTLE_MS);
+    intentosReales++;
+
+    const t0 = Date.now();
+    const timeoutMs = PROVIDER_TIMEOUTS[p.id] || 60000;
+    try {
+      console.log(`[GATEWAY-JSON] 💸 Intentando: ${p.id.toUpperCase()} (${p.nativo ? 'JSON nativo' : 'JSON instruido'}, timeout ${timeoutMs}ms)...`);
+      const queryFinal = p.nativo ? pregunta : preguntaJSON;
+      const respuesta = await withTimeout(p.fn(queryFinal, sp), timeoutMs, p.id.toUpperCase());
+      const dt = Date.now() - t0;
+
+      if (!respuesta || respuesta.length < 5) {
+        console.warn(`[GATEWAY-JSON] ⚠️  ${p.id.toUpperCase()} devolvió ${respuesta?.length || 0} chars en ${dt}ms. Continuando...`);
+        continue;
+      }
+
+      // Intentar parsear directo
+      let parseado = null;
+      try {
+        parseado = JSON.parse(respuesta);
+      } catch (_) {
+        // Fallback: extraer primer bloque {...} (puede venir con texto antes/después)
+        const m = respuesta.match(/\{[\s\S]*\}/);
+        if (m) {
+          try { parseado = JSON.parse(m[0]); } catch (_) {}
+        }
+      }
+
+      if (parseado && typeof parseado === 'object') {
+        console.log(`[GATEWAY-JSON] ✅ ${p.id.toUpperCase()} OK en ${dt}ms (JSON parseado, keys: ${Object.keys(parseado).join(',')})`);
+        registrarTrazaSICC(pregunta, p.id, contextoRAG);
+        return { texto: respuesta, proveedor: p.id, parseado };
+      }
+
+      console.warn(`[GATEWAY-JSON] ⚠️  ${p.id.toUpperCase()} respuesta no es JSON válido en ${dt}ms. Preview: "${respuesta.slice(0, 100)}". Continuando...`);
+    } catch (err) {
+      const dt = Date.now() - t0;
+      lastErr = err;
+      const code = extraerCodigoError(err);
+      if (code) registrarError4xx(code, p.id, err.message);
+      if (err.message?.startsWith('[TIMEOUT]')) {
+        console.warn(`[GATEWAY-JSON] ⏱️  ${p.id.toUpperCase()} TIMEOUT en ${dt}ms. Continuando...`);
+      } else if (code === 429) {
+        console.warn(`[GATEWAY-JSON] 🔴 ${p.id.toUpperCase()} 429 en ${dt}ms.`);
+        registrarError4xx(429, p.id, "Auto-bloqueo");
+      } else {
+        console.warn(`[GATEWAY-JSON] [WARN] Fallo en ${p.id} (${code || 'ERR'}) en ${dt}ms: ${err.message}`);
+      }
+    }
+  }
+
+  throw new Error(
+    `[SICC BLOCKER] Cascada JSON: todos los proveedores agotaron o devolvieron texto inválido.` +
+    (lastErr ? ` Último error: ${lastErr.message}` : '')
+  );
+}
+
+/**
  * ORACLE FETCHER: Destilación de Contexto para Modelos con Ventana Limitada
  * Objetivo: Transformar fragmentos contractuales en una Ficha de Mandatos Innegociables.
  */
@@ -721,6 +830,7 @@ module.exports = {
   llamarOllama,
   ordenProveedores,
   llamarMultiplexadorFree,
+  llamarMultiplexadorFreeJSON,
   registrarTrazaSICC,
   EstadoGlobalErrores,
   registrarError4xx,
