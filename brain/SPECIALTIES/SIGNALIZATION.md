@@ -1,5 +1,5 @@
-# 🚉 ESPECIALIDAD: SIGNALIZATION & CONTROL — v14.7
-## SOBERANÍA TÉCNICA Y LÓGICA VITAL (FRA 236 SUBPART I)
+# 🚉 ESPECIALIDAD: SIGNALIZATION & CONTROL — v14.8
+## LÓGICA VITAL DEL SISTEMA SCC (FRA 236 SUBPART I)
 
 > [!IMPORTANT]
 > **NORMA RECTORA ABSOLUTA:** Para la lógica de control de trenes (PTC), la norma **FRA 49 CFR Part 236 Subpart I** es el estándar único y absoluto. La Subpart I prevalece sobre Subparts A–G del mismo Part 236 conforme **§236.0(c)(2)**. **Prohibido complementar o alterar la lógica vital con criterios AREMA, ETCS, CENELEC o UIC.**
@@ -26,7 +26,7 @@
 ---
 
 ## 3. MECANISMOS DE DEFENSA PATRIMONIAL
-- **Cambios de Alcance:** Cualquier exigencia de ENCEs adicionales, instrumentación de material remolcado, integración de Gateway lógico hacia FENOCO, o aplicación de estándares prohibidos (AREMA/ETCS/CENELEC/UIC) activa la **Sección 9.12** y se tramita exclusivamente como **Obra y Equipo Complementario (Sección 25.4)** a cargo de la ANI.
+- **Cambios de Alcance:** Cualquier exigencia de ENCEs adicionales, instrumentación de material remolcado, integración de Gateway lógico hacia FENOCO, o aplicación de estándares prohibidos (AREMA/ETCS/CENELEC/UIC en lógica vital), si proviene de **Autoridad Estatal** (§9.12(b)), activa el cauce **Sección 9.12 → 25.4** con sus precondiciones: suscripción previa de adenda (§25.4(b)) y régimen de fondos aplicable durante Etapa Preoperativa (§25.4(f)). **PROHIBIDO afirmar "100% a cargo de la ANI" sin esas precondiciones** — alucinación catalogada.
 - **Jerarquía:** El **AT1** prevalece sobre el AT3 y el DBCD en alcance físico y financiero.
 
 ---
@@ -39,11 +39,18 @@
 
 ---
 
-## 🛤️ PASOS A NIVEL (PaN) — v14.7
-- **Cantidades Maestras (cerradas e inmodificables):** **9 Tipo C** (automáticos), **15 Tipo B** (manuales), **122 Tipo A** (pasivos).
+## 🛤️ PASOS A NIVEL (PaN) — v14.8
+
+> [!CAUTION]
+> **VACUNA — alcance SCC limitado a 24 PaN protegidos:**
+> - **9 Tipo C** (semibarreras automáticas, SIL-3) y **15 Tipo B** (señales luminosas + acústicas).
+> - Los **122 PaN básicos restantes están FUERA del alcance SCC** (BCD §8.2 + AT1 §4.5). Son responsabilidad UF≠SCC (Min. Transporte / Vías). **NO son cantidad maestra del sistema SCC.**
+> - PROHIBIDO usar el término "**detección de isla**" en PaN (alucinación semántica). La función de un PaN es **detección de tren** (axle counters / track circuits / overlay). "Detección de isla" / anti-islanding pertenece a generación distribuida fotovoltaica.
+
+- **Cantidades dentro del alcance SCC (cerradas):** **9 Tipo C + 15 Tipo B = 24 protegidos**.
 - **Lógica Tipo C:** Controladores locales autónomos **SIL-3** (Fail-Safe local).
 - **Supervisión:** Monitoreo desde CCO, **sin accionamiento remoto**.
-- **Shield:** Incremento en automatización de PaN o exigencia de SIL-4 en Tipo C activa la Sección 25.4.
+- **Shield:** Si una Autoridad Estatal exige incremento en automatización de PaN o SIL-4 en Tipo C, se tramita por cauce 9.12→25.4 con precondiciones (no "100% a cargo de la ANI" sin más).
 
 ---
-**Generado por la Dirección Técnica LFC - Sistema SICC v14.7**
+**Generado por la Dirección Técnica LFC — v14.8**

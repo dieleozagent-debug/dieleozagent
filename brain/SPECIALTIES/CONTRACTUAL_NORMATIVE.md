@@ -14,12 +14,24 @@
 ---
 
 ## 1. MECANISMOS DE DEFENSA (EL ESCUDO PATRIMONIAL)
-- **Sección 9.12 (Modificación de Especificaciones Técnicas):** Se invoca cuando ANI o Interventoría exigen hardware o lógica superior al alcance del AT1 (motorizar más de 5 estaciones, exigir Gateway lógico hacia FENOCO, instrumentar material remolcado, exigir Moving Block / ETCS L3, etc.).
-- **Sección 25.4 (Obra y Equipo Complementario):** Establece que cualquier aumento de alcance fuera del CAPEX adjudicado debe ser asumido al **100% por la ANI** mediante adición contractual previa.
+- **Sección 9.12 (Modificación de Especificaciones Técnicas):** Se invoca cuando una **Autoridad Estatal** (no "terceros" genéricos) exige licencia/permiso/modificación de Especificaciones Técnicas que aumenta alcance del AT1 (motorizar más de 5 estaciones, exigir Gateway lógico hacia FENOCO, instrumentar material remolcado, exigir Moving Block / ETCS L3, etc.). **§9.12(b)** especifica el activador: Autoridad Estatal.
+- **Sección 25.4 (Obra y Equipo Complementario):** establece el cauce de Obra/Equipo Complementario con **doble candado**:
+  - **§25.4(b):** *"En ningún caso el Concesionario ejecutará Obras y Equipos Complementarios sin la previa suscripción de la respectiva adición."* — exige **adenda previa**, no es trámite automático.
+  - **§25.4(f):** *"durante la Etapa Preoperativa no se podrán tomar recursos de la Subcuenta Excedentes ANI para estos efectos."* — restringe régimen de fondos durante Etapa Preoperativa.
 - **Sección 9.11 (Ajuste de Especificaciones):** **Solo aplica a corrección de errores u omisiones de diseño que NO alteren el alcance físico del AT1.** No traslada costo a la ANI: la 9.11(b)(ii) asigna riesgo de costo de ajuste técnico al Concesionario.
 
 > [!WARNING]
-> **DOCTRINA OBLIGATORIA 9.12:** La cadena **9.12 → 25.4 es la ÚNICA ruta válida** para trasladar sobrecostos al Concedente. **Está prohibido invocar 9.11+9.12 conjuntamente** en documentos de cierre operativo, porque la sola mención de 9.11 abre puerta a que la Interventoría argumente que el ajuste cabe en 9.11(b)(ii) y por tanto el costo lo asume LFC.
+> **DOCTRINA OBLIGATORIA — citar 9.12 → 25.4 con precondiciones, NO afirmaciones absolutas:**
+>
+> ❌ **PROHIBIDO en cuerpo de DT** (alucinaciones catalogadas):
+> - *"se tramitará como Obra Complementaria financiada al 100% por la ANI"* — falsedad jurídica.
+> - *"asumido al 100% por la ANI mediante adición contractual previa"* — omite §25.4(f) (régimen de fondos en Etapa Preoperativa).
+> - *"cualquier alteración exigida por terceros"* — §9.12(b) habla de **Autoridad Estatal**, no de terceros.
+>
+> ✅ **Formulación correcta:**
+> *"Cualquier modificación de las Especificaciones Técnicas exigida por Autoridad Estatal se tramitará por el cauce de las Secciones 9.12 y 25.4 del Contrato APP 001/2025, con sus respectivas precondiciones (suscripción previa de adenda conforme §25.4(b) y régimen de fondos aplicable conforme §25.4(f))."*
+>
+> **Está prohibido invocar 9.11+9.12 conjuntamente** en documentos de cierre operativo, porque la sola mención de 9.11 abre puerta a que la Interventoría argumente que el ajuste cabe en 9.11(b)(ii) y por tanto el costo lo asume LFC.
 
 ---
 

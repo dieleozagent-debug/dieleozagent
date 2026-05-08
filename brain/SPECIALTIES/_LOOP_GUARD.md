@@ -100,6 +100,16 @@ Las siguientes citas son **alucinaciones recurrentes** del agente; bloquear ante
 | "Sección 3.1(a)(ii)" mutilando "Operación y Mantenimiento" | Literal completo: *"la Puesta a Punto, Operación y Mantenimiento del Material Rodante del Proyecto y la Prestación del Servicio Público de Transporte Ferroviario de Carga"* | No mutilar |
 | "Stop & Switch como arquitectura de hardware OBC dual" | Stop & Switch es procedimiento operacional FENOCO. Hardware Dual es OBC LFC + OBC FENOCO. Son cosas distintas | Separar en cuerpo de DT |
 | "Flota tractiva GR12 + U10" (sin U18) | Flota completa: GR12 + U10 + U18 (esta última por Factor de Calidad del Concesionario) | Bloquear, exigir las 3 |
+| "Obra Complementaria financiada al 100% por la ANI" | Falsedad jurídica. §25.4(b) requiere adenda previa; §25.4(f) prohíbe Subcuenta Excedentes ANI durante Etapa Preoperativa; §9.12(b) solo aplica si **Autoridad Estatal** (no "terceros") exige | Bloquear. Reformular: *"se tramitará por el cauce de las Secciones 9.12 y 25.4 con sus respectivas precondiciones (suscripción previa de adenda y régimen de fondos aplicable conforme §25.4(f))"* |
+| "Cualquier alteración exigida por terceros" como activador de §9.12 | §9.12(b) habla específicamente de **Autoridad Estatal** que exija licencia/permiso. "Terceros" genérico es alucinación | Bloquear, exigir "Autoridad Estatal" |
+| "Detección de isla" en cuerpo de DT sobre Pasos a Nivel | Anti-islanding es función de generación distribuida fotovoltaica. **NO** función de PaN. Función PaN: detección de tren (axle counters / track circuits / overlay) | Bloquear, alucinación semántica |
+| Mandato de química de batería específica (LiFePO₄, NMC, LiPO, Pb) en cuerpo de DT | Doctrina: *"Telecom availability SLA and electrical autonomy parameters have no contractual mandate; Ardanuy must propose and justify under EN 50126"*. Aplica también a química de batería | Bloquear, formular: *"Ardanuy propondrá y justificará bajo EN 50126 la química, autonomía y SLA"* |
+| Autonomía absoluta (4h, 48h, 24h, etc.) fijada en cuerpo de DT | Esos parámetros están propuestos por LFC en DBCD V002/V003 pendientes de no-objeción Interventoría. Doctrina: parámetros pendientes NO se formalizan en DTs (auto-imposición O&M 30 años) | Bloquear, dejar en DBCD |
+| Cita del **Checklist V3.5** (o cualquier doc interno LFC) en campo Fundamento de DT | Regla del formato: solo Contrato APP 001/2025 + Apéndices + normativa técnica externa. Documento interno NO puede "cerrar contractualmente" nada hacia Ardanuy/ANI | Bloquear, sustituir por cláusula contractual o normativa externa equivalente |
+| ENCE con nombres truncados: "Pto. Berrío", "La Dorada" | Nombres canónicos contractuales completos: **Puerto Berrío–Grecia**, **La Dorada–México**. (Zapatosa, García Cadena, Barrancabermeja sin sufijo, son nombres únicos) | Bloquear, exigir sufijos |
+| "122 Tipo A pasivos" como cantidad maestra del sistema SCC | Los 122 PaN básicos están **FUERA del alcance SCC** (BCD §8.2 + AT1 §4.5). Son responsabilidad UF≠SCC | Bloquear como "cantidad maestra"; mencionar solo como referencia "fuera de alcance" |
+| Paráfrasis presentada como literal en campo `[Texto literal]` del Fundamento | El formato exige cita entre comillas y verbatim del contrato/norma. Paráfrasis = rechazo automático | Bloquear, marcar paráfrasis como tal o citar verbatim |
+| Instrucción de "actualizar el DBCD V002" cuando V003 está en circulación | Versionado obsoleto crea ambigüedad | Verificar versión vigente del DBCD al momento de firma; ajustar referencia |
 
 ### 5.2 Validación
 Ejecutar grep de las citas catalogadas sobre la salida candidata. Si hay match, abortar y re-generar con prompt enriquecido por la vacuna correspondiente.
@@ -147,6 +157,15 @@ Si alguna respuesta es NO, emitir borrador en `brain/PENDING_DTS/` para revisió
 | "DT-SICC-V8-*" | Naming legacy v8 pre-purga |
 | "CAPEX Protegido $X M USD" | Cifra inventada sin trazabilidad WBS |
 | "Reglas de Juego" | Lenguaje doctrinal, usar "Decisiones Técnicas" |
+| "100% por la ANI" / "100% a cargo de la ANI" | Falsedad jurídica — §25.4 tiene precondiciones (adenda previa + régimen de fondos §25.4(f)) |
+| "exigida por terceros" en activación §9.12 | §9.12(b) habla de Autoridad Estatal, no terceros |
+| "detección de isla" en PaN | Anti-islanding es de fotovoltaica, no PaN. Alucinación semántica |
+| "LiFePO₄" / "química NMC/LiPO/Pb" como mandato | Química de batería la propone Ardanuy bajo EN 50126, no LFC en DT |
+| "autonomía 4h innegociables" / "48 horas continuas" como mandato | Parámetros DBCD pendientes de no-objeción, no se imponen en DT |
+| "Checklist V3.5" / "Checklist V3.X" / "OBS 10.X" en Fundamento de DT | Documento interno LFC, prohibido en DT formal |
+| "Pto. Berrío" / "Pto Berrío" / "La Dorada" sin sufijo | Nombres canónicos: **Puerto Berrío–Grecia**, **La Dorada–México** |
+| "122 Tipo A pasivos" como cantidad maestra SCC | Los 122 PaN básicos están fuera de alcance SCC (BCD §8.2) |
+| "Soberanía Técnica" como header de especialidad | Lenguaje doctrinal interno, usar "Lógica Vital del Sistema SCC" o equivalente |
 
 Cualquier match en el cuerpo de DT publicable → abortar y re-generar.
 
