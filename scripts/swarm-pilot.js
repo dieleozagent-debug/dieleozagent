@@ -235,8 +235,17 @@ Asunto: DIRECTRIZ TÉCNICA DE DISEÑO DT-[ESPEC]-[AÑO]-[SEQ]
 
         const agent1 = {
             name: "DIRECCIÓN TÉCNICA SICC",
+            // v14.8.2 (2026-05-08): cap aumentado de 8000 a 14000 chars.
+            // Razón: _LOOP_GUARD.md (15k) + CONTRACTUAL_NORMATIVE.md (15k) = 30k.
+            // Con cap 8000 se cargaba SOLO la mitad de _LOOP_GUARD y CONTRACTUAL no
+            // llegaba al prompt — el LLM no veía las vacunas DBC/AT4 (§4.8, §4.9 de
+            // CONTRACTUAL) y seguía alucinando "AT4 fibra" y "Documento Básico del
+            // Contrato" en el cuerpo del DT.
+            // Cap 14000 + identity (1.8k) + methodology (3.1k) + tarea + reglas
+            // ≈ 19k chars total. Groq llama-3.3-70b acepta hasta ~32k tokens input
+            // (~120k chars) → margen amplio.
             prompt: `### CONTEXTO CONTRACTUAL Y NORMATIVO DEL PROYECTO (ESPECIALIDAD: ${arg.toUpperCase()})
-${specialtyContext.substring(0, 8000)}
+${specialtyContext.substring(0, 14000)}
 
 ### IDENTIDAD Y METODOLOGÍA
 ${identitySicc}

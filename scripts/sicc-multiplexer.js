@@ -110,18 +110,19 @@ function getMultiplexedContext(userInput) {
   const specialty = detectSpecialty(userInput);
   const rHardContent = fs.readFileSync(RHARD_PATH, 'utf8');
 
-  // Vacunas transversales v14.8 (2026-05-08): se anexan SIEMPRE al contexto
+  // Vacunas transversales v14.8.2 (2026-05-08): se anexan SIEMPRE al contexto
   // para que el LLM las absorba en cada /audit, independiente de la especialidad.
-  // _LOOP_GUARD.md: anti-loop, anti-scratchpad, anti-firma versionada, lista de
-  //   alucinaciones catalogadas (100% ANI, detección de isla, Checklist V3.5,
-  //   paráfrasis Surcos, vinculante vía 2.209, mezcla SIL/FRA, ENCE truncados).
-  // CONTRACTUAL_NORMATIVE.md: doctrina DT, doble candado §25.4, §9.11 escenario
-  //   FENOCO, AF4 literal, Resolución de Surcos Art. 5°(1)(e) verbatim.
+  // ORDEN: CONTRACTUAL_NORMATIVE primero (vacunas críticas de citas contractuales:
+  // §4.8 Mapa Apéndices, §4.9 DBCD, §4.5 §9.11 FENOCO, §4.4 doctrina DT). Si el
+  // contexto se trunca a 14k chars en el prompt, al menos las vacunas más
+  // nuevas/relevantes contractualmente entran. _LOOP_GUARD va después porque sus
+  // patrones generales (anti-loop, scratchpad) son menos críticos que las citas
+  // contractuales correctas.
   const loopGuardPath = path.join(SPECIALTIES_DIR, '_LOOP_GUARD.md');
   const contractualPath = path.join(SPECIALTIES_DIR, 'CONTRACTUAL_NORMATIVE.md');
   const transversal = [
-    fs.existsSync(loopGuardPath) ? fs.readFileSync(loopGuardPath, 'utf8') : '',
-    fs.existsSync(contractualPath) ? fs.readFileSync(contractualPath, 'utf8') : ''
+    fs.existsSync(contractualPath) ? fs.readFileSync(contractualPath, 'utf8') : '',
+    fs.existsSync(loopGuardPath) ? fs.readFileSync(loopGuardPath, 'utf8') : ''
   ].filter(Boolean).join('\n\n---\n\n');
 
   if (!specialty) {
