@@ -108,7 +108,49 @@
 > 2. Si hay no conformidad de un entregable Ardanuy: radicar **NCM (No Conformidad Mayor)** vía ACC (Anexo de Comentarios y Correcciones), patrón `obs_snl.txt`. La plantilla validada está en `LFC-U2-CTSC-ED-SNL-IN-0001 sección 5.4.3`.
 > 3. Si insistes en una DT, debe ser estrictamente sobre el conflicto de jerarquía documental real (ej. AT1 Tabla 17 + Resolución 20243040046045 Art. 5 + Sección 9.11/9.12 vs. exigencias FENOCO de gateway lógico). Esa SÍ es DT con conflicto de prelación que resuelve.
 
-### 4.5 Marcos normativos por subsistema (corregir mezclas)
+### 4.5 §9.11 — Pilar contractual SEGUNDO (escenarios FENOCO / sistemas de terceros)
+
+> [!IMPORTANT]
+> **§9.11 (Ajuste de Especificaciones) NO es solo "ajuste de errores u omisiones".** Aplica también a **escenarios de incompatibilidad declarada con sistemas de terceros** — el caso paradigmático es FENOCO.
+>
+> **Doctrina §9.11(b)(ii):** en escenario de incompatibilidad con sistemas de terceros, el **costo recae en el Concesionario**, NO en ANI.
+>
+> **Doctrina §9.11(c)(ii):** prohíbe variación de retribución asociada al ajuste.
+
+**Implicancia operativa para DTs sobre FENOCO/integración con terceros:**
+
+✅ **Cita correcta** en cuerpo de DT relacionada con FENOCO:
+*"Cualquier modificación de Especificaciones Técnicas solicitada por la ANI, derivada de requerimiento de Autoridad Estatal o asociada a escenarios de incompatibilidad con sistemas de terceros, se tramitará por los cauces contractuales aplicables (Secciones 9.11, 9.12 y 25.4 del Contrato APP 001/2025) con sujeción a sus precondiciones y régimen de financiación, sin asunción anticipada de porcentajes ni de fuentes de pago."*
+
+❌ **PROHIBIDO** citar solo §9.12+§25.4 dejando §9.11 fuera cuando el conflicto involucra terceros — se omite el pilar que efectivamente protege al Concesionario contra exigencias de gateway. Si firmas eso y ANI invoca §9.11(b)(ii), pierdes el escudo.
+
+### 4.6 Resolución de Surcos — Art. 5°(1)(e) literal verificado
+
+> [!CAUTION]
+> **Texto literal verificado** del Art. 5°, numeral 1, literal e):
+> *"Compatibilidad con los sistemas de comunicación entre Material Rodante y centro de control, así como los sistemas de control activo en caso de que se encuentren instalados en la vía al momento de la solicitud"*.
+>
+> **El escudo real es la condicionalidad temporal y de instalación** ("en caso de que se encuentren instalados en la vía al momento de la solicitud") — excluye obligación de integrar con sistemas privados de terceros que no formen parte de la Infraestructura Ferroviaria Nacional administrada bajo este Contrato (caso FENOCO/ITCS Alstom).
+>
+> **PROHIBIDAS las paráfrasis interpretativas** que pierden el escudo condicional, como:
+> - ❌ *"se resuelve a bordo del tren y no exige la integración informática de Centros de Control"* (paráfrasis errada — Art. 5° NO dice "a bordo")
+> - ❌ *"la 'Compatibilidad Exitosa' se resuelve a bordo del tren"* (mismo error)
+>
+> Cualquier reescritura que pierda *"en caso de que se encuentren instalados en la vía al momento de la solicitud"* es alucinación catalogada.
+
+### 4.7 Sección 2.x del Contrato — definiciones, NO obligaciones operativas
+
+> [!WARNING]
+> **PROHIBIDO citar Secciones del Capítulo 2 (Definiciones) como "vinculantes" u "obligaciones operativas".** El Capítulo 2 establece definiciones; vincula operativamente vía las secciones del cuerpo del Contrato y los Apéndices que usan los términos definidos.
+>
+> **Caso paradigmático — Sección 2.209 (Resolución de Surcos):**
+> - §2.209 dice: *"'Resolución de Surcos': Es la Resolución 20243040046045 del 24 de septiembre de 2024 expedida por el Ministerio de Transporte..."* — **es definición**, no obligación.
+> - La vinculación operativa real está en **Sección 12.4 (Asignación de Surcos)** y demás secciones operativas que invocan el término.
+>
+> ❌ **PROHIBIDO:** *"Resolución de Surcos: Vinculante vía Sección 2.209"*
+> ✅ **Correcto:** *"Resolución 20243040046045 (Min. Transporte), incorporada al Contrato vía Sección 2.209 (definición) y operativizada vía Sección 12.4 (Asignación de Surcos) y demás secciones operativas que la invocan."*
+
+### 4.8 Marcos normativos por subsistema (corregir mezclas)
 
 | Subsistema | Marco rector | SIL / nivel funcional | EMC |
 |---|---|---|---|
