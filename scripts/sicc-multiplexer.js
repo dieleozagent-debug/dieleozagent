@@ -532,8 +532,7 @@ async function withTimeout(promise, ms, label) {
     ))
   ]);
 }
-
-const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+// `sleep` ya está declarado al inicio del archivo (línea 11) — reutilizar esa.
 
 async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt = null) {
   const sp = inyectarIdioma(systemPrompt);
