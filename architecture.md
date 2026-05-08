@@ -4,6 +4,16 @@ El **Agente** es un sistema autónomo de auditoría técnica y jurídica del pro
 
 > **Nota terminológica (2026-05-08):** este documento usa la sigla **SCC** (Sistema de Comunicación, Control de Tráfico y Señalización) tal como la define el **BCD v001** del contrato — alcance contractual UF2. Cualquier referencia residual a "SICC" en código/strings internos del agente es marca interna doctrinal del proyecto OpenGravity (no confundir con el SICC del AT4, que es el Sistema de Indicadores de Calidad/Cumplimiento).
 
+### 🔄 Cambios estructurales v14.8.8 (2026-05-08)
+
+1. **RAG purgado y re-vectorizado solo con BCD V001.** La tabla `contrato_documentos` pasó de 7,661 chunks (Contrato + 10 AT + DTs alucinados) a 286 chunks únicos (`BCD_SCC_v001_2026-04.md`). Razón: los `.md` del Contrato/Apéndices tienen huecos respecto a los PDFs originales y contaminaban el SSoT con alucinaciones. Para texto literal del Contrato/Apéndices, el agente debe consultar al **Oráculo NotebookLM** (PDFs sin huecos). `scripts/reinject_contract.js` ahora tiene **whitelist anclada** al BCD vigente; agregar otra fuente requiere justificación contractual explícita.
+
+2. **Anclaje del MCP pide cita separada por nivel.** `validarExternaNotebook` (`src/sapi/notebooklm_mcp.js`) prepende un anclaje de ~280 chars que pide al Oráculo identificar de qué documento viene cada sección — Contrato, Apéndice (AT1-AT10/AF1-AF4), o BCD — y NO mezclar numeración entre niveles. Razón: en DT-FIB-2026-001 (rechazado) el agente escribió *"AT1 §6.1.1 (BCD)"* — mezcla inexistente; §6.1.1 es del BCD, no del AT1.
+
+3. **Timeout MCP 90s → 240s.** Con prompt estructurado pidiendo separación por nivel, NotebookLM tarda 80-120s legítimamente. El antiguo 90s disparaba falso "Chrome atascado" cuando el Oráculo trabajaba bien.
+
+4. **Vacuna `CONTRACTUAL_NORMATIVE.md §4.12`.** Tabla de numeración propia por documento + ejemplos prohibidos catalogados. Cobertura: se inyecta vía `sicc-multiplexer.js:getMultiplexedContext` que es invocado por **todos** los flujos LLM del agente (`/audit`, `/dream`, `/swarm`, `/karpathy`, mensajes libres).
+
 ---
 
 ## 🏛️ FUENTE DE VERDAD SUPREMA (SSoT)

@@ -1,7 +1,9 @@
-# 🧠 Agente SICC v14.8.4 — Auditor Forense Contractual
+# 🧠 Agente SICC v14.8.8 — Auditor Forense Contractual
 
 **Cerebro forense para el Proyecto LFC2 (La Dorada–Chiriguaná)**
-Genera **Decisiones Técnicas (DT)** auditadas contra el Contrato APP No. 001 de 2025, sus Apéndices y las Bases de Diseño internas. Las DT aprobadas se promueven al repo LFC2 y se publican en Vercel.
+Genera **Decisiones Técnicas (DT)** auditadas contra el Contrato APP No. 001 de 2025, sus Apéndices y el documento "Bases de Diseño - CTSC (2)" (BCD V001 abril 2026). Las DT aprobadas se promueven al repo LFC2 y se publican en Vercel.
+
+> **Cambios v14.8.8 (2026-05-08):** RAG `contrato_documentos` purgado completo (7,661 → 286 chunks) y re-vectorizado SOLO con BCD V001 (decisión Diego: los .md del Contrato/Apéndices tienen huecos vs PDFs originales). Anclaje del MCP NotebookLM pide al Oráculo cita SEPARADA por nivel (Contrato / Apéndices / BCD) para evitar mezclas tipo "AT1 §6.1.1 (BCD)". Timeout MCP subido de 90s a 240s — la pregunta estructurada tarda más legítimamente.
 
 > **Nota terminológica:** la sigla del sistema en cara externa es **SCC** (Sistema de Comunicación, Control de Tráfico y Señalización — sigla contractual del BCD v001). "SICC" se reserva como marca interna del agente y NO debe aparecer en DTs publicados — colisiona con el SICC del AT4 (Sistema de Indicadores).
 
