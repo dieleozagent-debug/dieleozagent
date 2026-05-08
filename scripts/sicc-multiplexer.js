@@ -347,7 +347,10 @@ async function llamarNvidiaModel(modelo, mensajeUsuario, _archivoTmp, contextoRA
       timeout: 120000 // 2 minutos de gracia
     });
 
-    return response.data.choices[0].message.content;
+    // Fallback: NVIDIA Nemotron es modelo de razonamiento — el thinking puede ocupar
+    // todo max_tokens y dejar 'content' vacío. Caer a 'reasoning_content' si aplica.
+    const msg = response.data.choices[0].message;
+    return msg.content || msg.reasoning_content || '';
   } catch (err) {
     const status = err.response ? err.response.status : 'ECONN';
     const detail = err.response ? JSON.stringify(err.response.data) : err.message;
@@ -503,17 +506,51 @@ function proveedorBloqueadoReciente(id) {
   return bloqueado;
 }
 
+// v14.8: Timeouts explícitos por proveedor (ms). Ajustados al perfil de cada uno.
+// Si el SDK del proveedor ya tiene un timeout interno menor, prevalece el menor.
+const PROVIDER_TIMEOUTS = {
+  groq:       15000,  // 15s — Groq es rápido, si tarda más es problema
+  gemini:     30000,  // 30s — Gemini suele responder en 5-15s
+  deepseek:   60000,  // 60s — modelo grande, pero rápido
+  openrouter: 60000,  // 60s — depende del provider downstream
+  nvidia:     90000,  // 90s — Nemotron es razonador, puede tardar
+  nemotron:   90000,  // 90s — idem
+  // ollama ya tiene 45000 hardcoded en su función
+};
+
+// v14.8: Throttle entre intentos de cascada (ms). Evita saturar APIs free que
+// cuentan requests/segundo. NO aplica al primer intento.
+const CASCADE_THROTTLE_MS = 400;
+
+// Envoltura genérica por Promise.race para forzar timeout independiente del SDK.
+async function withTimeout(promise, ms, label) {
+  return Promise.race([
+    promise,
+    new Promise((_, rej) => setTimeout(
+      () => rej(new Error(`[TIMEOUT] ${label} excedió ${ms}ms`)),
+      ms
+    ))
+  ]);
+}
+
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
 async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt = null) {
   const sp = inyectarIdioma(systemPrompt);
 
   const proveedoresFree = [
-    { id: 'nvidia',     fn: async (q, a, ctx, h, s) => llamarNvidia(q, a, ctx, s) }, // DeepSeek Pro
-    { id: 'nemotron',   fn: async (q, a, ctx, h, s) => llamarNemotron(q, a, ctx, s) }, // Nemotron Fallback
-    { id: 'gemini',     fn: async (q, a, ctx, h, s) => llamarGemini(q, a, ctx, s) },
-    { id: 'groq',       fn: async (q, a, ctx, h, s) => llamarGroq(q, a, ctx, s) },
-    { id: 'ollama',     fn: llamarOllama },
-    { id: 'openrouter', fn: async (q, a, ctx, h, s) => llamarOpenRouter(q, a, ctx, s, 'openrouter/free') },
-    { id: 'deepseek',   fn: async (q, a, ctx, h, s) => llamarDeepSeek(q, a, ctx, s) }, // 🔴 Blocker final
+    // Orden v14.8 (2026-05-08): proveedores que SÍ responden directo van primero.
+    // Diagnóstico: GROQ y DEEPSEEK respondieron a saludo directo via curl.
+    // GEMINI: 429 free tier agotado. OPENROUTER: 429 upstream Venice.
+    // NVIDIA Nemotron: razonador, riesgo de scratchpad si max_tokens corta el thinking
+    // antes de la respuesta final — ahora lee reasoning_content como fallback.
+    { id: 'groq',       fn: async (q, a, ctx, h, s) => llamarGroq(q, a, ctx, s) },         // ✅ responde directo
+    { id: 'deepseek',   fn: async (q, a, ctx, h, s) => llamarDeepSeek(q, a, ctx, s) },     // ✅ responde directo
+    { id: 'gemini',     fn: async (q, a, ctx, h, s) => llamarGemini(q, a, ctx, s) },        // ⚠️ 429 mientras tanto
+    { id: 'nvidia',     fn: async (q, a, ctx, h, s) => llamarNvidia(q, a, ctx, s) },        // razonador (DeepSeek Pro)
+    { id: 'nemotron',   fn: async (q, a, ctx, h, s) => llamarNemotron(q, a, ctx, s) },      // razonador (Nemotron)
+    { id: 'ollama',     fn: llamarOllama },                                                  // local fallback
+    { id: 'openrouter', fn: async (q, a, ctx, h, s) => llamarOpenRouter(q, a, ctx, s, 'openrouter/free') }, // 429 upstream
   ];
 
   // Mapa de verificación de disponibilidad por proveedor
@@ -524,6 +561,7 @@ async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt 
   }
 
   let lastErr = null;
+  let intentosReales = 0; // para throttle solo entre intentos efectivos
   for (const p of proveedoresFree) {
     // Skip si no tiene credenciales configuradas
     if (!proveedorDisponible(p.id)) {
@@ -537,25 +575,43 @@ async function llamarMultiplexadorFree(pregunta, contextoRAG = '', systemPrompt 
       continue;
     }
 
+    // v14.8: Throttle entre intentos efectivos (no aplica al primero)
+    if (intentosReales > 0) {
+      await sleep(CASCADE_THROTTLE_MS);
+    }
+    intentosReales++;
+
+    const t0 = Date.now();
+    const timeoutMs = PROVIDER_TIMEOUTS[p.id] || 60000;
     try {
-      console.log(`[GATEWAY-AHORRO] 💸 Intentando: ${p.id.toUpperCase()}...`);
-      const respuesta = await p.fn(pregunta, null, contextoRAG, null, sp);
+      console.log(`[GATEWAY-AHORRO] 💸 Intentando: ${p.id.toUpperCase()} (timeout ${timeoutMs}ms)...`);
+      const respuesta = await withTimeout(
+        p.fn(pregunta, null, contextoRAG, null, sp),
+        timeoutMs,
+        p.id.toUpperCase()
+      );
+      const dt = Date.now() - t0;
       if (respuesta && respuesta.length > 10) { // Validar respuesta mínima sustantiva
+        console.log(`[GATEWAY-AHORRO] ✅ ${p.id.toUpperCase()} OK en ${dt}ms (${respuesta.length} chars)`);
         registrarTrazaSICC(pregunta, p.id, contextoRAG);
         return { texto: respuesta, proveedor: p.id };
       }
-      console.warn(`[GATEWAY-AHORRO] ⚠️  ${p.id.toUpperCase()} devolvió respuesta vacía o insuficiente. Continuando...`);
+      const preview = (respuesta || '').slice(0, 120).replace(/\n/g, ' ');
+      console.warn(`[GATEWAY-AHORRO] ⚠️  ${p.id.toUpperCase()} devolvió ${respuesta?.length || 0} chars en ${dt}ms. Preview: "${preview}". Continuando...`);
     } catch (err) {
+      const dt = Date.now() - t0;
       lastErr = err;
       const code = extraerCodigoError(err);
       if (code) registrarError4xx(code, p.id, err.message);
-      
-      if (code === 429) {
-        console.warn(`[GATEWAY-AHORRO] 🔴 ${p.id.toUpperCase()} cuota agotada (429). MARCANDO BLOQUEO TEMPORAL.`);
+
+      if (err.message?.startsWith('[TIMEOUT]')) {
+        console.warn(`[GATEWAY-AHORRO] ⏱️  ${p.id.toUpperCase()} TIMEOUT en ${dt}ms (cap ${timeoutMs}ms). Continuando...`);
+      } else if (code === 429) {
+        console.warn(`[GATEWAY-AHORRO] 🔴 ${p.id.toUpperCase()} cuota agotada (429) en ${dt}ms. MARCANDO BLOQUEO TEMPORAL.`);
         // Forzar registro inmediato para que el siguiente intento lo salte
         registrarError4xx(429, p.id, "Auto-bloqueo preventivo");
       } else {
-        console.warn(`[GATEWAY-AHORRO] [SICC WARN] Fallo en ${p.id} (${code || 'ERR'}): ${err.message}`);
+        console.warn(`[GATEWAY-AHORRO] [SICC WARN] Fallo en ${p.id} (${code || 'ERR'}) en ${dt}ms: ${err.message}`);
       }
     }
   }
