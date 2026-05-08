@@ -321,9 +321,15 @@ async function llamarNvidiaModel(modelo, mensajeUsuario, _archivoTmp, contextoRA
   const url = `${config.ai.nvidia.baseUrl}/chat/completions`;
   
   // Prompt Destilado para NVIDIA NIM (Free Tier Payload Limit)
+  // v14.8.2 (2026-05-08): cap aumentado 5000 → 12000.
+  // Razón: con cap 5000, las vacunas transversales (CONTRACTUAL_NORMATIVE 15.7k +
+  // _LOOP_GUARD 15.2k) se cortan al 33%, dejando la mayoría de hard-blocks fuera.
+  // Si Groq cae y la cascada llega a NVIDIA, queremos que el modelo razonador reciba
+  // al menos las vacunas críticas contractuales (§4.8 Mapa AT, §4.9 DBCD).
+  // 12000 chars ≈ 3000 tokens, dentro del límite NVIDIA NIM free tier.
   const spBase = systemPrompt || agentContext.getPromptFast();
-  const spDestilado = spBase.length > 5000 
-    ? spBase.substring(0, 5000) + "\n[TRUNCADO PARA NVIDIA NIM]"
+  const spDestilado = spBase.length > 12000
+    ? spBase.substring(0, 12000) + "\n[TRUNCADO PARA NVIDIA NIM]"
     : spBase;
     
   const sp = inyectarIdioma(spDestilado);

@@ -340,7 +340,12 @@ ${borrador_DT}
             }
             
             // --- PARSER DE TEXTO CRUDO (Heurística de Soberanía) ---
-            let decision = { aprobado: false, razon: decisionRAW.substring(0, 500), mandato_correctivo: "Revisar mandatos." };
+            // v14.8.2 (2026-05-08): razón truncada a 2000 chars (antes 500).
+            // Razón: con 500, perdíamos el detalle del veredicto del Juez, lo que
+            // hacía que la lección que se inyectaba al ciclo siguiente fuera vaga
+            // ("Revisar mandatos."). Con 2000, el ciclo 2 y 3 reciben razones
+            // detalladas y pueden corregir errores específicos.
+            let decision = { aprobado: false, razon: decisionRAW.substring(0, 2000), mandato_correctivo: "Revisar mandatos." };
             
             const rawUpper = decisionRAW.toUpperCase();
             
@@ -360,7 +365,9 @@ ${borrador_DT}
                 console.log(`[JUEZ] ❌ Veredicto detectado: RECHAZADO (o ambiguo).`);
                 // Intentar capturar la razón del rechazo (si existe un mandato correctivo)
                 const correctivoMatch = decisionRAW.match(/MANDATO CORRECTIVO:\s*([\s\S]*)/i);
-                if (correctivoMatch) decision.mandato_correctivo = correctivoMatch[1].substring(0, 500).trim();
+                // v14.8.2: cap del mandato correctivo aumentado 500 → 2000 chars
+                // (igual razón que decision.razon — más detalle al ciclo siguiente)
+                if (correctivoMatch) decision.mandato_correctivo = correctivoMatch[1].substring(0, 2000).trim();
             }
             console.log(`⚖️ VEREDICTO: ${decision.aprobado ? '✅ APROBADO' : '❌ RECHAZADO'}`);
             console.log(`   Razón: ${decision.razon || 'No especificada'}`);
