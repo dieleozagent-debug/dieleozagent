@@ -109,20 +109,33 @@ function detectSpecialty(text) {
 function getMultiplexedContext(userInput) {
   const specialty = detectSpecialty(userInput);
   const rHardContent = fs.readFileSync(RHARD_PATH, 'utf8');
-  
+
+  // Vacunas transversales v14.8 (2026-05-08): se anexan SIEMPRE al contexto
+  // para que el LLM las absorba en cada /audit, independiente de la especialidad.
+  // _LOOP_GUARD.md: anti-loop, anti-scratchpad, anti-firma versionada, lista de
+  //   alucinaciones catalogadas (100% ANI, detección de isla, Checklist V3.5,
+  //   paráfrasis Surcos, vinculante vía 2.209, mezcla SIL/FRA, ENCE truncados).
+  // CONTRACTUAL_NORMATIVE.md: doctrina DT, doble candado §25.4, §9.11 escenario
+  //   FENOCO, AF4 literal, Resolución de Surcos Art. 5°(1)(e) verbatim.
+  const loopGuardPath = path.join(SPECIALTIES_DIR, '_LOOP_GUARD.md');
+  const contractualPath = path.join(SPECIALTIES_DIR, 'CONTRACTUAL_NORMATIVE.md');
+  const transversal = [
+    fs.existsSync(loopGuardPath) ? fs.readFileSync(loopGuardPath, 'utf8') : '',
+    fs.existsSync(contractualPath) ? fs.readFileSync(contractualPath, 'utf8') : ''
+  ].filter(Boolean).join('\n\n---\n\n');
+
   if (!specialty) {
-    console.log('[MULTIPLEXER] No se detectó especialidad específica. Usando R-HARD Core.');
-    return rHardContent;
+    console.log('[MULTIPLEXER] No se detectó especialidad. Usando R-HARD + vacunas transversales.');
+    return [transversal, rHardContent].filter(Boolean).join('\n\n---\n\n');
   }
 
   const specPath = path.join(SPECIALTIES_DIR, `${specialty}.md`);
   if (fs.existsSync(specPath)) {
-    console.log(`[MULTIPLEXER] 🎯 Especialidad detectada: ${specialty}`);
-    // Los archivos de especialidad ya contienen R-HARD en el header
-    return fs.readFileSync(specPath, 'utf8');
+    console.log(`[MULTIPLEXER] 🎯 Especialidad detectada: ${specialty} (+ vacunas transversales)`);
+    return [transversal, fs.readFileSync(specPath, 'utf8')].filter(Boolean).join('\n\n---\n\n');
   }
 
-  return rHardContent;
+  return [transversal, rHardContent].filter(Boolean).join('\n\n---\n\n');
 }
 
 async function llamarGemini(mensajeUsuario, archivoTmpInfo, contextoRAG = '', systemPrompt = null) {
