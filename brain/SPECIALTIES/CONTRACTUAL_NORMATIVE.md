@@ -224,5 +224,36 @@ Sobre la cantidad de hilos de fibra óptica para el corredor LFC2 (526 km):
 > - "CISPR 22:2008 / CISPR 24:2010 para equipo embarcado" → mezcla. Esas normas son ITE estacionario. Para embarcado: **EN 50121-3-2**.
 > - "ITU-T G.652.D para enlaces de backbone en DT EMBARCADO" → mezcla. G.652.D es backbone wayside. Embarcado usa TETRA/satelital/celular.
 
+### 4.12 Numeración de cada documento (NO mezclar AT con secciones del BCD)
+
+> [!CAUTION]
+> **Cada documento contractual tiene su propia numeración interna y no es transferible a otro.** Mezclar el nombre del Apéndice con un número de sección que pertenece al BCD (o viceversa) es alucinación catalogada — apareció en el borrador DT-FIB-2026-001 (rechazado 2026-05-08).
+
+**Cómo citar correctamente:**
+
+| Documento | Numeración propia | Ejemplo de cita correcta |
+|---|---|---|
+| Cuerpo del Contrato APP 001/2025 | §1.2(d), §3.1(a)(ii), §9.11(b)(ii), §9.12(a), §25.4(b), §25.4(f) | *"Sección 9.12(a) del Contrato APP 001/2025"* |
+| AT1 | Tabla 17, §4.5 (PaN), Cap. V (Material Rodante) | *"AT1 Tabla 17"*, *"AT1 §4.5"* |
+| AT3 | Cap. I lit. c, §6.4 (fibra), §6.5 (TETRA) | *"AT3 §6.4"*, *"AT3 Cap. I lit. c"* |
+| AT4 | KPIs RAMS, MTBF/MTTR | *"AT4 §X.Y RAMS"* |
+| BCD/DBCD V001 (abril 2026) | §1.2 (Alcance), §6.1.1 (Fibra), §6.2 (TETRA), §10.1–10.6 (Energía) | *"BCD §6.1.1"*, *"DBCD V001 §10.5"* |
+
+> [!WARNING]
+> **Ejemplos de mezcla PROHIBIDA (alucinación):**
+>
+> - ❌ *"AT1 — Alcance Físico, Sección 6.1.1 (BCD)"* → mezcla. §6.1.1 es del BCD, no del AT1. AT1 NO tiene §6.1.1.
+> - ❌ *"AT3 §10.5 (Energía TETRA)"* → §10.5 es del BCD, no del AT3.
+> - ❌ *"BCD Tabla 17"* → Tabla 17 es del AT1, no del BCD.
+> - ❌ *"Contrato §6.1.1"* → el cuerpo del Contrato no tiene §6.1.1; esa numeración es del BCD.
+
+**Cómo separar correctamente cuando un mandato técnico tiene origen en dos niveles:**
+
+> ✅ *"La obligación general de fibra óptica para el corredor se deriva del **AT1 (Alcance del Proyecto)**. La especificación técnica de **48 hilos monomodo G.652.D** está fijada en el **BCD V001 §6.1.1**, que opera como criterio rector subordinado al AT1 conforme la jerarquía documental de §1.2(d) del Contrato."*
+>
+> ❌ *"AT1 §6.1.1 (BCD): 48 hilos"* — mezcla los tres niveles en una sola cita inexistente.
+
+**Por qué importa:** Interventoría/ANI puede objetar una DT por cita incorrecta de Apéndice (R-HARD-04: cita normativa no verificable). El RAG local solo tiene el BCD; las citas a AT1/AT3/AT4 deben ser conservadoras y verificables contra los Apéndices reales (vía Oráculo NotebookLM si hay duda).
+
 ---
-**Generado por la Dirección Técnica LFC — v14.8**
+**Generado por la Dirección Técnica LFC — v14.8.7**
