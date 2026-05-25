@@ -228,6 +228,17 @@ Asunto: DIRECTRIZ TÉCNICA DE DISEÑO DT-[ESPEC]-[AÑO]-[SEQ]
 
 3. CIERRE OPERATIVO
 [Instrucción para actualizar el DBCD, Anexo de Cantidades o Planos. Consecuencia de incumplimiento.]
+
+10. YAML EJECUTABLE
+\`\`\`yaml
+items_wbs_afectados:
+  - id_wbs: "[código WBS]"
+    accion: "[MODIFICAR | CREAR | ELIMINAR]"
+    descripcion: "[descripción corta]"
+archivos_actualizar:
+  - ruta: "[ruta del archivo]"
+    motivo: "[motivo de la actualización]"
+\`\`\`
 `;
         const promptFase1 = ciclosRealizados === 1 
             ? `### TAREA DE INVESTIGACIÓN (DECANTACIÓN INICIAL)\n${contextoGenetico}Genera una Decisión Técnica (DT) vinculante sobre el área de ${arg} para el Proyecto SICC. Usa OBLIGATORIAMENTE el formato siguiente:\n${dtFormatTemplate}`
@@ -315,6 +326,7 @@ Tu única misión es RECHAZAR cualquier dictamen que contenga alucinaciones, per
 14. RECHAZAR si cita el "WBS v2.9" (el único válido es WBS v3.0).
 15. RECHAZAR si el dictamen usa excusas de "falta de claridad" (Sección 3.9(a)(v)).
 16. RECHAZAR (solo en dictámenes de SEÑALIZACIÓN o ENCE) si no cita la flota real: GR12, U10 o U18.
+17. RECHAZAR si el dictamen omite la Sección "10. YAML EJECUTABLE" o si ésta no contiene un bloque de código yaml válido con items_wbs_afectados y archivos_actualizar.
 
 ### TEXTO A EVALUAR:
 ${borrador_DT}
