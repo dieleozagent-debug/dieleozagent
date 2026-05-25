@@ -130,6 +130,7 @@ Y en el access-grid principal, restaurar la card amarilla. Cache bump.
 
 | Ítem | Descripción |
 |---|---|
+| **Ingesta local de Normativas LFC (Ollama)** | Ejecutar la ingesta optimizada de la carpeta `docs/00_Referencia_Normativa_Contractual_LFC/` (11,016 págs restantes) en 2 fases: Fase 1 (1.5 horas, 22 PDFs pequeños/medianos) y Fase 2 (37 horas, 3 PDFs gigantes en background) usando el nuevo pipeline local sin sleeps. |
 | **Falta YAML EJECUTABLE en DTs (Sección 10)** | Las DTs generadas (ej. `DT-ENRG-2026-001`) se emiten sin el bloque YAML (Sección 10) requerido por la metodología `.42` de LFC2. Esto bloquea que la DT interactúe con el repositorio y el comando `/promote` queda desconectado del WBS. Requiere ajuste urgente en el prompt del Agente. **Cruzado con `LFC2/roadmap.md` (Deuda D0).** |
 | **Validación en producción v14.7** | Emitir primer DT con enjambre post-cirugía y validar contra los 13 ajustes de v14.7. |
 | **`/promote` DT→LFC2** | Comando que copia DT de `brain/dictamenes/` → LFC2 + git commit automático. Usa `src/gitlocal.js`. |

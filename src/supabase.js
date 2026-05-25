@@ -30,7 +30,20 @@ const pool = new Pool(dbConfig);
  * Obtener Vector Embedding de un texto usando Ollama LOCAL
  */
 async function obtenerEmbedding(texto) {
-    // 1. Intentar Cloud Gemini (Calidad Forense)
+    // 1. Intentar Ollama Local (Soberanía Local y Alta Velocidad)
+    try {
+        const host = config.ai.ollama.host;
+        const response = await axios.post(`${host}/api/embeddings`, {
+            model: "nomic-embed-text:latest",
+            prompt: texto
+        }, { timeout: 15000 });
+        
+        return response.data.embedding;
+    } catch (localErr) {
+        console.warn(`[SUPABASE] ⚠️ Ollama Local falló (${localErr.message}). Rebotando a Cloud Gemini como fallback...`);
+    }
+
+    // 2. Fallback de emergencia a Cloud Gemini (Calidad Forense)
     try {
         const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
         const result = await model.embedContent(texto);
@@ -40,20 +53,7 @@ async function obtenerEmbedding(texto) {
         }
         console.warn(`[SUPABASE] [SICC WARN] Gemini devolvió ${vector.length} dimensiones.`);
     } catch (e) {
-        console.warn(`[SUPABASE] ⚠️ Cloud Gemini falló (${e.message}). Rebotando a Ollama Local...`);
-    }
-
-    // 2. Fallback a Ollama Local (Soberanía Local)
-    try {
-        const host = config.ai.ollama.host;
-        const response = await axios.post(`${host}/api/embeddings`, {
-            model: "nomic-embed-text:latest",
-            prompt: texto
-        }, { timeout: 15000 }); // Timeout más corto para no bloquear
-        
-        return response.data.embedding;
-    } catch (localErr) {
-        console.error(`[SUPABASE] [SICC FAIL] Error final en Embeddings: ${localErr.message}`);
+        console.error(`[SUPABASE] [SICC FAIL] Error final en Embeddings: ${e.message}`);
     }
 
     throw new Error("Ningún modelo de embeddings respondió satisfactoriamente.");

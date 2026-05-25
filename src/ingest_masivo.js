@@ -128,7 +128,7 @@ async function run() {
                                             const vector = await obtenerEmbedding(fragmento);
                                             await insertarFragmento(`[BIBLIA-LEGAL] ${archivo}`, fragmento, vector);
                                             process.stdout.write('.');
-                                            await sleep(1000); 
+                                            await sleep(50); 
                                         } catch (e) {
                                             console.error(`\n      [SICC WARN] Error en pág ${pageNum}: ${e.message}`);
                                         }
