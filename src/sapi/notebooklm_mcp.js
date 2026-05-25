@@ -1,6 +1,7 @@
 const { Client } = require('@modelcontextprotocol/sdk/client/index.js');
 const { SSEClientTransport } = require('@modelcontextprotocol/sdk/client/sse.js');
 const { execSync } = require('child_process');
+const http = require('http');
 
 const MCP_CONNECT_TIMEOUT_MS = 20000;
 // v14.8.8 (2026-05-08): 240s. Con anclaje pidiendo cita separada por nivel
@@ -24,12 +25,35 @@ async function resetOracle() {
   // Reinicia el contenedor completo — matar solo Chrome deja el MCP server en estado roto
   if (mcpClient) { try { await mcpClient.close(); } catch (_) {} }
   mcpClient = null;
-  try {
-    execSync('docker restart notebooklm-mcp-v12', { timeout: 30000 });
-    console.log('[SAPI NotebookLM] Contenedor Oracle reiniciado.');
-  } catch (e) {
-    console.error('[SAPI NotebookLM] Fallo al reiniciar contenedor Oracle:', e.message);
-  }
+  
+  return new Promise((resolve) => {
+    const options = {
+      socketPath: '/var/run/docker.sock',
+      path: '/v1.41/containers/notebooklm-mcp-v12/restart',
+      method: 'POST'
+    };
+    const req = http.request(options, (res) => {
+      let data = '';
+      res.on('data', (chunk) => data += chunk);
+      res.on('end', () => {
+        if (res.statusCode === 204 || res.statusCode === 200) {
+          console.log('[SAPI NotebookLM] Contenedor Oracle reiniciado vía unix socket.');
+          resolve(true);
+        } else {
+          console.error(`[SAPI NotebookLM] Fallo al reiniciar contenedor (Status Code: ${res.statusCode}):`, data);
+          resolve(false);
+        }
+      });
+    });
+    
+    req.on('error', (err) => {
+      console.error('[SAPI NotebookLM] Error al comunicarse con docker socket:', err.message);
+      resolve(false);
+    });
+    
+    req.write('');
+    req.end();
+  });
 }
 
 async function initMCP() {
