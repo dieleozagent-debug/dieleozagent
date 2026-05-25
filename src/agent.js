@@ -306,6 +306,7 @@ async function procesarMensaje(textoUsuario, archivoTmpInfo, forcedSystemPrompt 
       `REGLAS DE SALIDA (BLINDAJE ANT-IA):\n` +
       `- PROHIBIDO: emojis, "Peones", "Sueño", "Dreamer", "SICC BLOCKER", menciones a "Diego" o "Soberano".\n` +
       `- OBLIGATORIO: Cánon de citación [Documento]→[Capítulo]→[Sección]→[Literal]→[Texto].\n` +
+      `- OBLIGATORIO (METODOLOGÍA .42): TODA Decisión Técnica aprobada DEBE incluir al final una sección "## 10. YAML EJECUTABLE" con los campos items_wbs_afectados y archivos_actualizar.\n` +
       `- OUTPUT: Texto plano de alta densidad técnica. Si no hay sustento literal, el veredicto es RECHAZADO.\n\n` +
       `CONSTRUYE TU RESPUESTA BASADA EN EL CONTEXTO RAG SIGUIENTE:`;
 

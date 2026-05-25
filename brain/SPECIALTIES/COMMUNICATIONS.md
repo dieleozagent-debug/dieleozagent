@@ -2,12 +2,12 @@
 ## RED TRONCAL Y REDUNDANCIA SATELITAL
 
 > [!IMPORTANT]
-> **MANDATO DE INFRAESTRUCTURA:** La red troncal es estrictamente **lineal de fibra óptica (64 hilos G.652.D)**. Prohibida la topología de anillo redundante (G.8031). Las microondas terrestres están proscritas como medio primario o secundario. La redundancia tren-tierra se resuelve mediante arquitectura híbrida embarcada (satélite + celular SD-WAN), legalmente habilitada por **FRA 49 CFR §236.1033**.
+> **MANDATO DE INFRAESTRUCTURA:** La red troncal es estrictamente **lineal de fibra óptica (48 hilos G.652.D)**. Prohibida la topología de anillo redundante (G.8031). Las microondas terrestres están proscritas como medio primario o secundario. La redundancia tren-tierra se resuelve mediante arquitectura híbrida embarcada (satélite + celular SD-WAN), legalmente habilitada por **FRA 49 CFR §236.1033**.
 
 ---
 
 ## 1. MEDIOS DE TRANSMISIÓN (TRIPLE CAPA)
-- **Capa Primaria (Backbone):** Red troncal lineal enterrada de **exactamente sesenta y cuatro (64) hilos monomodo G.652.D**. Soporta CCTV, SCADA y datos vitales.
+- **Capa Primaria (Backbone):** Red troncal lineal enterrada de **exactamente cuarenta y ocho (48) hilos monomodo G.652.D**. Soporta CCTV, SCADA y datos vitales.
 - **Capa Inalámbrica (Voz/Datos):** Sistema **TETRA** (estándar ETSI). Torres dimensionadas exclusivamente para antenas TETRA.
 - **Capa de Redundancia Embarcada:** Enlace híbrido **satelital LEO/GEO + GSM/LTE** mediante ruteo SD-WAN. **Latencia round-trip admisible: hasta tres (3) segundos**, conforme principio Fail-Safe del PTC.
 - **Prohibición:** Queda prohibido el diseño de torres de microondas terrestres (MW) para redundancia tren-tierra. La FRA no exige determinismo terrestre; ampara expresamente las redes inalámbricas abiertas bajo §236.1033.
@@ -33,14 +33,14 @@
 ---
 
 ## 3. MECANISMOS DE DEFENSA PATRIMONIAL
-- **Over-engineering:** Cualquier exigencia de redundancia física adicional (anillos dobles, microondas terrestres, capacidad superior a 64 hilos, latencia inferior a 3 segundos garantizada por enlaces terrestres) activa la **Sección 9.12** y se tramita exclusivamente como **Obra y Equipo Complementario (Sección 25.4)**.
+- **Over-engineering:** Cualquier exigencia de redundancia física adicional (anillos dobles, microondas terrestres, capacidad superior a 48 hilos, latencia inferior a 3 segundos garantizada por enlaces terrestres) activa la **Sección 9.12** y se tramita exclusivamente como **Obra y Equipo Complementario (Sección 25.4)**.
 - **Argumento del determinismo:** Cualquier argumento de Ardanuy o Interventoría que exija canales terrestres "deterministas" se destruye con el literal §236.1033(a) — la FRA permite redes inalámbricas bajo integridad criptográfica, sin imponer determinismo terrestre.
 - **Jurisdicción:** Prohibido citar contratos de consultoría externos en líneas base hacia ANI/Interventoría.
 
 ---
 
 ## 🏗️ INFRAESTRUCTURA FÍSICA (OSP) — v14.7
-- **Capacidad Troncal:** Exactamente **64 hilos G.652.D**. Prohibido el uso de "como mínimo" o redacción que abra a sobredimensionamiento.
+- **Capacidad Troncal:** Exactamente **48 hilos G.652.D**. Prohibido el uso de "como mínimo" o redacción que abra a sobredimensionamiento.
 - **Protección Civil:** Soterramiento con **placa de concreto antivandálica** (Mandato AT1).
 - **Estándares de Pruebas:** **ANSI/ICEA S-87-640** y **Telcordia GR-20-CORE Issue 2**.
 - **OTDR/OLTS obligatorio:** Pruebas en las **tres ventanas: 1310 nm, 1550 nm y 1625 nm** (la última es indispensable para detección de macrocurvaturas; las dos primeras certifican operación normal).
@@ -57,3 +57,6 @@
 
 ---
 **Generado por la Dirección Técnica LFC - Sistema SICC v14.7**
+
+> [!WARNING] **AUDIT_LESSON (SICC v14.0 - 2026-05-08T19:53:21.061Z):**
+> Revisar mandatos.

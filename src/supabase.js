@@ -12,11 +12,14 @@ const fs = require('fs');
 const isDocker = fs.existsSync('/.dockerenv');
 
 const dbConfig = {
-    host: process.env.DB_HOST || 'sicc-postgres',
+    host: (function() {
+        const fs = require('fs');
+        return fs.existsSync('/.dockerenv') ? 'sicc-postgres' : '127.0.0.1';
+    })(),
     port: parseInt(process.env.DB_PORT) || 5432,
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || 'postgres',
-    database: process.env.DB_NAME || 'postgres'
+    user: process.env.DB_USER || 'sicc_app',
+    password: process.env.DB_PASSWORD || 's3cur3P@ssw0rd',
+    database: process.env.DB_NAME || 'postgres_sicc'
 };
 
 // dbConfig ya toma DB_HOST de las variables de entorno

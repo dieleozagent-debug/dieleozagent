@@ -31,3 +31,8 @@
 - **INGESTA:** 🟠 En Proceso (Michelin v7.2 activo). >19 fragmentos inyectados.
 - **SANEAMIENTO:** ✅ Blindaje R-HARD-05 recalibrado para comandos /dream.
 - **AUDITORÍA:** ✅ Visión recuperada. Reporte Matutino funcional.
+
+### [SICC BLOCKER] BLOQUEO DE FIRMA (2026-04-28T16:54:17.732Z)
+- **Consulta:** centro de control
+- **Error:** Respuesta vacía o inválida del multiplexer
+- **Acción Requerida:** Autorizar Sonnet o resolver manual.
